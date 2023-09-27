@@ -54,7 +54,6 @@ INSTALLED_APPS = [
 	'colorfield',
 
 	'modeltranslation',
-	'django_json_widget',
 	'tinymce',
 
 	'django.contrib.admin',
