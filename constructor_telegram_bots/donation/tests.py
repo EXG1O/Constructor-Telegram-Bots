@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.http import HttpResponse
 from django import urls
 
-from .models import *
+from .models import Donation, DonationSection
 
 from datetime import datetime
 
@@ -13,7 +13,7 @@ class DonationModelTests(TestCase):
 		self.donation: Donation = Donation.objects.create(
 			sum=50.00,
 			telegram_url='https://example.com/',
-			date=self.current_date
+			date=self.current_date,
 		)
 
 	def test_fields(self) -> None:
@@ -27,7 +27,7 @@ class DonationSectionModelTests(TestCase):
 		self.donation_section: DonationSection = DonationSection.objects.create(
 			title='Test',
 			text='Test...',
-			position=1
+			position=1,
 		)
 
 	def test_fields(self) -> None:

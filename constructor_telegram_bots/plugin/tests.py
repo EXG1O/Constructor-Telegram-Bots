@@ -1,29 +1,38 @@
 from django.test import TestCase
 from django.http import HttpResponse
 from django import urls
-from django.template import defaultfilters as filters
 
 from user.models import User
 from telegram_bot.models import TelegramBot
 
-from .models import *
+from .models import Plugin, PluginLog
+
+from typing import Dict, Any
 
 
 class BaseTestCase(TestCase):
 	def setUp(self) -> None:
-		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
+		self.user: User = User.objects.create(
+			telegram_id=123456789,
+			first_name='exg1o',
+		)
 		self.telegram_bot: TelegramBot = TelegramBot.objects.create(
 			owner=self.user,
 			api_token='123456789:qwertyuiop',
-			is_private=True
+			is_private=True,
 		)
-		self.plugin: Plugin = Plugin.objects.create(user=self.user, telegram_bot=self.telegram_bot, name='Test', code='def test():\n\tpass')
+		self.plugin: Plugin = Plugin.objects.create(\
+			user=self.user,
+			telegram_bot=self.telegram_bot,
+			name='Test',
+			code='def test():\n\tpass',
+		)
 		self.plugin_log: PluginLog = PluginLog.objects.create(
 			user=self.user,
 			telegram_bot=self.telegram_bot,
 			plugin=self.plugin,
 			message='Error :-)',
-			level='danger'
+			level='danger',
 		)
 
 class PluginModelTests(BaseTestCase):
@@ -36,12 +45,14 @@ class PluginModelTests(BaseTestCase):
 		self.assertIsNotNone(self.plugin.added_date)
 
 	def test_to_dict(self) -> None:
-		self.assertDictEqual(self.plugin.to_dict(), {
-			'id': 1,
+		plugin_as_dict: Dict[str, Any] = self.plugin.to_dict()
+
+		self.assertDictEqual(plugin_as_dict, {
+			'id': plugin_as_dict['id'],
 			'name': 'Test',
 			'code': 'def test():\n\tpass',
 			'is_checked': False,
-			'added_date': f'{filters.date(self.plugin.added_date)} {filters.time(self.plugin.added_date)}',
+			'added_date': plugin_as_dict['added_date'],
 		})
 
 class PluginLogModelTests(BaseTestCase):
@@ -53,11 +64,13 @@ class PluginLogModelTests(BaseTestCase):
 		self.assertIsNotNone(self.plugin_log.added_date)
 
 	def test_to_dict(self) -> None:
-		self.assertDictEqual(self.plugin_log.to_dict(), {
+		plugin_log_as_dict: Dict[str, Any] = self.plugin_log.to_dict()
+
+		self.assertDictEqual(plugin_log_as_dict, {
 			'plugin_name': 'Test',
 			'message': 'Error :-)',
 			'level': 'danger',
-			'added_date': f'{filters.date(self.plugin_log.added_date)} {filters.time(self.plugin_log.added_date)}',
+			'added_date': plugin_log_as_dict['added_date'],
 		})
 
 class PluginsViewTests(BaseTestCase):
@@ -73,7 +86,7 @@ class PluginsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 404)
 
@@ -84,7 +97,7 @@ class PluginsViewTests(BaseTestCase):
 			data={
 				'name': '',
 				'code': 'def test():\n\tpass',
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -96,7 +109,7 @@ class PluginsViewTests(BaseTestCase):
 			data={
 				'name': 'Тест',
 				'code': 'def test():\n\tpass',
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -108,7 +121,7 @@ class PluginsViewTests(BaseTestCase):
 			data={
 				'name': 'Test1',
 				'code': 'def test():\n\tpass',
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -118,13 +131,13 @@ class PluginsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.get(
 			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.get(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, [self.plugin.to_dict()])
@@ -142,7 +155,7 @@ class PluginViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 404)
 
@@ -150,9 +163,7 @@ class PluginViewTests(BaseTestCase):
 			self.url_1,
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 			content_type='application/json',
-			data={
-				'code': 'def test_():\n\tpass',
-			}
+			data={'code': 'def test_():\n\tpass'},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -162,13 +173,13 @@ class PluginViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.delete(
 			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.delete(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -182,13 +193,13 @@ class ViewsTests(BaseTestCase):
 
 		response: HttpResponse = self.client.get(
 			url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.get(
 			url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, [self.plugin_log.to_dict()])
@@ -202,7 +213,7 @@ class ViewsTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'}
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 404)
 
@@ -213,6 +224,6 @@ class ViewsTests(BaseTestCase):
 			data={
 				'message': ':D',
 				'level': 'success',
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)

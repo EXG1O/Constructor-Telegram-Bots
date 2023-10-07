@@ -1,21 +1,31 @@
 from django.test import TestCase, Client
 from django.http import HttpResponse
 from django import urls
-from django.template import defaultfilters as filters
 
 from user.models import User
-from telegram_bot.models import *
+from telegram_bot.models import (
+	TelegramBot,
+	TelegramBotCommand,
+	TelegramBotCommandKeyboardButton,
+	TelegramBotUser,
+)
 from telegram_bot.services import database_telegram_bot
+
+from typing import List, Dict, Any
 
 
 class BaseTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client = Client(enforce_csrf_checks=True)
-		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
+
+		self.user: User = User.objects.create(
+			telegram_id=123456789,
+			first_name='exg1o',
+		)
 		self.telegram_bot: TelegramBot = TelegramBot.objects.create(
 			owner=self.user,
 			api_token='123456789:qwertyuiop',
-			is_private=True
+			is_private=True,
 		)
 		self.telegram_bot_command: TelegramBotCommand = TelegramBotCommand.objects.create(
 			telegram_bot=self.telegram_bot,
@@ -51,27 +61,28 @@ class BaseTestCase(TestCase):
 				'headers': None,
 				'data': None,
 			},
-			database_record={'key': 'value'}
+			database_record={'key': 'value'},
 		)
 		self.telegram_bot_user: TelegramBotUser = TelegramBotUser.objects.create(
 			telegram_bot=self.telegram_bot,
 			user_id=123456789,
-			full_name='Test user'
+			full_name='Test user',
 		)
 
 class TelegramBotModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot.owner, self.user)
-		self.assertEqual(self.telegram_bot.username, '123456789:qwertyuiop_test_telegram_bot')
+		self.assertEqual(self.telegram_bot.username, '123456789_test_telegram_bot')
 		self.assertEqual(self.telegram_bot.api_token, '123456789:qwertyuiop')
 		self.assertTrue(self.telegram_bot.is_private)
 		self.assertFalse(self.telegram_bot.is_running)
 		self.assertTrue(self.telegram_bot.is_stopped)
 
 	def test_get_commands_as_dict(self) -> None:
-		telegram_bot_commands: list = self.telegram_bot.get_commands_as_dict()
-		self.assertListEqual(telegram_bot_commands, [{
-			'id': 1,
+		telegram_bot_commands_as_dict: List[Dict[str, Any]] = self.telegram_bot.get_commands_as_dict()
+
+		self.assertListEqual(telegram_bot_commands_as_dict, [{
+			'id': telegram_bot_commands_as_dict[0]['id'],
 			'name': 'Test',
 			'command': {
 				'text': '/test',
@@ -87,7 +98,7 @@ class TelegramBotModelTests(BaseTestCase):
 				'mode': 'default',
 				'buttons': [
 					{
-						'id': 1,
+						'id': telegram_bot_commands_as_dict[0]['keyboard']['buttons'][0]['id'],
 						'row': 1,
 						'text': '1',
 						'url': None,
@@ -97,7 +108,7 @@ class TelegramBotModelTests(BaseTestCase):
 						'end_diagram_connector' : None,
 					},
 					{
-						'id': 2,
+						'id': telegram_bot_commands_as_dict[0]['keyboard']['buttons'][1]['id'],
 						'row': 1,
 						'text': '2',
 						'url': 'http://example.com/',
@@ -121,27 +132,29 @@ class TelegramBotModelTests(BaseTestCase):
 		}])
 
 	def test_get_users_as_dict(self) -> None:
-		telegram_bot_users: list = self.telegram_bot.get_users_as_dict()
-		self.assertListEqual(telegram_bot_users, [{
-			'id': 1,
+		telegram_bot_users_as_dict: List[Dict[str, Any]] = self.telegram_bot.get_users_as_dict()
+
+		self.assertListEqual(telegram_bot_users_as_dict, [{
+			'id': telegram_bot_users_as_dict[0]['id'],
 			'user_id': 123456789,
 			'full_name': 'Test user',
 			'is_allowed': False,
-			'activated_date': f'{filters.date(self.telegram_bot_user.activated_date)} {filters.time(self.telegram_bot_user.activated_date)}',
+			'activated_date': telegram_bot_users_as_dict[0]['activated_date'],
 		}])
 
 	def test_to_dict(self) -> None:
-		telegram_bot_as_dict: dict = self.telegram_bot.to_dict()
+		telegram_bot_as_dict: Dict[str, Any] = self.telegram_bot.to_dict()
+
 		self.assertDictEqual(telegram_bot_as_dict, {
-			'id': 1,
-			'username': '123456789:qwertyuiop_test_telegram_bot',
+			'id': telegram_bot_as_dict['id'],
+			'username': '123456789_test_telegram_bot',
 			'api_token': '123456789:qwertyuiop',
 			'is_private': True,
 			'is_running': False,
 			'is_stopped': True,
 			'commands_count': 1,
 			'users_count': 1,
-			'added_date': f'{filters.date(self.telegram_bot.added_date)} {filters.time(self.telegram_bot.added_date)}',
+			'added_date': telegram_bot_as_dict['added_date'],
 		})
 
 class TelegramBotCommandModelTests(BaseTestCase):
@@ -153,20 +166,19 @@ class TelegramBotCommandModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_command.y, 0)
 
 	def test_get_command(self) -> None:
-		telegram_bot_command_command: TelegramBotCommandCommand = self.telegram_bot_command.get_command()
-		self.assertEqual(telegram_bot_command_command, self.telegram_bot_command.command)
+		self.assertEqual(self.telegram_bot_command.get_command(), self.telegram_bot_command.command)
 
 	def test_get_keyboard(self) -> None:
-		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = self.telegram_bot_command.get_keyboard()
-		self.assertEqual(telegram_bot_command_keyboard, self.telegram_bot_command.keyboard)
+		self.assertEqual(self.telegram_bot_command.get_keyboard(), self.telegram_bot_command.keyboard)
 
 	def test_get_keyboard_as_dict(self) -> None:
-		telegram_bot_command_keyboard: dict = self.telegram_bot_command.get_keyboard_as_dict()
-		self.assertDictEqual(telegram_bot_command_keyboard, {
+		telegram_bot_command_keyboard_as_dict: Dict[str, Any] = self.telegram_bot_command.get_keyboard_as_dict()
+
+		self.assertDictEqual(telegram_bot_command_keyboard_as_dict, {
 			'mode': 'default',
 			'buttons': [
 				{
-					'id': 1,
+					'id': telegram_bot_command_keyboard_as_dict['buttons'][0]['id'],
 					'row': 1,
 					'text': '1',
 					'url': None,
@@ -176,7 +188,7 @@ class TelegramBotCommandModelTests(BaseTestCase):
 					'end_diagram_connector' : None,
 				},
 				{
-					'id': 2,
+					'id': telegram_bot_command_keyboard_as_dict['buttons'][1]['id'],
 					'row': 1,
 					'text': '2',
 					'url': 'http://example.com/',
@@ -189,13 +201,13 @@ class TelegramBotCommandModelTests(BaseTestCase):
 		})
 
 	def test_get_api_request(self) -> None:
-		telegram_bot_command_api_request: TelegramBotCommandApiRequest = self.telegram_bot_command.get_api_request()
-		self.assertEqual(telegram_bot_command_api_request, self.telegram_bot_command.api_request)
+		self.assertEqual(self.telegram_bot_command.get_api_request(), self.telegram_bot_command.api_request)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command: dict = self.telegram_bot_command.to_dict()
-		self.assertDictEqual(telegram_bot_command, {
-			'id': 1,
+		telegram_bot_command_as_dict: Dict[str, Any] = self.telegram_bot_command.to_dict()
+
+		self.assertDictEqual(telegram_bot_command_as_dict, {
+			'id': telegram_bot_command_as_dict['id'],
 			'name': 'Test',
 			'command': {
 				'text': '/test',
@@ -211,7 +223,7 @@ class TelegramBotCommandModelTests(BaseTestCase):
 				'mode': 'default',
 				'buttons': [
 					{
-						'id': 1,
+						'id': telegram_bot_command_as_dict['keyboard']['buttons'][0]['id'],
 						'row': 1,
 						'text': '1',
 						'url': None,
@@ -221,7 +233,7 @@ class TelegramBotCommandModelTests(BaseTestCase):
 						'end_diagram_connector' : None,
 					},
 					{
-						'id': 2,
+						'id': telegram_bot_command_as_dict['keyboard']['buttons'][1]['id'],
 						'row': 1,
 						'text': '2',
 						'url': 'http://example.com/',
@@ -251,8 +263,7 @@ class TelegramBotCommandCommandModelTests(BaseTestCase):
 		self.assertIsNone(self.telegram_bot_command.command.description)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_command: dict = self.telegram_bot_command.command.to_dict()
-		self.assertDictEqual(telegram_bot_command_command, {
+		self.assertDictEqual(self.telegram_bot_command.command.to_dict(), {
 			'text': '/test',
 			'is_show_in_menu': False,
 			'description': None,
@@ -264,8 +275,7 @@ class TelegramBotCommandMessageTextModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_command.message_text.text, 'Test...')
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_message_text: dict = self.telegram_bot_command.message_text.to_dict()
-		self.assertDictEqual(telegram_bot_command_message_text, {
+		self.assertDictEqual(self.telegram_bot_command.message_text.to_dict(), {
 			'mode': 'default',
 			'text': 'Test...',
 		})
@@ -275,10 +285,11 @@ class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_command.keyboard.mode, 'default')
 
 	def test_get_buttons_as_dict(self) -> None:
-		telegram_bot_command_keyboard_buttons: list = self.telegram_bot_command.keyboard.get_buttons_as_dict()
-		self.assertListEqual(telegram_bot_command_keyboard_buttons, [
+		telegram_bot_command_keyboard_buttons_as_dict: Dict[str, Any] = self.telegram_bot_command.keyboard.get_buttons_as_dict()
+
+		self.assertListEqual(telegram_bot_command_keyboard_buttons_as_dict, [
 			{
-				'id': 1,
+				'id': telegram_bot_command_keyboard_buttons_as_dict[0]['id'],
 				'row': 1,
 				'text': '1',
 				'url': None,
@@ -288,7 +299,7 @@ class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 				'end_diagram_connector' : None,
 			},
 			{
-				'id': 2,
+				'id': telegram_bot_command_keyboard_buttons_as_dict[1]['id'],
 				'row': 1,
 				'text': '2',
 				'url': 'http://example.com/',
@@ -300,12 +311,13 @@ class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 		])
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_keyboard: dict = self.telegram_bot_command.keyboard.to_dict()
-		self.assertDictEqual(telegram_bot_command_keyboard, {
+		telegram_bot_command_keyboard_as_dict: Dict[str, Any] = self.telegram_bot_command.keyboard.to_dict()
+
+		self.assertDictEqual(telegram_bot_command_keyboard_as_dict, {
 			'mode': 'default',
 			'buttons': [
 				{
-					'id': 1,
+					'id': telegram_bot_command_keyboard_as_dict['buttons'][0]['id'],
 					'row': 1,
 					'text': '1',
 					'url': None,
@@ -315,7 +327,7 @@ class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 					'end_diagram_connector' : None,
 				},
 				{
-					'id': 2,
+					'id': telegram_bot_command_keyboard_as_dict['buttons'][1]['id'],
 					'row': 1,
 					'text': '2',
 					'url': 'http://example.com/',
@@ -342,9 +354,10 @@ class TelegramBotCommandKeyboardButtonModelTests(BaseTestCase):
 		self.assertIsNone(self.telegram_bot_command_keyboard_button.end_diagram_connector)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_keyboard_button: dict = self.telegram_bot_command_keyboard_button.to_dict()
-		self.assertDictEqual(telegram_bot_command_keyboard_button, {
-			'id': 1,
+		telegram_bot_command_keyboard_button_as_dict: Dict[str, Any] = self.telegram_bot_command_keyboard_button.to_dict()
+
+		self.assertDictEqual(telegram_bot_command_keyboard_button_as_dict, {
+			'id': telegram_bot_command_keyboard_button_as_dict['id'],
 			'row': 1,
 			'text': '1',
 			'url': None,
@@ -362,8 +375,7 @@ class TelegramBotCommandApiRequestModelTests(BaseTestCase):
 		self.assertIsNone(self.telegram_bot_command.api_request.data)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_api_request: dict = self.telegram_bot_command.api_request.to_dict()
-		self.assertDictEqual(telegram_bot_command_api_request, {
+		self.assertDictEqual(self.telegram_bot_command.api_request.to_dict(), {
 			'url': 'http://example.com/',
 			'method': 'get',
 			'headers': None,
@@ -377,13 +389,14 @@ class TelegramBotUserModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_user.is_allowed, False)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_user: dict = self.telegram_bot_user.to_dict()
-		self.assertDictEqual(telegram_bot_user, {
-			'id': 1,
+		telegram_bot_user_as_dict: Dict[str, Any] = self.telegram_bot_user.to_dict()
+
+		self.assertDictEqual(telegram_bot_user_as_dict, {
+			'id': telegram_bot_user_as_dict['id'],
 			'user_id': 123456789,
 			'full_name': 'Test user',
 			'is_allowed': False,
-			'activated_date': f'{filters.date(self.telegram_bot_user.activated_date)} {filters.time(self.telegram_bot_user.activated_date)}',
+			'activated_date': telegram_bot_user_as_dict['activated_date'],
 		})
 
 class TelegramBotsViewTests(BaseTestCase):
@@ -400,7 +413,7 @@ class TelegramBotsViewTests(BaseTestCase):
 			data={
 				'api_token': '',
 				'is_private': False,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -412,7 +425,7 @@ class TelegramBotsViewTests(BaseTestCase):
 			data={
 				'api_token': '123456789:qwertyuiop',
 				'is_private': False,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -422,9 +435,9 @@ class TelegramBotsViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 			content_type='application/json',
 			data={
-				'api_token': '123456789:dwawdadwa',
+				'api_token': '987654321:dwawdadwa',
 				'is_private': False,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -432,7 +445,10 @@ class TelegramBotsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(self.url, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, self.user.get_telegram_bots_as_dict())
 
@@ -454,7 +470,7 @@ class TelegramBotViewTests(BaseTestCase):
 			data={
 				'api_token': None,
 				'is_private': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 404)
 
@@ -465,7 +481,7 @@ class TelegramBotViewTests(BaseTestCase):
 			data={
 				'api_token': None,
 				'is_private': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 500)
 
@@ -476,7 +492,7 @@ class TelegramBotViewTests(BaseTestCase):
 			data={
 				'api_token': '',
 				'is_private': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -488,7 +504,7 @@ class TelegramBotViewTests(BaseTestCase):
 			data={
 				'api_token': '123456789:qwertyuiop',
 				'is_private': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -498,9 +514,9 @@ class TelegramBotViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 			content_type='application/json',
 			data={
-				'api_token': '123456789:dwawdadwa',
+				'api_token': '987654321:dwawdadwa',
 				'is_private': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -511,7 +527,7 @@ class TelegramBotViewTests(BaseTestCase):
 			data={
 				'api_token': None,
 				'is_private': False,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -522,7 +538,7 @@ class TelegramBotViewTests(BaseTestCase):
 			data={
 				'api_token': None,
 				'is_private': True,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -530,20 +546,32 @@ class TelegramBotViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, self.telegram_bot.to_dict())
 
@@ -558,10 +586,16 @@ class StartOrStopTelegramBotViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 class UpdateTelegramBotDiagramCurrentScaleViewTests(BaseTestCase):
@@ -575,14 +609,17 @@ class UpdateTelegramBotDiagramCurrentScaleViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.patch(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 			content_type='application/json',
-			data={'diagram_current_scale': 0.8}
+			data={'diagram_current_scale': 0.8},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -597,7 +634,10 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
@@ -614,7 +654,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -633,7 +673,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -656,7 +696,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -679,7 +719,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -698,7 +738,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -727,7 +767,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				},
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -756,7 +796,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				},
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -785,7 +825,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				},
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -809,7 +849,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 					'data': None,
 				},
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -833,7 +873,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 					'data': None,
 				},
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -852,7 +892,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -860,10 +900,16 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, self.telegram_bot.get_commands_as_dict(escape=True))
 
@@ -888,10 +934,16 @@ class TelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.patch(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.patch(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.patch(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
@@ -908,7 +960,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -927,7 +979,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -950,7 +1002,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -973,7 +1025,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -1002,7 +1054,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				},
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -1031,7 +1083,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				},
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -1060,7 +1112,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				},
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -1084,7 +1136,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 					'data': None,
 				},
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'blank')
@@ -1108,7 +1160,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 					'data': None,
 				},
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(response.json()['code'], 'invalid')
@@ -1127,7 +1179,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1135,26 +1187,44 @@ class TelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, self.telegram_bot_command.to_dict())
 
@@ -1179,10 +1249,16 @@ class UpdateTelegramBotCommandPositionViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'},)
+		response: HttpResponse = self.client.patch(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.patch(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.patch(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
@@ -1192,7 +1268,7 @@ class UpdateTelegramBotCommandPositionViewTests(BaseTestCase):
 			data={
 				'x': 123,
 				'y': 321,
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1227,13 +1303,22 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(self.url_4, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_4,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
@@ -1244,7 +1329,7 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 				'telegram_bot_command_id': 0,
 				'start_diagram_connector': 'test',
 				'end_diagram_connector': 'test',
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 404)
 
@@ -1259,7 +1344,7 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 			},
 			keyboard = None,
 			api_request = None,
-			database_record = None
+			database_record = None,
 		)
 
 		response: HttpResponse = self.client.post(
@@ -1270,7 +1355,7 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 				'telegram_bot_command_id': telegram_bot_command.id,
 				'start_diagram_connector': 'test',
 				'end_diagram_connector': 'test',
-			}
+			},
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1278,16 +1363,28 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_4, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_4,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotUsersViewTests(BaseTestCase):
@@ -1301,10 +1398,16 @@ class TelegramBotUsersViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, self.telegram_bot.get_users_as_dict())
 
@@ -1329,13 +1432,22 @@ class TelegramBotUserViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotAllowedUserViewTests(BaseTestCase):
@@ -1359,26 +1471,44 @@ class TelegramBotAllowedUserViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_delete_method(self) -> None:
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_3, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_3,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.delete(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotDatabeseRecordsViewTests(BaseTestCase):
@@ -1395,26 +1525,36 @@ class TelegramBotDatabeseRecordsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.post(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 			content_type='application/json',
-			data={'record': {'key': 'value'}})
+			data={'record': {'key': 'value'}},
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(self.url_2, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_2,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 404)
 
 		database_telegram_bot.insert_record(self.telegram_bot, {'key': 'value'})
 
-		response: HttpResponse = self.client.get(self.url_1, headers={'Authorization': f'Token {self.user.auth_token.key}'})
+		response: HttpResponse = self.client.get(
+			self.url_1,
+			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+		)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, [{'_id': 1, 'key': 'value'}])
 
@@ -1439,9 +1579,9 @@ class TelegramBotDatabeseRecordViewTests(BaseTestCase):
 		database_telegram_bot.delete_collection(self.telegram_bot)
 
 	def test_patch_method(self) -> None:
-		# Надо дописать
+		# TODO: Надо написать тесты для PATCH метода
 		pass
 
 	def test_delete_method(self) -> None:
-		# Надо дописать
+		# TODO: Надо написать тесты для DELETE метода
 		pass

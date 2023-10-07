@@ -13,7 +13,7 @@ class TeamMemberModelTests(TestCase):
 		self.team_member: TeamMember = TeamMember.objects.create(
 			username='test',
 			speciality='Test',
-			joined_date=self.current_date
+			joined_date=self.current_date,
 		)
 
 	def test_fields(self) -> None:

@@ -10,10 +10,14 @@ from rest_framework.response import Response
 from rest_framework.status import *
 
 from .models import *
-from .services import tasks, database_telegram_bot
 from .decorators import *
 from .functions import *
 from .serializers import *
+from .services import database_telegram_bot
+from .tasks import (
+	start_telegram_bot as celery_start_telegram_bot,
+	stop_telegram_bot as celery_stop_telegram_bot,
+)
 
 from typing import Optional
 import json
@@ -28,13 +32,7 @@ class TelegramBotsView(APIView):
 		serializer = CreateTelegramBotSerializer(data=request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
 
-		validated_data: dict = serializer.validated_data
-
-		telegram_bot: TelegramBot = TelegramBot.objects.create(
-			owner=request.user,
-			api_token=validated_data['api_token'],
-			is_private=validated_data['is_private']
-		)
+		telegram_bot: TelegramBot = TelegramBot.objects.create(owner=request.user, **serializer.validated_data)
 
 		return Response({
 			'message': _('Вы успешно добавили Telegram бота.'),
@@ -112,14 +110,14 @@ def start_or_stop_telegram_bot(request: Request, telegram_bot: TelegramBot) -> R
 	if not settings.TEST:
 		if not telegram_bot.is_running and telegram_bot.is_stopped:
 			if sys.platform == 'win32':
-				tasks.start_telegram_bot(telegram_bot_id=telegram_bot.id)
+				celery_start_telegram_bot(telegram_bot_id=telegram_bot.id)
 			else:
-				tasks.start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+				celery_start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 		elif telegram_bot.is_running and not telegram_bot.is_stopped:
 			if sys.platform == 'win32':
-				tasks.stop_telegram_bot(telegram_bot_id=telegram_bot.id)
+				celery_stop_telegram_bot(telegram_bot_id=telegram_bot.id)
 			else:
-				tasks.stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+				celery_stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 
 	return Response({
 		'message': None,

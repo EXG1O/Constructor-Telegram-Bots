@@ -9,7 +9,7 @@ import requests
 
 def check_telegram_bot_api_token(api_token: str) -> Optional[str]:
 	if settings.TEST:
-		return f'{api_token}_test_telegram_bot'
+		return f"{api_token.split(':')[0]}_test_telegram_bot"
 
 	responce: requests.Response = requests.get(f'https://api.telegram.org/bot{api_token}/getMe')
 
