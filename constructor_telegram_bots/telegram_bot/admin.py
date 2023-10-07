@@ -4,7 +4,10 @@ from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from .models import *
-from .services import tasks
+from .tasks import (
+	start_telegram_bot as celery_start_telegram_bot,
+	stop_telegram_bot as celery_stop_telegram_bot,
+)
 
 from typing import List
 import sys
@@ -39,9 +42,9 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		for telegram_bot in telegram_bots:
 			if not telegram_bot.is_running and telegram_bot.is_stopped:
 				if sys.platform == 'win32':
-					tasks.start_telegram_bot(telegram_bot_id=telegram_bot.id)
+					celery_start_telegram_bot(telegram_bot_id=telegram_bot.id)
 				else:
-					tasks.start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+					celery_start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 
 				messages.success(request, f"@{telegram_bot.username} {_('Telegram бот успешно включен.')}")
 			else:
@@ -52,9 +55,9 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		for telegram_bot in telegram_bots:
 			if telegram_bot.is_running and not telegram_bot.is_stopped:
 				if sys.platform == 'win32':
-					tasks.stop_telegram_bot(telegram_bot_id=telegram_bot.id)
+					celery_stop_telegram_bot(telegram_bot_id=telegram_bot.id)
 				else:
-					tasks.stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+					celery_stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 
 				messages.success(request, f"@{telegram_bot.username} {_('Telegram бот успешно выключен.')}")
 			else:

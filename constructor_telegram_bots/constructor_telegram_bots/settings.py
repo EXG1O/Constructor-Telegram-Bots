@@ -40,7 +40,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
 	'check_users_first_name_schedule' : {
 		'task': 'user.tasks.check_users_first_name',
-		'schedule': 86400, # 60 * 60 * 24 = 86400 секунд
+		'schedule': 86400, # 60 сек. * 60 мин. * 24 ч. = 86400 сек.
 	},
 }
 
@@ -76,6 +76,28 @@ INSTALLED_APPS = [
 	'privacy_policy',
 ]
 
+TINYMCE_DEFAULT_CONFIG = {
+	'theme': 'silver',
+	'menubar': True,
+	'height': 420,
+	'plugins': (
+		'advlist, autolink, lists, link, image, charmap,'
+		'print, preview, anchor, searchreplace, visualblocks,'
+		'code, fullscreen, insertdatetime, media, table, paste,'
+		'help, wordcount'
+	),
+	'toolbar': (
+		'undo redo | '
+		'formatselect | '
+		'bold italic backcolor | '
+        'alignleft aligncenter alignright alignjustify | '
+        'bullist numlist outdent indent | '
+        'removeformat | '
+        'help'
+    ),
+}
+
+
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,13 +120,6 @@ DRF_STANDARDIZED_ERRORS = {
 	'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter',
 }
 
-TINYMCE_DEFAULT_CONFIG = {
-	'theme': 'silver',
-	'height': 420,
-	'menubar': True,
-	'plugins': 'advlist, autolink, lists, link, image, charmap, print, preview, anchor, searchreplace, visualblocks, code, fullscreen, insertdatetime, media, table, paste, code, help, wordcount',
-	'toolbar': 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
-}
 
 TEMPLATES = [
 	{
@@ -134,46 +149,35 @@ TEMPLATES = [
 	}
 ]
 
-ROOT_URLCONF = 'constructor_telegram_bots.urls'
 
+AUTH_USER_MODEL = 'user.User'
+ROOT_URLCONF = 'constructor_telegram_bots.urls'
 WSGI_APPLICATION = 'constructor_telegram_bots.wsgi.application'
 
 
-AUTH_USER_MODEL = 'user.User'
-
-if TEST:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.sqlite3',
-			'NAME': BASE_DIR / 'DataBase.db',
-		},
-	}
-else:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.postgresql',
-			'NAME': os.getenv('POSTGRESQL_DATABASE_NAME'), 
-			'USER': os.getenv('POSTGRESQL_DATABASE_USER'),
-			'PASSWORD': os.getenv('POSTGRESQL_DATABASE_PASSWORD'),
-			'HOST': '127.0.0.1', 
-			'PORT': '5432',
-		},
-	}
-
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+		'NAME': os.getenv('POSTGRESQL_DATABASE_NAME'), 
+		'USER': os.getenv('POSTGRESQL_DATABASE_USER'),
+		'PASSWORD': os.getenv('POSTGRESQL_DATABASE_PASSWORD'),
+		'HOST': '127.0.0.1', 
+		'PORT': '5432',
+	},
+}
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 USE_I18N = True
 USE_L10N = True
 
-LANGUAGE_CODE = 'ru-ru'
 LANGUAGES = (
 	('en', _('Английский')),
 	('uk', _('Украинский')),
 	('ru', _('Русский')),
 )
+LANGUAGE_CODE = 'ru-ru'
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'ru'
-
 LOCALE_PATHS = (BASE_DIR / 'locale',)
 
 
@@ -183,14 +187,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [BASE_DIR / 'constructor_telegram_bots/static']
+STATICFILES_DIRS = (BASE_DIR / 'constructor_telegram_bots/static',)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-if os.path.exists(BASE_DIR / 'logs') is False:
-	os.mkdir(BASE_DIR / 'logs')
+os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 LOGGING = {
 	'version': 1,
