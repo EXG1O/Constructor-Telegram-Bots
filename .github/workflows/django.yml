@@ -5,7 +5,6 @@ on:
     branches:
     - develop
     - master
-    - upgrade-python # Для теста нового конфига
   pull_request:
     branches:
     - develop
@@ -39,7 +38,7 @@ jobs:
       with:
         mongodb-version: 6.0
 
-    - name: Create PostgreSQL database
+    - name: Create PostgreSQL user and database
       run: |
         sudo -u postgres psql -c "CREATE USER github WITH PASSWORD 'password';"
         sudo -u postgres psql -c "ALTER ROLE github CREATEDB;"
@@ -50,7 +49,7 @@ jobs:
         pip install -U pip
         pip install -r requirements.txt
 
-    - name: Create project .env
+    - name: Create .env project file
       run: |
         cd constructor_telegram_bots
         echo "POSTGRESQL_DATABASE_NAME=github_action" > .env
