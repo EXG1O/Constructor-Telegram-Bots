@@ -3,37 +3,57 @@ name: Django CI
 on:
   push:
     branches:
-    - development
+    - develop
     - master
+    - upgrade-python # Для теста нового конфига
   pull_request:
     branches:
-    - development
+    - develop
     - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.10.12]
-        mongodb-version: ['6.0']
+
     steps:
     - uses: actions/checkout@v3
-    - name: Setup Python ${{ matrix.python-version }}
+
+    - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Setup MongoDB ${{ matrix.mongodb-version }}
-      uses: supercharge/mongodb-github-action@1.9.0
-      with:
-        mongodb-version: ${{ matrix.mongodb-version }}
-    - name: Install Requirements
+        python-version: 3.11.5
+
+    - name: Install system dependencies
       run: |
-        sudo apt install redis
+        sudo apt update
+        sudo apt install -y redis postgresql mongodb
+
+    - name: Start Redis
+      run: sudo systemctl start redis
+
+    - name: Start PostgreSQL
+      run: sudo systemctl start postgresql
+
+    - name: Start MongoDB
+      run: sudo service start mongodb
+
+    - name: Create PostgreSQL database
+      run: |
+        sudo -u postgres psql -c "CREATE USER github WITH PASSWORD 'password';"
+        sudo -u postgres psql -c "ALTER ROLE github CREATEDB;"
+        sudo -u postgres psql -c "CREATE DATABASE github_action OWNER github;"
+
+    - name: Install Python requirements for project
+      run: |
         pip install -U pip
         pip install -r requirements.txt
-    - name: Run Tests
+
+    - name: Create project .env
       run: |
         cd constructor_telegram_bots
-        python manage.py test --verbosity 3
+        echo "POSTGRESQL_DATABASE_NAME=github_action" > .env
+        echo "POSTGRESQL_DATABASE_USER=github" >> .env
+        echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
+
+    - name: Run project tests
+      run: python manage.py test --verbosity 3
