@@ -5,13 +5,15 @@ from aiogram.methods import TelegramMethod, SendMessage
 
 from user.models import User as DjangoUser
 
+from asgiref.sync import async_to_sync
+
 
 class ConstructorTelegramBotTests(BaseTestCase):
 	def setUp(self) -> None:
-		self.constructor_telegram_bot = ConstructorTelegramBot()
-		self.constructor_telegram_bot.loop.run_until_complete(self.constructor_telegram_bot.setup())
+		constructor_telegram_bot = ConstructorTelegramBot(api_token='123456789:qwertyuiop')
+		async_to_sync(constructor_telegram_bot.setup)()
 
-		super().setUp(self.constructor_telegram_bot.bot, self.constructor_telegram_bot.dispatcher)
+		super().setUp(constructor_telegram_bot.bot, constructor_telegram_bot.dispatcher)
 
 	async def test_start_command_handler(self):
 		method: TelegramMethod = (await self.send_message('/start'))[0]

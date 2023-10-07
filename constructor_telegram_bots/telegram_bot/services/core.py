@@ -55,17 +55,25 @@ class BaseTestCase(TestCase):
 				chat=self.chat_,
 				from_user=self.user_,
 				date=datetime.now(),
-			)
+			),
 		))
 		return await self.bot.get_results()
 
 	async def send_callback_query(self, data: str) -> Optional[List[TelegramMethod]]:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
-			message=CallbackQuery(
+			callback_query=CallbackQuery(
 				id='1',
-				data=data,
+				chat_instance=str(self.chat_.id),
 				from_user=self.user_,
-			)
+				message=Message(
+					message_id=1,
+					text='Test',
+					chat=self.chat_,
+					from_user=self.user_,
+					date=datetime.now(),
+				),
+				data=data,
+			),
 		))
 		return await self.bot.get_results()

@@ -90,11 +90,11 @@ TINYMCE_DEFAULT_CONFIG = {
 		'undo redo | '
 		'formatselect | '
 		'bold italic backcolor | '
-        'alignleft aligncenter alignright alignjustify | '
-        'bullist numlist outdent indent | '
-        'removeformat | '
-        'help'
-    ),
+		'alignleft aligncenter alignright alignjustify | '
+		'bullist numlist outdent indent | '
+		'removeformat | '
+		'help'
+	),
 }
 
 
@@ -158,7 +158,7 @@ WSGI_APPLICATION = 'constructor_telegram_bots.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',
-		'NAME': os.getenv('POSTGRESQL_DATABASE_NAME'), 
+		'NAME': os.getenv('POSTGRESQL_DATABASE_NAME'),
 		'USER': os.getenv('POSTGRESQL_DATABASE_USER'),
 		'PASSWORD': os.getenv('POSTGRESQL_DATABASE_PASSWORD'),
 		'HOST': '127.0.0.1', 

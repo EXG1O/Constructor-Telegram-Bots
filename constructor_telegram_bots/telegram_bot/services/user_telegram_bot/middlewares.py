@@ -74,6 +74,17 @@ class GenerateJinjaVariablesMiddleware(BaseMiddleware):
 		data: Dict[str, Any],
 	) -> Any:
 		event_from_user: AiogramUser = data['event_from_user']
+
+		if isinstance(event.event, Message):
+			user_message_id = event.message.message_id
+			user_message_text = event.message.text
+		elif isinstance(event.event, CallbackQuery):
+			user_message_id = event.callback_query.message.message_id
+			user_message_text = event.callback_query.message.text
+		else:
+			user_message_id = None
+			user_message_text = None
+
 		database_records = {}
 
 		for database_record in database_telegram_bot.get_records(self.django_telegram_bot):
@@ -84,8 +95,8 @@ class GenerateJinjaVariablesMiddleware(BaseMiddleware):
 			'user_username':event_from_user.username,
 			'user_first_name':event_from_user.first_name,
 			'user_last_name':event_from_user.last_name,
-			'user_message_id': event.message.message_id,
-			'user_message_text': event.message.text,
+			'user_message_id': user_message_id,
+			'user_message_text': user_message_text,
 			'database_records': database_records,
 		}
 
