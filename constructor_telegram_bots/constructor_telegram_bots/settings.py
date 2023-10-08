@@ -142,8 +142,6 @@ TEMPLATES = [
 				'team.context_processors.team_members',
 				'updates.context_processors.updates',
 				'instruction.context_processors.instruction_sections',
-				'donation.context_processors.donations',
-				'donation.context_processors.donation_sections',
 			],
 		},
 	}
