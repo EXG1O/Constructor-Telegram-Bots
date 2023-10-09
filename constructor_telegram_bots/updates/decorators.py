@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.utils.translation import gettext as _
 
-from rest_framework.status import *
+from rest_framework.status import HTTP_404_NOT_FOUND
 
 from .models import Update
 

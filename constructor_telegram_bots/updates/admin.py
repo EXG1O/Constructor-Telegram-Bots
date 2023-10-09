@@ -14,8 +14,4 @@ class UpdateAdmin(TranslationAdmin):
 	list_display = ('version', 'added_date')
 
 	fields = ('image', 'version', 'description')
-	formfield_overrides = {
-		models.TextField: {
-			'widget': TinyMCE,
-		},
-	}
+	formfield_overrides = {models.TextField: {'widget': TinyMCE}}

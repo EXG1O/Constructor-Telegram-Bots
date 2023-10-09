@@ -15,11 +15,13 @@ def check_telegram_bot_api_token(api_token: str) -> Optional[str]:
 
 	if responce.status_code == 200:
 		return responce.json()['result']['username']
+	else:
+		return None
 
 def get_image_from_request(request: Request) -> Union[InMemoryUploadedFile, str, None]:
 	if 'image' in request.FILES:
 		return request.FILES['image']
 	elif 'image' in request.POST:
 		return request.POST['image']
-
-	return None
+	else:
+		return None

@@ -13,8 +13,4 @@ class InstructionSectionAdmin(TranslationAdmin):
 	list_display = ('title', 'position')
 
 	fields = ('title', 'text', 'position')
-	formfield_overrides = {
-		models.TextField: {
-			'widget': TinyMCE,
-		},
-	}
+	formfield_overrides = {models.TextField: {'widget': TinyMCE}}

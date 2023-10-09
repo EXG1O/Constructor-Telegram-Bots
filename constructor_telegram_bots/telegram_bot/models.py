@@ -3,6 +3,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import defaultfilters as filters
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 from user.models import User
 
@@ -50,6 +52,12 @@ class TelegramBot(models.Model):
 	def get_users_as_dict(self) -> list:
 		return [user.to_dict() for user in self.users.all()]
 
+	# TODO: Надо реализовать метод start для запуска Telegram бота, но проблема в том, что происходит циклический импорт.
+
+	def stop(self) -> None:
+		self.is_running = False
+		self.save()
+
 	def to_dict(self) -> dict:
 		return {
 			'id': self.id,
@@ -63,12 +71,12 @@ class TelegramBot(models.Model):
 			'added_date': f'{filters.date(self.added_date)} {filters.time(self.added_date)}',
 		}
 
-	def delete(self) -> None:
-		database_telegram_bot.delete_collection(self)
-		super().delete()
-
 	def __str__(self) -> str:
 		return f'@{self.username}'
+
+@receiver(post_delete, sender=TelegramBot)
+def delete_telegram_bot_signal(instance: TelegramBot, **kwargs) -> None:
+	database_telegram_bot.delete_collection(instance)
 
 class TelegramBotCommandManager(models.Manager):
 	def create(
@@ -164,24 +172,6 @@ class TelegramBotCommand(models.Model):
 
 	async def aget_api_request(self) -> Optional['TelegramBotCommandApiRequest']:
 		return await sync_to_async(self.get_api_request)()
-
-	def to_dict(self, escape: bool = False) -> dict:
-		command: Optional[TelegramBotCommandCommand] = self.get_command()
-		api_request: Optional[TelegramBotCommandApiRequest] = self.get_api_request()
-
-		return {
-			'id': self.id,
-			'name': filters.escape(self.name) if escape else self.name,
-			'command': command.to_dict() if command else None,
-			'image': self.image.url if self.image else None,
-			'message_text': self.message_text.to_dict(escape=escape),
-			'keyboard': self.get_keyboard_as_dict(escape=escape),
-			'api_request': api_request.to_dict() if api_request else None,
-			'database_record': self.database_record,
-
-			'x': self.x,
-			'y': self.y,
-		}
 
 	def update(
 		self,
@@ -281,12 +271,30 @@ class TelegramBotCommand(models.Model):
 			if telegram_bot_command_api_request:
 				telegram_bot_command_api_request.delete()
 
-	def delete(self) -> None:
-		self.image.delete(save=False)
-		return super().delete()
+	def to_dict(self, escape: bool = False) -> dict:
+		command: Optional[TelegramBotCommandCommand] = self.get_command()
+		api_request: Optional[TelegramBotCommandApiRequest] = self.get_api_request()
+
+		return {
+			'id': self.id,
+			'name': filters.escape(self.name) if escape else self.name,
+			'command': command.to_dict() if command else None,
+			'image': self.image.url if self.image else None,
+			'message_text': self.message_text.to_dict(escape=escape),
+			'keyboard': self.get_keyboard_as_dict(escape=escape),
+			'api_request': api_request.to_dict() if api_request else None,
+			'database_record': self.database_record,
+
+			'x': self.x,
+			'y': self.y,
+		}
 
 	def __str__(self) -> str:
 		return self.name
+
+@receiver(post_delete, sender=TelegramBotCommand)
+def delete_telegram_bot_signal(instance: TelegramBotCommand, **kwargs) -> None:
+	instance.image.delete(save=False)
 
 class TelegramBotCommandCommand(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='command')

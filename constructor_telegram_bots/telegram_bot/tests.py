@@ -1579,9 +1579,9 @@ class TelegramBotDatabeseRecordViewTests(BaseTestCase):
 		database_telegram_bot.delete_collection(self.telegram_bot)
 
 	def test_patch_method(self) -> None:
-		# TODO: Надо написать тесты для PATCH метода
+		# TODO: Надо написать тесты для PATCH метода.
 		pass
 
 	def test_delete_method(self) -> None:
-		# TODO: Надо написать тесты для DELETE метода
+		# TODO: Надо написать тесты для DELETE метода.
 		pass

@@ -7,17 +7,37 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import *
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-from .models import *
-from .decorators import *
-from .functions import *
-from .serializers import *
-from .services import database_telegram_bot
-from .tasks import (
-	start_telegram_bot as celery_start_telegram_bot,
-	stop_telegram_bot as celery_stop_telegram_bot,
+from .models import (
+	TelegramBot,
+	TelegramBotCommand,
+	TelegramBotCommandKeyboardButton,
+	TelegramBotUser,
 )
+from .decorators import (
+	check_telegram_bot_id,
+	check_telegram_bot_command_id,
+	check_telegram_bot_command_keyboard_button_id,
+	check_telegram_bot_user_id,
+)
+from .functions import (
+	check_telegram_bot_api_token,
+	get_image_from_request,
+)
+from .serializers import (
+	CreateTelegramBotSerializer,
+	UpdateTelegramBotSerializer,
+	UpdateTelegramBotDiagramCurrentScaleSerializer,
+	CreateTelegramBotCommandSerializer,
+	UpdateTelegramBotCommandSerializer,
+	UpdateTelegramBotCommandPositionSerializer,
+	UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer,
+	CreateTelegramBotDatabeseRecordSerializer,
+	UpdateTelegramBotDatabeseRecordSerializer,
+)
+from .services import database_telegram_bot
+from .tasks import start_telegram_bot as celery_start_telegram_bot
 
 from typing import Optional
 import json
@@ -114,10 +134,7 @@ def start_or_stop_telegram_bot(request: Request, telegram_bot: TelegramBot) -> R
 			else:
 				celery_start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 		elif telegram_bot.is_running and not telegram_bot.is_stopped:
-			if sys.platform == 'win32':
-				celery_stop_telegram_bot(telegram_bot_id=telegram_bot.id)
-			else:
-				celery_stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+			telegram_bot.stop()
 
 	return Response({
 		'message': None,

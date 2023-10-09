@@ -9,6 +9,11 @@ from aiogram.types import (
 	ReplyKeyboardMarkup,
 	InlineKeyboardMarkup,
 )
+from aiogram.exceptions import (
+	TelegramRetryAfter,
+	TelegramNotFound,
+	TelegramForbiddenError,
+)
 
 from ...models import (
 	TelegramBot as DjangoTelegramBot,
@@ -45,27 +50,45 @@ class UserTelegramBot(BaseTelegramBot):
 		django_telegram_bot_command: DjangoTelegramBotCommand,
 		**kwargs,
 	) -> None:
-		if django_telegram_bot_command.image:
-			await self.bot.send_photo(
-				chat_id=event_chat.id,
-				photo=FSInputFile(django_telegram_bot_command.image.path),
-				caption=message_text,
-				parse_mode=message_text_mode,
-				reply_markup=keyboard,
-			)
-		else:
-			await self.bot.send_message(
-				chat_id=event_chat.id,
-				text=message_text,
-				parse_mode=message_text_mode,
-				reply_markup=keyboard,
-			)
+		async def send_answer_():
+			try:
+				if django_telegram_bot_command.image:
+					await self.bot.send_photo(
+						chat_id=event_chat.id,
+						photo=FSInputFile(django_telegram_bot_command.image.path),
+						caption=message_text,
+						parse_mode=message_text_mode,
+						reply_markup=keyboard,
+					)
+				else:
+					await self.bot.send_message(
+						chat_id=event_chat.id,
+						text=message_text,
+						parse_mode=message_text_mode,
+						reply_markup=keyboard,
+					)
+			except TelegramRetryAfter as exception:
+				await asyncio.sleep(exception.retry_after)
+				await send_answer_()
+			except TelegramNotFound:
+				try:
+					await self.bot.send_message(chat_id=event_chat.id, text='Oops, something went wrong!')
+				except TelegramNotFound:
+					pass
+			except TelegramForbiddenError:
+				pass
+
+		await send_answer_()
 
 	async def message_handler(self, event: Message, **kwargs) -> None:
 		await self.send_answer(**kwargs)
 
 	async def callback_query_handler(self, event: CallbackQuery, **kwargs) -> None:
-		await event.message.delete()
+		try:
+			await event.message.delete()
+		except TelegramNotFound:
+			pass
+
 		await self.send_answer(**kwargs)
 
 	async def setup(self) -> None:
@@ -106,8 +129,12 @@ class UserTelegramBot(BaseTelegramBot):
 		await self.django_telegram_bot.asave()
 
 	async def stop(self) -> None:
-		while not self.django_telegram_bot.is_running:
-			await self.django_telegram_bot.arefresh_from_db()
+		while self.django_telegram_bot.is_running:
+			try:
+				await self.django_telegram_bot.arefresh_from_db()
+			except DjangoTelegramBot.DoesNotExist:
+				break
+
 			await asyncio.sleep(10)
 
-		self.dispatcher.stop_polling()
+		await self.dispatcher.stop_polling()

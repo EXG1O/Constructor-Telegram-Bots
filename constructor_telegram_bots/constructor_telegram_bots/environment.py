@@ -9,7 +9,10 @@ def create_user(user) -> None:
 	if settings.DEBUG_ENVIRONMENT or settings.TEST:
 		return
 
-	requests.post('http://127.0.0.1:99/users/', json={'user_id': user.id, 'token': user.auth_token.key})
+	requests.post('http://127.0.0.1:99/users/', json={
+		'user_id': user.id,
+		'token': user.auth_token.key,
+	})
 
 def delete_user(user) -> None:
 	if settings.DEBUG_ENVIRONMENT or settings.TEST:

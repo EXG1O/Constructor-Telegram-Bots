@@ -4,11 +4,16 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django import urls
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from rest_framework.authtoken.models import Token
 
 from constructor_telegram_bots.functions import generate_random_string
-from constructor_telegram_bots import environment
+from constructor_telegram_bots.environment import (
+	create_user as env_create_user,
+	delete_user as env_delete_user,
+)
 
 from asgiref.sync import sync_to_async
 import requests
@@ -16,10 +21,7 @@ import requests
 
 class UserManager(BaseUserManager):
 	def create(self, telegram_id: int, first_name: str, **extra_fields) -> 'User':
-		user: 'User' = super().create(telegram_id=telegram_id, first_name=first_name, **extra_fields)
-		Token.objects.create(user=user)
-		environment.create_user(user=user)
-		return user
+		return super().create(telegram_id=telegram_id, first_name=first_name, **extra_fields)
 
 	def create_superuser(self, **fields) -> None:
 		raise SyntaxError('Not support to create superuser!')
@@ -42,11 +44,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 		verbose_name = _('Пользователя')
 		verbose_name_plural = _('Пользователи')
 
+	def generate_confirm_code(self) -> None:
+		self.confirm_code = generate_random_string(length=25, chars='abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+		self.save()
+
 	def generate_login_url(self) -> str:
 		if not self.confirm_code:
-			self.confirm_code = generate_random_string(length=25, chars='abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-			self.save()
-		return f"{settings.SITE_DOMAIN}{urls.reverse('user:login', kwargs={'user_id': self.id, 'confirm_code': self.confirm_code})}"
+			self.generate_confirm_code()
+
+		user_login_url: str = urls.reverse('user:login', kwargs={
+			'user_id': self.id,
+			'confirm_code': self.confirm_code,
+		})
+
+		return f'{settings.SITE_DOMAIN}{user_login_url}'
 
 	@property
 	def login_url(self) -> str:
@@ -69,9 +80,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 	def get_telegram_bots_as_dict(self) -> list:
 		return [telegram_bot.to_dict() for telegram_bot in self.telegram_bots.all()]
 
-	def delete(self) -> None:
-		environment.delete_user(self)
-		super().delete()
-
 	def __str__(self) -> str:
 		return self.first_name
+
+@receiver(post_save, sender=User)
+def save_user_signal(instance: User, created: bool, **kwargs) -> None:
+	if created:
+		Token.objects.create(user=instance)
+		env_create_user(user=instance)
+
+@receiver(post_delete, sender=User)
+def delete_user_signal(instance: User, **kwargs) -> None:
+	env_delete_user(user=instance)

@@ -23,14 +23,15 @@ class UserModelTests(BaseTestCase):
 		self.assertIsNone(self.user.last_login)
 
 	def test_login_url(self) -> None:
-		self.user.generate_login_url()
+		self.user.generate_confirm_code()
 
-		user_login_url = urls.reverse('user:login', kwargs={
+		user_login_url: str = urls.reverse('user:login', kwargs={
 			'user_id': self.user.id,
 			'confirm_code': self.user.confirm_code,
 		})
+		user_login_url = f'{settings.SITE_DOMAIN}{user_login_url}'
 
-		self.assertEqual(self.user.login_url, f'{settings.SITE_DOMAIN}{user_login_url}')
+		self.assertEqual(self.user.login_url, user_login_url)
 		self.assertIsNotNone(self.user.confirm_code)
 		self.assertIsNone(self.user.last_login)
 
