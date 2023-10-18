@@ -31,7 +31,6 @@ from .middlewares import (
 	GetDjangoTelegramBotCommandKeyboardMiddleware,
 )
 
-from typing import Optional, Union
 import asyncio
 
 
@@ -45,8 +44,8 @@ class UserTelegramBot(BaseTelegramBot):
 		self,
 		event_chat: Chat,
 		message_text: str,
-		message_text_mode: Optional[str],
-		keyboard: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, None],
+		message_text_mode: str | None,
+		keyboard: ReplyKeyboardMarkup | InlineKeyboardMarkup | None,
 		django_telegram_bot_command: DjangoTelegramBotCommand,
 		**kwargs,
 	) -> None:
@@ -85,7 +84,8 @@ class UserTelegramBot(BaseTelegramBot):
 
 	async def callback_query_handler(self, event: CallbackQuery, **kwargs) -> None:
 		try:
-			await event.message.delete()
+			if event.message is not None:
+				await event.message.delete()
 		except TelegramNotFound:
 			pass
 

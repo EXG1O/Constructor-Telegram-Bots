@@ -21,5 +21,5 @@ class TeamMember(models.Model):
 		return f'@{self.username}'
 
 @receiver(post_delete, sender=TeamMember)
-def delete_team_member_signal(instance: TeamMember, **kwargs) -> None:
+def post_delete_team_member_signal(instance: TeamMember, **kwargs) -> None:
 	instance.image.delete(save=False)

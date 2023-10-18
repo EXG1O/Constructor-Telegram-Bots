@@ -12,7 +12,7 @@ celery_app.autodiscover_tasks(['user', 'telegram_bot'])
 
 
 @signals.celeryd_after_setup.connect
-def celery_after_setup(*args, **kwargs):
+def celery_after_setup(*args, **kwargs) -> None:
 	from telegram_bot.tasks import start_all_telegram_bots as celery_start_all_telegram_bots
 
 	celery_start_all_telegram_bots.delay()

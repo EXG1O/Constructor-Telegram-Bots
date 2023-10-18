@@ -12,7 +12,6 @@ from ...models import (
 )
 
 from asgiref.sync import async_to_sync
-from typing import List
 
 
 class UserTelegramBotTests(BaseTestCase):
@@ -248,7 +247,7 @@ class UserTelegramBotTests(BaseTestCase):
 		django_telegram_bot_command_1_keyboard_button.telegram_bot_command = django_telegram_bot_command_2
 		await django_telegram_bot_command_1_keyboard_button.asave()
 
-		methods: List[TelegramMethod] = await self.send_callback_query(str(django_telegram_bot_command_1_keyboard_button.id))
+		methods: list[TelegramMethod] = await self.send_callback_query(str(django_telegram_bot_command_1_keyboard_button.id))
 
 		assert isinstance(methods[0], DeleteMessage)
 		assert isinstance(methods[1], SendMessage)

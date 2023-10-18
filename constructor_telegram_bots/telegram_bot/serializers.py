@@ -7,8 +7,6 @@ from telegram_bot.models import TelegramBot
 
 from .functions import check_telegram_bot_api_token
 
-from typing import Optional
-
 
 class CreateTelegramBotSerializer(serializers.Serializer):
 	api_token = serializers.CharField(max_length=50, error_messages={
@@ -37,7 +35,7 @@ class UpdateTelegramBotSerializer(CreateTelegramBotSerializer):
 		self.fields['api_token'].allow_null = True
 		self.fields['is_private'].allow_null = True
 
-	def validate_api_token(self, api_token: Optional[str]) -> Optional[str]:
+	def validate_api_token(self, api_token: str | None) -> str | None:
 		if api_token is not None:
 			return super().validate_api_token(api_token)
 

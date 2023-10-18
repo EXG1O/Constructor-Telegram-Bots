@@ -3,11 +3,10 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework.request import Request
 
-from typing import Optional, Union
 import requests
 
 
-def check_telegram_bot_api_token(api_token: str) -> Optional[str]:
+def check_telegram_bot_api_token(api_token: str) -> str | None:
 	if settings.TEST:
 		return f"{api_token.split(':')[0]}_test_telegram_bot"
 
@@ -18,7 +17,7 @@ def check_telegram_bot_api_token(api_token: str) -> Optional[str]:
 	else:
 		return None
 
-def get_image_from_request(request: Request) -> Union[InMemoryUploadedFile, str, None]:
+def get_image_from_request(request: Request) -> InMemoryUploadedFile | str | None:
 	if 'image' in request.FILES:
 		return request.FILES['image']
 	elif 'image' in request.POST:

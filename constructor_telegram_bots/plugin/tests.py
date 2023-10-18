@@ -7,7 +7,7 @@ from telegram_bot.models import TelegramBot
 
 from .models import Plugin, PluginLog
 
-from typing import Dict, Any
+from typing import Any
 
 
 class BaseTestCase(TestCase):
@@ -45,7 +45,7 @@ class PluginModelTests(BaseTestCase):
 		self.assertIsNotNone(self.plugin.added_date)
 
 	def test_to_dict(self) -> None:
-		plugin_as_dict: Dict[str, Any] = self.plugin.to_dict()
+		plugin_as_dict: dict[str, Any] = self.plugin.to_dict()
 
 		self.assertDictEqual(plugin_as_dict, {
 			'id': plugin_as_dict['id'],
@@ -64,7 +64,7 @@ class PluginLogModelTests(BaseTestCase):
 		self.assertIsNotNone(self.plugin_log.added_date)
 
 	def test_to_dict(self) -> None:
-		plugin_log_as_dict: Dict[str, Any] = self.plugin_log.to_dict()
+		plugin_log_as_dict: dict[str, Any] = self.plugin_log.to_dict()
 
 		self.assertDictEqual(plugin_log_as_dict, {
 			'plugin_name': 'Test',

@@ -3,14 +3,12 @@ from pymongo.collection import Collection
 
 from django.conf import settings
 
-from typing import List, Union
-
 
 def connect_to_database(func):
 	def wrapper(telegram_bot, *args, **kwargs):
 		client = MongoClient('127.0.0.1', 27017)
 		collection = client.telegram_bots.get_collection('0' if settings.TEST else str(telegram_bot.id))
-		result: Union[list, dict, None] = func(collection=collection, *args, **kwargs)
+		result: list | dict | None = func(collection=collection, *args, **kwargs)
 		client.close()
 
 		return result
@@ -60,5 +58,5 @@ def delete_record(record_id: int, *, collection: Collection) -> None:
 	collection.delete_one({'_id': record_id})
 
 @connect_to_database
-def get_records(*, collection: Collection) -> List[dict]:
+def get_records(*, collection: Collection) -> list[dict]:
 	return [record for record in collection.find()]

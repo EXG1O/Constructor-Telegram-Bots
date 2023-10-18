@@ -39,7 +39,6 @@ from .serializers import (
 from .services import database_telegram_bot
 from .tasks import start_telegram_bot as celery_start_telegram_bot
 
-from typing import Optional
 import json
 import sys
 
@@ -74,8 +73,8 @@ class TelegramBotView(APIView):
 		serializer.is_valid(raise_exception=True)
 
 		validated_data: dict = serializer.validated_data
-		api_token: Optional[str] = validated_data['api_token']
-		is_private: Optional[bool] = validated_data['is_private']
+		api_token: str | None = validated_data['api_token']
+		is_private: bool | None = validated_data['is_private']
 
 		if api_token is not None:
 			username: str = check_telegram_bot_api_token(api_token)

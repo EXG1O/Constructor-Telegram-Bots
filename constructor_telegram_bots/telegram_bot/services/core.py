@@ -8,9 +8,12 @@ from aiogram.methods import TelegramMethod, SetMyCommands
 from django.test import TestCase
 from django.conf import settings
 
-from typing import Optional, List, Any
+from typing import TypeVar
 from datetime import datetime
 import asyncio
+
+
+T = TypeVar('T')
 
 
 class Bot(Bot_):
@@ -20,14 +23,14 @@ class Bot(Bot_):
 		if settings.TEST:
 			self.results = []
 
-	async def __call__(self, method: TelegramMethod, *args, **kwargs) -> Optional[Any]:
+	async def __call__(self, method: TelegramMethod[T], *args, **kwargs) -> T | None:
 		if settings.TEST:
 			if not isinstance(method, SetMyCommands):
 				self.results.append(method)
 		else:
 			return await super().__call__(method, *args, **kwargs)
 
-	async def get_results(self) -> Optional[List[TelegramMethod]]:
+	async def get_results(self) -> list[TelegramMethod] | None:
 		if settings.TEST:
 			return self.results
 
@@ -46,7 +49,7 @@ class BaseTestCase(TestCase):
 		self.bot = bot
 		self.dispatcher = dispatcher
 
-	async def send_message(self, text: str) -> Optional[List[TelegramMethod]]:
+	async def send_message(self, text: str) -> list[TelegramMethod] | None:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
 			message=Message(
@@ -59,7 +62,7 @@ class BaseTestCase(TestCase):
 		))
 		return await self.bot.get_results()
 
-	async def send_callback_query(self, data: str) -> Optional[List[TelegramMethod]]:
+	async def send_callback_query(self, data: str) -> list[TelegramMethod] | None:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
 			callback_query=CallbackQuery(

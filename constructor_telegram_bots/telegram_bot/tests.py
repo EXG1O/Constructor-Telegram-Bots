@@ -11,7 +11,7 @@ from telegram_bot.models import (
 )
 from telegram_bot.services import database_telegram_bot
 
-from typing import List, Dict, Any
+from typing import Any
 
 
 class BaseTestCase(TestCase):
@@ -79,7 +79,7 @@ class TelegramBotModelTests(BaseTestCase):
 		self.assertTrue(self.telegram_bot.is_stopped)
 
 	def test_get_commands_as_dict(self) -> None:
-		telegram_bot_commands_as_dict: List[Dict[str, Any]] = self.telegram_bot.get_commands_as_dict()
+		telegram_bot_commands_as_dict: list[dict[str, Any]] = self.telegram_bot.get_commands_as_dict()
 
 		self.assertListEqual(telegram_bot_commands_as_dict, [{
 			'id': telegram_bot_commands_as_dict[0]['id'],
@@ -132,7 +132,7 @@ class TelegramBotModelTests(BaseTestCase):
 		}])
 
 	def test_get_users_as_dict(self) -> None:
-		telegram_bot_users_as_dict: List[Dict[str, Any]] = self.telegram_bot.get_users_as_dict()
+		telegram_bot_users_as_dict: list[dict[str, Any]] = self.telegram_bot.get_users_as_dict()
 
 		self.assertListEqual(telegram_bot_users_as_dict, [{
 			'id': telegram_bot_users_as_dict[0]['id'],
@@ -143,7 +143,7 @@ class TelegramBotModelTests(BaseTestCase):
 		}])
 
 	def test_to_dict(self) -> None:
-		telegram_bot_as_dict: Dict[str, Any] = self.telegram_bot.to_dict()
+		telegram_bot_as_dict: dict[str, Any] = self.telegram_bot.to_dict()
 
 		self.assertDictEqual(telegram_bot_as_dict, {
 			'id': telegram_bot_as_dict['id'],
@@ -172,7 +172,7 @@ class TelegramBotCommandModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_command.get_keyboard(), self.telegram_bot_command.keyboard)
 
 	def test_get_keyboard_as_dict(self) -> None:
-		telegram_bot_command_keyboard_as_dict: Dict[str, Any] = self.telegram_bot_command.get_keyboard_as_dict()
+		telegram_bot_command_keyboard_as_dict: dict[str, Any] = self.telegram_bot_command.get_keyboard_as_dict()
 
 		self.assertDictEqual(telegram_bot_command_keyboard_as_dict, {
 			'mode': 'default',
@@ -204,7 +204,7 @@ class TelegramBotCommandModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_command.get_api_request(), self.telegram_bot_command.api_request)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_as_dict: Dict[str, Any] = self.telegram_bot_command.to_dict()
+		telegram_bot_command_as_dict: dict[str, Any] = self.telegram_bot_command.to_dict()
 
 		self.assertDictEqual(telegram_bot_command_as_dict, {
 			'id': telegram_bot_command_as_dict['id'],
@@ -285,7 +285,7 @@ class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_command.keyboard.mode, 'default')
 
 	def test_get_buttons_as_dict(self) -> None:
-		telegram_bot_command_keyboard_buttons_as_dict: Dict[str, Any] = self.telegram_bot_command.keyboard.get_buttons_as_dict()
+		telegram_bot_command_keyboard_buttons_as_dict: dict[str, Any] = self.telegram_bot_command.keyboard.get_buttons_as_dict()
 
 		self.assertListEqual(telegram_bot_command_keyboard_buttons_as_dict, [
 			{
@@ -311,7 +311,7 @@ class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 		])
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_keyboard_as_dict: Dict[str, Any] = self.telegram_bot_command.keyboard.to_dict()
+		telegram_bot_command_keyboard_as_dict: dict[str, Any] = self.telegram_bot_command.keyboard.to_dict()
 
 		self.assertDictEqual(telegram_bot_command_keyboard_as_dict, {
 			'mode': 'default',
@@ -354,7 +354,7 @@ class TelegramBotCommandKeyboardButtonModelTests(BaseTestCase):
 		self.assertIsNone(self.telegram_bot_command_keyboard_button.end_diagram_connector)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_command_keyboard_button_as_dict: Dict[str, Any] = self.telegram_bot_command_keyboard_button.to_dict()
+		telegram_bot_command_keyboard_button_as_dict: dict[str, Any] = self.telegram_bot_command_keyboard_button.to_dict()
 
 		self.assertDictEqual(telegram_bot_command_keyboard_button_as_dict, {
 			'id': telegram_bot_command_keyboard_button_as_dict['id'],
@@ -389,7 +389,7 @@ class TelegramBotUserModelTests(BaseTestCase):
 		self.assertEqual(self.telegram_bot_user.is_allowed, False)
 
 	def test_to_dict(self) -> None:
-		telegram_bot_user_as_dict: Dict[str, Any] = self.telegram_bot_user.to_dict()
+		telegram_bot_user_as_dict: dict[str, Any] = self.telegram_bot_user.to_dict()
 
 		self.assertDictEqual(telegram_bot_user_as_dict, {
 			'id': telegram_bot_user_as_dict['id'],

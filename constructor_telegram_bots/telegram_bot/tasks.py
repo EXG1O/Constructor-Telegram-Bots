@@ -15,10 +15,9 @@ from .services.constructor_telegram_bot.telegram_bot import ConstructorTelegramB
 from .services.user_telegram_bot.telegram_bot import UserTelegramBot
 
 from threading import Thread
-from typing import Union
 
 
-def start_telegram_bot_(aiogram_telegram_bot: Union[ConstructorTelegramBot, UserTelegramBot]) -> None:
+def start_telegram_bot_(aiogram_telegram_bot: ConstructorTelegramBot | UserTelegramBot) -> None:
 	try:
 		aiogram_telegram_bot.loop.run_until_complete(aiogram_telegram_bot.start())
 	except (

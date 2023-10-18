@@ -11,7 +11,7 @@ from .middlewares import CreateDjangoUserMiddleware
 class ConstructorTelegramBot(BaseTelegramBot):
 	async def start_command(self, message: Message) -> None:
 		await self.bot.send_message(chat_id=message.chat.id, text=(
-			f'Hello, @{message.from_user.username}!\n'
+			f'Hello, {message.from_user.full_name}!\n'
 			'I am a Telegram bot for Constructor Telegram Bots site.\n'
 			'Thank you for being with us ❤️'
 		))

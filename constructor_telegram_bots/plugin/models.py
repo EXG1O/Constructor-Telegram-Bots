@@ -40,12 +40,12 @@ class Plugin(models.Model):
 		return self.name
 
 @receiver(post_save, sender=Plugin)
-def save_plugin_signal(instance: Plugin, **kwargs) -> None:
+def post_save_plugin_signal(instance: Plugin, **kwargs) -> None:
 	if instance.is_checked:
 		env_update_plugin(plugin=instance)
 
 @receiver(post_delete, sender=Plugin)
-def delete_plugin_signal(instance: Plugin, **kwargs) -> None:
+def post_delete_plugin_signal(instance: Plugin, **kwargs) -> None:
 	if instance.is_checked:
 		env_delete_plugin(plugin=instance)
 

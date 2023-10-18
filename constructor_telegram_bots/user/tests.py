@@ -43,7 +43,7 @@ class UserModelTests(BaseTestCase):
 
 class ViewsTests(BaseTestCase):
 	def test_user_login_view(self) -> None:
-		login_urls = {
+		login_urls: dict[str, str] = {
 			urls.reverse('user:login', kwargs={
 				'user_id': 0,
 				'confirm_code': 1,

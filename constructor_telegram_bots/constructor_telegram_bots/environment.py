@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from typing import Any
 from asgiref.sync import sync_to_async
 import requests
 import jinja2
@@ -56,12 +57,11 @@ def delete_plugin(plugin) -> None:
 		'name': plugin.name,
 	})
 
-def replace_text_variables_to_jinja_variables_values(telegram_bot, text: str, jinja_variables: dict) -> str:
+def replace_text_variables_to_jinja_variables_values(telegram_bot, text: str, jinja_variables: dict[str, Any]) -> str:
 	if settings.DEBUG_ENVIRONMENT or settings.TEST:
 		environment = jinja2.Environment()
 		template: jinja2.Template = environment.from_string(text)
-		text: str = template.render(jinja_variables)
-		return text.replace('\n\n', '\n')
+		return template.render(jinja_variables).replace('\n\n', '\n')
 
 	return requests.post('http://127.0.0.1:99/generate/template/', json={
 		'user_id': telegram_bot.owner.id,
@@ -71,5 +71,5 @@ def replace_text_variables_to_jinja_variables_values(telegram_bot, text: str, ji
 		'text_variables': jinja_variables,
 	}).json()['response']
 
-async def areplace_text_variables_to_jinja_variables_values(telegram_bot, text: str, jinja_variables: dict) -> str:
+async def areplace_text_variables_to_jinja_variables_values(telegram_bot, text: str, jinja_variables: dict[str, Any]) -> str:
 	return await sync_to_async(replace_text_variables_to_jinja_variables_values)(telegram_bot, text, jinja_variables)

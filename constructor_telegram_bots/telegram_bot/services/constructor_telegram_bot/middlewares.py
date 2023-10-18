@@ -6,16 +6,13 @@ from aiogram.types import (
 
 from user.models import User as DjangoUser
 
-from typing import Callable, Awaitable, Dict, Any
+from ..typing import Handler
+
+from typing import Any
 
 
 class CreateDjangoUserMiddleware(BaseMiddleware):
-	async def __call__(
-		self,
-		handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
-		event: Update,
-		data: Dict[str, Any],
-	) -> Any:
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
 		event_from_user: AiogramUser = data['event_from_user']
 
 		await DjangoUser.objects.aget_or_create(

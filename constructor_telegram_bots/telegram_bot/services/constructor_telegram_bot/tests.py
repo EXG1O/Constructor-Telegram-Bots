@@ -20,7 +20,7 @@ class ConstructorTelegramBotTests(BaseTestCase):
 
 		assert isinstance(method, SendMessage)
 		assert method.text == (
-			'Hello, @test!\n'
+			'Hello, Test!\n'
 			'I am a Telegram bot for Constructor Telegram Bots site.\n'
 			'Thank you for being with us ❤️'
 		)

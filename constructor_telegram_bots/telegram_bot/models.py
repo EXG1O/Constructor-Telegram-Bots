@@ -12,7 +12,7 @@ from .services import database_telegram_bot
 from .functions import check_telegram_bot_api_token
 
 from asgiref.sync import sync_to_async
-from typing import Optional, Union
+from typing import Optional
 
 
 class TelegramBotManager(models.Manager):
@@ -75,7 +75,7 @@ class TelegramBot(models.Model):
 		return f'@{self.username}'
 
 @receiver(post_delete, sender=TelegramBot)
-def delete_telegram_bot_signal(instance: TelegramBot, **kwargs) -> None:
+def post_delete_telegram_bot_signal(instance: TelegramBot, **kwargs) -> None:
 	database_telegram_bot.delete_collection(instance)
 
 class TelegramBotCommandManager(models.Manager):
@@ -83,12 +83,12 @@ class TelegramBotCommandManager(models.Manager):
 		self,
 		telegram_bot: TelegramBot,
 		name: str,
-		command: Optional[dict],
-		image: Union[InMemoryUploadedFile, str, None],
+		command: dict | None,
+		image: InMemoryUploadedFile | str | None,
 		message_text: dict,
-		keyboard: Optional[dict],
-		api_request: Optional[dict],
-		database_record: Optional[dict],
+		keyboard: dict | None,
+		api_request: dict | None,
+		database_record: dict | None,
 	) -> 'TelegramBotCommand':
 		telegram_bot_command: TelegramBotCommand = super().create(
 			telegram_bot=telegram_bot,
@@ -160,8 +160,8 @@ class TelegramBotCommand(models.Model):
 	async def aget_keyboard(self) -> Optional['TelegramBotCommandKeyboard']:
 		return await sync_to_async(self.get_keyboard)()
 
-	def get_keyboard_as_dict(self, escape: bool = False) -> Optional[dict]:
-		keyboard: Optional[TelegramBotCommandKeyboard] = self.get_keyboard()
+	def get_keyboard_as_dict(self, escape: bool = False) -> dict | None:
+		keyboard: TelegramBotCommandKeyboard | None = self.get_keyboard()
 		return keyboard.to_dict(escape=escape) if keyboard else None
 
 	def get_api_request(self) -> Optional['TelegramBotCommandApiRequest']:
@@ -176,18 +176,18 @@ class TelegramBotCommand(models.Model):
 	def update(
 		self,
 		name: str,
-		command: Optional[dict],
-		image: Union[InMemoryUploadedFile, str, None],
+		command: dict | None,
+		image: InMemoryUploadedFile | str | None,
 		message_text: dict,
-		keyboard: Optional[dict],
-		api_request: Optional[dict],
-		database_record: Optional[dict],
+		keyboard: dict | None,
+		api_request: dict | None,
+		database_record: dict | None,
 	):
 		self.name = name
 		self.database_record = database_record
 		self.save()
 
-		telegram_bot_command_command: Optional[TelegramBotCommandCommand] = self.get_command()
+		telegram_bot_command_command: TelegramBotCommandCommand | None = self.get_command()
 
 		if command:
 			if telegram_bot_command_command:
@@ -213,7 +213,7 @@ class TelegramBotCommand(models.Model):
 		self.message_text.text = message_text['text']
 		self.message_text.save()
 
-		telegram_bot_command_keyboard: Optional[TelegramBotCommandKeyboard] = self.get_keyboard()
+		telegram_bot_command_keyboard: TelegramBotCommandKeyboard | None = self.get_keyboard()
 
 		if keyboard:
 			if telegram_bot_command_keyboard:
@@ -256,7 +256,7 @@ class TelegramBotCommand(models.Model):
 			if telegram_bot_command_keyboard:
 				telegram_bot_command_keyboard.delete()
 
-		telegram_bot_command_api_request: Optional[TelegramBotCommandApiRequest] = self.get_api_request()
+		telegram_bot_command_api_request: TelegramBotCommandApiRequest | None = self.get_api_request()
 
 		if api_request:
 			if telegram_bot_command_api_request:
@@ -272,8 +272,8 @@ class TelegramBotCommand(models.Model):
 				telegram_bot_command_api_request.delete()
 
 	def to_dict(self, escape: bool = False) -> dict:
-		command: Optional[TelegramBotCommandCommand] = self.get_command()
-		api_request: Optional[TelegramBotCommandApiRequest] = self.get_api_request()
+		command: TelegramBotCommandCommand | None = self.get_command()
+		api_request: TelegramBotCommandApiRequest | None = self.get_api_request()
 
 		return {
 			'id': self.id,
@@ -293,7 +293,7 @@ class TelegramBotCommand(models.Model):
 		return self.name
 
 @receiver(post_delete, sender=TelegramBotCommand)
-def delete_telegram_bot_signal(instance: TelegramBotCommand, **kwargs) -> None:
+def post_delete_telegram_bot_signal(instance: TelegramBotCommand, **kwargs) -> None:
 	instance.image.delete(save=False)
 
 class TelegramBotCommandCommand(models.Model):
@@ -386,10 +386,10 @@ class TelegramBotCommandKeyboardButton(models.Model):
 		db_table = 'telegram_bot_command_keyboard_button'
 		ordering = ['id']
 
-	def get_telegram_bot_command(self) -> Optional[TelegramBotCommand]:
+	def get_telegram_bot_command(self) -> TelegramBotCommand | None:
 		return self.telegram_bot_command
 
-	async def aget_telegram_bot_command(self) -> Optional[TelegramBotCommand]:
+	async def aget_telegram_bot_command(self) -> TelegramBotCommand | None:
 		return await sync_to_async(self.get_telegram_bot_command)()
 
 	def to_dict(self, escape: bool = False) -> dict:

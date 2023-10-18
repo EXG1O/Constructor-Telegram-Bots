@@ -17,6 +17,7 @@ from constructor_telegram_bots.environment import (
 
 from asgiref.sync import sync_to_async
 import requests
+import string
 
 
 class UserManager(BaseUserManager):
@@ -45,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		verbose_name_plural = _('Пользователи')
 
 	def generate_confirm_code(self) -> None:
-		self.confirm_code = generate_random_string(length=25, chars='abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+		self.confirm_code = generate_random_string(length=25, chars=string.ascii_letters + string.digits)
 		self.save()
 
 	def generate_login_url(self) -> str:
@@ -57,7 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			'confirm_code': self.confirm_code,
 		})
 
-		return f'{settings.SITE_DOMAIN}{user_login_url}'
+		return settings.SITE_DOMAIN + user_login_url
 
 	@property
 	def login_url(self) -> str:
@@ -84,11 +85,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return self.first_name
 
 @receiver(post_save, sender=User)
-def save_user_signal(instance: User, created: bool, **kwargs) -> None:
+def post_save_user_signal(instance: User, created: bool, **kwargs) -> None:
 	if created:
 		Token.objects.create(user=instance)
 		env_create_user(user=instance)
 
 @receiver(post_delete, sender=User)
-def delete_user_signal(instance: User, **kwargs) -> None:
+def post_delete_user_signal(instance: User, **kwargs) -> None:
 	env_delete_user(user=instance)

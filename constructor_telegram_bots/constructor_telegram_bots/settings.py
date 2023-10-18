@@ -4,22 +4,28 @@ from .functions import generate_random_string
 
 from dotenv import load_dotenv
 from pathlib import Path
+import string
 import sys
 import os
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 
 load_dotenv()
 
-SECRET_KEY = os.getenv('SECRET_KEY', f"django-insecure-{generate_random_string(length=50, chars='abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_')}")
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
-DEBUG_ENVIRONMENT = os.getenv('DEBUG_ENVIRONMENT', 'True') == 'True'
-TEST = len(sys.argv) >= 2 and sys.argv[0] == 'manage.py' and sys.argv[1] == 'test'
+SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(length=50, chars=string.ascii_letters + string.digits)}')
+DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
+DEBUG_ENVIRONMENT: bool = os.getenv('DEBUG_ENVIRONMENT', 'True') == 'True'
 
-CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-CONSTRUCTOR_TELEGRAM_BOT_USERNAME = os.getenv('TELEGRAM_BOT_USERNAME')
+match sys.argv:
+	case 'manage.py', 'test':
+		TEST = True
+	case _:
+		TEST = False
+
+CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN: str | None = os.getenv('TELEGRAM_BOT_TOKEN')
+CONSTRUCTOR_TELEGRAM_BOT_USERNAME: str | None = os.getenv('TELEGRAM_BOT_USERNAME')
 
 
 SITE_DOMAIN = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
@@ -164,14 +170,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 USE_I18N = True
 USE_L10N = True
 
-LANGUAGES = (
+LANGUAGES = [
 	('en', _('Английский')),
 	('uk', _('Украинский')),
 	('ru', _('Русский')),
-)
+]
 LANGUAGE_CODE = 'ru-ru'
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'ru'
-LOCALE_PATHS = (BASE_DIR / 'locale',)
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 
 TIME_ZONE = 'UTC'
@@ -180,7 +186,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = (BASE_DIR / 'constructor_telegram_bots/static',)
+STATICFILES_DIRS = [BASE_DIR / 'constructor_telegram_bots/static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
