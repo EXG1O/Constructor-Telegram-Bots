@@ -18,12 +18,12 @@ class ModelSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class PluginSerializer(ModelSerializer):
+class PluginModelSerializer(ModelSerializer):
 	class Meta:
 		model = Plugin
 		fields = ['id', 'name', 'code', 'is_checked']
 
-class PluginLogSerializer(ModelSerializer):
+class PluginLogModelSerializer(ModelSerializer):
 	plugin_name = serializers.CharField(max_length=255, source='plugin.name')
 
 	class Meta:

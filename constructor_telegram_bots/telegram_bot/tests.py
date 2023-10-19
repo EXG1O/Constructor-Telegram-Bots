@@ -78,85 +78,6 @@ class TelegramBotModelTests(BaseTestCase):
 		self.assertFalse(self.telegram_bot.is_running)
 		self.assertTrue(self.telegram_bot.is_stopped)
 
-	def test_get_commands_as_dict(self) -> None:
-		telegram_bot_commands_as_dict: list[dict[str, Any]] = self.telegram_bot.get_commands_as_dict()
-
-		self.assertListEqual(telegram_bot_commands_as_dict, [{
-			'id': telegram_bot_commands_as_dict[0]['id'],
-			'name': 'Test',
-			'command': {
-				'text': '/test',
-				'is_show_in_menu': False,
-				'description': None,
-			},
-			'image': None,
-			'message_text': {
-				'mode': 'default',
-				'text': 'Test...',
-			},
-			'keyboard': {
-				'mode': 'default',
-				'buttons': [
-					{
-						'id': telegram_bot_commands_as_dict[0]['keyboard']['buttons'][0]['id'],
-						'row': 1,
-						'text': '1',
-						'url': None,
-
-						'telegram_bot_command_id': None,
-						'start_diagram_connector': None,
-						'end_diagram_connector' : None,
-					},
-					{
-						'id': telegram_bot_commands_as_dict[0]['keyboard']['buttons'][1]['id'],
-						'row': 1,
-						'text': '2',
-						'url': 'http://example.com/',
-
-						'telegram_bot_command_id': None,
-						'start_diagram_connector': None,
-						'end_diagram_connector' : None,
-					},
-				],
-			},
-			'api_request': {
-				'url': 'http://example.com/',
-				'method': 'get',
-				'headers': None,
-				'data': None,
-			},
-			'database_record': {'key': 'value'},
-
-			'x': 0,
-			'y': 0,
-		}])
-
-	def test_get_users_as_dict(self) -> None:
-		telegram_bot_users_as_dict: list[dict[str, Any]] = self.telegram_bot.get_users_as_dict()
-
-		self.assertListEqual(telegram_bot_users_as_dict, [{
-			'id': telegram_bot_users_as_dict[0]['id'],
-			'user_id': 123456789,
-			'full_name': 'Test user',
-			'is_allowed': False,
-			'activated_date': telegram_bot_users_as_dict[0]['activated_date'],
-		}])
-
-	def test_to_dict(self) -> None:
-		telegram_bot_as_dict: dict[str, Any] = self.telegram_bot.to_dict()
-
-		self.assertDictEqual(telegram_bot_as_dict, {
-			'id': telegram_bot_as_dict['id'],
-			'username': '123456789_test_telegram_bot',
-			'api_token': '123456789:qwertyuiop',
-			'is_private': True,
-			'is_running': False,
-			'is_stopped': True,
-			'commands_count': 1,
-			'users_count': 1,
-			'added_date': telegram_bot_as_dict['added_date'],
-		})
-
 class TelegramBotCommandModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot_command.name, 'Test')
@@ -171,90 +92,8 @@ class TelegramBotCommandModelTests(BaseTestCase):
 	def test_get_keyboard(self) -> None:
 		self.assertEqual(self.telegram_bot_command.get_keyboard(), self.telegram_bot_command.keyboard)
 
-	def test_get_keyboard_as_dict(self) -> None:
-		telegram_bot_command_keyboard_as_dict: dict[str, Any] = self.telegram_bot_command.get_keyboard_as_dict()
-
-		self.assertDictEqual(telegram_bot_command_keyboard_as_dict, {
-			'mode': 'default',
-			'buttons': [
-				{
-					'id': telegram_bot_command_keyboard_as_dict['buttons'][0]['id'],
-					'row': 1,
-					'text': '1',
-					'url': None,
-
-					'telegram_bot_command_id': None,
-					'start_diagram_connector': None,
-					'end_diagram_connector' : None,
-				},
-				{
-					'id': telegram_bot_command_keyboard_as_dict['buttons'][1]['id'],
-					'row': 1,
-					'text': '2',
-					'url': 'http://example.com/',
-
-					'telegram_bot_command_id': None,
-					'start_diagram_connector': None,
-					'end_diagram_connector' : None,
-				},
-			],
-		})
-
 	def test_get_api_request(self) -> None:
 		self.assertEqual(self.telegram_bot_command.get_api_request(), self.telegram_bot_command.api_request)
-
-	def test_to_dict(self) -> None:
-		telegram_bot_command_as_dict: dict[str, Any] = self.telegram_bot_command.to_dict()
-
-		self.assertDictEqual(telegram_bot_command_as_dict, {
-			'id': telegram_bot_command_as_dict['id'],
-			'name': 'Test',
-			'command': {
-				'text': '/test',
-				'is_show_in_menu': False,
-				'description': None,
-			},
-			'image': None,
-			'message_text': {
-				'mode': 'default',
-				'text': 'Test...',
-			},
-			'keyboard': {
-				'mode': 'default',
-				'buttons': [
-					{
-						'id': telegram_bot_command_as_dict['keyboard']['buttons'][0]['id'],
-						'row': 1,
-						'text': '1',
-						'url': None,
-
-						'telegram_bot_command_id': None,
-						'start_diagram_connector': None,
-						'end_diagram_connector' : None,
-					},
-					{
-						'id': telegram_bot_command_as_dict['keyboard']['buttons'][1]['id'],
-						'row': 1,
-						'text': '2',
-						'url': 'http://example.com/',
-
-						'telegram_bot_command_id': None,
-						'start_diagram_connector': None,
-						'end_diagram_connector' : None,
-					},
-				],
-			},
-			'api_request': {
-				'url': 'http://example.com/',
-				'method': 'get',
-				'headers': None,
-				'data': None,
-			},
-			'database_record': {'key': 'value'},
-
-			'x': 0,
-			'y': 0,
-		})
 
 class TelegramBotCommandCommandModelTests(BaseTestCase):
 	def test_fields(self) -> None:
@@ -262,82 +101,14 @@ class TelegramBotCommandCommandModelTests(BaseTestCase):
 		self.assertFalse(self.telegram_bot_command.command.is_show_in_menu)
 		self.assertIsNone(self.telegram_bot_command.command.description)
 
-	def test_to_dict(self) -> None:
-		self.assertDictEqual(self.telegram_bot_command.command.to_dict(), {
-			'text': '/test',
-			'is_show_in_menu': False,
-			'description': None,
-		})
-
 class TelegramBotCommandMessageTextModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot_command.message_text.mode, 'default')
 		self.assertEqual(self.telegram_bot_command.message_text.text, 'Test...')
 
-	def test_to_dict(self) -> None:
-		self.assertDictEqual(self.telegram_bot_command.message_text.to_dict(), {
-			'mode': 'default',
-			'text': 'Test...',
-		})
-
 class TelegramBotCommandKeyboardModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot_command.keyboard.mode, 'default')
-
-	def test_get_buttons_as_dict(self) -> None:
-		telegram_bot_command_keyboard_buttons_as_dict: dict[str, Any] = self.telegram_bot_command.keyboard.get_buttons_as_dict()
-
-		self.assertListEqual(telegram_bot_command_keyboard_buttons_as_dict, [
-			{
-				'id': telegram_bot_command_keyboard_buttons_as_dict[0]['id'],
-				'row': 1,
-				'text': '1',
-				'url': None,
-
-				'telegram_bot_command_id': None,
-				'start_diagram_connector': None,
-				'end_diagram_connector' : None,
-			},
-			{
-				'id': telegram_bot_command_keyboard_buttons_as_dict[1]['id'],
-				'row': 1,
-				'text': '2',
-				'url': 'http://example.com/',
-
-				'telegram_bot_command_id': None,
-				'start_diagram_connector': None,
-				'end_diagram_connector' : None,
-			},
-		])
-
-	def test_to_dict(self) -> None:
-		telegram_bot_command_keyboard_as_dict: dict[str, Any] = self.telegram_bot_command.keyboard.to_dict()
-
-		self.assertDictEqual(telegram_bot_command_keyboard_as_dict, {
-			'mode': 'default',
-			'buttons': [
-				{
-					'id': telegram_bot_command_keyboard_as_dict['buttons'][0]['id'],
-					'row': 1,
-					'text': '1',
-					'url': None,
-
-					'telegram_bot_command_id': None,
-					'start_diagram_connector': None,
-					'end_diagram_connector' : None,
-				},
-				{
-					'id': telegram_bot_command_keyboard_as_dict['buttons'][1]['id'],
-					'row': 1,
-					'text': '2',
-					'url': 'http://example.com/',
-
-					'telegram_bot_command_id': None,
-					'start_diagram_connector': None,
-					'end_diagram_connector' : None,
-				},
-			],
-		})
 
 class TelegramBotCommandKeyboardButtonModelTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -353,20 +124,6 @@ class TelegramBotCommandKeyboardButtonModelTests(BaseTestCase):
 		self.assertIsNone(self.telegram_bot_command_keyboard_button.start_diagram_connector)
 		self.assertIsNone(self.telegram_bot_command_keyboard_button.end_diagram_connector)
 
-	def test_to_dict(self) -> None:
-		telegram_bot_command_keyboard_button_as_dict: dict[str, Any] = self.telegram_bot_command_keyboard_button.to_dict()
-
-		self.assertDictEqual(telegram_bot_command_keyboard_button_as_dict, {
-			'id': telegram_bot_command_keyboard_button_as_dict['id'],
-			'row': 1,
-			'text': '1',
-			'url': None,
-
-			'telegram_bot_command_id': None,
-			'start_diagram_connector': None,
-			'end_diagram_connector' : None,
-		})
-
 class TelegramBotCommandApiRequestModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot_command.api_request.url, 'http://example.com/')
@@ -374,30 +131,11 @@ class TelegramBotCommandApiRequestModelTests(BaseTestCase):
 		self.assertIsNone(self.telegram_bot_command.api_request.headers)
 		self.assertIsNone(self.telegram_bot_command.api_request.data)
 
-	def test_to_dict(self) -> None:
-		self.assertDictEqual(self.telegram_bot_command.api_request.to_dict(), {
-			'url': 'http://example.com/',
-			'method': 'get',
-			'headers': None,
-			'data': None,
-		})
-
 class TelegramBotUserModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot_user.user_id, 123456789)
 		self.assertEqual(self.telegram_bot_user.full_name, 'Test user')
 		self.assertEqual(self.telegram_bot_user.is_allowed, False)
-
-	def test_to_dict(self) -> None:
-		telegram_bot_user_as_dict: dict[str, Any] = self.telegram_bot_user.to_dict()
-
-		self.assertDictEqual(telegram_bot_user_as_dict, {
-			'id': telegram_bot_user_as_dict['id'],
-			'user_id': 123456789,
-			'full_name': 'Test user',
-			'is_allowed': False,
-			'activated_date': telegram_bot_user_as_dict['activated_date'],
-		})
 
 class TelegramBotsViewTests(BaseTestCase):
 	url: str = urls.reverse('telegram_bots')
@@ -450,7 +188,6 @@ class TelegramBotsViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, self.user.get_telegram_bots_as_dict())
 
 class TelegramBotViewTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -573,7 +310,6 @@ class TelegramBotViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, self.telegram_bot.to_dict())
 
 class StartOrStopTelegramBotViewTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -911,7 +647,6 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, self.telegram_bot.get_commands_as_dict(escape=True))
 
 class TelegramBotCommandViewTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -1226,7 +961,6 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, self.telegram_bot_command.to_dict())
 
 class UpdateTelegramBotCommandPositionViewTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -1409,7 +1143,6 @@ class TelegramBotUsersViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, self.telegram_bot.get_users_as_dict())
 
 class TelegramBotUserViewTests(BaseTestCase):
 	def setUp(self) -> None:

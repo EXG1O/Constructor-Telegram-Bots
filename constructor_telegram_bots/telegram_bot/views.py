@@ -26,6 +26,9 @@ from .functions import (
 	get_image_from_request,
 )
 from .serializers import (
+	TelegramBotModelSerializer,
+	TelegramBotCommandModelSerializer,
+	TelegramBotUserModelSerializer,
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
 	UpdateTelegramBotDiagramCurrentScaleSerializer,
@@ -39,6 +42,7 @@ from .serializers import (
 from .services import database_telegram_bot
 from .tasks import start_telegram_bot as celery_start_telegram_bot
 
+from typing import Any
 import json
 import sys
 
@@ -57,11 +61,11 @@ class TelegramBotsView(APIView):
 			'message': _('Вы успешно добавили Telegram бота.'),
 			'level': 'success',
 
-			'telegram_bot': telegram_bot.to_dict(),
+			'telegram_bot': TelegramBotModelSerializer(telegram_bot).data,
 		})
 
 	def get(self, request: Request) -> Response:
-		return Response(request.user.get_telegram_bots_as_dict())
+		return Response(TelegramBotModelSerializer(request.user.telegram_bots.all(), many=True).data)
 
 class TelegramBotView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -119,7 +123,7 @@ class TelegramBotView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(telegram_bot.to_dict())
+		return Response(TelegramBotModelSerializer(telegram_bot).data)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -162,7 +166,7 @@ class TelegramBotCommandsView(APIView):
 
 	@check_telegram_bot_id
 	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		request_data: dict = json.loads(request.POST['data']) if 'data' in request.POST else request.data
+		request_data: dict[str, Any] = json.loads(request.POST['data']) if 'data' in request.POST else request.data
 
 		serializer = CreateTelegramBotCommandSerializer(data=request_data)
 		serializer.is_valid(raise_exception=True)
@@ -180,7 +184,7 @@ class TelegramBotCommandsView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(telegram_bot.get_commands_as_dict(escape=True))
+		return Response(TelegramBotCommandModelSerializer(telegram_bot.commands.all(), many=True, context={'escape': True}).data)
 
 class TelegramBotCommandView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -189,7 +193,7 @@ class TelegramBotCommandView(APIView):
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
 	def patch(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
-		request_data: dict = json.loads(request.POST['data']) if 'data' in request.POST else request.data
+		request_data: dict[str, Any] = json.loads(request.POST['data']) if 'data' in request.POST else request.data
 
 		serializer = UpdateTelegramBotCommandSerializer(data=request_data)
 		serializer.is_valid(raise_exception=True)
@@ -217,7 +221,7 @@ class TelegramBotCommandView(APIView):
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
 	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
-		return Response(telegram_bot_command.to_dict())
+		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
 
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
@@ -294,7 +298,7 @@ class TelegramBotUsersView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(telegram_bot.get_users_as_dict())
+		return Response(TelegramBotUserModelSerializer(telegram_bot.users.all(), many=True).data)
 
 class TelegramBotUserView(APIView):
 	authentication_classes = [TokenAuthentication]

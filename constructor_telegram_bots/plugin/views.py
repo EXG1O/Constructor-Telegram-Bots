@@ -13,8 +13,8 @@ from telegram_bot.decorators import check_telegram_bot_id
 from .models import Plugin, PluginLog
 from .decorators import check_plugin_id
 from .serializers import (
-	PluginSerializer,
-	PluginLogSerializer,
+	PluginModelSerializer,
+	PluginLogModelSerializer,
 	CreatePluginSerializer,
 	UpdatePluginSerializer,
 	AddPluginLogSerializer,
@@ -42,12 +42,12 @@ class PluginsView(APIView):
 			'message': _('Вы успешно добавили плагин вашему Telegram боту.'),
 			'level': 'success',
 
-			'plugin': PluginSerializer(plugin).data,
+			'plugin': PluginModelSerializer(plugin).data,
 		})
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(PluginSerializer(telegram_bot.plugins.all(), many=True).data)
+		return Response(PluginModelSerializer(telegram_bot.plugins.all(), many=True).data)
 
 class PluginView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -68,7 +68,7 @@ class PluginView(APIView):
 			'message': _('Вы успешно обновили плагин вашего Telegram бота.'),
 			'level': 'success',
 
-			'plugin': PluginSerializer(plugin).data,
+			'plugin': PluginModelSerializer(plugin).data,
 		})
 
 	@check_plugin_id
@@ -85,7 +85,7 @@ class PluginView(APIView):
 @permission_classes([IsAuthenticated])
 @check_telegram_bot_id
 def get_plugins_logs_view(request: Request, telegram_bot: TelegramBot) -> Response:
-	return Response(PluginLogSerializer([plugin_log for plugin in telegram_bot.plugins.all() for plugin_log in plugin.logs.all()], many=True).data)
+	return Response(PluginLogModelSerializer([plugin_log for plugin in telegram_bot.plugins.all() for plugin_log in plugin.logs.all()], many=True).data)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])

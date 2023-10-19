@@ -46,30 +46,11 @@ class TelegramBot(models.Model):
 		verbose_name = _('Telegram бота')
 		verbose_name_plural = _('Telegram боты')
 
-	def get_commands_as_dict(self, escape: bool = False) -> list:
-		return [command.to_dict(escape=escape) for command in self.commands.all()]
-
-	def get_users_as_dict(self) -> list:
-		return [user.to_dict() for user in self.users.all()]
-
 	# TODO: Надо реализовать метод start для запуска Telegram бота, но проблема в том, что происходит циклический импорт.
 
 	def stop(self) -> None:
 		self.is_running = False
 		self.save()
-
-	def to_dict(self) -> dict:
-		return {
-			'id': self.id,
-			'username': self.username,
-			'api_token': self.api_token,
-			'is_private': self.is_private,
-			'is_running': self.is_running,
-			'is_stopped': self.is_stopped,
-			'commands_count': self.commands.count(),
-			'users_count': self.users.count(),
-			'added_date': f'{filters.date(self.added_date)} {filters.time(self.added_date)}',
-		}
 
 	def __str__(self) -> str:
 		return f'@{self.username}'
@@ -159,10 +140,6 @@ class TelegramBotCommand(models.Model):
 
 	async def aget_keyboard(self) -> Optional['TelegramBotCommandKeyboard']:
 		return await sync_to_async(self.get_keyboard)()
-
-	def get_keyboard_as_dict(self, escape: bool = False) -> dict | None:
-		keyboard: TelegramBotCommandKeyboard | None = self.get_keyboard()
-		return keyboard.to_dict(escape=escape) if keyboard else None
 
 	def get_api_request(self) -> Optional['TelegramBotCommandApiRequest']:
 		try:
@@ -271,24 +248,6 @@ class TelegramBotCommand(models.Model):
 			if telegram_bot_command_api_request:
 				telegram_bot_command_api_request.delete()
 
-	def to_dict(self, escape: bool = False) -> dict:
-		command: TelegramBotCommandCommand | None = self.get_command()
-		api_request: TelegramBotCommandApiRequest | None = self.get_api_request()
-
-		return {
-			'id': self.id,
-			'name': filters.escape(self.name) if escape else self.name,
-			'command': command.to_dict() if command else None,
-			'image': self.image.url if self.image else None,
-			'message_text': self.message_text.to_dict(escape=escape),
-			'keyboard': self.get_keyboard_as_dict(escape=escape),
-			'api_request': api_request.to_dict() if api_request else None,
-			'database_record': self.database_record,
-
-			'x': self.x,
-			'y': self.y,
-		}
-
 	def __str__(self) -> str:
 		return self.name
 
@@ -305,13 +264,6 @@ class TelegramBotCommandCommand(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_command'
 
-	def to_dict(self) -> dict:
-		return {
-			'text': self.text,
-			'is_show_in_menu': self.is_show_in_menu,
-			'description': self.description,
-		}
-
 class TelegramBotCommandMessageText(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='message_text')
 	mode = models.CharField(_('Режим'), max_length=8, choices=(
@@ -323,12 +275,6 @@ class TelegramBotCommandMessageText(models.Model):
 
 	class Meta:
 		db_table = 'telegram_bot_command_message_text'
-
-	def to_dict(self, escape: bool = False) -> dict:
-		return {
-			'mode': self.mode,
-			'text': filters.escape(self.text) if escape else self.text,
-		}
 
 class TelegramBotCommandKeyboardManager(models.Manager):
 	def create(
@@ -362,15 +308,6 @@ class TelegramBotCommandKeyboard(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_keyboard'
 
-	def get_buttons_as_dict(self, escape: bool = False) -> list:
-		return [button.to_dict(escape=escape) for button in self.buttons.all()]
-
-	def to_dict(self, escape: bool = False) -> dict:
-		return {
-			'mode': self.mode,
-			'buttons': self.get_buttons_as_dict(escape=escape),
-		}
-
 class TelegramBotCommandKeyboardButton(models.Model):
 	telegram_bot_command_keyboard = models.ForeignKey(TelegramBotCommandKeyboard, on_delete=models.CASCADE, related_name='buttons', null=True)
 	row = models.IntegerField(_('Ряд'), blank=True, null=True)
@@ -392,19 +329,6 @@ class TelegramBotCommandKeyboardButton(models.Model):
 	async def aget_telegram_bot_command(self) -> TelegramBotCommand | None:
 		return await sync_to_async(self.get_telegram_bot_command)()
 
-	def to_dict(self, escape: bool = False) -> dict:
-		return {
-			'id': self.id,
-			'row': self.row,
-			'text': filters.escape(self.text) if escape else self.text,
-			'url': self.url,
-
-			'telegram_bot_command_id': self.telegram_bot_command.id if self.telegram_bot_command else None,
-
-			'start_diagram_connector': self.start_diagram_connector,
-			'end_diagram_connector' : self.end_diagram_connector,
-		}
-
 class TelegramBotCommandApiRequest(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='api_request')
 	url = models.TextField(_('URL-адрес'), max_length=2048)
@@ -421,14 +345,6 @@ class TelegramBotCommandApiRequest(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_api_request'
 
-	def to_dict(self) -> dict:
-		return {
-			'url': self.url,
-			'method': self.method,
-			'headers': self.headers,
-			'data': self.data,
-		}
-
 class TelegramBotUser(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'), null=True)
 	user_id = models.BigIntegerField('Telegram ID')
@@ -441,15 +357,6 @@ class TelegramBotUser(models.Model):
 
 		verbose_name = _('Пользователя')
 		verbose_name_plural = _('Пользователи')
-
-	def to_dict(self) -> dict:
-		return {
-			'id': self.id,
-			'user_id': self.user_id,
-			'full_name': self.full_name,
-			'is_allowed': self.is_allowed,
-			'activated_date': f'{filters.date(self.activated_date)} {filters.time(self.activated_date)}',
-		}
 
 	def __str__(self) -> str:
 		return self.full_name

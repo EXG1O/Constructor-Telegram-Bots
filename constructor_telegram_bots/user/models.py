@@ -78,9 +78,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 				self.first_name = first_name
 				self.save()
 
-	def get_telegram_bots_as_dict(self) -> list:
-		return [telegram_bot.to_dict() for telegram_bot in self.telegram_bots.all()]
-
 	def __str__(self) -> str:
 		return self.first_name
 
