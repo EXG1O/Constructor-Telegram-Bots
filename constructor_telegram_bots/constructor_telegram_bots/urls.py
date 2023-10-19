@@ -33,7 +33,7 @@ if settings.DEBUG:
 
 if sys.platform == 'win32':
 	match sys.argv:
-		case 'manage.py', 'runserver':
+		case ['manage.py', 'runserver', *extra_options]:
 			from telegram_bot.tasks import start_all_telegram_bots as celery_start_all_telegram_bots
 
 			celery_start_all_telegram_bots()

@@ -19,7 +19,7 @@ DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
 DEBUG_ENVIRONMENT: bool = os.getenv('DEBUG_ENVIRONMENT', 'True') == 'True'
 
 match sys.argv:
-	case 'manage.py', 'test':
+	case ['manage.py', 'test', *extra_options]:
 		TEST = True
 	case _:
 		TEST = False
