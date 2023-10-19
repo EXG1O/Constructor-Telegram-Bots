@@ -27,15 +27,6 @@ class Plugin(models.Model):
 		verbose_name = _('Плагин')
 		verbose_name_plural = _('Плагины')
 
-	def to_dict(self) -> dict:
-		return {
-			'id': self.id,
-			'name': self.name,
-			'code': self.code,
-			'is_checked': self.is_checked,
-			'added_date': f'{filters.date(self.added_date)} {filters.time(self.added_date)}',
-		}
-
 	def __str__(self) -> str:
 		return self.name
 
@@ -66,14 +57,6 @@ class PluginLog(models.Model):
 
 		verbose_name = _('Логи')
 		verbose_name_plural = _('Логи')
-
-	def to_dict(self) -> dict:
-		return {
-			'plugin_name': self.plugin.name,
-			'message': self.message,
-			'level': self.level,
-			'added_date': f'{filters.date(self.added_date)} {filters.time(self.added_date)}',
-		}
 
 	def __str__(self) -> str:
 		return self.plugin.name

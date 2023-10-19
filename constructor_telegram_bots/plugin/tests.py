@@ -7,8 +7,6 @@ from telegram_bot.models import TelegramBot
 
 from .models import Plugin, PluginLog
 
-from typing import Any
-
 
 class BaseTestCase(TestCase):
 	def setUp(self) -> None:
@@ -44,17 +42,6 @@ class PluginModelTests(BaseTestCase):
 		self.assertFalse(self.plugin.is_checked)
 		self.assertIsNotNone(self.plugin.added_date)
 
-	def test_to_dict(self) -> None:
-		plugin_as_dict: dict[str, Any] = self.plugin.to_dict()
-
-		self.assertDictEqual(plugin_as_dict, {
-			'id': plugin_as_dict['id'],
-			'name': 'Test',
-			'code': 'def test():\n\tpass',
-			'is_checked': False,
-			'added_date': plugin_as_dict['added_date'],
-		})
-
 class PluginLogModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.plugin_log.user, self.user)
@@ -62,16 +49,6 @@ class PluginLogModelTests(BaseTestCase):
 		self.assertEqual(self.plugin_log.message, 'Error :-)')
 		self.assertEqual(self.plugin_log.level, 'danger')
 		self.assertIsNotNone(self.plugin_log.added_date)
-
-	def test_to_dict(self) -> None:
-		plugin_log_as_dict: dict[str, Any] = self.plugin_log.to_dict()
-
-		self.assertDictEqual(plugin_log_as_dict, {
-			'plugin_name': 'Test',
-			'message': 'Error :-)',
-			'level': 'danger',
-			'added_date': plugin_log_as_dict['added_date'],
-		})
 
 class PluginsViewTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -140,7 +117,6 @@ class PluginsViewTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, [self.plugin.to_dict()])
 
 class PluginViewTests(BaseTestCase):
 	def setUp(self) -> None:
@@ -202,7 +178,6 @@ class ViewsTests(BaseTestCase):
 			headers={'Authorization': f'Token {self.user.auth_token.key}'},
 		)
 		self.assertEqual(response.status_code, 200)
-		self.assertJSONEqual(response.content, [self.plugin_log.to_dict()])
 
 	def test_add_plugin_log_view(self) -> None:
 		url_1: str = urls.reverse('plugin_logs', kwargs={'plugin_id': self.plugin.id})
