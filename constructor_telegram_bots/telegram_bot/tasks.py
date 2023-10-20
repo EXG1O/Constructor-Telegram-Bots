@@ -4,7 +4,6 @@ from django.conf import settings
 
 from aiogram.exceptions import (
 	TelegramNetworkError,
-	TelegramConflictError,
 	TelegramUnauthorizedError,
 	TelegramServerError,
 	RestartingTelegram,
@@ -20,14 +19,8 @@ from threading import Thread
 def start_telegram_bot_(aiogram_telegram_bot: ConstructorTelegramBot | UserTelegramBot) -> None:
 	try:
 		aiogram_telegram_bot.loop.run_until_complete(aiogram_telegram_bot.start())
-	except (
-		TelegramNetworkError,
-		TelegramServerError,
-		RestartingTelegram,
-	):
+	except (TelegramNetworkError, TelegramServerError, RestartingTelegram):
 		start_telegram_bot_(aiogram_telegram_bot)
-	except TelegramConflictError:
-		pass
 	except TelegramUnauthorizedError:
 		aiogram_telegram_bot.django_telegram_bot.delete()
 

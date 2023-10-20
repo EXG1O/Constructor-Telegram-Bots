@@ -28,7 +28,7 @@ class ConstructorTelegramBot(BaseTelegramBot):
 
 		await self.bot.send_message(
 			chat_id=message.chat.id,
-			text=f'Click on the button below to login on the site or follow this link: {django_user_login_url}.',
+			text='Click on the button below to login on the site.',
 			reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Login', url=django_user_login_url)]]),
 		)
 

@@ -9,10 +9,11 @@ from aiogram.types import (
 	ReplyKeyboardMarkup,
 	InlineKeyboardMarkup,
 )
+from aiogram.utils.backoff import BackoffConfig
 from aiogram.exceptions import (
 	TelegramRetryAfter,
-	TelegramNotFound,
 	TelegramForbiddenError,
+	TelegramNotFound,
 )
 
 from ...models import (
@@ -20,6 +21,7 @@ from ...models import (
 	TelegramBotCommand as DjangoTelegramBotCommand,
 	TelegramBotCommandCommand as DjangoTelegramBotCommandCommand,
 )
+
 from .middlewares import (
 	CreateDjangoTelegramBotUserMiddleware,
 	CheckDjangoTelegramBotUserIsAllowedMiddleware,
@@ -71,13 +73,13 @@ class UserTelegramBot(BaseTelegramBot):
 			except TelegramRetryAfter as exception:
 				await asyncio.sleep(exception.retry_after)
 				await send_answer_()
+			except TelegramForbiddenError:
+				pass
 			except TelegramNotFound:
 				try:
 					await self.bot.send_message(chat_id=event_chat.id, text='Oops, something went wrong!')
 				except TelegramNotFound:
 					pass
-			except TelegramForbiddenError:
-				pass
 
 		await send_answer_()
 
@@ -125,7 +127,16 @@ class UserTelegramBot(BaseTelegramBot):
 		self.loop.create_task(self.stop())
 
 		await self.setup()
-		await self.dispatcher.start_polling(self.bot, handle_signals=False)
+		await self.dispatcher.start_polling(
+			self.bot,
+			backoff_config=BackoffConfig(
+				min_delay=1,
+				max_delay=3600,
+				factor=2.5,
+				jitter=0.1,
+			),
+			handle_signals=False,
+		)
 
 		self.django_telegram_bot.is_stopped = True
 		await self.django_telegram_bot.asave()
