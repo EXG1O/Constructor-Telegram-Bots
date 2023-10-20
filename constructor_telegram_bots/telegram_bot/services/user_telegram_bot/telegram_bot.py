@@ -32,6 +32,8 @@ from .middlewares import (
 )
 
 import asyncio
+import string
+import re
 
 
 class UserTelegramBot(BaseTelegramBot):
@@ -99,7 +101,7 @@ class UserTelegramBot(BaseTelegramBot):
 
 			if django_telegram_bot_command_command and django_telegram_bot_command_command.is_show_in_menu:
 				bot_commands.append(BotCommand(
-					command=django_telegram_bot_command_command.text.replace('/', ''),
+					command=re.sub(f'[{string.punctuation}]', '', django_telegram_bot_command_command.text),
 					description=django_telegram_bot_command_command.description,
 				))
 
