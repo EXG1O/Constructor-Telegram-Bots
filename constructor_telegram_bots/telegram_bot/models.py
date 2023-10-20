@@ -1,35 +1,24 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
-from django.template import defaultfilters as filters
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.conf import settings
 
 from user.models import User
 
 from .services import database_telegram_bot
-from .functions import check_telegram_bot_api_token
 
-from asgiref.sync import sync_to_async
+import requests
+from requests import Response
+
 from typing import Optional
+from asgiref.sync import sync_to_async
 
-
-class TelegramBotManager(models.Manager):
-	def create(self, owner: User, api_token: str, is_private: bool, **extra_fields) -> 'TelegramBot':
-		username: str = check_telegram_bot_api_token(api_token)
-
-		return super().create(
-			owner=owner,
-			username=username,
-			api_token=api_token,
-			is_private=is_private,
-			**extra_fields
-		)
 
 class TelegramBot(models.Model):
-	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'), null=True)
-	username = models.CharField('@username', max_length=32, unique=True)
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'))
+	username = models.CharField('@username', max_length=32, null=True)
 	api_token = models.CharField(_('API-токен'), max_length=50, unique=True)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_running = models.BooleanField(_('Включён'), default=False)
@@ -37,8 +26,6 @@ class TelegramBot(models.Model):
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
 	diagram_current_scale = models.FloatField(default=1.0)
-
-	objects = TelegramBotManager()
 
 	class Meta:
 		db_table = 'telegram_bot'
@@ -52,8 +39,26 @@ class TelegramBot(models.Model):
 		self.is_running = False
 		self.save()
 
+	def update_username(self) -> None:
+		if settings.TEST:
+			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
+			self.save()
+		else:
+			responce: Response = requests.get(f'https://api.telegram.org/bot{self.api_token}/getMe')
+
+			if responce.status_code == 200:
+				self.username = responce.json()['result']['username']
+				self.save()
+			else:
+				self.delete()
+
 	def __str__(self) -> str:
 		return f'@{self.username}'
+
+@receiver(post_save, sender=TelegramBot)
+def post_save_telegram_bot_signal(instance: TelegramBot, created: bool, **kwargs) -> None:
+	if created:
+		instance.update_username()
 
 @receiver(post_delete, sender=TelegramBot)
 def post_delete_telegram_bot_signal(instance: TelegramBot, **kwargs) -> None:
@@ -117,7 +122,7 @@ class TelegramBotCommand(models.Model):
 	def get_command(self) -> Optional['TelegramBotCommandCommand']:
 		try:
 			return self.command
-		except ObjectDoesNotExist:
+		except TelegramBotCommandCommand.DoesNotExist:
 			return None
 
 	async def aget_command(self) -> Optional['TelegramBotCommandCommand']:
@@ -126,7 +131,7 @@ class TelegramBotCommand(models.Model):
 	def get_message_text(self) -> Optional['TelegramBotCommandMessageText']:
 		try:
 			return self.message_text
-		except ObjectDoesNotExist:
+		except TelegramBotCommandMessageText.DoesNotExist:
 			return None
 
 	async def aget_message_text(self) -> Optional['TelegramBotCommandMessageText']:
@@ -135,7 +140,7 @@ class TelegramBotCommand(models.Model):
 	def get_keyboard(self) -> Optional['TelegramBotCommandKeyboard']:
 		try:
 			return self.keyboard
-		except ObjectDoesNotExist:
+		except TelegramBotCommandKeyboard.DoesNotExist:
 			return None
 
 	async def aget_keyboard(self) -> Optional['TelegramBotCommandKeyboard']:
@@ -144,7 +149,7 @@ class TelegramBotCommand(models.Model):
 	def get_api_request(self) -> Optional['TelegramBotCommandApiRequest']:
 		try:
 			return self.api_request
-		except ObjectDoesNotExist:
+		except TelegramBotCommandApiRequest.DoesNotExist:
 			return None
 
 	async def aget_api_request(self) -> Optional['TelegramBotCommandApiRequest']:

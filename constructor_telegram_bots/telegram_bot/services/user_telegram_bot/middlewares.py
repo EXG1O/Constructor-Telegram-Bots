@@ -63,11 +63,11 @@ class GenerateJinjaVariablesMiddleware(BaseMiddleware):
 		event_from_user: AiogramUser = data['event_from_user']
 
 		if isinstance(event.event, Message):
-			user_message_id = event.message.message_id
-			user_message_text = event.message.text
+			user_message_id = event.event.message_id
+			user_message_text = event.event.text
 		elif isinstance(event.event, CallbackQuery):
-			user_message_id = event.callback_query.message.message_id
-			user_message_text = event.callback_query.message.text
+			user_message_id = event.event.message.message_id
+			user_message_text = event.event.message.text
 		else:
 			user_message_id = None
 			user_message_text = None

@@ -21,10 +21,7 @@ from .decorators import (
 	check_telegram_bot_command_keyboard_button_id,
 	check_telegram_bot_user_id,
 )
-from .functions import (
-	check_telegram_bot_api_token,
-	get_image_from_request,
-)
+from .functions import get_image_from_request
 from .serializers import (
 	TelegramBotModelSerializer,
 	TelegramBotCommandModelSerializer,
@@ -81,12 +78,11 @@ class TelegramBotView(APIView):
 		is_private: bool | None = validated_data['is_private']
 
 		if api_token is not None:
-			username: str = check_telegram_bot_api_token(api_token)
-
-			telegram_bot.username = username
 			telegram_bot.api_token = api_token
 			telegram_bot.is_running = False
 			telegram_bot.save()
+
+			telegram_bot.update_username()
 
 			return Response({
 				'message': _('Вы успешно изменили API-токен Telegram бота.'),

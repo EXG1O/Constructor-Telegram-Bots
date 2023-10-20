@@ -15,7 +15,7 @@ from telegram_bot.models import (
 	TelegramBotUser,
 )
 
-from .functions import check_telegram_bot_api_token
+from .functions import is_valid_telegram_bot_api_token
 
 from typing import Any
 
@@ -124,7 +124,7 @@ class CreateTelegramBotSerializer(serializers.Serializer):
 		elif TelegramBot.objects.filter(api_token=api_token).exists():
 			raise serializers.ValidationError(_('Этот API-токен Telegram бота уже использует другой пользователь сайта!'))
 
-		if not check_telegram_bot_api_token(api_token):
+		if not is_valid_telegram_bot_api_token(api_token):
 			raise serializers.ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
 
 		return api_token

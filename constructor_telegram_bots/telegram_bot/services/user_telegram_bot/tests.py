@@ -20,7 +20,7 @@ class UserTelegramBotTests(BaseTestCase):
 			telegram_id=123456789,
 			first_name='exg1o',
 		)
-		self.django_telegram_bot = DjangoTelegramBot.objects.create(
+		self.django_telegram_bot: DjangoTelegramBot = DjangoTelegramBot.objects.create(
 			owner=django_user,
 			api_token='123456789:qwertyuiop',
 			is_private=False,
