@@ -32,6 +32,6 @@ class ConstructorTelegramBotTests(BaseTestCase):
 		django_user_login_url: str = await django_user.alogin_url
 
 		assert isinstance(method, SendMessage)
-		assert method.text == f'Click on the button below to login on the site or follow this link: {django_user_login_url}.'
+		assert method.text == f'Click on the button below to login on the site.'
 		assert method.reply_markup.inline_keyboard[0][0].text == 'Login'
 		assert method.reply_markup.inline_keyboard[0][0].url == django_user_login_url
