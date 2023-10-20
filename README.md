@@ -15,7 +15,7 @@
 | <div align="center">[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=RBCS5HAMZS5Z6)</div> | <div align="center">[![](https://static.boosty.to/static/favicon.png)](https://boosty.to/exg1o_/donate)</div> |
 
 ## Требования
-- Python 3.10.x
+- Python 3.11.x
 - PostgreSQL
 - MongoDB
 - Redis
@@ -56,7 +56,7 @@ celery -A constructor_telegram_bots worker --loglevel=INFO -f logs/celery.log
 | <div align="center">[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=RBCS5HAMZS5Z6)</div> | <div align="center">[![](https://static.boosty.to/static/favicon.png)](https://boosty.to/exg1o_/donate)</div> |
 
 ## Вимоги
-- Python 3.10.x
+- Python 3.11.x
 - PostgreSQL
 - MongoDB
 - Redis
@@ -97,7 +97,7 @@ Your donation will greatly contribute to the development and improvement of the 
 | <div align="center">[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=RBCS5HAMZS5Z6)</div> | <div align="center">[![](https://static.boosty.to/static/favicon.png)](https://boosty.to/exg1o_/donate)</div> |
 
 ## Requirements
-- Python 3.10.x
+- Python 3.11.x
 - PostgreSQL
 - MongoDB
 - Redis

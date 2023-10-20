@@ -1,12 +1,11 @@
 from django.contrib import admin, messages
-from django.utils import html
+from django.utils.html import format_html
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
-from .models import *
-from .services import tasks
+from .models import TelegramBot, TelegramBotUser
+from .tasks import start_telegram_bot as celery_start_telegram_bot
 
-from typing import List
 import sys
 
 
@@ -19,12 +18,11 @@ class TelegramBotAdmin(admin.ModelAdmin):
 	actions = ('start_telegram_bot_action', 'stop_telegram_bot_action')
 
 	list_display = ('id', 'owner', 'username_', 'is_private', 'is_running', 'commands_count', 'users_count', 'added_date')
-
 	fields = ('id', 'owner', 'username_', 'api_token', 'is_private', 'is_running', 'commands_count', 'users_count', 'added_date')
 
 	@admin.display(description='@username', ordering='username')
 	def username_(self, telegram_bot: TelegramBot) -> str:
-		return html.format_html(f'<a href="tg://resolve?domain={telegram_bot.username}" style="font-weight: 600;" target="_blank">@{telegram_bot.username}</a>')
+		return format_html(f'<a href="tg://resolve?domain={telegram_bot.username}" style="font-weight: 600;" target="_blank">@{telegram_bot.username}</a>')
 
 	@admin.display(description=_('Команд'))
 	def commands_count(self, telegram_bot: TelegramBot) -> int:
@@ -35,26 +33,23 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		return telegram_bot.users.count()
 
 	@admin.action(description=_('Включить Telegram бота'))
-	def start_telegram_bot_action(self, request: HttpRequest, telegram_bots: List[TelegramBot]) -> None:
+	def start_telegram_bot_action(self, request: HttpRequest, telegram_bots: list[TelegramBot]) -> None:
 		for telegram_bot in telegram_bots:
 			if not telegram_bot.is_running and telegram_bot.is_stopped:
 				if sys.platform == 'win32':
-					tasks.start_telegram_bot(telegram_bot_id=telegram_bot.id)
+					celery_start_telegram_bot(telegram_bot_id=telegram_bot.id)
 				else:
-					tasks.start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+					celery_start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 
 				messages.success(request, f"@{telegram_bot.username} {_('Telegram бот успешно включен.')}")
 			else:
 				messages.error(request, f"@{telegram_bot.username} {_('Telegram бот уже включен!')}")
 
 	@admin.action(description=_('Выключить Telegram бота'))
-	def stop_telegram_bot_action(self, request: HttpRequest, telegram_bots: List[TelegramBot]) -> None:
+	def stop_telegram_bot_action(self, request: HttpRequest, telegram_bots: list[TelegramBot]) -> None:
 		for telegram_bot in telegram_bots:
 			if telegram_bot.is_running and not telegram_bot.is_stopped:
-				if sys.platform == 'win32':
-					tasks.stop_telegram_bot(telegram_bot_id=telegram_bot.id)
-				else:
-					tasks.stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+				telegram_bot.stop()
 
 				messages.success(request, f"@{telegram_bot.username} {_('Telegram бот успешно выключен.')}")
 			else:
@@ -73,7 +68,6 @@ class TelegramBotUserAdmin(admin.ModelAdmin):
 	list_filter = ('activated_date',)
 
 	list_display = ('id', 'telegram_bot', 'user_id', 'full_name', 'is_allowed', 'activated_date')
-
 	fields = ('id', 'telegram_bot', 'user_id', 'full_name', 'is_allowed', 'activated_date')
 
 	def has_add_permission(self, *args, **kwargs) -> bool:

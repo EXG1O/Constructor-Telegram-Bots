@@ -1,48 +1,37 @@
-from telegram_bot.services.tests import BaseTestCase
-from telegram_bot.services.custom_aiogram import CustomBot
-
-from user.models import User
-
+from ..core import BaseTestCase
 from .telegram_bot import ConstructorTelegramBot
 
-from functools import wraps
-import json
+from aiogram.methods import TelegramMethod, SendMessage
+
+from user.models import User as DjangoUser
+
+from asgiref.sync import async_to_sync
 
 
 class ConstructorTelegramBotTests(BaseTestCase):
 	def setUp(self) -> None:
-		self.constructor_telegram_bot = ConstructorTelegramBot()
+		constructor_telegram_bot = ConstructorTelegramBot(api_token='123456789:qwertyuiop')
+		async_to_sync(constructor_telegram_bot.setup)()
 
-	def setup(func):
-		wraps(func)
-		async def wrapper(self, *args, **kwargs):
-			await self.constructor_telegram_bot.setup()
+		super().setUp(constructor_telegram_bot.bot, constructor_telegram_bot.dispatcher)
 
-			self.bot: CustomBot = self.constructor_telegram_bot.bot
+	async def test_start_command_handler(self):
+		method: TelegramMethod = (await self.send_message('/start'))[0]
 
-			return await func(self, *args, **kwargs)
-		return wrapper
+		assert isinstance(method, SendMessage)
+		assert method.text == (
+			'Hello, Test!\n'
+			'I am a Telegram bot for Constructor Telegram Bots site.\n'
+			'Thank you for being with us ❤️'
+		)
 
-	@setup
-	async def test_start_command(self):
-		result: dict = (await self.send_message(self.constructor_telegram_bot.start_command, '/start'))[0]
+	async def test_login_command_handler(self):
+		method: TelegramMethod = (await self.send_message('/login'))[0]
 
-		assert result['method'] == 'sendMessage'
-		assert result['text'] == f"""\
-			Hello, @test!
-			I am a Telegram bot for Constructor Telegram Bots site.
-			Thank you for being with us ❤️
-		""".replace('\t', '')
+		django_user: DjangoUser = await DjangoUser.objects.afirst()
+		django_user_login_url: str = await django_user.alogin_url
 
-	@setup
-	async def test_login_command(self):
-		result: dict = (await self.send_message(self.constructor_telegram_bot.login_command, '/login'))[0]
-		result_keyboard: dict = json.loads(result['reply_markup'])['inline_keyboard']
-
-		user: User = await User.objects.afirst()
-		login_url: str = await user.alogin_url
-
-		assert result['method'] == 'sendMessage'
-		assert result['text'] == 'Click on the button below to login on the site.'
-		assert result_keyboard[0][0]['text'] == 'Login'
-		assert result_keyboard[0][0]['url'] == login_url
+		assert isinstance(method, SendMessage)
+		assert method.text == f'Click on the button below to login on the site or follow this link: {django_user_login_url}.'
+		assert method.reply_markup.inline_keyboard[0][0].text == 'Login'
+		assert method.reply_markup.inline_keyboard[0][0].url == django_user_login_url

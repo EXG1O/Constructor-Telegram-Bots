@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from typing import Any
 from asgiref.sync import sync_to_async
 import requests
 import jinja2
@@ -9,7 +10,10 @@ def create_user(user) -> None:
 	if settings.DEBUG_ENVIRONMENT or settings.TEST:
 		return
 
-	requests.post('http://127.0.0.1:99/users/', json={'user_id': user.id, 'token': user.auth_token.key})
+	requests.post('http://127.0.0.1:99/users/', json={
+		'user_id': user.id,
+		'token': user.auth_token.key,
+	})
 
 def delete_user(user) -> None:
 	if settings.DEBUG_ENVIRONMENT or settings.TEST:
@@ -53,20 +57,19 @@ def delete_plugin(plugin) -> None:
 		'name': plugin.name,
 	})
 
-def replace_text_variables(telegram_bot, text: str, text_variables: dict) -> str:
+def replace_text_variables_to_jinja_variables_values(telegram_bot, text: str, jinja_variables: dict[str, Any]) -> str:
 	if settings.DEBUG_ENVIRONMENT or settings.TEST:
 		environment = jinja2.Environment()
 		template: jinja2.Template = environment.from_string(text)
-		text: str = template.render(text_variables)
-		return text.replace('\n\n', '\n')
+		return template.render(jinja_variables).replace('\n\n', '\n')
 
 	return requests.post('http://127.0.0.1:99/generate/template/', json={
 		'user_id': telegram_bot.owner.id,
 		'token': telegram_bot.owner.auth_token.key,
 		'telegram_bot_id': telegram_bot.id,
 		'text': text,
-		'text_variables': text_variables,
+		'text_variables': jinja_variables,
 	}).json()['response']
 
-async def areplace_text_variables(telegram_bot, text: str, text_variables: dict) -> str:
-	return await sync_to_async(replace_text_variables)(telegram_bot=telegram_bot, text=text, text_variables=text_variables)
+async def areplace_text_variables_to_jinja_variables_values(telegram_bot, text: str, jinja_variables: dict[str, Any]) -> str:
+	return await sync_to_async(replace_text_variables_to_jinja_variables_values)(telegram_bot, text, jinja_variables)

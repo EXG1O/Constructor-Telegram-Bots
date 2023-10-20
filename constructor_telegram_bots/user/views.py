@@ -15,14 +15,16 @@ def user_login_view(request: HttpRequest, user_id: int, confirm_code: str) -> Ht
 		'content': {'text': _('Автоматический переход на главную страницу через 3 секунды.')},
 	}
 
-	if not User.objects.filter(id=user_id).exists():
+	try:
+		user: User = User.objects.get(id=user_id)
+	except User.DoesNotExist:
 		context['content']['heading'] = _('Не удалось найти пользователя!')
-		return render(request, 'base_success_or_error.html', context)
 
-	user: User = User.objects.get(id=user_id)
+		return render(request, 'base_success_or_error.html', context)
 
 	if user.confirm_code != confirm_code:
 		context['content']['heading'] = _('Неверный код подтверждения!')
+
 		return render(request, 'base_success_or_error.html', context)
 
 	user.confirm_code = None

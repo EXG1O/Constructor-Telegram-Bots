@@ -8,7 +8,10 @@ from .models import User
 
 class BaseTestCase(TestCase):
 	def setUp(self) -> None:
-		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
+		self.user: User = User.objects.create(
+			telegram_id=123456789,
+			first_name='exg1o',
+		)
 
 class UserModelTests(BaseTestCase):
 	def test_fields(self) -> None:
@@ -20,25 +23,33 @@ class UserModelTests(BaseTestCase):
 		self.assertIsNone(self.user.last_login)
 
 	def test_login_url(self) -> None:
-		self.assertEqual(self.user.login_url, f"{settings.SITE_DOMAIN}{urls.reverse('user:login', kwargs={'user_id': self.user.id, 'confirm_code': self.user.confirm_code})}")
+		self.user.generate_confirm_code()
+
+		user_login_url: str = urls.reverse('user:login', kwargs={
+			'user_id': self.user.id,
+			'confirm_code': self.user.confirm_code,
+		})
+		user_login_url = f'{settings.SITE_DOMAIN}{user_login_url}'
+
+		self.assertEqual(self.user.login_url, user_login_url)
 		self.assertIsNotNone(self.user.confirm_code)
 		self.assertIsNone(self.user.last_login)
 
 		self.client.get(self.user.login_url)
-
 		self.user.refresh_from_db()
+
 		self.assertIsNone(self.user.confirm_code)
 		self.assertIsNotNone(self.user.last_login)
 
 class ViewsTests(BaseTestCase):
 	def test_user_login_view(self) -> None:
-		login_urls = {
+		login_urls: dict[str, str] = {
 			urls.reverse('user:login', kwargs={
 				'user_id': 0,
 				'confirm_code': 1,
 			}): 'Не удалось найти пользователя!',
 			urls.reverse('user:login', kwargs={
-				'user_id': 1,
+				'user_id': self.user.id,
 				'confirm_code': 0,
 			}): 'Неверный код подтверждения!',
 		}

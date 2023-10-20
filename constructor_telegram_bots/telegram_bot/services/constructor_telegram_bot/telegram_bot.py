@@ -1,47 +1,48 @@
-from telegram_bot.services.custom_aiogram import CustomBot, CustomDispatcher
-from aiogram import types
+from ..core import BaseTelegramBot
 
-from .decorators import *
+from aiogram.types import Message, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.filters import Command
 
-from user.models import User
+from user.models import User as DjangoUser
 
-from django.conf import settings
-import asyncio
+from .middlewares import CreateDjangoUserMiddleware
 
 
-class ConstructorTelegramBot:
-	def __init__(self) -> None:
-		self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
+class ConstructorTelegramBot(BaseTelegramBot):
+	async def start_command(self, message: Message) -> None:
+		await self.bot.send_message(chat_id=message.chat.id, text=(
+			f'Hello, {message.from_user.full_name}!\n'
+			'I am a Telegram bot for Constructor Telegram Bots site.\n'
+			'Thank you for being with us ❤️'
+		))
 
-		self.bot = CustomBot(token=settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN, loop=self.loop)
-		self.dispatcher = CustomDispatcher(bot_username=settings.CONSTRUCTOR_TELEGRAM_BOT_USERNAME, bot=self.bot)
+		try:
+			if message.text.split()[1] == 'login':
+				await self.login_command(message)
+		except IndexError:
+			pass
 
-	@check_user
-	async def start_command(self, message: types.Message) -> None:
-		await self.bot.send_message(chat_id=message.chat.id, text=f"""\
-			Hello, @{message.from_user.username}!
-			I am a Telegram bot for Constructor Telegram Bots site.
-			Thank you for being with us ❤️
-		""".replace('\t', ''))
+	async def login_command(self, message: Message) -> None:
+		django_user: DjangoUser = await DjangoUser.objects.aget(telegram_id=message.from_user.id)
+		django_user_login_url: str = await django_user.alogin_url
 
-		commands_list: list = message.text.split()
-
-		if len(commands_list) > 1 and commands_list[1] == 'login':
-			await self.login_command(message)
-
-	@check_user
-	async def login_command(self, message: types.Message) -> None:
-		user: User = await User.objects.aget(telegram_id=message.from_user.id)
-
-		keyboard = types.InlineKeyboardMarkup(row_width=1)
-		keyboard.add(types.InlineKeyboardButton(text='Login', url=await user.alogin_url))
-
-		await self.bot.send_message(chat_id=message.chat.id, text='Click on the button below to login on the site.', reply_markup=keyboard)
+		await self.bot.send_message(
+			chat_id=message.chat.id,
+			text=f'Click on the button below to login on the site or follow this link: {django_user_login_url}.',
+			reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Login', url=django_user_login_url)]]),
+		)
 
 	async def setup(self) -> None:
-		self.dispatcher.register_message_handler(self.start_command, commands=['start'])
-		self.dispatcher.register_message_handler(self.login_command, commands=['login'])
+		await self.bot.set_my_commands([
+			BotCommand(command='start', description='Starting command'),
+			BotCommand(command='login', description='Authorization'),
+		])
+
+		self.dispatcher.update.outer_middleware.register(CreateDjangoUserMiddleware())
+
+		self.dispatcher.message.register(self.start_command, Command('start'))
+		self.dispatcher.message.register(self.login_command, Command('login'))
 
 	async def start(self) -> None:
-		await self.dispatcher.skip_updates()
-		await self.dispatcher.start_polling()
+		await self.setup()
+		await self.dispatcher.start_polling(self.bot, handle_signals=False)

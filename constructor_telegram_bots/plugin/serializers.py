@@ -1,11 +1,34 @@
+from django.template import defaultfilters as filters
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
 from telegram_bot.models import TelegramBot
 
+from .models import Plugin, PluginLog
+
+from typing import Any
 import re
 
+
+class ModelSerializer(serializers.ModelSerializer):
+	def to_representation(self, instance: Plugin | PluginLog) -> dict[str, Any]:
+		representation: dict[str, Any] = super().to_representation(instance)
+		representation['added_date'] = f'{filters.date(instance.added_date)} {filters.time(instance.added_date)}'
+
+		return representation
+
+class PluginModelSerializer(ModelSerializer):
+	class Meta:
+		model = Plugin
+		fields = ['id', 'name', 'code', 'is_checked']
+
+class PluginLogModelSerializer(ModelSerializer):
+	plugin_name = serializers.CharField(max_length=255, source='plugin.name')
+
+	class Meta:
+		model = PluginLog
+		fields = ['id', 'plugin_name', 'message', 'level']
 
 class CreatePluginSerializer(serializers.Serializer):
 	name = serializers.CharField(max_length=255, error_messages={

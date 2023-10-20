@@ -13,7 +13,7 @@ class TeamMemberModelTests(TestCase):
 		self.team_member: TeamMember = TeamMember.objects.create(
 			username='test',
 			speciality='Test',
-			joined_date=self.current_date
+			joined_date=self.current_date,
 		)
 
 	def test_fields(self) -> None:
@@ -25,6 +25,7 @@ class TeamMemberModelTests(TestCase):
 class ViewsTests(TestCase):
 	def test_team_view(self) -> None:
 		url: str = urls.reverse('team')
+
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'team.html')

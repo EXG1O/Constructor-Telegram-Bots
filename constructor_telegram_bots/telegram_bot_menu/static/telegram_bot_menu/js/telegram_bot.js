@@ -171,7 +171,7 @@
 							telegramBotIsRunning = true;
 							clearInterval(intervalCheckTelegramBotIsStartedId);
 							createToast(startTelegramBotMessage, 'success')
-						}), 3000);
+						}), 2500);
 					}
 				} else {
 					response.json().then(jsonResponse => createToast(jsonResponse.message, jsonResponse.level));

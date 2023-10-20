@@ -1,6 +1,7 @@
 from django.utils.translation import gettext as _
 
-from rest_framework.decorators import APIView, api_view, authentication_classes, permission_classes
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -9,11 +10,17 @@ from rest_framework.response import Response
 from telegram_bot.models import TelegramBot
 from telegram_bot.decorators import check_telegram_bot_id
 
-from .models import *
-from .decorators import *
-from .serializers import *
+from .models import Plugin, PluginLog
+from .decorators import check_plugin_id
+from .serializers import (
+	PluginModelSerializer,
+	PluginLogModelSerializer,
+	CreatePluginSerializer,
+	UpdatePluginSerializer,
+	AddPluginLogSerializer,
+)
 
-from constructor_telegram_bots import environment
+from constructor_telegram_bots.environment import delete_plugin as env_delete_plugin
 
 
 class PluginsView(APIView):
@@ -35,12 +42,12 @@ class PluginsView(APIView):
 			'message': _('Вы успешно добавили плагин вашему Telegram боту.'),
 			'level': 'success',
 
-			'plugin': plugin.to_dict(),
+			'plugin': PluginModelSerializer(plugin).data,
 		})
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response([plugin.to_dict() for plugin in telegram_bot.plugins.all()])
+		return Response(PluginModelSerializer(telegram_bot.plugins.all(), many=True).data)
 
 class PluginView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -55,13 +62,13 @@ class PluginView(APIView):
 		plugin.code = serializer.validated_data['code']
 		plugin.save()
 
-		environment.delete_plugin(plugin)
+		env_delete_plugin(plugin)
 
 		return Response({
 			'message': _('Вы успешно обновили плагин вашего Telegram бота.'),
 			'level': 'success',
 
-			'plugin': plugin.to_dict(),
+			'plugin': PluginModelSerializer(plugin).data,
 		})
 
 	@check_plugin_id
@@ -78,7 +85,7 @@ class PluginView(APIView):
 @permission_classes([IsAuthenticated])
 @check_telegram_bot_id
 def get_plugins_logs_view(request: Request, telegram_bot: TelegramBot) -> Response:
-	return Response([plugin_log.to_dict() for plugin in telegram_bot.plugins.all() for plugin_log in plugin.logs.all()])
+	return Response(PluginLogModelSerializer([plugin_log for plugin in telegram_bot.plugins.all() for plugin_log in plugin.logs.all()], many=True).data)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])

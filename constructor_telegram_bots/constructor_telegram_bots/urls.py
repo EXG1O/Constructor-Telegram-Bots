@@ -2,8 +2,6 @@ from django.urls import path, include
 from django.contrib import admin
 from django.conf import settings
 
-from telegram_bot.services import tasks
-
 import sys
 
 
@@ -33,5 +31,9 @@ if settings.DEBUG:
 	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if not settings.TEST and sys.argv[1] == 'runserver' and sys.platform == 'win32':
-	tasks.start_all_telegram_bots()
+if sys.platform == 'win32':
+	match sys.argv:
+		case ['manage.py', 'runserver', *extra_options]:
+			from telegram_bot.tasks import start_all_telegram_bots as celery_start_all_telegram_bots
+
+			celery_start_all_telegram_bots()

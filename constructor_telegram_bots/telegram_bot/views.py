@@ -7,15 +7,39 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import *
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-from .models import *
-from .services import tasks, database_telegram_bot
-from .decorators import *
-from .functions import *
-from .serializers import *
+from .models import (
+	TelegramBot,
+	TelegramBotCommand,
+	TelegramBotCommandKeyboardButton,
+	TelegramBotUser,
+)
+from .decorators import (
+	check_telegram_bot_id,
+	check_telegram_bot_command_id,
+	check_telegram_bot_command_keyboard_button_id,
+	check_telegram_bot_user_id,
+)
+from .functions import get_image_from_request
+from .serializers import (
+	TelegramBotModelSerializer,
+	TelegramBotCommandModelSerializer,
+	TelegramBotUserModelSerializer,
+	CreateTelegramBotSerializer,
+	UpdateTelegramBotSerializer,
+	UpdateTelegramBotDiagramCurrentScaleSerializer,
+	CreateTelegramBotCommandSerializer,
+	UpdateTelegramBotCommandSerializer,
+	UpdateTelegramBotCommandPositionSerializer,
+	UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer,
+	CreateTelegramBotDatabeseRecordSerializer,
+	UpdateTelegramBotDatabeseRecordSerializer,
+)
+from .services import database_telegram_bot
+from .tasks import start_telegram_bot as celery_start_telegram_bot
 
-from typing import Optional
+from typing import Any
 import json
 import sys
 
@@ -28,23 +52,17 @@ class TelegramBotsView(APIView):
 		serializer = CreateTelegramBotSerializer(data=request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
 
-		validated_data: dict = serializer.validated_data
-
-		telegram_bot: TelegramBot = TelegramBot.objects.create(
-			owner=request.user,
-			api_token=validated_data['api_token'],
-			is_private=validated_data['is_private']
-		)
+		telegram_bot: TelegramBot = TelegramBot.objects.create(owner=request.user, **serializer.validated_data)
 
 		return Response({
 			'message': _('Вы успешно добавили Telegram бота.'),
 			'level': 'success',
 
-			'telegram_bot': telegram_bot.to_dict(),
+			'telegram_bot': TelegramBotModelSerializer(telegram_bot).data,
 		})
 
 	def get(self, request: Request) -> Response:
-		return Response(request.user.get_telegram_bots_as_dict())
+		return Response(TelegramBotModelSerializer(request.user.telegram_bots.all(), many=True).data)
 
 class TelegramBotView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -56,16 +74,15 @@ class TelegramBotView(APIView):
 		serializer.is_valid(raise_exception=True)
 
 		validated_data: dict = serializer.validated_data
-		api_token: Optional[str] = validated_data['api_token']
-		is_private: Optional[bool] = validated_data['is_private']
+		api_token: str | None = validated_data['api_token']
+		is_private: bool | None = validated_data['is_private']
 
 		if api_token is not None:
-			username: str = check_telegram_bot_api_token(api_token)
-
-			telegram_bot.username = username
 			telegram_bot.api_token = api_token
 			telegram_bot.is_running = False
 			telegram_bot.save()
+
+			telegram_bot.update_username()
 
 			return Response({
 				'message': _('Вы успешно изменили API-токен Telegram бота.'),
@@ -102,7 +119,7 @@ class TelegramBotView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(telegram_bot.to_dict())
+		return Response(TelegramBotModelSerializer(telegram_bot).data)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
@@ -112,14 +129,11 @@ def start_or_stop_telegram_bot(request: Request, telegram_bot: TelegramBot) -> R
 	if not settings.TEST:
 		if not telegram_bot.is_running and telegram_bot.is_stopped:
 			if sys.platform == 'win32':
-				tasks.start_telegram_bot(telegram_bot_id=telegram_bot.id)
+				celery_start_telegram_bot(telegram_bot_id=telegram_bot.id)
 			else:
-				tasks.start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+				celery_start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 		elif telegram_bot.is_running and not telegram_bot.is_stopped:
-			if sys.platform == 'win32':
-				tasks.stop_telegram_bot(telegram_bot_id=telegram_bot.id)
-			else:
-				tasks.stop_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+			telegram_bot.stop()
 
 	return Response({
 		'message': None,
@@ -148,7 +162,7 @@ class TelegramBotCommandsView(APIView):
 
 	@check_telegram_bot_id
 	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		request_data: dict = json.loads(request.POST['data']) if 'data' in request.POST else request.data
+		request_data: dict[str, Any] = json.loads(request.POST['data']) if 'data' in request.POST else request.data
 
 		serializer = CreateTelegramBotCommandSerializer(data=request_data)
 		serializer.is_valid(raise_exception=True)
@@ -166,7 +180,7 @@ class TelegramBotCommandsView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(telegram_bot.get_commands_as_dict(escape=True))
+		return Response(TelegramBotCommandModelSerializer(telegram_bot.commands.all(), many=True, context={'escape': True}).data)
 
 class TelegramBotCommandView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -175,7 +189,7 @@ class TelegramBotCommandView(APIView):
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
 	def patch(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
-		request_data: dict = json.loads(request.POST['data']) if 'data' in request.POST else request.data
+		request_data: dict[str, Any] = json.loads(request.POST['data']) if 'data' in request.POST else request.data
 
 		serializer = UpdateTelegramBotCommandSerializer(data=request_data)
 		serializer.is_valid(raise_exception=True)
@@ -203,7 +217,7 @@ class TelegramBotCommandView(APIView):
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
 	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
-		return Response(telegram_bot_command.to_dict())
+		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
 
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
@@ -280,7 +294,7 @@ class TelegramBotUsersView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(telegram_bot.get_users_as_dict())
+		return Response(TelegramBotUserModelSerializer(telegram_bot.users.all(), many=True).data)
 
 class TelegramBotUserView(APIView):
 	authentication_classes = [TokenAuthentication]

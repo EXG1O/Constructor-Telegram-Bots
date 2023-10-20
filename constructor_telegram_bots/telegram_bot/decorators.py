@@ -3,18 +3,17 @@ from django.utils.translation import gettext as _
 
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import *
+from rest_framework.status import HTTP_404_NOT_FOUND
 
 from .models import TelegramBot, TelegramBotCommand, TelegramBotCommandKeyboard
 
 from functools import wraps
-from typing import Union
 
 
 def check_telegram_bot_id(func):
 	@wraps(func)
 	def wrapper(*args, **kwargs):
-		request: Union[HttpRequest, Request] = args[-1]
+		request: HttpRequest | Request = args[-1]
 		telegram_bot_id: int = kwargs.pop('telegram_bot_id')
 
 		if not request.user.telegram_bots.filter(id=telegram_bot_id).exists():

@@ -1,42 +1,39 @@
-from telegram_bot.services.tests import BaseTestCase
-from telegram_bot.services.custom_aiogram import CustomBot
-
-from user.models import User
-from telegram_bot.models import *
-
+from ..core import BaseTestCase
 from .telegram_bot import UserTelegramBot
 
-from asgiref.sync import sync_to_async
-from functools import wraps
-import json
+from aiogram.methods import TelegramMethod, SendMessage, DeleteMessage
+
+from user.models import User as DjangoUser
+from ...models import (
+	TelegramBot as DjangoTelegramBot,
+	TelegramBotCommand as DjangoTelegramBotCommand,
+	TelegramBotCommandKeyboard as DjangoTelegramBotCommandKeyboard,
+	TelegramBotCommandKeyboardButton as DjangoTelegramBotCommandKeyboardButton,
+)
+
+from asgiref.sync import async_to_sync
 
 
 class UserTelegramBotTests(BaseTestCase):
 	def setUp(self) -> None:
-		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
-		self.telegram_bot: TelegramBot = TelegramBot.objects.create(
-			owner=self.user,
+		django_user: DjangoUser = DjangoUser.objects.create(
+			telegram_id=123456789,
+			first_name='exg1o',
+		)
+		self.django_telegram_bot: DjangoTelegramBot = DjangoTelegramBot.objects.create(
+			owner=django_user,
 			api_token='123456789:qwertyuiop',
-			is_private=False
+			is_private=False,
 		)
 
-		self.user_telegram_bot = UserTelegramBot(telegram_bot=self.telegram_bot)
-		self.handler = self.user_telegram_bot.message_and_callback_query_handler
+		user_telegram_bot = UserTelegramBot(django_telegram_bot=self.django_telegram_bot)
+		async_to_sync(user_telegram_bot.setup)()
 
-	def setup(func):
-		wraps(func)
-		async def wrapper(self, *args, **kwargs):
-			await self.user_telegram_bot.setup()
+		super().setUp(user_telegram_bot.bot, user_telegram_bot.dispatcher)
 
-			self.bot: CustomBot = self.user_telegram_bot.bot
-
-			return await func(self, *args, **kwargs)
-		return wrapper
-
-	@setup
 	async def test_send_command(self) -> None:
-		await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
+		await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
 			name='Test',
 			command={
 				'text': '/test',
@@ -50,18 +47,17 @@ class UserTelegramBotTests(BaseTestCase):
 			},
 			keyboard=None,
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
 
-		result: dict = (await self.send_message(self.handler, '/test'))[1]
+		method: TelegramMethod = (await self.send_message('/test'))[0]
 
-		assert result['method'] == 'sendMessage'
-		assert result['text'] == 'Test...'
+		assert isinstance(method, SendMessage)
+		assert method.text == 'Test...'
 
-	@setup
 	async def test_send_command_with_default_keyboard(self) -> None:
-		await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
+		await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
 			name='Test',
 			command={
 				'text': '/test',
@@ -94,22 +90,20 @@ class UserTelegramBotTests(BaseTestCase):
 				],
 			},
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
 
-		result: dict = (await self.send_message(self.handler, '/test'))[1]
-		result_keyboard: dict = json.loads(result['reply_markup'])['keyboard']
+		method: TelegramMethod = (await self.send_message('/test'))[0]
 
-		assert result['method'] == 'sendMessage'
-		assert result['text'] == 'Test...'
-		assert result_keyboard[0][0]['text'] == '1'
-		assert result_keyboard[1][0]['text'] == '2'
-		assert result_keyboard[1][1]['text'] == '3'
+		assert isinstance(method, SendMessage)
+		assert method.text == 'Test...'
+		assert method.reply_markup.keyboard[0][0].text == '1'
+		assert method.reply_markup.keyboard[1][0].text == '2'
+		assert method.reply_markup.keyboard[1][1].text == '3'
 
-	@setup
 	async def test_send_command_with_inline_keyboard(self) -> None:
-		await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
+		await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
 			name='Test',
 			command={
 				'text': '/test',
@@ -129,25 +123,37 @@ class UserTelegramBotTests(BaseTestCase):
 						'text': '1',
 						'url': 'https://example.com/',
 					},
+					{
+						'row': 2,
+						'text': '2',
+						'url': None,
+					},
+					{
+						'row': 2,
+						'text': '3',
+						'url': None,
+					},
 				],
 			},
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
 
-		result: dict = (await self.send_message(self.handler, '/test'))[1]
-		result_keyboard: dict = json.loads(result['reply_markup'])['inline_keyboard']
+		method: TelegramMethod = (await self.send_message('/test'))[0]
 
-		assert result['method'] == 'sendMessage'
-		assert result['text'] == 'Test...'
-		assert result_keyboard[0][0]['text'] == '1'
-		assert result_keyboard[0][0]['url'] == 'https://example.com/'
+		assert isinstance(method, SendMessage)
+		assert method.text == 'Test...'
+		assert method.reply_markup.inline_keyboard[0][0].text == '1'
+		assert method.reply_markup.inline_keyboard[0][0].url == 'https://example.com/'
+		assert method.reply_markup.inline_keyboard[1][0].text == '2'
+		assert method.reply_markup.inline_keyboard[1][0].url is None
+		assert method.reply_markup.inline_keyboard[1][1].text == '3'
+		assert method.reply_markup.inline_keyboard[1][1].url is None
 
-	@setup
 	async def test_click_default_keyboard_button(self) -> None:
-		telegram_bot_command_1: TelegramBotCommand = await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
-			name='Test',
+		django_telegram_bot_command_1: DjangoTelegramBotCommand = await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
+			name='Test1',
 			command={
 				'text': '/test',
 				'is_show_in_menu': False,
@@ -156,7 +162,7 @@ class UserTelegramBotTests(BaseTestCase):
 			image=None,
 			message_text={
 				'mode': 'default',
-				'text': 'Test...',
+				'text': 'Test1...',
 			},
 			keyboard={
 				'mode': 'default',
@@ -169,37 +175,36 @@ class UserTelegramBotTests(BaseTestCase):
 				],
 			},
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
-		telegram_bot_command_2: TelegramBotCommand = await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
-			name='Test1',
+		django_telegram_bot_command_2:  DjangoTelegramBotCommand = await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
+			name='Test2',
 			command=None,
 			image=None,
 			message_text={
 				'mode': 'default',
-				'text': 'Test1...',
+				'text': 'Test2...',
 			},
 			keyboard=None,
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
 
-		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = await sync_to_async(telegram_bot_command_1.get_keyboard)()
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = await telegram_bot_command_keyboard.buttons.afirst()
-		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot_command_2
-		await telegram_bot_command_keyboard_button.asave()
+		django_telegram_bot_command_1_keyboard: DjangoTelegramBotCommandKeyboard = await django_telegram_bot_command_1.aget_keyboard()
+		django_telegram_bot_command_1_keyboard_button: DjangoTelegramBotCommandKeyboardButton = await django_telegram_bot_command_1_keyboard.buttons.afirst()
+		django_telegram_bot_command_1_keyboard_button.telegram_bot_command = django_telegram_bot_command_2
+		await django_telegram_bot_command_1_keyboard_button.asave()
 
-		result: dict = (await self.send_message(self.handler, '1'))[1]
+		method: TelegramMethod = (await self.send_message('1'))[0]
 
-		assert result['method'] == 'sendMessage'
-		assert result['text'] == 'Test1...'
+		assert isinstance(method, SendMessage)
+		assert method.text == 'Test2...'
 
-	@setup
 	async def test_click_inline_keyboard_button(self) -> None:
-		telegram_bot_command_1: TelegramBotCommand = await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
-			name='Test',
+		django_telegram_bot_command_1: DjangoTelegramBotCommand = await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
+			name='Test1',
 			command={
 				'text': '/test',
 				'is_show_in_menu': False,
@@ -208,7 +213,7 @@ class UserTelegramBotTests(BaseTestCase):
 			image=None,
 			message_text={
 				'mode': 'default',
-				'text': 'Test...',
+				'text': 'Test1...',
 			},
 			keyboard={
 				'mode': 'inline',
@@ -221,29 +226,29 @@ class UserTelegramBotTests(BaseTestCase):
 				],
 			},
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
-		telegram_bot_command_2: TelegramBotCommand = await TelegramBotCommand.objects.acreate(
-			telegram_bot=self.telegram_bot,
-			name='Test1',
+		django_telegram_bot_command_2:  DjangoTelegramBotCommand = await DjangoTelegramBotCommand.objects.acreate(
+			telegram_bot=self.django_telegram_bot,
+			name='Test2',
 			command=None,
 			image=None,
 			message_text={
 				'mode': 'default',
-				'text': 'Test1...',
+				'text': 'Test2...',
 			},
 			keyboard=None,
 			api_request=None,
-			database_record=None
+			database_record=None,
 		)
 
-		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = await sync_to_async(telegram_bot_command_1.get_keyboard)()
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = await telegram_bot_command_keyboard.buttons.afirst()
-		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot_command_2
-		await telegram_bot_command_keyboard_button.asave()
+		django_telegram_bot_command_1_keyboard: DjangoTelegramBotCommandKeyboard = await django_telegram_bot_command_1.aget_keyboard()
+		django_telegram_bot_command_1_keyboard_button: DjangoTelegramBotCommandKeyboardButton = await django_telegram_bot_command_1_keyboard.buttons.afirst()
+		django_telegram_bot_command_1_keyboard_button.telegram_bot_command = django_telegram_bot_command_2
+		await django_telegram_bot_command_1_keyboard_button.asave()
 
-		results: list = await self.send_callback_query(self.handler, '1')
+		methods: list[TelegramMethod] = await self.send_callback_query(str(django_telegram_bot_command_1_keyboard_button.id))
 
-		assert results[1]['method'] == 'deleteMessage'
-		assert results[2]['method'] == 'sendMessage'
-		assert results[2]['text'] == 'Test1...'
+		assert isinstance(methods[0], DeleteMessage)
+		assert isinstance(methods[1], SendMessage)
+		assert methods[1].text == 'Test2...'

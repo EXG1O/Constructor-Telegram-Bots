@@ -1,11 +1,16 @@
 from django.db import models
 from django.template import defaultfilters as filters
 from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from user.models import User
 from telegram_bot.models import TelegramBot
 
-from constructor_telegram_bots import environment
+from constructor_telegram_bots.environment import (
+	update_plugin as env_update_plugin,
+	delete_plugin as env_delete_plugin,
+)
 
 
 class Plugin(models.Model):
@@ -22,27 +27,18 @@ class Plugin(models.Model):
 		verbose_name = _('Плагин')
 		verbose_name_plural = _('Плагины')
 
-	def to_dict(self) -> dict:
-		return {
-			'id': self.id,
-			'name': self.name,
-			'code': self.code,
-			'is_checked': self.is_checked,
-			'added_date': f'{filters.date(self.added_date)} {filters.time(self.added_date)}',
-		}
-
-	def save(self, *args, **kwargs) -> None:
-		if self.is_checked:
-			environment.update_plugin(self)
-		super().save(*args, **kwargs)
-
-	def delete(self, *args, **kwargs) -> None:
-		if self.is_checked:
-			environment.delete_plugin(self)
-		super().delete(*args, **kwargs)
-
 	def __str__(self) -> str:
 		return self.name
+
+@receiver(post_save, sender=Plugin)
+def post_save_plugin_signal(instance: Plugin, **kwargs) -> None:
+	if instance.is_checked:
+		env_update_plugin(plugin=instance)
+
+@receiver(post_delete, sender=Plugin)
+def post_delete_plugin_signal(instance: Plugin, **kwargs) -> None:
+	if instance.is_checked:
+		env_delete_plugin(plugin=instance)
 
 class PluginLog(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Пользователь'))
@@ -61,14 +57,6 @@ class PluginLog(models.Model):
 
 		verbose_name = _('Логи')
 		verbose_name_plural = _('Логи')
-
-	def to_dict(self) -> dict:
-		return {
-			'plugin_name': self.plugin.name,
-			'message': self.message,
-			'level': self.level,
-			'added_date': f'{filters.date(self.added_date)} {filters.time(self.added_date)}',
-		}
 
 	def __str__(self) -> str:
 		return self.plugin.name

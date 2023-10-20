@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.http import HttpResponse
 from django import urls
 
-from .models import *
+from .models import InstructionSection
 
 
 class InstructionSectionModelTests(TestCase):
@@ -10,7 +10,7 @@ class InstructionSectionModelTests(TestCase):
 		self.instruction_section: InstructionSection = InstructionSection.objects.create(
 			title='Test',
 			text='Test...',
-			position=1
+			position=1,
 		)
 
 	def test_fields(self) -> None:
@@ -21,6 +21,7 @@ class InstructionSectionModelTests(TestCase):
 class ViewsTests(TestCase):
 	def test_instruction_view(self) -> None:
 		url: str = urls.reverse('instruction')
+
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'instruction.html')

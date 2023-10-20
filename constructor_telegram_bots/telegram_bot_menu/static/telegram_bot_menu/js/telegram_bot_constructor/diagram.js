@@ -378,9 +378,9 @@
 							}
 						}
 					});
-				});
 
-				diagramSetZoom();
+					diagramSetZoom();
+				});
 			} else {
 				response.json().then(jsonResponse => createToast(jsonResponse.message, jsonResponse.level));
 			}
