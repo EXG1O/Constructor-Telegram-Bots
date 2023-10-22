@@ -12,6 +12,11 @@ def telegram_bot_view(request: HttpRequest, **context) -> HttpResponse:
 
 @login_required
 @check_telegram_bot_id
+def telegram_bot_variables_view(request: HttpRequest, **context) -> HttpResponse:
+	return render(request, 'telegram_bot_variables.html', context)
+
+@login_required
+@check_telegram_bot_id
 def telegram_bot_users_view(request: HttpRequest, **context) -> HttpResponse:
 	return render(request, 'telegram_bot_users.html', context)
 

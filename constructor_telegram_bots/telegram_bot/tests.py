@@ -11,8 +11,6 @@ from telegram_bot.models import (
 )
 from telegram_bot.services import database_telegram_bot
 
-from typing import Any
-
 
 class BaseTestCase(TestCase):
 	def setUp(self) -> None:
@@ -36,10 +34,7 @@ class BaseTestCase(TestCase):
 				'description': None,
 			},
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test...',
-			},
+			message_text={'text': 'Test...'},
 			keyboard={
 				'mode': 'default',
 				'buttons': [
@@ -103,7 +98,6 @@ class TelegramBotCommandCommandModelTests(BaseTestCase):
 
 class TelegramBotCommandMessageTextModelTests(BaseTestCase):
 	def test_fields(self) -> None:
-		self.assertEqual(self.telegram_bot_command.message_text.mode, 'default')
 		self.assertEqual(self.telegram_bot_command.message_text.text, 'Test...')
 
 class TelegramBotCommandKeyboardModelTests(BaseTestCase):
@@ -383,10 +377,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': '',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -402,10 +393,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': '',
-				},
+				'message_text': {'text': ''},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -425,10 +413,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 					'is_show_in_menu': False,
 					'description': None
 				},
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -448,10 +433,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 					'is_show_in_menu': True,
 					'description': ''
 				},
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -467,10 +449,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': '',
-				},
+				'message_text': {'text': ''},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -486,10 +465,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': {
 					'mode': 'default',
 					'buttons': [
@@ -515,10 +491,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': {
 					'mode': 'default',
 					'buttons': [
@@ -544,10 +517,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': {
 					'mode': 'default',
 					'buttons': [
@@ -573,10 +543,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': {
 					'url': '',
@@ -597,10 +564,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': {
 					'url': 'test',
@@ -621,10 +585,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -688,10 +649,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': '',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -707,10 +665,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': '',
-				},
+				'message_text': {'text': ''},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -730,10 +685,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 					'is_show_in_menu': False,
 					'description': None,
 				},
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -753,10 +705,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 					'is_show_in_menu': True,
 					'description': '',
 				},
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -772,10 +721,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': {
 					'mode': 'default',
 					'buttons': [
@@ -801,10 +747,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': {
 					'mode': 'default',
 					'buttons': [
@@ -830,10 +773,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': {
 					'mode': 'default',
 					'buttons': [
@@ -859,10 +799,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': {
 					'url': '',
@@ -883,10 +820,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': {
 					'url': 'test',
@@ -907,10 +841,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 			data={
 				'name': 'Test',
 				'command': None,
-				'message_text': {
-					'mode': 'default',
-					'text': 'Test...',
-				},
+				'message_text': {'text': 'Test...'},
 				'keyboard': None,
 				'api_request': None,
 				'database_record': None,
@@ -1072,10 +1003,7 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 			name='Test',
 			command=None,
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test...',
-			},
+			message_text={'text': 'Test...'},
 			keyboard = None,
 			api_request = None,
 			database_record = None,

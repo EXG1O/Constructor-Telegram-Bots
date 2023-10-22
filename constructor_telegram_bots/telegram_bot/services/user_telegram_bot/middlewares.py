@@ -234,10 +234,7 @@ class GetDjangoTelegramBotCommandMessageTextMiddleware(BaseMiddleware):
 		)
 
 		if message_text and len(message_text) <= 4096:
-			data.update({
-				'message_text': message_text,
-				'message_text_mode': django_telegram_bot_command_message_text.mode if django_telegram_bot_command_message_text.mode != 'default' else None,
-			})
+			data['message_text'] = message_text
 
 			return await handler(event, data)
 

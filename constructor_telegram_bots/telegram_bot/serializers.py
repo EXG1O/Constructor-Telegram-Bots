@@ -18,6 +18,7 @@ from telegram_bot.models import (
 from .functions import is_valid_telegram_bot_api_token
 
 from typing import Any
+import re
 
 
 class TelegramBotModelSerializer(serializers.ModelSerializer):
@@ -42,13 +43,11 @@ class TelegramBotCommandCommandModelSerializer(serializers.ModelSerializer):
 class TelegramBotCommandMessageTextModelSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotCommandMessageText
-		fields = ['mode', 'text']
+		fields = ['text']
 
 	def to_representation(self, instance: TelegramBotCommandMessageText) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-
-		if self.context.get('escape', False):
-			representation.update({'text': filters.escape(representation['text'])})
+		representation['text'] = representation['text'].replace('\n', '<br>')
 
 		return representation
 
@@ -63,10 +62,9 @@ class TelegramBotCommandKeyboardButtonModelSerializer(serializers.ModelSerialize
 		representation: dict[str, Any] = super().to_representation(instance)
 
 		if self.context.get('escape', False):
-			representation.update({'text': filters.escape(representation['text'])})
+			representation['text'] = filters.escape(representation['text'])
 
 		return representation
-
 
 class TelegramBotCommandKeyboardModelSerializer(serializers.ModelSerializer):
 	buttons = TelegramBotCommandKeyboardButtonModelSerializer(many=True)
@@ -94,7 +92,7 @@ class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
 		representation: dict[str, Any] = super().to_representation(instance)
 
 		if self.context.get('escape', False):
-			representation.update({'name': filters.escape(representation['name'])})
+			representation['name'] = filters.escape(representation['name'])
 
 		return representation
 
@@ -163,11 +161,13 @@ class TelegramBotCommandCommandSerializer(serializers.Serializer):
 	}, allow_null=True)
 
 class TelegramBotCommandMessageTextSerializer(serializers.Serializer):
-	mode = serializers.ChoiceField(choices=['default', 'markdown', 'html'])
 	text = serializers.CharField(max_length=4096, error_messages={
 		'blank': _('Введите текст сообщения!'),
 		'max_length': _('Текст сообщения должен содержать не более 4096 символов!'),
 	})
+
+	def validate_text(self, text: str) -> str:
+		return re.sub(r'<[/]?p>', '', text).replace('<br>', '\n')
 
 class TelegramBotCommandKeyboardButtonSerializer(serializers.Serializer):
 	id = serializers.IntegerField(allow_null=True)

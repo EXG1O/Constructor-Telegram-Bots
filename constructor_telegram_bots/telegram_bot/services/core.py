@@ -17,8 +17,8 @@ T = TypeVar('T')
 
 
 class Bot(Bot_):
-	def __init__(self, *args, **kwargs) -> None:
-		super().__init__(*args, **kwargs)
+	def __init__(self, api_token: str, parse_mode: str | None = None, *args, **kwargs) -> None:
+		super().__init__(token=api_token, parse_mode=parse_mode, *args, **kwargs)
 
 		if settings.TEST:
 			self.results = []
@@ -35,10 +35,10 @@ class Bot(Bot_):
 			return self.results
 
 class BaseTelegramBot:
-	def __init__(self, api_token: str) -> None:
+	def __init__(self, api_token: str, parse_mode: str | None = None) -> None:
 		self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
 
-		self.bot = Bot(token=api_token)
+		self.bot = Bot(api_token, parse_mode)
 		self.dispatcher = Dispatcher()
 
 class BaseTestCase(TestCase):
