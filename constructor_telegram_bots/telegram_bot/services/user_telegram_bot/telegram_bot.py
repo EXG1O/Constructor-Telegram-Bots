@@ -42,13 +42,12 @@ class UserTelegramBot(BaseTelegramBot):
 	def __init__(self, django_telegram_bot: DjangoTelegramBot) -> None:
 		self.django_telegram_bot = django_telegram_bot
 
-		super().__init__(self.django_telegram_bot.api_token)
+		super().__init__(self.django_telegram_bot.api_token, 'html')
 
 	async def send_answer(
 		self,
 		event_chat: Chat,
 		message_text: str,
-		message_text_mode: str | None,
 		keyboard: ReplyKeyboardMarkup | InlineKeyboardMarkup | None,
 		django_telegram_bot_command: DjangoTelegramBotCommand,
 		**kwargs,
@@ -60,14 +59,12 @@ class UserTelegramBot(BaseTelegramBot):
 						chat_id=event_chat.id,
 						photo=FSInputFile(django_telegram_bot_command.image.path),
 						caption=message_text,
-						parse_mode=message_text_mode,
 						reply_markup=keyboard,
 					)
 				else:
 					await self.bot.send_message(
 						chat_id=event_chat.id,
 						text=message_text,
-						parse_mode=message_text_mode,
 						reply_markup=keyboard,
 					)
 			except TelegramRetryAfter as exception:

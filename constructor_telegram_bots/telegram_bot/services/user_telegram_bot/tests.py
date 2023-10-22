@@ -41,10 +41,7 @@ class UserTelegramBotTests(BaseTestCase):
 				'description': None,
 			},
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test...',
-			},
+			message_text={'text': 'Test...'},
 			keyboard=None,
 			api_request=None,
 			database_record=None,
@@ -65,10 +62,7 @@ class UserTelegramBotTests(BaseTestCase):
 				'description': None,
 			},
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test...',
-			},
+			message_text={'text': 'Test...'},
 			keyboard={
 				'mode': 'default',
 				'buttons': [
@@ -111,10 +105,7 @@ class UserTelegramBotTests(BaseTestCase):
 				'description': None,
 			},
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test...',
-			},
+			message_text={'text': 'Test...'},
 			keyboard={
 				'mode': 'inline',
 				'buttons': [
@@ -160,10 +151,7 @@ class UserTelegramBotTests(BaseTestCase):
 				'description': None,
 			},
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test1...',
-			},
+			message_text={'text': 'Test1...'},
 			keyboard={
 				'mode': 'default',
 				'buttons': [
@@ -182,10 +170,7 @@ class UserTelegramBotTests(BaseTestCase):
 			name='Test2',
 			command=None,
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test2...',
-			},
+			message_text={'text': 'Test2...'},
 			keyboard=None,
 			api_request=None,
 			database_record=None,
@@ -211,10 +196,7 @@ class UserTelegramBotTests(BaseTestCase):
 				'description': None,
 			},
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test1...',
-			},
+			message_text={'text': 'Test1...'},
 			keyboard={
 				'mode': 'inline',
 				'buttons': [
@@ -233,10 +215,7 @@ class UserTelegramBotTests(BaseTestCase):
 			name='Test2',
 			command=None,
 			image=None,
-			message_text={
-				'mode': 'default',
-				'text': 'Test2...',
-			},
+			message_text={'text': 'Test2...'},
 			keyboard=None,
 			api_request=None,
 			database_record=None,

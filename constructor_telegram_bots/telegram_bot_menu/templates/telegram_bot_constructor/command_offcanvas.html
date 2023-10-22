@@ -7,19 +7,6 @@
 	</div>
 	<div class="offcanvas-body d-flex flex-column gap-3">
 		<div>
-			<h6 class="mb-1">{% trans "Доступные переменные" %}</h6>
-			<div class="d-flex flex-column bg-light border rounded gap-1 p-1">
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('user_id');">{% trans "ID пользователя" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('user_username');">{% trans "@username пользователя" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('user_first_name');">{% trans "Имя пользователя" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('user_last_name');">{% trans "Фамилия пользователя" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('user_message_id');">{% trans "ID сообщения пользователя" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('user_message_text');">{% trans "Текст сообщения пользователя" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('database_records');">{% trans "Данные из базы данных" %}</button>
-				<button class="btn btn-sm btn-dark" type="button" onclick="copyToBuffer('api_response');">{% trans "Ответ с API-запроса" %}</button>
-			</div>
-		</div>
-		<div>
 			<h6 class="mb-1">{% trans "Название команды" %}</h6>
 			<input class="form-control" id="telegramBotCommandOffcanvasNameInput" type="text" placeholder="{% trans "Введите название команды" %}">
 		</div>
@@ -41,17 +28,7 @@
 		</div>
 		<div>
 			<h6 class="mb-1">{% trans "Текст сообщения" %}</h6>
-			<div class="d-flex flex-column gap-2">
-				<div class="btn-group" role="group">
-					<input class="btn-check" id="telegramBotCommandOffcanvasDefaultMessageTextModeRadio" name="telegramBotCommandOffcanvasMessageTextModes" value="default" type="radio" autocomplete="off">
-					<label class="btn btn-sm btn-outline-dark" for="telegramBotCommandOffcanvasDefaultMessageTextModeRadio" style="width: 33%;">{% trans "Обычный" %}</label>
-					<input class="btn-check" id="telegramBotCommandOffcanvasMarkdownMessageTextModeRadio" name="telegramBotCommandOffcanvasMessageTextModes" value="markdown" type="radio" autocomplete="off">
-					<label class="btn btn-sm btn-outline-dark" for="telegramBotCommandOffcanvasMarkdownMessageTextModeRadio" style="width: 34%;">Markdown</label>
-					<input class="btn-check" id="telegramBotCommandOffcanvasHTMLMessageTextModeRadio" name="telegramBotCommandOffcanvasMessageTextModes" value="html" type="radio" autocomplete="off">
-					<label class="btn btn-sm btn-outline-dark" for="telegramBotCommandOffcanvasHTMLMessageTextModeRadio" style="width: 33%;">HTML</label>
-				</div>
-				<div id="telegramBotCommandOffcanvasMessageText"></div>
-			</div>
+			<textarea id="telegramBotCommandOffcanvasMessageText"></textarea>
 		</div>
 		<div class="d-none" id="telegramBotCommandOffcanvasKeyboardAddition">
 			<h6 class="mb-1">{% trans "Клавиатура" %}</h6>

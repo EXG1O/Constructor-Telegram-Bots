@@ -20,6 +20,8 @@
 	<nav class="nav nav-pills nav-fill bg-light border rounded mb-3 mb-lg-4 p-2">
 		{% url 'telegram_bot_menu:telegram_bot' telegram_bot.id as telegram_bot_menu_url %}
 		<a class="nav-link link-dark {% if request.path == telegram_bot_menu_url %}active {% endif %}p-2" href="{{ telegram_bot_menu_url }}">{% trans "Telegram бот" %}</a>
+		{% url 'telegram_bot_menu:telegram_bot_variables' telegram_bot.id as telegram_bot_variables_url %}
+		<a class="nav-link link-dark {% if request.path == telegram_bot_variables_url %}active {% endif %}p-2" href="{{ telegram_bot_variables_url }}">{% trans "Список переменных" %}</a>
 		{% url 'telegram_bot_menu:telegram_bot_users' telegram_bot.id as telegram_bot_users_url %}
 		<a class="nav-link link-dark {% if request.path == telegram_bot_users_url %}active {% endif %}p-2" href="{{ telegram_bot_users_url }}">{% trans "Список пользователей" %}</a>
 		{% url 'telegram_bot_menu:telegram_bot_database' telegram_bot.id as telegram_bot_database_url %}

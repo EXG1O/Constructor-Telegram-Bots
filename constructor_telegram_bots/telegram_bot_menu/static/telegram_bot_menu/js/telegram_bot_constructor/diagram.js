@@ -273,7 +273,7 @@
 			`</button>`,
 			`<div class="diagram-block-name bg-light border text-center text-break p-2 mb-2">${telegramBotCommand.name}</div>`,
 			(telegramBotCommand.image) ? `<img class="img-thumbnail rounded mb-2" src="${telegramBotCommand.image}">` : '',
-			(telegramBotCommand.message_text.mode !== 'default') ? `<div class="language-${telegramBotCommand.message_text.mode} bg-light border rounded text-break p-2" style="font-size: 14px;"><pre class="bg-light p-0 m-0"><code>${telegramBotCommand.message_text.text}</code></pre></div>` : `<div class="bg-light border rounded text-break p-2" style="font-size: 15px;">${telegramBotCommand.message_text.text}</div>`,
+			`<div class="bg-light border rounded text-break p-2" style="font-size: 15px;">${telegramBotCommand.message_text.text}</div>`,
 		].join('');
 
 		if (telegramBotCommand.keyboard != null) {
@@ -340,7 +340,6 @@
 		));
 
 		enableDiagramBlockDragging(diagramBlock);
-		Prism.highlightAll();
 	}
 
 	function updateDiagramBlocks() {

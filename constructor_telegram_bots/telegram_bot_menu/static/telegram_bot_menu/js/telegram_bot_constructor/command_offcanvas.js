@@ -1,8 +1,3 @@
-const copyToBuffer = (value) => {
-	navigator.clipboard.writeText(`{{ ${value} }}`);
-	createToast(telegramBotCommandOffcanvasSuccessfullyCopyToBufferText, 'success');
-}
-
 {
 	class Addition {
 		constructor(additionDiv) {
@@ -144,96 +139,32 @@ const copyToBuffer = (value) => {
 
 	class MessageText {
 		constructor() {
-			this.div = document.querySelector('#telegramBotCommandOffcanvasMessageText');
-			this.messageTextModesRadios = document.querySelectorAll('[name="telegramBotCommandOffcanvasMessageTextModes"]');
-			this.monacoEditor = null;
-			this.mode = null;
+			this.textarea = document.querySelector('#telegramBotCommandOffcanvasMessageText');
 
-			this.messageTextModesRadios.forEach(messageTextModeRadio => messageTextModeRadio.addEventListener('click', () => this.setMode(messageTextModeRadio.value)));
-		}
-		createMonacoEditor(language) {
-			this.div.innerHTML = [
-				'<div class="border rounded" id="telegramBotCommandOffcanvasMessageTextEditor" style="padding: 7px 12px;">',
-				'	<div>',
-				'		<div class="spinner-border text-secondary ms-2 mt-2" role="status">',
-				'			<span class="visually-hidden"></span>',
-				'		</div>',
-				'	</div>',
-				'</div>',
-			].join('');
-
-			require(['vs/editor/editor.main'], () => {
-				const messageTextEditorDiv = document.querySelector('#telegramBotCommandOffcanvasMessageTextEditor');
-				messageTextEditorDiv.querySelector('.spinner-border').remove();
-
-				this.monacoEditor = monaco.editor.create(messageTextEditorDiv.querySelector('div'), {
-					value: (language === 'markdown') ? `__${telegramBotCommandOffcanvasMessageTextPlaceholderText}__` : `<b>${telegramBotCommandOffcanvasMessageTextPlaceholderText}</b>`,
-					language: language,
-					lineNumbers: 'off',
-					folding: false,
-					lineDecorationsWidth: 0,
-					minimap: {enabled: false},
-					overviewRulerLanes: 0,
-					scrollBeyondLastLine: false,
-					scrollbar: {horizontal: 'hidden'},
-					renderLineHighlight: 'none',
-					wordWrap: 'on',
-					fontSize: '16px',
-					fontWeight: '400',
-					fontFamily: 'inherit',
-				});
-				this.monacoEditor.layout({height: 144});
-				this.monacoEditor.layout();
+			tinymce.init({
+				selector: `#${this.textarea.id}`,
+				height: 260,
+				placeholder: telegramBotCommandOffcanvasMessageTextPlaceholderText,
+				newline_behavior: 'linebreak',
+				toolbar: 'undo redo | bold italic underline strikethrough',
+				formats: {underline: {inline: 'u'}},
+				menubar: false,
+				promotion: false,
+				statusbar: false,
+				resize: false,
 			});
-		}
-		setMode(mode) {
-			if (mode !== this.mode) {
-				this.mode = mode;
-
-				this.messageTextModesRadios.forEach(messageTextModeRadio => messageTextModeRadio.checked = (messageTextModeRadio.value === this.mode));
-
-				if (this.mode === 'default') {
-					this.div.innerHTML = `<textarea class="form-control" placeholder="${telegramBotCommandOffcanvasMessageTextPlaceholderText}" style="height: 160px; resize: none;"></textarea>`;
-				} else {
-					this.createMonacoEditor(mode);
-				}
-			}
 		}
 		get() {
 			return {
 				mode: this.mode,
-				text: (this.mode === 'default') ? this.div.querySelector('textarea').value : this.monacoEditor.getModel().getValue(),
+				text: tinymce.get(this.textarea.id).getContent(),
 			}
 		}
 		set(telegramBotCommand) {
-			this.setMode(telegramBotCommand.message_text.mode);
-
-			if (this.mode === 'default') {
-				this.div.querySelector('textarea').value = telegramBotCommand.message_text.text;
-			} else {
-				const setMessageText = () => {
-					if (this.monacoEditor) {
-						this.monacoEditor.setValue(telegramBotCommand.message_text.text);
-						return true
-					}
-					return false
-				}
-
-				const isSuccess = setMessageText();
-
-				if (!isSuccess) {
-					const intervalId = setInterval(() => {
-						const isSuccess = setMessageText();
-						if (isSuccess) clearInterval(intervalId);
-					}, 1000);
-				}
-
-			}
+			tinymce.get(this.textarea.id).setContent(telegramBotCommand.message_text.text);
 		}
 		reset() {
-			this.monacoEditor = null;
-			this.mode = null;
-			this.setMode('default');
+			tinymce.get(this.textarea.id).setContent('');
 		}
 	}
 

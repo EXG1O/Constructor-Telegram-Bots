@@ -191,7 +191,6 @@ class TelegramBotCommand(models.Model):
 
 			self.save()
 
-		self.message_text.mode = message_text['mode']
 		self.message_text.text = message_text['text']
 		self.message_text.save()
 
@@ -271,11 +270,6 @@ class TelegramBotCommandCommand(models.Model):
 
 class TelegramBotCommandMessageText(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='message_text')
-	mode = models.CharField(_('Режим'), max_length=8, choices=(
-		('default', _('Обычный')),
-		('markdown', 'Markdown'),
-		('html', 'HTML'),
-	), default='default')
 	text = models.TextField(_('Текст'), max_length=4096)
 
 	class Meta:
