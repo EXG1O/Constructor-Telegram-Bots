@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-20 23:15+0000\n"
+"POT-Creation-Date: 2023-10-22 22:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -124,9 +124,9 @@ msgstr "Головна"
 
 #: constructor_telegram_bots/templates/navbar.html:19 team/apps.py:9
 #: team/templates/team.html:5 telegram_bot/models.py:119
-#: telegram_bot/models.py:265
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:27
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:108
+#: telegram_bot/models.py:264
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:14
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:85
 msgid "Команда"
 msgstr "Команда"
 
@@ -187,7 +187,7 @@ msgid "Заголовок"
 msgstr "Заголовок"
 
 #: donation/models.py:28 donation/models.py:48 instruction/models.py:7
-#: telegram_bot/models.py:279 telegram_bot/models.py:319
+#: telegram_bot/models.py:273 telegram_bot/models.py:313
 msgid "Текст"
 msgstr "Текст"
 
@@ -326,7 +326,7 @@ msgid "Меню Telegram бота"
 msgstr "Меню Telegram бота"
 
 #: plugin/apps.py:9 plugin/models.py:28
-#: telegram_bot_menu/templates/base_telegram_bot_menu.html:28
+#: telegram_bot_menu/templates/base_telegram_bot_menu.html:30
 #: telegram_bot_menu/templates/telegram_bot_plugins.html:5
 msgid "Плагины"
 msgstr "Плагіни"
@@ -340,7 +340,7 @@ msgid "Пользователь"
 msgstr "Користувач"
 
 #: plugin/models.py:18 plugin/models.py:45 telegram_bot/models.py:106
-#: telegram_bot/models.py:354
+#: telegram_bot/models.py:348
 #: telegram_bot_menu/templates/base_telegram_bot_menu.html:22
 #: telegram_bot_menu/templates/telegram_bot.html:5
 msgid "Telegram бот"
@@ -603,8 +603,8 @@ msgstr ""
 "адресою"
 
 #: team/models.py:8 telegram_bot/models.py:108
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:36
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:109
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:23
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:86
 #: updates/models.py:6
 msgid "Изображение"
 msgstr "Зображення"
@@ -676,8 +676,8 @@ msgid "Telegram бота"
 msgstr "Telegram бота"
 
 #: telegram_bot/models.py:109
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:102
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:112
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:79
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:89
 msgid "Запись в базу данных"
 msgstr "Запис до бази даних"
 
@@ -693,114 +693,113 @@ msgstr "Координата Y"
 msgid "Команды"
 msgstr "Команди"
 
-#: telegram_bot/models.py:266
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:31
+#: telegram_bot/models.py:265
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:18
 msgid "Отображать в меню"
 msgstr "Відображати в меню"
 
-#: telegram_bot/models.py:267 updates/models.py:8
+#: telegram_bot/models.py:266 updates/models.py:8
 msgid "Описание"
 msgstr "Описание"
 
-#: telegram_bot/models.py:274 telegram_bot/models.py:305
+#: telegram_bot/models.py:299
 msgid "Режим"
 msgstr "Режим"
 
-#: telegram_bot/models.py:275 telegram_bot/models.py:306
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:47
+#: telegram_bot/models.py:300
 msgid "Обычный"
 msgstr "Звичайний"
 
-#: telegram_bot/models.py:307
+#: telegram_bot/models.py:301
 msgid "Встроенный"
 msgstr "Вбудований"
 
-#: telegram_bot/models.py:308
+#: telegram_bot/models.py:302
 msgid "Платёжный"
 msgstr "Платіжний"
 
-#: telegram_bot/models.py:318
+#: telegram_bot/models.py:312
 msgid "Ряд"
 msgstr "Ряд"
 
-#: telegram_bot/models.py:320 telegram_bot/models.py:339
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:36
+#: telegram_bot/models.py:314 telegram_bot/models.py:333
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:35
 msgid "URL-адрес"
 msgstr "URL-адреса"
 
-#: telegram_bot/models.py:340
+#: telegram_bot/models.py:334
 msgid "Метод"
 msgstr "Метод"
 
-#: telegram_bot/models.py:347
+#: telegram_bot/models.py:341
 msgid "Заголовки"
 msgstr "Заголовки"
 
-#: telegram_bot/models.py:348
+#: telegram_bot/models.py:342
 msgid "Данные"
 msgstr "Дані"
 
-#: telegram_bot/models.py:356
+#: telegram_bot/models.py:350
 msgid "Полное имя"
 msgstr "Повне ім'я"
 
-#: telegram_bot/models.py:357
+#: telegram_bot/models.py:351
 msgid "Разрешён"
 msgstr "Дозволений"
 
-#: telegram_bot/models.py:358
+#: telegram_bot/models.py:352
 msgid "Дата активации"
 msgstr "Дата активації"
 
-#: telegram_bot/models.py:363 user/models.py:45
+#: telegram_bot/models.py:357 user/models.py:45
 msgid "Пользователя"
 msgstr "Користувача"
 
-#: telegram_bot/models.py:364 user/apps.py:9 user/models.py:46
+#: telegram_bot/models.py:358 user/apps.py:9 user/models.py:46
 msgid "Пользователи"
 msgstr "Користувачі"
 
-#: telegram_bot/serializers.py:114
+#: telegram_bot/serializers.py:112
 msgid "Введите API-токен Telegram бота!"
 msgstr "Введіть API-токен Telegram бота!"
 
-#: telegram_bot/serializers.py:115
+#: telegram_bot/serializers.py:113
 msgid "API-токен Telegram бота должен содержать не более 50 символов!"
 msgstr "API-токен Telegram бота має містити не більше 50 символів!"
 
-#: telegram_bot/serializers.py:123
+#: telegram_bot/serializers.py:121
 msgid "Вы уже используете этот API-токен Telegram бота на сайте!"
 msgstr "Ви вже використовуєте цей API-токен Telegram бота на сайті!"
 
-#: telegram_bot/serializers.py:125
+#: telegram_bot/serializers.py:123
 msgid "Этот API-токен Telegram бота уже использует другой пользователь сайта!"
 msgstr "Цей API-токен Telegram бота вже використовує інший користувач сайту!"
 
-#: telegram_bot/serializers.py:128
+#: telegram_bot/serializers.py:126
 msgid "Ваш API-токен Telegram бота является недействительным!"
 msgstr "Ваш API-токен Telegram бота є недійсним!"
 
-#: telegram_bot/serializers.py:156
+#: telegram_bot/serializers.py:154
 msgid "Введите команду!"
 msgstr "Введіть команду!"
 
-#: telegram_bot/serializers.py:157
+#: telegram_bot/serializers.py:155
 msgid "Команда должна содержать не более 32 символов!"
 msgstr "Команда повинна мати не більше 32 символів!"
 
-#: telegram_bot/serializers.py:161
+#: telegram_bot/serializers.py:159
 msgid "Введите описание для команды!"
 msgstr "Введіть опис для команди!"
 
-#: telegram_bot/serializers.py:162
+#: telegram_bot/serializers.py:160
 msgid "Описание команды должно содержать не более 255 символов!"
 msgstr "Опис команди має містити не більше ніж 255 символів!"
 
-#: telegram_bot/serializers.py:168
+#: telegram_bot/serializers.py:165
 msgid "Введите текст сообщения!"
 msgstr "Введіть текст повідомлення!"
 
-#: telegram_bot/serializers.py:169
+#: telegram_bot/serializers.py:166
 msgid "Текст сообщения должен содержать не более 4096 символов!"
 msgstr "Текст повідомлення має містити не більше 4096 символів!"
 
@@ -915,16 +914,21 @@ msgid "Вы успешно удалили запись из базы данны�
 msgstr "Ви успішно видалили запис із бази даних Telegram бота."
 
 #: telegram_bot_menu/templates/base_telegram_bot_menu.html:24
+#: telegram_bot_menu/templates/telegram_bot_variables.html:5
+msgid "Список переменных"
+msgstr "Список змінних"
+
+#: telegram_bot_menu/templates/base_telegram_bot_menu.html:26
 #: telegram_bot_menu/templates/telegram_bot_users.html:5
 msgid "Список пользователей"
 msgstr "Список користувачів"
 
-#: telegram_bot_menu/templates/base_telegram_bot_menu.html:26
+#: telegram_bot_menu/templates/base_telegram_bot_menu.html:28
 #: telegram_bot_menu/templates/telegram_bot_database.html:5
 msgid "База данных"
 msgstr "База даних"
 
-#: telegram_bot_menu/templates/base_telegram_bot_menu.html:30
+#: telegram_bot_menu/templates/base_telegram_bot_menu.html:32
 #: telegram_bot_menu/templates/telegram_bot_constructor/main.html:5
 msgid "Конструктор"
 msgstr "Конструктор"
@@ -954,146 +958,105 @@ msgid "Вы точно хотите удалить Telegram бота?"
 msgstr "Ви хочете видалити Telegram бота?"
 
 #: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:10
-msgid "Доступные переменные"
-msgstr "Доступні змінні"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:12
-msgid "ID пользователя"
-msgstr "ID користувача"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:13
-msgid "@username пользователя"
-msgstr "@username користувача"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:14
-#: user/models.py:32
-msgid "Имя пользователя"
-msgstr "Ім'я користувача"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:15
-msgid "Фамилия пользователя"
-msgstr "Фамілія користувача"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:16
-msgid "ID сообщения пользователя"
-msgstr "ID повідомлення користувача"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:17
-msgid "Текст сообщения пользователя"
-msgstr "Текст повідомлення користувача"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:18
-msgid "Данные из базы данных"
-msgstr "Дані з бази даних"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:19
-msgid "Ответ с API-запроса"
-msgstr "Відповідь з API-запиту"
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:23
 msgid "Название команды"
 msgstr "Назва команди"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:24
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:11
 msgid "Введите название команды"
 msgstr "Введіть назву команди"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:29
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:16
 msgid "Введите команду"
 msgstr "Введіть команду"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:30
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:17
 msgid "Введите описание команды"
 msgstr "Введіть опис команди"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:32
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:19
 msgid "Не отображать в меню"
 msgstr "Не відображати у меню"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:43
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:30
 msgid "Текст сообщения"
 msgstr "Текст повідомлення"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:57
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:110
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:34
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:87
 msgid "Клавиатура"
 msgstr "Клавіатура"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:61
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:38
 msgid "Обычная"
 msgstr "Звичайна"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:63
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:40
 msgid "Встроенная"
 msgstr "Вбудована"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:71
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:48
 msgid "Добавить кнопку"
 msgstr "Додати кнопку"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:76
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:111
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:53
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:88
 msgid "API-запрос"
 msgstr "API-запит"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:78
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:55
 msgid "Введите URL-адрес"
 msgstr "Введіть URL-адресу"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:94
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:71
 msgid "Добавить заголовки"
 msgstr "Додати заголовки"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:95
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:72
 msgid "Убрать заголовки"
 msgstr "Прибрати заголовки"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:97
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:74
 msgid "Добавить данные"
 msgstr "Додати дані"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:98
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:75
 msgid "Убрать данные"
 msgstr "Прибрати дані"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:106
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:83
 msgid "Доступные дополнения"
 msgstr "Доступні доповнення"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:117
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:94
 #: telegram_bot_menu/templates/telegram_bot_constructor/diagram.html:13
 msgid "Добавить команду"
 msgstr "Додати команду"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:118
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:95
 msgid "Сохранить команду"
 msgstr "Зберегти команду"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:28
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:29
 msgid "Добавление команды"
 msgstr "Додавання команди"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:29
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:30
 msgid "Редактирование команды"
 msgstr "Редагування команди"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:31
-msgid "Вы успешно скопировали переменную."
-msgstr "Ви успішно скопіювали змінну."
-
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:33
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:32
 msgid "Введите текст сообщения"
 msgstr "Введіть текст повідомлення"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:35
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:34
 msgid "Название кнопки"
 msgstr "Назва кнопки"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:38
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:37
 msgid "Удаление команды"
 msgstr "Видалення команди"
 
-#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:39
+#: telegram_bot_menu/templates/telegram_bot_constructor/main.html:38
 msgid "Вы точно хотите удалить команду Telegram бота?"
 msgstr "Ви хочете видалити команду Telegram бота?"
 
@@ -1164,6 +1127,38 @@ msgstr "Видалення користувача"
 #: telegram_bot_menu/templates/telegram_bot_users.html:31
 msgid "Вы точно хотите удалить пользователя Telegram бота?"
 msgstr "Ви хочете видалити користувача Telegram бота?"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:20
+msgid "ID пользователя"
+msgstr "ID користувача"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:24
+msgid "@username пользователя"
+msgstr "@username користувача"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:28 user/models.py:32
+msgid "Имя пользователя"
+msgstr "Ім'я користувача"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:32
+msgid "Фамилия пользователя"
+msgstr "Фамілія користувача"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:36
+msgid "ID сообщения пользователя"
+msgstr "ID повідомлення користувача"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:40
+msgid "Текст сообщения пользователя"
+msgstr "Текст повідомлення користувача"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:44
+msgid "Данные из базы данных"
+msgstr "Дані з бази даних"
+
+#: telegram_bot_menu/templates/telegram_bot_variables.html:48
+msgid "Ответ с API-запроса"
+msgstr "Відповідь з API-запиту"
 
 #: updates/decorators.py:20
 msgid "Обновление не найдено!"
