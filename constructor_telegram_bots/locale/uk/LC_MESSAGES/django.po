@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-22 22:44+0000\n"
+"POT-Creation-Date: 2023-10-23 12:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,8 +125,6 @@ msgstr "Головна"
 #: constructor_telegram_bots/templates/navbar.html:19 team/apps.py:9
 #: team/templates/team.html:5 telegram_bot/models.py:119
 #: telegram_bot/models.py:264
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:14
-#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:85
 msgid "Команда"
 msgstr "Команда"
 
@@ -964,6 +962,12 @@ msgstr "Назва команди"
 #: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:11
 msgid "Введите название команды"
 msgstr "Введіть назву команди"
+
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:14
+#: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:85
+msgctxt "Command"
+msgid "Команда"
+msgstr "Команда"
 
 #: telegram_bot_menu/templates/telegram_bot_constructor/command_offcanvas.html:16
 msgid "Введите команду"

@@ -11,7 +11,7 @@
 			<input class="form-control" id="telegramBotCommandOffcanvasNameInput" type="text" placeholder="{% trans "Введите название команды" %}">
 		</div>
 		<div class="d-none" id="telegramBotCommandOffcanvasCommandAddition">
-			<h6 class="mb-1">{% trans "Команда" %}</h6>
+			<h6 class="mb-1">{% trans "Команда" context "Command" %}</h6>
 			<div class="d-flex flex-column gap-2">
 				<input class="form-control" id="telegramBotCommandOffcanvasCommandTextInput" type="text" placeholder="{% trans "Введите команду" %}">
 				<input class="form-control d-none" id="telegramBotCommandOffcanvasCommandDescriptionInput" type="text" placeholder="{% trans "Введите описание команды" %}">
@@ -81,7 +81,7 @@
 		<div>
 			<h6 class="mb-1">{% trans "Доступные дополнения" %}</h6>
 			<div class="d-flex flex-column bg-light border rounded gap-1 p-1" id="telegramBotCommandOffcanvasAdditions">
-				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasCommandAddition" type="button">{% trans "Команда" %}</button>
+				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasCommandAddition" type="button">{% trans "Команда" context "Command" %}</button>
 				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasImageAddition" type="button">{% trans "Изображение" %}</button>
 				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasKeyboardAddition" type="button">{% trans "Клавиатура" %}</button>
 				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasApiRequestAddition" type="button">{% trans "API-запрос" %}</button>
