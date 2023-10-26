@@ -52,7 +52,7 @@ class UserTelegramBot(BaseTelegramBot):
 		django_telegram_bot_command: DjangoTelegramBotCommand,
 		**kwargs,
 	) -> None:
-		async def send_answer_():
+		async def send_answer_() -> None:
 			try:
 				if django_telegram_bot_command.image:
 					await self.bot.send_photo(
@@ -96,9 +96,13 @@ class UserTelegramBot(BaseTelegramBot):
 		bot_commands = []
 
 		async for django_telegram_bot_command in self.django_telegram_bot.commands.all():
-			django_telegram_bot_command_command: DjangoTelegramBotCommandCommand = await django_telegram_bot_command.aget_command()
+			django_telegram_bot_command_command: DjangoTelegramBotCommandCommand | None = await django_telegram_bot_command.aget_command()
 
-			if django_telegram_bot_command_command and django_telegram_bot_command_command.is_show_in_menu:
+			if (
+				django_telegram_bot_command_command is not None and
+				django_telegram_bot_command_command.is_show_in_menu and
+				django_telegram_bot_command_command.description
+			):
 				bot_commands.append(BotCommand(
 					command=re.sub(f'[{string.punctuation}]', '', django_telegram_bot_command_command.text),
 					description=django_telegram_bot_command_command.description,

@@ -7,10 +7,7 @@ from user.models import User
 
 class ViewsTests(TestCase):
 	def setUp(self) -> None:
-		self.user: User = User.objects.create(
-			telegram_id=123456789,
-			first_name='exg1o',
-		)
+		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
 
 	def test_personal_cabinet_view(self) -> None:
 		url: str = urls.reverse('personal_cabinet')

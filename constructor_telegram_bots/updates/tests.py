@@ -7,10 +7,7 @@ from .models import Update
 
 class UpdateModelTests(TestCase):
 	def setUp(self) -> None:
-		self.update = Update.objects.create(
-			version='0.0.0-beta',
-			description='None...',
-		)
+		self.update = Update.objects.create(version='0.0.0-beta', description='None...')
 
 	def test_fields(self) -> None:
 		self.assertEqual(str(self.update.image), '')
@@ -31,11 +28,7 @@ class ViewsTests(TestCase):
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 404)
 
-		update: Update = Update.objects.create(
-			version='0.0.0-beta',
-			description='None...',
-		)
-
+		update: Update = Update.objects.create(version='0.0.0-beta', description='None...')
 		url: str = urls.reverse('update', kwargs={'update_id': update.id})
 
 		response = self.client.get(url)

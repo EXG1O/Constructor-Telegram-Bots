@@ -1,9 +1,11 @@
 from ..core import BaseTestCase
 from .telegram_bot import UserTelegramBot
 
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup
 from aiogram.methods import TelegramMethod, SendMessage, DeleteMessage
 
 from user.models import User as DjangoUser
+
 from ...models import (
 	TelegramBot as DjangoTelegramBot,
 	TelegramBotCommand as DjangoTelegramBotCommand,
@@ -16,10 +18,7 @@ from asgiref.sync import async_to_sync
 
 class UserTelegramBotTests(BaseTestCase):
 	def setUp(self) -> None:
-		django_user: DjangoUser = DjangoUser.objects.create(
-			telegram_id=123456789,
-			first_name='exg1o',
-		)
+		django_user: DjangoUser = DjangoUser.objects.create(telegram_id=123456789, first_name='exg1o')
 		self.django_telegram_bot: DjangoTelegramBot = DjangoTelegramBot.objects.create(
 			owner=django_user,
 			api_token='123456789:qwertyuiop',
@@ -47,7 +46,11 @@ class UserTelegramBotTests(BaseTestCase):
 			database_record=None,
 		)
 
-		method: TelegramMethod = (await self.send_message('/test'))[0]
+		methods: list[TelegramMethod] | None = await self.send_message('/test')
+
+		assert methods is not None
+
+		method: TelegramMethod = methods[0]
 
 		assert isinstance(method, SendMessage)
 		assert method.text == 'Test...'
@@ -87,10 +90,16 @@ class UserTelegramBotTests(BaseTestCase):
 			database_record=None,
 		)
 
-		method: TelegramMethod = (await self.send_message('/test'))[0]
+		methods: list[TelegramMethod] | None = await self.send_message('/test')
+
+		assert methods is not None
+
+		method: TelegramMethod = methods[0]
 
 		assert isinstance(method, SendMessage)
 		assert method.text == 'Test...'
+
+		assert isinstance(method.reply_markup, ReplyKeyboardMarkup)
 		assert method.reply_markup.keyboard[0][0].text == '1'
 		assert method.reply_markup.keyboard[1][0].text == '2'
 		assert method.reply_markup.keyboard[1][1].text == '3'
@@ -130,10 +139,16 @@ class UserTelegramBotTests(BaseTestCase):
 			database_record=None,
 		)
 
-		method: TelegramMethod = (await self.send_message('/test'))[0]
+		methods: list[TelegramMethod] | None = await self.send_message('/test')
+
+		assert methods is not None
+
+		method: TelegramMethod = methods[0]
 
 		assert isinstance(method, SendMessage)
 		assert method.text == 'Test...'
+
+		assert isinstance(method.reply_markup, InlineKeyboardMarkup)
 		assert method.reply_markup.inline_keyboard[0][0].text == '1'
 		assert method.reply_markup.inline_keyboard[0][0].url == 'https://example.com/'
 		assert method.reply_markup.inline_keyboard[1][0].text == '2'
@@ -181,7 +196,11 @@ class UserTelegramBotTests(BaseTestCase):
 		django_telegram_bot_command_1_keyboard_button.telegram_bot_command = django_telegram_bot_command_2
 		await django_telegram_bot_command_1_keyboard_button.asave()
 
-		method: TelegramMethod = (await self.send_message('1'))[0]
+		methods: list[TelegramMethod] | None = await self.send_message('1')
+
+		assert methods is not None
+
+		method: TelegramMethod = methods[0]
 
 		assert isinstance(method, SendMessage)
 		assert method.text == 'Test2...'
@@ -226,8 +245,9 @@ class UserTelegramBotTests(BaseTestCase):
 		django_telegram_bot_command_1_keyboard_button.telegram_bot_command = django_telegram_bot_command_2
 		await django_telegram_bot_command_1_keyboard_button.asave()
 
-		methods: list[TelegramMethod] = await self.send_callback_query(str(django_telegram_bot_command_1_keyboard_button.id))
+		methods: list[TelegramMethod] | None = await self.send_callback_query(str(django_telegram_bot_command_1_keyboard_button.id))
 
+		assert methods is not None
 		assert isinstance(methods[0], DeleteMessage)
 		assert isinstance(methods[1], SendMessage)
 		assert methods[1].text == 'Test2...'

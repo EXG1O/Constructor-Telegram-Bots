@@ -7,7 +7,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from .models import (
 	TelegramBot,
@@ -106,7 +105,7 @@ class TelegramBotView(APIView):
 			return Response({
 				'message': _('На стороне сайта произошла непредвиденная ошибка, попробуйте ещё раз позже!'),
 				'level': 'danger',
-			}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+			}, status=500)
 
 	@check_telegram_bot_id
 	def delete(self, request: Request, telegram_bot: TelegramBot) -> Response:

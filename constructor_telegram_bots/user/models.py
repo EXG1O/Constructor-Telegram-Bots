@@ -28,7 +28,7 @@ class UserManager(BaseUserManager):
 		raise SyntaxError('Not support to create superuser!')
 
 class User(AbstractBaseUser, PermissionsMixin):
-	telegram_id = models.BigIntegerField('Telegram ID', unique=True, null=True)
+	telegram_id = models.BigIntegerField('Telegram ID', unique=True)
 	first_name = models.CharField(_('Имя пользователя'), max_length=64, null=True)
 	password = None
 	is_staff = models.BooleanField(_('Сотрудник'), default=False)
@@ -53,12 +53,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		if not self.confirm_code:
 			self.generate_confirm_code()
 
-		user_login_url: str = urls.reverse('user:login', kwargs={
+		return settings.SITE_DOMAIN + urls.reverse('user:login', kwargs={
 			'user_id': self.id,
 			'confirm_code': self.confirm_code,
 		})
-
-		return settings.SITE_DOMAIN + user_login_url
 
 	@property
 	def login_url(self) -> str:
@@ -79,7 +77,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 				self.save()
 
 	def __str__(self) -> str:
-		return self.first_name
+		return self.first_name if self.first_name else str(self.telegram_id)
 
 @receiver(post_save, sender=User)
 def post_save_user_signal(instance: User, created: bool, **kwargs) -> None:

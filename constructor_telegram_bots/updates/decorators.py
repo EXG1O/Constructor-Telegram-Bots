@@ -1,8 +1,6 @@
 from django.http import JsonResponse
 from django.utils.translation import gettext as _
 
-from rest_framework.status import HTTP_404_NOT_FOUND
-
 from .models import Update
 
 from functools import wraps
@@ -19,7 +17,7 @@ def check_update_id(func):
 			return JsonResponse({
 				'message': _('Обновление не найдено!'),
 				'level': 'danger',
-			}, status=HTTP_404_NOT_FOUND)
+			}, status=404)
 
 		return func(*args, **kwargs)
 	return wrapper

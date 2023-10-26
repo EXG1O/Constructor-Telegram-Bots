@@ -6,7 +6,7 @@ import time
 
 
 @shared_task
-def update_users_first_name():
+def update_users_first_name() -> None:
 	for user in User.objects.all():
 		user.update_first_name()
 		time.sleep(0.5)

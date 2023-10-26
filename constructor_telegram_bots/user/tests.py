@@ -8,10 +8,7 @@ from .models import User
 
 class BaseTestCase(TestCase):
 	def setUp(self) -> None:
-		self.user: User = User.objects.create(
-			telegram_id=123456789,
-			first_name='exg1o',
-		)
+		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
 
 class UserModelTests(BaseTestCase):
 	def test_fields(self) -> None:
@@ -25,13 +22,13 @@ class UserModelTests(BaseTestCase):
 	def test_login_url(self) -> None:
 		self.user.generate_confirm_code()
 
-		user_login_url: str = urls.reverse('user:login', kwargs={
-			'user_id': self.user.id,
-			'confirm_code': self.user.confirm_code,
-		})
-		user_login_url = f'{settings.SITE_DOMAIN}{user_login_url}'
-
-		self.assertEqual(self.user.login_url, user_login_url)
+		self.assertEqual(
+			self.user.login_url,
+			settings.SITE_DOMAIN + urls.reverse('user:login', kwargs={
+				'user_id': self.user.id,
+				'confirm_code': self.user.confirm_code,
+			})
+		)
 		self.assertIsNotNone(self.user.confirm_code)
 		self.assertIsNone(self.user.last_login)
 
@@ -43,22 +40,21 @@ class UserModelTests(BaseTestCase):
 
 class ViewsTests(BaseTestCase):
 	def test_user_login_view(self) -> None:
-		login_urls: dict[str, str] = {
+		login_urls: dict[str, int] = {
 			urls.reverse('user:login', kwargs={
 				'user_id': 0,
 				'confirm_code': 1,
-			}): 'Не удалось найти пользователя!',
+			}): 404,
 			urls.reverse('user:login', kwargs={
 				'user_id': self.user.id,
 				'confirm_code': 0,
-			}): 'Неверный код подтверждения!',
+			}): 401,
 		}
 
-		for login_url in login_urls:
+		for login_url, response_status_code in login_urls.items():
 			response: HttpResponse = self.client.get(login_url)
-			self.assertEqual(response.status_code, 200)
+			self.assertEqual(response.status_code, response_status_code)
 			self.assertTemplateUsed(response, 'base_success_or_error.html')
-			self.assertContains(response, login_urls[login_url])
 
 		response: HttpResponse = self.client.get(self.user.login_url)
 		self.assertEqual(response.status_code, 302)

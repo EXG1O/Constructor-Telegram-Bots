@@ -103,7 +103,7 @@ def upload_telegram_bot_command_image_path(telegram_bot_command: 'TelegramBotCom
 	return f'telegram_bots/{telegram_bot_command.telegram_bot.id}/commands/{file_name}'
 
 class TelegramBotCommand(models.Model):
-	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', null=True, verbose_name=_('Telegram бот'))
+	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=255)
 	image = models.ImageField(_('Изображение'), upload_to=upload_telegram_bot_command_image_path, blank=True, null=True)
 	database_record = models.JSONField(_('Запись в базу данных'), blank=True, null=True)
@@ -295,7 +295,7 @@ class TelegramBotCommandKeyboardManager(models.Manager):
 		return telegram_bot_command_keyboard
 
 class TelegramBotCommandKeyboard(models.Model):
-	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='keyboard', null=True)
+	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='keyboard')
 	mode = models.CharField(_('Режим'), max_length=7, choices=(
 		('default', _('Обычный')),
 		('inline', _('Встроенный')),
@@ -308,7 +308,7 @@ class TelegramBotCommandKeyboard(models.Model):
 		db_table = 'telegram_bot_command_keyboard'
 
 class TelegramBotCommandKeyboardButton(models.Model):
-	telegram_bot_command_keyboard = models.ForeignKey(TelegramBotCommandKeyboard, on_delete=models.CASCADE, related_name='buttons', null=True)
+	telegram_bot_command_keyboard = models.ForeignKey(TelegramBotCommandKeyboard, on_delete=models.CASCADE, related_name='buttons')
 	row = models.IntegerField(_('Ряд'), blank=True, null=True)
 	text = models.TextField(_('Текст'), max_length=4096)
 	url = models.TextField(_('URL-адрес'), max_length=2048, blank=True, null=True)
@@ -345,7 +345,7 @@ class TelegramBotCommandApiRequest(models.Model):
 		db_table = 'telegram_bot_command_api_request'
 
 class TelegramBotUser(models.Model):
-	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'), null=True)
+	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
 	user_id = models.BigIntegerField('Telegram ID')
 	full_name = models.CharField(_('Полное имя'), max_length=129, null=True)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
@@ -358,4 +358,4 @@ class TelegramBotUser(models.Model):
 		verbose_name_plural = _('Пользователи')
 
 	def __str__(self) -> str:
-		return self.full_name
+		return self.full_name if self.full_name else str(self.user_id)

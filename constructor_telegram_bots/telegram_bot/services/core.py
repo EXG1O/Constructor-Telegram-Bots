@@ -20,19 +20,14 @@ class Bot(Bot_):
 	def __init__(self, api_token: str, parse_mode: str | None = None, *args, **kwargs) -> None:
 		super().__init__(token=api_token, parse_mode=parse_mode, *args, **kwargs)
 
-		if settings.TEST:
-			self.results = []
+		self.call_results = []
 
 	async def __call__(self, method: TelegramMethod[T], *args, **kwargs) -> T | None:
-		if settings.TEST:
-			if not isinstance(method, SetMyCommands):
-				self.results.append(method)
-		else:
-			return await super().__call__(method, *args, **kwargs)
+		if not isinstance(method, SetMyCommands):
+			self.call_results.append(method)
 
-	async def get_results(self) -> list[TelegramMethod] | None:
-		if settings.TEST:
-			return self.results
+		if not settings.TEST:
+			return await super().__call__(method, *args, **kwargs)
 
 class BaseTelegramBot:
 	def __init__(self, api_token: str, parse_mode: str | None = None) -> None:
@@ -60,7 +55,8 @@ class BaseTestCase(TestCase):
 				date=datetime.now(),
 			),
 		))
-		return await self.bot.get_results()
+
+		return self.bot.call_results
 
 	async def send_callback_query(self, data: str) -> list[TelegramMethod] | None:
 		await self.dispatcher._process_update(self.bot, Update(
@@ -79,4 +75,5 @@ class BaseTestCase(TestCase):
 				data=data,
 			),
 		))
-		return await self.bot.get_results()
+
+		return self.bot.call_results

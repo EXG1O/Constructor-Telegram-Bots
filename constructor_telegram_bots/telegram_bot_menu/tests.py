@@ -8,10 +8,7 @@ from telegram_bot.models import TelegramBot
 
 class ViewsTests(TestCase):
 	def setUp(self) -> None:
-		self.user: User = User.objects.create(
-			telegram_id=123456789,
-			first_name='exg1o',
-		)
+		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
 		self.telegram_bot: TelegramBot = TelegramBot.objects.create(
 			owner=self.user,
 			api_token='123456789:qwertyuiop',
