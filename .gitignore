@@ -1,7 +1,7 @@
 # Папки
 __pycache__/
 .vscode/
-constructor_telegram_bots/static/
+/static/
 media/
 logs/
 env/
