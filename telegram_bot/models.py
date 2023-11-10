@@ -1,13 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 from django.conf import settings
 
 from user.models import User
-
-from .services import database_telegram_bot
 
 import requests
 from requests import Response
@@ -54,15 +50,6 @@ class TelegramBot(models.Model):
 
 	def __str__(self) -> str:
 		return f'@{self.username}'
-
-@receiver(post_save, sender=TelegramBot)
-def post_save_telegram_bot_signal(instance: TelegramBot, created: bool, **kwargs) -> None:
-	if created:
-		instance.update_username()
-
-@receiver(post_delete, sender=TelegramBot)
-def post_delete_telegram_bot_signal(instance: TelegramBot, **kwargs) -> None:
-	database_telegram_bot.delete_collection(instance)
 
 class TelegramBotCommandManager(models.Manager):
 	def create(
@@ -254,10 +241,6 @@ class TelegramBotCommand(models.Model):
 
 	def __str__(self) -> str:
 		return self.name
-
-@receiver(post_delete, sender=TelegramBotCommand)
-def post_delete_telegram_bot_command_signal(instance: TelegramBotCommand, **kwargs) -> None:
-	instance.image.delete(save=False)
 
 class TelegramBotCommandCommand(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='command')

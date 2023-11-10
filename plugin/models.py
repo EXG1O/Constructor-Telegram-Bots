@@ -1,15 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 
 from user.models import User
 from telegram_bot.models import TelegramBot
-
-from constructor_telegram_bots.environment import (
-	update_plugin as env_update_plugin,
-	delete_plugin as env_delete_plugin,
-)
 
 
 class Plugin(models.Model):
@@ -28,16 +21,6 @@ class Plugin(models.Model):
 
 	def __str__(self) -> str:
 		return self.name
-
-@receiver(post_save, sender=Plugin)
-def post_save_plugin_signal(instance: Plugin, **kwargs) -> None:
-	if instance.is_checked:
-		env_update_plugin(plugin=instance)
-
-@receiver(post_delete, sender=Plugin)
-def post_delete_plugin_signal(instance: Plugin, **kwargs) -> None:
-	if instance.is_checked:
-		env_delete_plugin(plugin=instance)
 
 class PluginLog(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Пользователь'))

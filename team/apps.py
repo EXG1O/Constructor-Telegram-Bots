@@ -7,3 +7,6 @@ class TeamConfig(AppConfig):
 
 	name = 'team'
 	verbose_name = _('Команда')
+
+	def ready(self) -> None:
+		from . import signals

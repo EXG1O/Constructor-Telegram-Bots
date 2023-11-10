@@ -7,3 +7,6 @@ class PluginConfig(AppConfig):
 
 	name = 'plugin'
 	verbose_name = _('Плагины')
+
+	def ready(self) -> None:
+		from . import signals
