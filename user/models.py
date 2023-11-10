@@ -9,7 +9,7 @@ from django.dispatch import receiver
 
 from rest_framework.authtoken.models import Token
 
-from constructor_telegram_bots.functions import generate_random_string
+from constructor_telegram_bots.utils.other import generate_random_string
 from constructor_telegram_bots.environment import (
 	create_user as env_create_user,
 	delete_user as env_delete_user,

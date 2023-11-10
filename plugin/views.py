@@ -7,6 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from constructor_telegram_bots.utils.drf import CustomResponse
+from constructor_telegram_bots.environment import delete_plugin as env_delete_plugin
+
 from telegram_bot.models import TelegramBot
 from telegram_bot.decorators import check_telegram_bot_id
 
@@ -20,30 +23,26 @@ from .serializers import (
 	AddPluginLogSerializer,
 )
 
-from constructor_telegram_bots.environment import delete_plugin as env_delete_plugin
-
 
 class PluginsView(APIView):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
-	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
 		serializer = CreatePluginSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 
 		plugin: Plugin = Plugin.objects.create(
 			user=request.user,
 			telegram_bot=telegram_bot,
-			**serializer.validated_data
+			**serializer.validated_data,
 		)
 
-		return Response({
-			'message': _('Вы успешно добавили плагин вашему Telegram боту.'),
-			'level': 'success',
-
-			'plugin': PluginModelSerializer(plugin).data,
-		})
+		return CustomResponse(
+			_('Вы успешно добавили плагин вашему Telegram боту.'),
+			data={'plugin': PluginModelSerializer(plugin).data},
+		)
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
@@ -54,7 +53,7 @@ class PluginView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	@check_plugin_id
-	def patch(self, request: Request, plugin: Plugin) -> Response:
+	def patch(self, request: Request, plugin: Plugin) -> CustomResponse:
 		serializer = UpdatePluginSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
@@ -64,21 +63,16 @@ class PluginView(APIView):
 
 		env_delete_plugin(plugin)
 
-		return Response({
-			'message': _('Вы успешно обновили плагин вашего Telegram бота.'),
-			'level': 'success',
-
-			'plugin': PluginModelSerializer(plugin).data,
-		})
+		return CustomResponse(
+			_('Вы успешно обновили плагин вашего Telegram бота.'),
+			data={'plugin': PluginModelSerializer(plugin).data},
+		)
 
 	@check_plugin_id
-	def delete(self, request: Request, plugin: Plugin) -> Response:
+	def delete(self, request: Request, plugin: Plugin) -> CustomResponse:
 		plugin.delete()
 
-		return Response({
-			'message': _('Вы успешно удалили плагин вашего Telegram бота.'),
-			'level': 'success',
-		})
+		return CustomResponse(_('Вы успешно удалили плагин вашего Telegram бота.'))
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
@@ -91,7 +85,7 @@ def get_plugins_logs_view(request: Request, telegram_bot: TelegramBot) -> Respon
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @check_plugin_id
-def add_plugin_log_view(request: Request, plugin: Plugin) -> Response:
+def add_plugin_log_view(request: Request, plugin: Plugin) -> CustomResponse:
 	serializer = AddPluginLogSerializer(data=request.data)
 	serializer.is_valid(raise_exception=True)
 
@@ -99,10 +93,7 @@ def add_plugin_log_view(request: Request, plugin: Plugin) -> Response:
 		user=request.user,
 		telegram_bot=plugin.telegram_bot,
 		plugin=plugin,
-		**serializer.validated_data
+		**serializer.validated_data,
 	)
 
-	return Response({
-		'message': None,
-		'level': 'success',
-	})
+	return CustomResponse()

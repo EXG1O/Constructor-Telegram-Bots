@@ -61,6 +61,8 @@ class BaseTestCase(TestCase):
 			full_name='Test user',
 		)
 
+		self.base_headers = {'Authorization': f'Token {self.user.auth_token.key}'}
+
 class TelegramBotModelTests(BaseTestCase):
 	def test_fields(self) -> None:
 		self.assertEqual(self.telegram_bot.owner, self.user)
@@ -137,7 +139,7 @@ class TelegramBotsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': '',
@@ -149,7 +151,7 @@ class TelegramBotsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': '123456789:qwertyuiop',
@@ -161,7 +163,7 @@ class TelegramBotsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': '987654321:dwawdadwa',
@@ -174,10 +176,7 @@ class TelegramBotsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotViewTests(BaseTestCase):
@@ -193,7 +192,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': None,
@@ -204,7 +203,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': None,
@@ -215,7 +214,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': '',
@@ -227,7 +226,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': '123456789:qwertyuiop',
@@ -239,7 +238,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': '987654321:dwawdadwa',
@@ -250,7 +249,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': None,
@@ -261,7 +260,7 @@ class TelegramBotViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'api_token': None,
@@ -274,32 +273,20 @@ class TelegramBotViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class StartOrStopTelegramBotViewTests(BaseTestCase):
@@ -313,16 +300,10 @@ class StartOrStopTelegramBotViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class UpdateTelegramBotDiagramCurrentScaleViewTests(BaseTestCase):
@@ -336,15 +317,12 @@ class UpdateTelegramBotDiagramCurrentScaleViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.patch(self.url_2,  headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={'diagram_current_scale': 0.8},
 		)
@@ -361,15 +339,12 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': '',
@@ -385,7 +360,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -401,7 +376,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -421,7 +396,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -441,7 +416,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -457,7 +432,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -483,7 +458,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -509,7 +484,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -535,7 +510,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -556,7 +531,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -577,7 +552,7 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -594,16 +569,10 @@ class TelegramBotCommandsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotCommandViewTests(BaseTestCase):
@@ -627,21 +596,15 @@ class TelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.patch(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.patch(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.patch(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': '',
@@ -657,7 +620,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -673,7 +636,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -693,7 +656,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -713,7 +676,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -739,7 +702,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -765,7 +728,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -791,7 +754,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -812,7 +775,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -833,7 +796,7 @@ class TelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test',
@@ -850,44 +813,26 @@ class TelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class UpdateTelegramBotCommandPositionViewTests(BaseTestCase):
@@ -911,21 +856,15 @@ class UpdateTelegramBotCommandPositionViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.patch(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.patch(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.patch(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'x': 123,
@@ -965,27 +904,18 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_2, headers=self.base_headers)
+		self.assertEqual(response.status_code, 404)
+
+		response: HttpResponse = self.client.post(self.url_3, headers=self.base_headers)
+		self.assertEqual(response.status_code, 404)
+
+		response: HttpResponse = self.client.post(self.url_4, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
 			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
-		self.assertEqual(response.status_code, 404)
-
-		response: HttpResponse = self.client.post(
-			self.url_4,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
-		self.assertEqual(response.status_code, 404)
-
-		response: HttpResponse = self.client.post(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'telegram_bot_command_id': 0,
@@ -1008,7 +938,7 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'telegram_bot_command_id': telegram_bot_command.id,
@@ -1022,28 +952,16 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_4,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_4, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotUsersViewTests(BaseTestCase):
@@ -1057,16 +975,10 @@ class TelegramBotUsersViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotUserViewTests(BaseTestCase):
@@ -1090,22 +1002,13 @@ class TelegramBotUserViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotAllowedUserViewTests(BaseTestCase):
@@ -1129,44 +1032,26 @@ class TelegramBotAllowedUserViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 	def test_delete_method(self) -> None:
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_3,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_3, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class TelegramBotDatabeseRecordsViewTests(BaseTestCase):
@@ -1183,15 +1068,12 @@ class TelegramBotDatabeseRecordsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={'record': {'key': 'value'}},
 		)
@@ -1201,18 +1083,12 @@ class TelegramBotDatabeseRecordsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		database_telegram_bot.insert_record(self.telegram_bot, {'key': 'value'})
 
-		response: HttpResponse = self.client.get(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 		self.assertJSONEqual(response.content, [{'_id': 1, 'key': 'value'}])
 

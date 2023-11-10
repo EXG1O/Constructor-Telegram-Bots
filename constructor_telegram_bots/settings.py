@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from .functions import generate_random_string
+from .utils.other import generate_random_string
 
 from dotenv import load_dotenv
 from pathlib import Path
@@ -9,8 +9,7 @@ import sys
 import os
 
 
-BASE_DIR: Path = Path(__file__).resolve().parent.parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
@@ -26,6 +25,10 @@ match sys.argv:
 
 CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN: str | None = os.getenv('TELEGRAM_BOT_TOKEN')
 CONSTRUCTOR_TELEGRAM_BOT_USERNAME: str | None = os.getenv('TELEGRAM_BOT_USERNAME')
+
+POSTGRESQL_DATABASE_NAME: str | None = os.getenv('POSTGRESQL_DATABASE_NAME')
+POSTGRESQL_DATABASE_USER: str | None = os.getenv('POSTGRESQL_DATABASE_USER')
+POSTGRESQL_DATABASE_PASSWORD: str | None = os.getenv('POSTGRESQL_DATABASE_PASSWORD')
 
 
 SITE_DOMAIN = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
@@ -122,18 +125,13 @@ REST_FRAMEWORK = {
 	],
 	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
 }
-DRF_STANDARDIZED_ERRORS = {
-	'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter',
-}
+DRF_STANDARDIZED_ERRORS = {'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter'}
 
 
 TEMPLATES = [
 	{
 		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [
-			BASE_DIR / 'templates',
-			BASE_DIR / 'constructor_telegram_bots/templates',
-		],
+		'DIRS': [BASE_DIR / 'constructor_telegram_bots/templates'],
 		'APP_DIRS': True,
 		'OPTIONS': {
 			'context_processors': [
@@ -145,7 +143,7 @@ TEMPLATES = [
 				'constructor_telegram_bots.context_processors.constructor_telegram_bot_username',
 			],
 		},
-	}
+	},
 ]
 
 
@@ -157,10 +155,10 @@ WSGI_APPLICATION = 'constructor_telegram_bots.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',
-		'NAME': os.getenv('POSTGRESQL_DATABASE_NAME'),
-		'USER': os.getenv('POSTGRESQL_DATABASE_USER'),
-		'PASSWORD': os.getenv('POSTGRESQL_DATABASE_PASSWORD'),
-		'HOST': '127.0.0.1', 
+		'NAME': POSTGRESQL_DATABASE_NAME,
+		'USER': POSTGRESQL_DATABASE_USER,
+		'PASSWORD': POSTGRESQL_DATABASE_PASSWORD,
+		'HOST': '127.0.0.1',
 		'PORT': '5432',
 	},
 }

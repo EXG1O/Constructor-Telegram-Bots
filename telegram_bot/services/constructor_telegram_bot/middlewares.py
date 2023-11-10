@@ -1,8 +1,5 @@
 from aiogram import BaseMiddleware
-from aiogram.types import (
-	Update,
-	User as AiogramUser,
-)
+from aiogram.types import Update, User as AiogramUser
 
 from user.models import User as DjangoUser
 

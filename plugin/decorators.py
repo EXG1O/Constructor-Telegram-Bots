@@ -1,6 +1,6 @@
 from django.utils.translation import gettext as _
 
-from rest_framework.response import Response
+from constructor_telegram_bots.utils.drf import CustomResponse
 
 from .models import Plugin
 
@@ -15,10 +15,7 @@ def check_plugin_id(func):
 		try:
 			kwargs['plugin'] = Plugin.objects.get(id=plugin_id)
 		except Plugin.DoesNotExist:
-			return Response({
-				'message': _('Плагин не найден!'),
-				'level': 'danger',
-			}, status=404)
+			return CustomResponse(_('Плагин не найден!'), status=404)
 
 		return func(*args, **kwargs)
 	return wrapper

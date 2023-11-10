@@ -16,7 +16,7 @@ class BaseTestCase(TestCase):
 			api_token='123456789:qwertyuiop',
 			is_private=True,
 		)
-		self.plugin: Plugin = Plugin.objects.create(\
+		self.plugin: Plugin = Plugin.objects.create(
 			user=self.user,
 			telegram_bot=self.telegram_bot,
 			name='Test',
@@ -29,6 +29,8 @@ class BaseTestCase(TestCase):
 			message='Error :-)',
 			level='danger',
 		)
+
+		self.base_headers = {'Authorization': f'Token {self.user.auth_token.key}'}
 
 class PluginModelTests(BaseTestCase):
 	def test_fields(self) -> None:
@@ -58,15 +60,12 @@ class PluginsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.post(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': '',
@@ -78,7 +77,7 @@ class PluginsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Тест',
@@ -90,7 +89,7 @@ class PluginsViewTests(BaseTestCase):
 
 		response: HttpResponse = self.client.post(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'name': 'Test1',
@@ -103,16 +102,10 @@ class PluginsViewTests(BaseTestCase):
 		response: HttpResponse = self.client.get(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class PluginViewTests(BaseTestCase):
@@ -126,15 +119,12 @@ class PluginViewTests(BaseTestCase):
 		response: HttpResponse = self.client.patch(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.patch(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.patch(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.patch(
 			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={'code': 'def test_():\n\tpass'},
 		)
@@ -144,16 +134,10 @@ class PluginViewTests(BaseTestCase):
 		response: HttpResponse = self.client.delete(self.url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.delete(
-			self.url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.delete(
-			self.url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.delete(self.url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 class ViewsTests(BaseTestCase):
@@ -164,16 +148,10 @@ class ViewsTests(BaseTestCase):
 		response: HttpResponse = self.client.get(url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.get(
-			url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.get(
-			url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.get(url_1, headers=self.base_headers)
 		self.assertEqual(response.status_code, 200)
 
 	def test_add_plugin_log_view(self) -> None:
@@ -183,15 +161,12 @@ class ViewsTests(BaseTestCase):
 		response: HttpResponse = self.client.post(url_1)
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post(
-			url_2,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
-		)
+		response: HttpResponse = self.client.post(url_2, headers=self.base_headers)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post(
 			url_1,
-			headers={'Authorization': f'Token {self.user.auth_token.key}'},
+			headers=self.base_headers,
 			content_type='application/json',
 			data={
 				'message': ':D',

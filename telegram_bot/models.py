@@ -256,7 +256,7 @@ class TelegramBotCommand(models.Model):
 		return self.name
 
 @receiver(post_delete, sender=TelegramBotCommand)
-def post_delete_telegram_bot_signal(instance: TelegramBotCommand, **kwargs) -> None:
+def post_delete_telegram_bot_command_signal(instance: TelegramBotCommand, **kwargs) -> None:
 	instance.image.delete(save=False)
 
 class TelegramBotCommandCommand(models.Model):
@@ -300,7 +300,7 @@ class TelegramBotCommandKeyboard(models.Model):
 		('default', _('Обычный')),
 		('inline', _('Встроенный')),
 		('payment', _('Платёжный')),
-   	), default='default')
+	), default='default')
 
 	objects = TelegramBotCommandKeyboardManager()
 

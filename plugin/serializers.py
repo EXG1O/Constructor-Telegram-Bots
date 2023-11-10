@@ -21,14 +21,14 @@ class ModelSerializer(serializers.ModelSerializer):
 class PluginModelSerializer(ModelSerializer):
 	class Meta:
 		model = Plugin
-		fields = ['id', 'name', 'code', 'is_checked']
+		fields = ('id', 'name', 'code', 'is_checked')
 
 class PluginLogModelSerializer(ModelSerializer):
 	plugin_name = serializers.CharField(max_length=255, source='plugin.name')
 
 	class Meta:
 		model = PluginLog
-		fields = ['id', 'plugin_name', 'message', 'level']
+		fields = ('id', 'plugin_name', 'message', 'level')
 
 class CreatePluginSerializer(serializers.Serializer):
 	name = serializers.CharField(max_length=255, error_messages={

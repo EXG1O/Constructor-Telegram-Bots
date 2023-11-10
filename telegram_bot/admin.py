@@ -1,7 +1,8 @@
 from django.contrib import admin, messages
-from django.utils.html import format_html
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
+
+from constructor_telegram_bots.utils.admin import format_html_url
 
 from .models import TelegramBot, TelegramBotUser
 from .tasks import start_telegram_bot as celery_start_telegram_bot
@@ -22,7 +23,7 @@ class TelegramBotAdmin(admin.ModelAdmin):
 
 	@admin.display(description='@username', ordering='username')
 	def username_(self, telegram_bot: TelegramBot) -> str:
-		return format_html(f'<a href="tg://resolve?domain={telegram_bot.username}" style="font-weight: 600;" target="_blank">@{telegram_bot.username}</a>')
+		return format_html_url(f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}')
 
 	@admin.display(description=_('Команд'))
 	def commands_count(self, telegram_bot: TelegramBot) -> int:
