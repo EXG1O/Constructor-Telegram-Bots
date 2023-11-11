@@ -20,6 +20,7 @@ django-admin-interface==0.26.1
 django-colorfield==0.10.1
 django-modeltranslation==0.18.11
 django-tinymce==3.6.1
+django-webpack-loader==2.0.1
 djangorestframework==3.14.0
 dnspython==2.4.2
 drf-standardized-errors==0.12.5

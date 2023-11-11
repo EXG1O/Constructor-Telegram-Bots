@@ -35,7 +35,11 @@
 </div>
 {% endblock main %}
 
-{% block footer_class %}mt-auto{% endblock footer_class %}
+{% block footer %}
+{% with footer_extra_class="mt-auto" %}
+	{{ block.super }}
+{% endwith %}
+{% endblock footer %}
 
 {% block scripts %}
 {{ block.super }}

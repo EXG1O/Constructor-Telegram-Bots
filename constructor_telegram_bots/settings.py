@@ -59,6 +59,8 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'drf_standardized_errors',
 
+	'webpack_loader',
+
 	'admin_interface',
 	'colorfield',
 
@@ -84,6 +86,14 @@ INSTALLED_APPS = [
 	'plugin',
 	'privacy_policy',
 ]
+
+WEBPACK_LOADER = {
+	'GLOBAL': {
+		'CACHE': not DEBUG,
+		'STATS_FILE': BASE_DIR / 'global.webpack.static.json',
+		'POLL_INTERVAL': 0.1,
+	}
+}
 
 TINYMCE_DEFAULT_CONFIG = {
 	'theme': 'silver',

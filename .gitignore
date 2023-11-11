@@ -6,9 +6,11 @@ node_modules/
 media/
 logs/
 env/
+dist/
 
 # Файлы
 celerybeat-schedule
+*.webpack.static.json
 .env
 *.db
 *.mo
