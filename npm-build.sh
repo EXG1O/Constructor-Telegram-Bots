@@ -1,3 +1,5 @@
+#!/bin/bash
+
 WEBPACK_CONFIGS=(
 	./constructor_telegram_bots/static/global/webpack.config.js
 )
