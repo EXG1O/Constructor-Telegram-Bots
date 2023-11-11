@@ -19,7 +19,10 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y redis postgresql
+        sudo apt install -y npm redis postgresql
+
+    - name: Install npm dependencies
+      run: npm i
 
     - name: Start Redis
       run: sudo systemctl start redis
@@ -48,6 +51,9 @@ jobs:
         echo "POSTGRESQL_DATABASE_NAME=github_action" > .env
         echo "POSTGRESQL_DATABASE_USER=github" >> .env
         echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
+
+    - name: Run npm build
+      run: npm run build
 
     - name: Run project tests
       run: |
