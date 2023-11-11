@@ -3,5 +3,5 @@ WEBPACK_CONFIGS=(
 )
 
 for WEBPACK_CONFIG in $WEBPACK_CONFIGS; do
-	webpack --mode=production -c $WEBPACK_CONFIG
+	node_modules/.bin/webpack --mode=production -c $WEBPACK_CONFIG
 done

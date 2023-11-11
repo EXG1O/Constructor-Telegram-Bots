@@ -2,7 +2,7 @@
   "name": "constructor-telegram-bots",
   "private": true,
   "scripts": {
-    "build": "source ./npm-build.sh"
+    "build": "sh npm-build.sh"
   },
   "dependencies": {
     "@types/bootstrap": "^5.2.9",
