@@ -2,7 +2,7 @@
   "name": "constructor-telegram-bots",
   "private": true,
   "scripts": {
-    "build": "sh npm-build.sh"
+    "build": "webpack --mode=production -c ./constructor_telegram_bots/static/global/webpack.config.js"
   },
   "dependencies": {
     "@types/bootstrap": "^5.2.9",
