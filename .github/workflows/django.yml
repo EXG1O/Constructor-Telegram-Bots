@@ -53,7 +53,7 @@ jobs:
         echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
 
     - name: Run npm build
-      run: npm run build
+      run: npx sh npm-build.sh
 
     - name: Run project tests
       run: |
