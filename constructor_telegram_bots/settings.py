@@ -74,6 +74,10 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 
+	'telegram_bot',
+	'telegram_bot.frontend',
+	'telegram_bot.api',
+
 	'user',
 	'home',
 	'team',
@@ -81,8 +85,6 @@ INSTALLED_APPS = [
 	'instruction',
 	'donation',
 	'personal_cabinet',
-	'telegram_bot_menu',
-	'telegram_bot',
 	'plugin',
 	'privacy_policy',
 ]

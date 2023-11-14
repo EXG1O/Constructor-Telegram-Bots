@@ -18,8 +18,7 @@ urlpatterns = [
 	path('instruction/', include('instruction.urls')),
 	path('donation/', include('donation.urls')),
 	path('personal-cabinet/', include('personal_cabinet.urls')),
-	path('telegram-bot-menu/', include('telegram_bot_menu.urls')),
-	path('telegram-bots/', include('telegram_bot.urls')),
+	path('', include('telegram_bot.urls')),
 	path('plugins/', include('plugin.urls')),
 	path('privacy-policy/', include('privacy_policy.urls')),
 ]

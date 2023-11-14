@@ -10,23 +10,27 @@ from rest_framework.response import Response
 
 from constructor_telegram_bots.utils.drf import CustomResponse
 
-from .models import (
+from ..models import (
 	TelegramBot,
 	TelegramBotCommand,
 	TelegramBotCommandKeyboardButton,
 	TelegramBotUser,
 )
+
+from ..decorators import check_telegram_bot_id
 from .decorators import (
-	check_telegram_bot_id,
 	check_telegram_bot_command_id,
 	check_telegram_bot_command_keyboard_button_id,
 	check_telegram_bot_user_id,
 )
 from .functions import get_image_from_request
-from .serializers import (
+
+from .serializers.models import (
 	TelegramBotModelSerializer,
 	TelegramBotCommandModelSerializer,
 	TelegramBotUserModelSerializer,
+)
+from .serializers.regulars import (
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
 	UpdateTelegramBotDiagramCurrentScaleSerializer,
@@ -37,8 +41,9 @@ from .serializers import (
 	CreateTelegramBotDatabeseRecordSerializer,
 	UpdateTelegramBotDatabeseRecordSerializer,
 )
-from .services import database_telegram_bot
-from .tasks import start_telegram_bot as celery_start_telegram_bot
+
+from ..services import database_telegram_bot
+from ..tasks import start_telegram_bot as celery_start_telegram_bot
 
 from typing import Any
 import json

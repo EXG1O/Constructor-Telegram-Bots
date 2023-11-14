@@ -35,7 +35,7 @@
 {% block scripts %}
 {{ block.super }}
 <script>
-	const telegramBotsUrl = "{% url 'telegram_bots' %}";
+	const telegramBotsUrl = "{% url 'telegram_bot:api:telegram_bots' %}";
 
 	const telegramBotCardBodyNotAddedText = "{% trans 'Вы ещё не добавили Telegram ботов' %}";
 
