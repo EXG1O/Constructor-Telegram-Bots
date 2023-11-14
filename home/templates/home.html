@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
+{% load render_bundle from webpack_loader %}
 
 {% block title %}{% trans "Бесплатный конструктор Telegram ботов" %}{% endblock title %}
 
 {% block styles %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'home/css/main.css' %}">
+{% with webpack_loader_name='HOME' %}
+	{{ block.super }}
+{% endwith %}
 {% endblock styles %}
 
 {% block main %}
@@ -60,3 +62,9 @@
 	</div>
 </div>
 {% endblock main %}
+
+{% block scripts %}
+{% with webpack_loader_name='HOME' %}
+	{{ block.super }}
+{% endwith %}
+{% endblock scripts %}

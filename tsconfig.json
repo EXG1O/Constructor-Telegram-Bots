@@ -3,9 +3,12 @@
 		"module": "CommonJS",
 		"target": "ES2015",
 		"moduleResolution": "node",
-		"skipLibCheck": true,
 		"allowJs": true,
 		"strict": true,
+		"paths": {
+			"default_entry/*": ["./constructor_telegram_bots/static/default/src/ts/entry/*"],
+			"global_modules/*": ["./constructor_telegram_bots/static/global_modules/*"],
+		}
 	},
 	"include": ["./**/ts/**/*.ts"],
 	"exclude": ["./node_modules"]

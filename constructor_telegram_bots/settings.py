@@ -87,11 +87,16 @@ INSTALLED_APPS = [
 	'privacy_policy',
 ]
 
+WEBPACK_LOADER_BASE_CONFIG = {
+	'CACHE': not DEBUG,
+	'POLL_INTERVAL': 0.1,
+}
 WEBPACK_LOADER = {
-	'GLOBAL': {
-		'CACHE': not DEBUG,
-		'STATS_FILE': BASE_DIR / 'global.webpack.static.json',
-		'POLL_INTERVAL': 0.1,
+	'DEFAULT': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'default.webpack.stats.json',
+	},
+	'HOME': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'home.webpack.stats.json',
 	}
 }
 
@@ -194,10 +199,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [
-	BASE_DIR / 'constructor_telegram_bots/static',
-	BASE_DIR / 'node_modules',
-]
+STATICFILES_DIRS = [BASE_DIR / 'constructor_telegram_bots/static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

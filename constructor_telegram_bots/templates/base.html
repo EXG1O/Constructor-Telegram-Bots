@@ -19,10 +19,17 @@
 		{% block meta %}{% endblock meta %}
 
 		<link rel="icon" href="{% static 'favicon.png' %}">
-		<link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
-		<link rel="stylesheet" href="{% static 'bootstrap-icons/font/bootstrap-icons.min.css' %}">
 
-		{% block styles %}{% endblock styles %}
+		{% block styles %}
+		{% with webpack_loader_name=webpack_loader_name|default:'DEFAULT' %}
+			{% render_bundle 'main' 'css' webpack_loader_name %}
+			{% if user.is_authenticated %}
+				{% render_bundle 'user_is_auth' 'css' webpack_loader_name %}
+			{% else %}
+				{% render_bundle 'user_is_not_auth' 'css' webpack_loader_name %}
+			{% endif %}
+		{% endwith %}
+		{% endblock styles %}
 	</head>
 	<body class="d-flex flex-column h-100">
 		{% block navbar %}
@@ -48,22 +55,27 @@
 		{% endblock footer %}
 	</body>
 
-	<script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
-
-	{% block scripts %}
-	{% if user.is_authenticated %}
-		<script>
+	<script>
+		{% block scripts_data %}
+		{% if user.is_authenticated %}
 			const userApiToken = '{{ request.user.auth_token.key }}';
 
 			const userLogoutUrl = "{% url 'user:logout' %}";
 
 			const userLogoutAskConfirmModalTitle = "{% trans 'Выход из аккаунта' %}";
 			const userLogoutAskConfirmModalText = "{% trans 'Вы точно хотите выйти из аккаунта?' %}";
-		</script>
-		{% render_bundle 'logout' 'js' 'GLOBAL' %}
-	{% else %}
-		<script src="{% static 'qrcodejs/qrcode.min.js' %}"></script>
-		{% render_bundle 'login_via_telegram_modal' 'js' 'GLOBAL' %}
-	{% endif %}
+		{% endif %}
+		{% endblock scripts_data %}
+	</script>
+
+	{% block scripts %}
+	{% with webpack_loader_name=webpack_loader_name|default:'DEFAULT' %}
+		{% render_bundle 'main' 'js' webpack_loader_name %}
+		{% if user.is_authenticated %}
+			{% render_bundle 'user_is_auth' 'js' webpack_loader_name %}
+		{% else %}
+			{% render_bundle 'user_is_not_auth' 'js' webpack_loader_name %}
+		{% endif %}
+	{% endwith %}
 	{% endblock scripts %}
 </html>

@@ -1,4 +1,4 @@
-import { askConfirmModal } from './modules/ask_confirm_modal';
+import {askConfirmModal} from 'global_modules/modals/ask_confirm_modal';
 
 declare const userLogoutAskConfirmModalTitle: string;
 declare const userLogoutAskConfirmModalText: string;

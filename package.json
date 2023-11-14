@@ -2,19 +2,22 @@
   "name": "constructor-telegram-bots",
   "private": true,
   "scripts": {
-    "build": "webpack --mode=production -c ./constructor_telegram_bots/static/global/webpack.config.js"
+    "build": "webpack --mode=production -c ./webpack.config.ts"
   },
   "dependencies": {
     "@types/bootstrap": "^5.2.9",
-    "@types/qrcodejs": "^1.0.4",
+    "@types/qrcode": "^1.5.5",
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.1",
-    "qrcodejs": "^1.0.0",
+    "css-loader": "^6.8.1",
+    "exports-loader": "^4.0.0",
+    "mini-css-extract-plugin": "^2.7.6",
+    "qrcode": "^1.5.3",
     "ts-loader": "^9.5.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "webpack": "^5.89.0",
     "webpack-bundle-tracker": "^2.0.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-merge": "^5.10.0"
+    "webpack-cli": "^5.1.4"
   }
 }

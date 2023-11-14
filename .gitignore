@@ -10,7 +10,7 @@ dist/
 
 # Файлы
 celerybeat-schedule
-*.webpack.static.json
+*.webpack.stats.json
 .env
 *.db
 *.mo

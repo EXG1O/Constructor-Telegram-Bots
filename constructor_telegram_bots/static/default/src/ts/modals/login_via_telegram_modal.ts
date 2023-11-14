@@ -1,13 +1,13 @@
 import * as bootstrap from 'bootstrap';
-
-declare const QRCode: any;
+import * as QRCode from 'qrcode';
 
 const loginViaTelegramBootstrapModal = new bootstrap.Modal('#loginViaTelegramModal');
 const loginViaTelegramModalButton = document.querySelector('#loginViaTelegramModalButton') as HTMLAnchorElement;
 
-new QRCode(
-	document.querySelector('#loginViaTelegramModal .qrcode') as HTMLDivElement,
+QRCode.toCanvas(
+	document.querySelector('#loginViaTelegramModal .qrcode') as HTMLCanvasElement,
 	loginViaTelegramModalButton.href,
+	{width: 256, margin: 0},
 );
 
 loginViaTelegramModalButton.addEventListener('click', () => loginViaTelegramBootstrapModal.toggle());
