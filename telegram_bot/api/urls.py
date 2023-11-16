@@ -7,7 +7,7 @@ app_name = 'api'
 urlpatterns = [
 	path('', views.TelegramBotsView.as_view(), name='telegram_bots'), # POST, GET
     path('<int:telegram_bot_id>/', views.TelegramBotView.as_view(), name='telegram_bot'), # PATCH, DELETE, GET
-	path('<int:telegram_bot_id>/start_or_stop/', views.start_or_stop_telegram_bot, name='start_or_stop_telegram_bot'), # POST
+	path('<int:telegram_bot_id>/start-or-stop/', views.start_or_stop_telegram_bot, name='start_or_stop_telegram_bot'), # POST
     path('<int:telegram_bot_id>/update-diagram-current-scale/', views.update_telegram_bot_diagram_current_scale, name='update_telegram_bot_diagram_current_scale'), # PATCH
 
 	path('<int:telegram_bot_id>/commands/', views.TelegramBotCommandsView.as_view(), name='telegram_bot_commands'), # POST, GET

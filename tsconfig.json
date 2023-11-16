@@ -10,6 +10,6 @@
 			"global_modules/*": ["./constructor_telegram_bots/static/global_modules/*"],
 		}
 	},
-	"include": ["./**/ts/**/*.ts"],
+	"include": ["./**/*.ts"],
 	"exclude": ["./node_modules"]
 }
