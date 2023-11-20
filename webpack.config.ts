@@ -4,10 +4,11 @@ import * as BundleTracker from 'webpack-bundle-tracker';
 
 const mainAppStaticDirPath =  `${__dirname}/constructor_telegram_bots/static`;
 const defaultEntryDirPath = `${mainAppStaticDirPath}/default/src/ts/entry`;
+const defaultMainEntryFile = `${defaultEntryDirPath}/main.ts`;
 
 const baseConfig: Configuration = {
 	entry: {
-		main: `${defaultEntryDirPath}/main.ts`,
+		main: defaultMainEntryFile,
 		user_is_auth: `${defaultEntryDirPath}/user_is_auth.ts`,
 		user_is_not_auth: `${defaultEntryDirPath}/user_is_not_auth.ts`,
 	},
@@ -50,7 +51,7 @@ const baseConfig: Configuration = {
 
 function generateConfig(
 	outputPath: string,
-	statsName: string,
+	statsFileName: string,
 	extraConfig?: Configuration,
 ): Configuration {
 	return {
@@ -67,23 +68,25 @@ function generateConfig(
 			...(extraConfig?.plugins || []),
 			new BundleTracker({
 				path: './',
-				filename: `${statsName}.webpack.stats.json`,
+				filename: `${statsFileName}.webpack.stats.json`,
 			}),
 		],
 	}
 }
+
+const telegramBotMenuStaticDirPath = `${__dirname}/telegram_bot/frontend/static/telegram_bot_menu`;
 
 export default [
 	generateConfig('constructor_telegram_bots/static/default/dist', 'default'),
 	generateConfig('home/static/home/dist', 'home', {
 		entry: {
 			...baseConfig.entry as object,
-			main: `${__dirname}/home/static/home/src/ts/main.ts`,
+			main: [defaultMainEntryFile, `${__dirname}/home/static/home/src/css/main.css`],
 		},
 	}),
 	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/index/dist', 'index.telegram-bot-menu', {
 		entry: {
-			main: `${__dirname}/telegram_bot/frontend/static/telegram_bot_menu/index/src/ts/main.ts`,
+			main: [defaultMainEntryFile, `${telegramBotMenuStaticDirPath}/index/src/ts/main.ts`],
 		},
 	}),
 ]
