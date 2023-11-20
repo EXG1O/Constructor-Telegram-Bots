@@ -7,10 +7,13 @@ const loginViaTelegramModalButton = document.querySelector('#loginViaTelegramMod
 QRCode.toCanvas(
 	document.querySelector('#loginViaTelegramModal .qrcode') as HTMLCanvasElement,
 	loginViaTelegramModalButton.href,
-	{width: 256, margin: 0},
+	{
+		width: 256,
+		margin: 0,
+	},
 );
 
-loginViaTelegramModalButton.addEventListener('click', () => loginViaTelegramBootstrapModal.toggle());
+loginViaTelegramModalButton.addEventListener('click', (): void => loginViaTelegramBootstrapModal.toggle());
 
 if (new URLSearchParams(window.location.search).has('require-login')) {
 	loginViaTelegramModalButton.click();

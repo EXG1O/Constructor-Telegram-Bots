@@ -16,6 +16,10 @@ export class Toast {
 		level: 'success' | 'primary' | 'danger',
 		timeout: number = 6000,
 	) {
+		if (level === 'danger') {
+			timeout = 0;
+		}
+
 		this.div = document.createElement('div');
 		this.div.className = `toast text-bg-${level} mb-0 fade`;
 		this.div.role = 'alert';
@@ -34,6 +38,10 @@ export class Toast {
 
 		this.bootstrap = new bootstrap.Toast(this.div);
 	}
-	show = () => this.bootstrap.show();
-	hide = () => this.bootstrap.hide();
+	show(): void {
+		this.bootstrap.show();
+	};
+	hide(): void {
+		this.bootstrap.hide();
+	};
 }

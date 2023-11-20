@@ -99,7 +99,10 @@ WEBPACK_LOADER = {
 	},
 	'HOME': WEBPACK_LOADER_BASE_CONFIG | {
 		'STATS_FILE': BASE_DIR / 'home.webpack.stats.json',
-	}
+	},
+	'TELEGRAM_BOT_MENU:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'index.telegram-bot-menu.webpack.stats.json',
+	},
 }
 
 TINYMCE_DEFAULT_CONFIG = {

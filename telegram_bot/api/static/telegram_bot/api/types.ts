@@ -1,4 +1,4 @@
-import {ObjectAsJson, ApiResponse  as BaseApiResponse} from 'global_modules/api';
+import { ObjectAsJson, ApiResponse  as BaseApiResponse } from 'global_modules/api';
 
 export interface TelegramBot {
 	id: number;

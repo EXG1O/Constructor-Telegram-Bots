@@ -8,6 +8,8 @@
 		"paths": {
 			"default_entry/*": ["./constructor_telegram_bots/static/default/src/ts/entry/*"],
 			"global_modules/*": ["./constructor_telegram_bots/static/global_modules/*"],
+			"telegram_bot_api/*": ["./telegram_bot/api/static/telegram_bot/api/*"],
+			"telegram_bot_global_modules/*": ["./telegram_bot/frontend/static/telegram_bot/frontend/global_modules/*"]
 		}
 	},
 	"include": ["./**/*.ts"],

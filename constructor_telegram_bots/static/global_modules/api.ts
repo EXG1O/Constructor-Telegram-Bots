@@ -6,7 +6,7 @@ export namespace ApiResponse {
 		json: Json;
 	}
 	export interface Success {
-		message: string | null;
+		message: string;
 		level: 'success' | 'primary';
 	}
 	export interface Error {
@@ -16,7 +16,7 @@ export namespace ApiResponse {
 		level: 'danger';
 	}
 
-	export type Default<Json extends ObjectAsJson> = Base<true, Json> | Base<false, Success>;
+	export type Default<Json extends ObjectAsJson> = Base<true, Json> | Base<false, Error>;
 }
 
 export async function makeRequest<ApiResponseJson extends ObjectAsJson>(
@@ -52,5 +52,5 @@ export async function makeRequest<ApiResponseJson extends ObjectAsJson>(
 
 	const response = await fetch(url, requestInit);
 
-	return {...response, json: await response.json()}
+	return Object.assign(response, {json: await response.json()});
 }

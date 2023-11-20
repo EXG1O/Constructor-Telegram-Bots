@@ -2,6 +2,7 @@
   "name": "constructor-telegram-bots",
   "private": true,
   "scripts": {
+    "dev": "webpack --mode=development -c ./webpack.config.ts",
     "build": "webpack --mode=production -c ./webpack.config.ts"
   },
   "dependencies": {

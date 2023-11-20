@@ -11,7 +11,7 @@ export function askConfirmModal(
 	title: string,
 	body: string,
 	func: VoidFunction,
-) {
+): void {
 	askConfirmModalTitle.innerHTML = title;
 	askConfirmModalBody.innerHTML = body;
 

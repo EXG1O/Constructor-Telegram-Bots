@@ -6,7 +6,7 @@ declare const userLogoutUrl: string;
 
 const userLogoutButton = document.querySelector('#userLogoutButton') as HTMLButtonElement;
 
-userLogoutButton.addEventListener('click', () => askConfirmModal(
+userLogoutButton.addEventListener('click', (): void => askConfirmModal(
 	userLogoutAskConfirmModalTitle,
 	userLogoutAskConfirmModalText,
 	() => window.location.href = userLogoutUrl,

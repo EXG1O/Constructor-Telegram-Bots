@@ -1,4 +1,4 @@
-import {Configuration} from 'webpack';
+import { Configuration } from 'webpack';
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as BundleTracker from 'webpack-bundle-tracker';
 
@@ -32,6 +32,8 @@ const baseConfig: Configuration = {
 		alias: {
 			default_entry: defaultEntryDirPath,
 			global_modules: `${mainAppStaticDirPath}/global_modules/`,
+			telegram_bot_api: `${__dirname}/telegram_bot/api/static/telegram_bot/api/`,
+			telegram_bot_global_modules: `${__dirname}/telegram_bot/frontend/static/telegram_bot/frontend/global_modules/`,
 		},
 	},
 	plugins: [
@@ -47,8 +49,8 @@ const baseConfig: Configuration = {
 }
 
 function generateConfig(
-	appName: string,
-	configName: string,
+	outputPath: string,
+	statsName: string,
 	extraConfig?: Configuration,
 ): Configuration {
 	return {
@@ -57,26 +59,31 @@ function generateConfig(
 		output: {
 			...baseConfig.output,
 			...(extraConfig?.output || {}),
-			path: `${__dirname}/${appName}/static/${configName}/dist`,
-			publicPath: `/static/${configName}/dist/`,
+			path: `${__dirname}/${outputPath}`,
+			publicPath: `/static${outputPath.split('static')[1]}/`,
 		},
 		plugins: [
 			...baseConfig.plugins as any[],
 			...(extraConfig?.plugins || []),
 			new BundleTracker({
 				path: './',
-				filename: `${configName}.webpack.stats.json`,
+				filename: `${statsName}.webpack.stats.json`,
 			}),
 		],
 	}
 }
 
 export default [
-	generateConfig('constructor_telegram_bots', 'default'),
-	generateConfig('home', 'home', {
+	generateConfig('constructor_telegram_bots/static/default/dist', 'default'),
+	generateConfig('home/static/home/dist', 'home', {
 		entry: {
 			...baseConfig.entry as object,
 			main: `${__dirname}/home/static/home/src/ts/main.ts`,
+		},
+	}),
+	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/index/dist', 'index.telegram-bot-menu', {
+		entry: {
+			main: `${__dirname}/telegram_bot/frontend/static/telegram_bot_menu/index/src/ts/main.ts`,
 		},
 	}),
 ]

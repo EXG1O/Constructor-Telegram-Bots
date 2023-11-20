@@ -1,14 +1,14 @@
 from django.urls import path
 
-from . import views
+from .views import CustomTemplateView
 
 
 app_name = 'frontend'
 urlpatterns = [
-	path('', views.telegram_bot_view, name='telegram_bot'),
-	path('variables/', views.telegram_bot_variables_view, name='telegram_bot_variables'),
-	path('users/', views.telegram_bot_users_view, name='telegram_bot_users'),
-	path('database/', views.telegram_bot_database_view, name='telegram_bot_database'),
-	path('plugins/', views.telegram_bot_plugins_view, name='telegram_bot_plugins'),
-	path('constructor/', views.telegram_bot_constructor_view, name='telegram_bot_constructor'),
+	path('', CustomTemplateView.as_view(template_name='index.html'), name='index'),
+	path('variables/', CustomTemplateView.as_view(template_name='variables.html'), name='variables'),
+	path('users/', CustomTemplateView.as_view(template_name='users.html'), name='users'),
+	path('database/', CustomTemplateView.as_view(template_name='database.html'), name='database'),
+	path('plugins/', CustomTemplateView.as_view(template_name='plugins.html'), name='plugins'),
+	path('constructor/', CustomTemplateView.as_view(template_name='constructor.html'), name='constructor'),
 ]
