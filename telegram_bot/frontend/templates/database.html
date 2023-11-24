@@ -1,0 +1,36 @@
+{% extends 'extended_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans 'База данных' %}{% endblock title %}
+
+{% block styles %}
+{% render_bundle 'main' 'css' 'TELEGRAM_BOT_MENU:DATABASE' %}
+{% endblock styles %}
+
+{% block content %}
+<div class="card border">
+	<div class="card-body">
+		{% trans 'Добавить запись' as add_button_text %}
+		{% include 'object_tools.html' with id='telegramBotDatabaseRecords' show_add_button=True add_button_text=add_button_text %}
+		<div class="collapse mt-2 show" id="telegramBotDatabaseRecordsСollapse">
+			<div class="list-group" id="telegramBotDatabaseRecords"></div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+{% block scripts_data %}
+{{ block.super }}
+const telegramBotDatabaseNotHaveRecordsText = "{% trans 'В базе данных вашего Telegram бота ещё нет никаких записей' %}";
+
+const telegramBotDatabaseRecordIsNotJson = "{% trans 'Запись базы данных должна быть в формате JSON!' %}";
+
+const askConfirmModalDeleteTelegramBotDatabaseRecordTitle = "{% trans 'Удаление записи из базы данных' %}";
+const askConfirmModalDeleteTelegramBotDatabaseRecordText = "{% trans 'Вы точно хотите удалить запись из базы данных Telegram бота?' %}";
+{% endblock scripts_data %}
+
+{% block scripts %}
+{% render_bundle 'main' 'js' 'TELEGRAM_BOT_MENU:DATABASE' %}
+{% endblock scripts %}

@@ -1,5 +1,3 @@
-import 'default_entry/main';
-
 import { Toast } from 'global_modules/toast';
 import { TelegramBotApi } from 'telegram_bot_api/main';
 import { CustomTelegramBotCard } from './custom_telegram_bot_card';

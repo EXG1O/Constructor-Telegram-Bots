@@ -1,12 +1,12 @@
-import { ObjectAsJson, ApiResponse as BaseApiResponse, makeRequest } from 'global_modules/api';
-import { TelegramBot, TelegramBotCommand, TelegramBotUser, TelegramBotDatabeseRecord, Data, ApiResponse } from './types';
+import { ApiResponse as BaseApiResponse, makeRequest } from 'global_modules/api';
+import { TelegramBot, TelegramBotCommand, TelegramBotUser, TelegramBotDatabaseRecord, Data, ApiResponse } from './types';
 
 declare const userApiToken: string;
 
 namespace Base {
 	export const url = '/api/telegram-bots/';
 	export const headers: HeadersInit = {
-		Authorization: `Token ${userApiToken}`,
+		'Authorization': `Token ${userApiToken}`,
 	}
 }
 
@@ -174,37 +174,37 @@ export namespace TelegramBotAllowedUserApi {
 	}
 }
 
-export namespace TelegramBotDatabeseRecordsApi {
+export namespace TelegramBotDatabaseRecordsApi {
 	export const url = (telegramBotId: number): string => `${TelegramBotApi.url(telegramBotId)}database/records/`;
 
-	export function get(telegramBotId: number): Promise<BaseApiResponse.Default<TelegramBotDatabeseRecord[]>> {
-		return makeRequest<TelegramBotDatabeseRecord[]>(url(telegramBotId), 'GET', Base.headers);
+	export function get(telegramBotId: number): Promise<BaseApiResponse.Default<TelegramBotDatabaseRecord[]>> {
+		return makeRequest<TelegramBotDatabaseRecord[]>(url(telegramBotId), 'GET', Base.headers);
 	}
 }
 
-export namespace TelegramBotDatabeseRecordApi {
+export namespace TelegramBotDatabaseRecordApi {
 	export const url = (
 		telegramBotId: number,
-		telegramBotDatabeseRecordId: number,
-	): string => `${TelegramBotDatabeseRecordsApi.url(telegramBotId)}${telegramBotDatabeseRecordId}/`;
+		telegramBotDatabaseRecordId: number,
+	): string => `${TelegramBotDatabaseRecordsApi.url(telegramBotId)}${telegramBotDatabaseRecordId}/`;
 
 	export function create(
 		telegramBotId: number,
-		data: ObjectAsJson,
-	): Promise<BaseApiResponse.Default<ApiResponse.TelegramBotDatabeseRecord.Create>> {
-		return makeRequest<ApiResponse.TelegramBotDatabeseRecord.Create>(TelegramBotDatabeseRecordsApi.url(telegramBotId), 'POST', Base.headers, data);
+		data: Data.TelegramBotDatabaseRecord.Create,
+	): Promise<BaseApiResponse.Default<ApiResponse.TelegramBotDatabaseRecord.Create>> {
+		return makeRequest<ApiResponse.TelegramBotDatabaseRecord.Create>(TelegramBotDatabaseRecordsApi.url(telegramBotId), 'POST', Base.headers, data);
 	}
 	export function update(
 		telegramBotId: number,
-		telegramBotDatabeseRecordId: number,
-		data: ObjectAsJson,
-	): Promise<BaseApiResponse.Default<ApiResponse.TelegramBotDatabeseRecord.Update>> {
-		return makeRequest<ApiResponse.TelegramBotDatabeseRecord.Update>(url(telegramBotId, telegramBotDatabeseRecordId), 'PATCH', Base.headers, data);
+		telegramBotDatabaseRecordId: number,
+		data: Data.TelegramBotDatabaseRecord.Update,
+	): Promise<BaseApiResponse.Default<ApiResponse.TelegramBotDatabaseRecord.Update>> {
+		return makeRequest<ApiResponse.TelegramBotDatabaseRecord.Update>(url(telegramBotId, telegramBotDatabaseRecordId), 'PATCH', Base.headers, data);
 	}
 	export function delete_(
 		telegramBotId: number,
-		telegramBotDatabeseRecordId: number,
+		telegramBotDatabaseRecordId: number,
 	): Promise<BaseApiResponse.Default<BaseApiResponse.Success>> {
-		return makeRequest<BaseApiResponse.Success>(url(telegramBotId, telegramBotDatabeseRecordId), 'DELETE', Base.headers);
+		return makeRequest<BaseApiResponse.Success>(url(telegramBotId, telegramBotDatabaseRecordId), 'DELETE', Base.headers);
 	}
 }

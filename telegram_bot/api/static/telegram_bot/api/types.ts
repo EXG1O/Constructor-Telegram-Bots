@@ -67,7 +67,7 @@ export interface TelegramBotUser {
 	activated_date: string;
 }
 
-export interface TelegramBotDatabeseRecord extends ObjectAsJson {
+export interface TelegramBotDatabaseRecord extends ObjectAsJson {
 	_id: number;
 }
 
@@ -128,6 +128,13 @@ export namespace Data {
 		export type Connect = Omit<TelegramBotCommandKeyboardButton, 'id' | 'row' | 'text' | 'url'>;
 		export type Disconnect = Connect;
 	}
+
+	export namespace TelegramBotDatabaseRecord {
+		export interface Create {
+			record: ObjectAsJson;
+		}
+		export type Update = Create;
+	}
 }
 
 export namespace ApiResponse {
@@ -137,9 +144,9 @@ export namespace ApiResponse {
 		}
 	}
 
-	export namespace TelegramBotDatabeseRecord {
+	export namespace TelegramBotDatabaseRecord {
 		export interface Create extends BaseApiResponse.Success {
-			record: TelegramBotDatabeseRecord;
+			record: TelegramBotDatabaseRecord;
 		}
 		export type Update = Create;
 	}

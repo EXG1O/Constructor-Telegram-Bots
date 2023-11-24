@@ -1,7 +1,7 @@
 import { Toast } from 'global_modules/toast';
 import { askConfirmModal } from 'global_modules/modals/ask_confirm_modal';
 import { TelegramBotApi } from 'telegram_bot_api/main';
-import { TelegramBotCard } from 'telegram_bot_global_modules/telegram_bot_card';
+import { TelegramBotCard } from 'telegram_bot_frontend/telegram_bot_card';
 
 declare const telegramBotCardFooterStartButtonText: string;
 declare const telegramBotCardFooterStopButtonText: string;

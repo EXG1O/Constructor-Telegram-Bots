@@ -17,7 +17,3 @@
 @keyframes btn-update {
 	0% {transform: rotate(360deg)}
 }
-
-.monaco-editor .line-numbers {
-	text-align: center!important;
-}

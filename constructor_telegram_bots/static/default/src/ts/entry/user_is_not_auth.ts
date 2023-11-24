@@ -1,1 +1,0 @@
-import '../modals/login_via_telegram_modal';

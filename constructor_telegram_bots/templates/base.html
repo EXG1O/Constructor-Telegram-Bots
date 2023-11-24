@@ -21,14 +21,7 @@
 		<link rel="icon" href="{% static 'favicon.png' %}">
 
 		{% block styles %}
-		{% with webpack_loader_name=webpack_loader_name|default:'DEFAULT' %}
-			{% render_bundle 'main' 'css' webpack_loader_name %}
-			{% if user.is_authenticated %}
-				{% render_bundle 'user_is_auth' 'css' webpack_loader_name %}
-			{% else %}
-				{% render_bundle 'user_is_not_auth' 'css' webpack_loader_name %}
-			{% endif %}
-		{% endwith %}
+		{% render_bundle 'main' 'css' 'DEFAULT' %}
 		{% endblock styles %}
 	</head>
 	<body class="d-flex flex-column h-100">
@@ -57,6 +50,7 @@
 
 	<script>
 		{% block scripts_data %}
+		const userIsAuth = '{{ user.is_authenticated }}' === 'True';
 		{% if user.is_authenticated %}
 			const userApiToken = '{{ request.user.auth_token.key }}';
 
@@ -69,13 +63,6 @@
 	</script>
 
 	{% block scripts %}
-	{% with webpack_loader_name=webpack_loader_name|default:'DEFAULT' %}
-		{% render_bundle 'main' 'js' webpack_loader_name %}
-		{% if user.is_authenticated %}
-			{% render_bundle 'user_is_auth' 'js' webpack_loader_name %}
-		{% else %}
-			{% render_bundle 'user_is_not_auth' 'js' webpack_loader_name %}
-		{% endif %}
-	{% endwith %}
+	{% render_bundle 'main' 'js' 'DEFAULT' %}
 	{% endblock scripts %}
 </html>

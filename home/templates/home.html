@@ -6,9 +6,7 @@
 {% block title %}{% trans "Бесплатный конструктор Telegram ботов" %}{% endblock title %}
 
 {% block styles %}
-{% with webpack_loader_name='HOME' %}
-	{{ block.super }}
-{% endwith %}
+{% render_bundle 'main' 'css' 'HOME' %}
 {% endblock styles %}
 
 {% block main %}
@@ -64,7 +62,5 @@
 {% endblock main %}
 
 {% block scripts %}
-{% with webpack_loader_name='HOME' %}
-	{{ block.super }}
-{% endwith %}
+{% render_bundle 'main' 'js' 'HOME' %}
 {% endblock scripts %}

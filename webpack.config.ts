@@ -1,17 +1,13 @@
 import { Configuration } from 'webpack';
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as BundleTracker from 'webpack-bundle-tracker';
+import * as MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const mainAppStaticDirPath =  `${__dirname}/constructor_telegram_bots/static`;
-const defaultEntryDirPath = `${mainAppStaticDirPath}/default/src/ts/entry`;
-const defaultMainEntryFile = `${defaultEntryDirPath}/main.ts`;
+const defaultEntryFilePath = `${mainAppStaticDirPath}/default/src/ts/main.ts`;
 
 const baseConfig: Configuration = {
-	entry: {
-		main: defaultMainEntryFile,
-		user_is_auth: `${defaultEntryDirPath}/user_is_auth.ts`,
-		user_is_not_auth: `${defaultEntryDirPath}/user_is_not_auth.ts`,
-	},
+	entry: [defaultEntryFilePath],
 	output: {
 		filename: 'js/[name].min.js',
 		clean: true,
@@ -20,7 +16,7 @@ const baseConfig: Configuration = {
 		rules: [
 			{
 				test: /\.(ts|tsx)$/,
-				loader: 'ts-loader',
+				use: ['ts-loader'],
 			},
 			{
 				test: /\.css$/,
@@ -31,10 +27,9 @@ const baseConfig: Configuration = {
 	resolve: {
 		extensions: ['.js', '.ts', '.tsx', '.css'],
 		alias: {
-			default_entry: defaultEntryDirPath,
 			global_modules: `${mainAppStaticDirPath}/global_modules/`,
 			telegram_bot_api: `${__dirname}/telegram_bot/api/static/telegram_bot/api/`,
-			telegram_bot_global_modules: `${__dirname}/telegram_bot/frontend/static/telegram_bot/frontend/global_modules/`,
+			telegram_bot_frontend: `${__dirname}/telegram_bot/frontend/static/telegram_bot/frontend/`,
 		},
 	},
 	plugins: [
@@ -75,18 +70,22 @@ function generateConfig(
 }
 
 const telegramBotMenuStaticDirPath = `${__dirname}/telegram_bot/frontend/static/telegram_bot_menu`;
+const telegramBotMenuAnimationFilePath = `${telegramBotMenuStaticDirPath}/animation/main.ts`;
+const telegramBotMenuDefaultEntryFilesPath = [...baseConfig.entry as string[], `${telegramBotMenuStaticDirPath}/default/src/css/main.css`];
 
 export default [
 	generateConfig('constructor_telegram_bots/static/default/dist', 'default'),
 	generateConfig('home/static/home/dist', 'home', {
-		entry: {
-			...baseConfig.entry as object,
-			main: [defaultMainEntryFile, `${__dirname}/home/static/home/src/css/main.css`],
-		},
+		entry: [...baseConfig.entry as string[], `${__dirname}/home/static/home/src/css/main.css`],
+	}),
+	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/default/dist', 'default.telegram-bot-menu', {
+		entry: telegramBotMenuDefaultEntryFilesPath,
 	}),
 	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/index/dist', 'index.telegram-bot-menu', {
-		entry: {
-			main: [defaultMainEntryFile, `${telegramBotMenuStaticDirPath}/index/src/ts/main.ts`],
-		},
+		entry: [...telegramBotMenuDefaultEntryFilesPath, `${telegramBotMenuStaticDirPath}/index/src/ts/main.ts`],
+	}),
+	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/database/dist', 'database.telegram-bot-menu', {
+		entry: [...telegramBotMenuDefaultEntryFilesPath, telegramBotMenuAnimationFilePath, `${telegramBotMenuStaticDirPath}/database/src/ts/main.ts`],
+		plugins: [new MonacoWebpackPlugin()],
 	}),
 ]

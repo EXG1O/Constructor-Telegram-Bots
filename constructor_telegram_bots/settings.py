@@ -100,8 +100,14 @@ WEBPACK_LOADER = {
 	'HOME': WEBPACK_LOADER_BASE_CONFIG | {
 		'STATS_FILE': BASE_DIR / 'home.webpack.stats.json',
 	},
+	'TELEGRAM_BOT_MENU:DEFAULT': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'default.telegram-bot-menu.webpack.stats.json',
+	},
 	'TELEGRAM_BOT_MENU:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
 		'STATS_FILE': BASE_DIR / 'index.telegram-bot-menu.webpack.stats.json',
+	},
+	'TELEGRAM_BOT_MENU:DATABASE': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'database.telegram-bot-menu.webpack.stats.json',
 	},
 }
 

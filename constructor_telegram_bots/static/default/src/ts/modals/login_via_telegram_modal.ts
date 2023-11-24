@@ -1,20 +1,24 @@
 import * as bootstrap from 'bootstrap';
 import * as QRCode from 'qrcode';
 
-const loginViaTelegramBootstrapModal = new bootstrap.Modal('#loginViaTelegramModal');
-const loginViaTelegramModalButton = document.querySelector('#loginViaTelegramModalButton') as HTMLAnchorElement;
+declare const userIsAuth: boolean;
 
-QRCode.toCanvas(
-	document.querySelector('#loginViaTelegramModal .qrcode') as HTMLCanvasElement,
-	loginViaTelegramModalButton.href,
-	{
-		width: 256,
-		margin: 0,
-	},
-);
+if (!userIsAuth) {
+	const loginViaTelegramBootstrapModal = new bootstrap.Modal('#loginViaTelegramModal');
+	const loginViaTelegramModalButton = document.querySelector('#loginViaTelegramModalButton') as HTMLAnchorElement;
 
-loginViaTelegramModalButton.addEventListener('click', (): void => loginViaTelegramBootstrapModal.toggle());
+	QRCode.toCanvas(
+		document.querySelector('#loginViaTelegramModal .qrcode') as HTMLCanvasElement,
+		loginViaTelegramModalButton.href,
+		{
+			width: 256,
+			margin: 0,
+		},
+	);
 
-if (new URLSearchParams(window.location.search).has('require-login')) {
-	loginViaTelegramModalButton.click();
+	loginViaTelegramModalButton.addEventListener('click', (): void => loginViaTelegramBootstrapModal.toggle());
+
+	if (new URLSearchParams(window.location.search).has('require-login')) {
+		loginViaTelegramModalButton.click();
+	}
 }
