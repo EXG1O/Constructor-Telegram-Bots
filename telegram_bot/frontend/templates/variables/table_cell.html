@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<tr>
+	<th>{{ header }}:</th>
+	<td>
+		<div class="d-flex gap-2">
+			<span class="flex-fill">{{ data }}</span>
+			<button class="btn btn-light btn-clipboard border bi bi-clipboard px-2 py-0" data-clipboard-text="{{ data }}"></button>
+		</div>
+	</td>
+</tr>
