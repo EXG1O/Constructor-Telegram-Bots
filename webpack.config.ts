@@ -87,6 +87,9 @@ export default [
 	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/variables/dist', 'variables.telegram-bot-menu', {
 		entry: [...telegramBotMenuDefaultEntryFilesPath, `${telegramBotMenuStaticDirPath}/variables/src/ts/main.ts`],
 	}),
+	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/users/dist', 'users.telegram-bot-menu', {
+		entry: [...telegramBotMenuDefaultEntryFilesPath, telegramBotMenuAnimationFilePath, `${telegramBotMenuStaticDirPath}/users/src/ts/main.ts`],
+	}),
 	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/database/dist', 'database.telegram-bot-menu', {
 		entry: [...telegramBotMenuDefaultEntryFilesPath, telegramBotMenuAnimationFilePath, `${telegramBotMenuStaticDirPath}/database/src/ts/main.ts`],
 		plugins: [new MonacoWebpackPlugin()],

@@ -109,6 +109,9 @@ WEBPACK_LOADER = {
 	'TELEGRAM_BOT_MENU:VARIABLES': WEBPACK_LOADER_BASE_CONFIG | {
 		'STATS_FILE': BASE_DIR / 'variables.telegram-bot-menu.webpack.stats.json',
 	},
+	'TELEGRAM_BOT_MENU:USERS': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'users.telegram-bot-menu.webpack.stats.json',
+	},
 	'TELEGRAM_BOT_MENU:DATABASE': WEBPACK_LOADER_BASE_CONFIG | {
 		'STATS_FILE': BASE_DIR / 'database.telegram-bot-menu.webpack.stats.json',
 	},
