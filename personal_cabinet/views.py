@@ -5,5 +5,5 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-def personal_cabinet_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'personal_cabinet.html')
+def index_view(request: HttpRequest) -> HttpResponse:
+	return render(request, 'personal_cabinet/index/main.html')

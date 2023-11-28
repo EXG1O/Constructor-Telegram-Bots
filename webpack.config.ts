@@ -78,6 +78,9 @@ export default [
 	generateConfig('home/static/home/dist', 'home', {
 		entry: [...baseConfig.entry as string[], `${__dirname}/home/static/home/src/css/main.css`],
 	}),
+	generateConfig('personal_cabinet/static/personal_cabinet/index/dist', 'index.personal-cabinet', {
+		entry: [...baseConfig.entry as string[], `${__dirname}/personal_cabinet/static/personal_cabinet/index/src/ts/main.ts`],
+	}),
 	generateConfig('telegram_bot/frontend/static/telegram_bot_menu/default/dist', 'default.telegram-bot-menu', {
 		entry: telegramBotMenuDefaultEntryFilesPath,
 	}),

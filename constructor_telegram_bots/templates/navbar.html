@@ -58,7 +58,7 @@
 					{% if user.is_staff %}
 						<a class="btn btn-warning flex-fill" href="{% url 'admin:index' %}">{% trans "Админ панель" %}</a>
 					{% endif %}
-					<a class="btn btn-light flex-fill" href="{% url 'personal_cabinet' %}">{% trans "Личный кабинет" %}</a>
+					<a class="btn btn-light flex-fill" href="{% url 'personal_cabinet:index' %}">{% trans "Личный кабинет" %}</a>
 					<button class="btn btn-danger flex-fill" id="userLogoutButton" type="button">{% trans "Выйти" %}</button>
 				{% else %}
 					<a class="btn btn-success flex-fill" id="loginViaTelegramModalButton" href="tg://resolve?domain={{ constructor_telegram_bot_username }}&start=login">

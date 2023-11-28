@@ -1,6 +1,6 @@
 import { Toast } from 'global_modules/toast';
 import { TelegramBotApi } from 'telegram_bot_api/main';
-import { CustomTelegramBotCard } from './custom_telegram_bot_card';
+import { TelegramBotCard } from './components';
 
 declare const telegramBotId: number;
 
@@ -8,7 +8,7 @@ const telegramBotCardParentDiv = document.querySelector('#telegramBotCard') as H
 
 TelegramBotApi.get(telegramBotId).then(response => {
 	if (response.ok) {
-		new CustomTelegramBotCard(telegramBotCardParentDiv, response.json);
+		new TelegramBotCard(telegramBotCardParentDiv, response.json);
 	} else {
 		new Toast(response.json.message, response.json.level).show();
 	}

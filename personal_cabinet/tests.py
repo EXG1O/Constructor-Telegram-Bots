@@ -10,7 +10,7 @@ class ViewsTests(TestCase):
 		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
 
 	def test_personal_cabinet_view(self) -> None:
-		url: str = urls.reverse('personal_cabinet')
+		url: str = urls.reverse('personal_cabinet:index')
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 302)
@@ -19,4 +19,4 @@ class ViewsTests(TestCase):
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'personal_cabinet.html')
+		self.assertTemplateUsed(response, 'personal_cabinet/index/main.html')

@@ -27,16 +27,9 @@
 
 {% block scripts_data %}
 {{ block.super }}
-const personalCabinetUrl = "{% url 'personal_cabinet' %}";
+const personalCabinetUrl = "{% url 'personal_cabinet:index' %}";
 
-const telegramBotCardHeaderIsRunningText = "{% trans 'Telegram бот включен' %}";
-const telegramBotCardHeaderIsNotRunningText = "{% trans 'Telegram бот выключен' %}";
-
-const telegramBotCardBodyTableLineApiTokenText = "{% trans 'API-токен' %}";
-const telegramBotCardBodyTableLineIsPrivateText = "{% trans 'Приватный' %}";
-const telegramBotCardBodyTableLineDateAddedText = "{% trans 'Добавлен' %}";
-
-const telegramBotCardBodyTableLineApiTokenInputPlaceholderText = "{% trans 'Введите API-токен Telegram бота' %}";
+{% include 'telegram_bot/frontend/components/telegram_bot_card/scripts_data.html' %}
 
 const startTelegramBotMessage = "{% trans 'Вы успешно включили Telegram бота.' %}";
 const stopTelegramBotMessage = "{% trans 'Вы успешно выключили Telegram бота.' %}";

@@ -32,7 +32,7 @@ def user_login_view(request: HttpRequest, user_id: int, confirm_code: str) -> Ht
 
 	login(request, user)
 
-	return redirect('personal_cabinet')
+	return redirect('personal_cabinet:index')
 
 @login_required
 def user_logout_view(request: HttpRequest) -> HttpResponse:

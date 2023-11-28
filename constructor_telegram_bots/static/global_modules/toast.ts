@@ -1,47 +1,37 @@
-import * as bootstrap from 'bootstrap';
+import { Toast as BaseToast } from 'bootstrap';
 
-const toastContainer = document.querySelector('#toastContainer') as HTMLDivElement;
-const toastIcons = {
+const containerElement = document.querySelector('#toastContainer') as HTMLDivElement;
+const icons = {
 	success: 'check-circle-fill',
 	primary: 'info-circle-fill',
 	danger: 'exclamation-triangle-fill',
 }
 
-export class Toast {
-	public div: HTMLDivElement;
-	public bootstrap: bootstrap.Toast;
+export class Toast extends BaseToast {
+	public element: HTMLDivElement;
 
 	public constructor(
 		message: string,
-		level: 'success' | 'primary' | 'danger',
-		timeout: number = 6000,
+		level: keyof typeof icons,
+		delay: number = 6000,
 	) {
-		if (level === 'danger') {
-			timeout = 0;
-		}
-
-		this.div = document.createElement('div');
-		this.div.className = `toast text-bg-${level} mb-0 fade`;
-		this.div.role = 'alert';
-		this.div.setAttribute('aria-live', 'assertive');
-		this.div.setAttribute('aria-atomic', 'true');
-		this.div.setAttribute('data-bs-autohide', (timeout !== 0).toString());
-		this.div.setAttribute('data-bs-delay', timeout.toString());
-		this.div.innerHTML = `
+		const element = document.createElement('div');
+		element.className = `toast text-bg-${level} mb-0 fade`;
+		element.role = 'alert';
+		element.setAttribute('aria-live', 'assertive');
+		element.setAttribute('aria-atomic', 'true');
+		element.innerHTML = `
 			<div class="toast-body d-flex align-items-center gap-2">
-				<i class="bi bi-${toastIcons[level]}"></i>
+				<i class="bi bi-${icons[level]}"></i>
 				<strong class="text-break flex-fill">${message}</strong>
 				<button class="btn-close" type="button" data-bs-dismiss="toast"></button>
 			</div>
 		`;
-		toastContainer.appendChild(this.div);
+		containerElement.appendChild(element);
 
-		this.bootstrap = new bootstrap.Toast(this.div);
+		super(element, {autohide: level !== 'danger', delay: delay});
+
+		this.element = element;
+		this.element.addEventListener('hidden.bs.toast', () => this.element.remove());
 	}
-	show(): void {
-		this.bootstrap.show();
-	};
-	hide(): void {
-		this.bootstrap.hide();
-	};
 }
