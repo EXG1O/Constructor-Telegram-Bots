@@ -25,29 +25,21 @@ export async function makeRequest<ApiResponseJson extends ObjectAsJson>(
 	headers?: HeadersInit,
 	data?: ObjectAsJson | FormData,
 ): Promise<ApiResponse.Default<ApiResponseJson>> {
-	let requestInit: RequestInit = {
-		method: method,
-	}
+	let requestInit: RequestInit = {method: method}
 
 	if (data) {
 		if (data instanceof FormData) {
-			requestInit = Object.assign(requestInit, {
-				body: data,
-			});
+			requestInit = Object.assign(requestInit, {body: data});
 		} else {
 			requestInit = Object.assign(requestInit, {
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify(data),
 			});
 		}
 	}
 
 	if (requestInit.headers || headers) {
-		requestInit = Object.assign(requestInit, {
-			headers: Object.assign({}, (requestInit.headers || {}), (headers || {})),
-		});
+		requestInit = Object.assign(requestInit, {headers: Object.assign({}, requestInit.headers || {}, headers || {})});
 	}
 
 	const response = await fetch(url, requestInit);

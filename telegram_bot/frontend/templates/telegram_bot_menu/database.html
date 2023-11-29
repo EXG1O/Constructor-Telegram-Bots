@@ -1,5 +1,4 @@
-{% extends 'extended_base.html' %}
-{% load static %}
+{% extends 'telegram_bot_menu/base.html' %}
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
@@ -12,11 +11,13 @@
 {% block content %}
 <div class="card border">
 	<div class="card-body">
-		{% trans 'Добавить запись' as add_button_text %}
-		{% include 'object_tools.html' with id='telegramBotDatabaseRecords' show_add_button=True add_button_text=add_button_text %}
-		<div class="collapse mt-2 show" id="telegramBotDatabaseRecordsСollapse">
-			<div class="list-group" id="telegramBotDatabaseRecords"></div>
-		</div>
+		{% with id='telegramBotDatabaseRecords' %}
+			{% trans 'Добавить запись' as add_button_text %}
+			{% include 'telegram_bot_menu/object_tools.html' with id=id show_add_button=True add_button_text=add_button_text %}
+			<div class="collapse mt-2 show" id="{{ id }}Сollapse">
+				<div class="list-group" id="{{ id }}"></div>
+			</div>
+		{% endwith %}
 	</div>
 </div>
 {% endblock content %}

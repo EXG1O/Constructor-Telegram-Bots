@@ -1,5 +1,4 @@
-{% extends 'extended_base.html' %}
-{% load static %}
+{% extends 'telegram_bot_menu/base.html' %}
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
@@ -14,28 +13,28 @@
 	<table class="table table-sm table-borderless align-middle mb-0">
 		<tbody>
 			{% trans 'ID пользователя' as user_id_header %}
-			{% include 'variables/table_cell.html' with header=user_id_header data='{{ user_id }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=user_id_header data='{{ user_id }}' %}
 
 			{% trans 'Имя пользователя' as user_first_name_header %}
-			{% include 'variables/table_cell.html' with header=user_first_name_header data='{{ user_first_name }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=user_first_name_header data='{{ user_first_name }}' %}
 
 			{% trans 'Фамилия пользователя' as user_last_name_header %}
-			{% include 'variables/table_cell.html' with header=user_last_name_header data='{{ user_last_name }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=user_last_name_header data='{{ user_last_name }}' %}
 
 			{% trans '@username пользователя' as user_username_header %}
-			{% include 'variables/table_cell.html' with header=user_username_header data='{{ user_username }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=user_username_header data='{{ user_username }}' %}
 
 			{% trans 'ID сообщения пользователя' as user_message_id_header %}
-			{% include 'variables/table_cell.html' with header=user_message_id_header data='{{ user_message_id }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=user_message_id_header data='{{ user_message_id }}' %}
 
 			{% trans 'Текст сообщения пользователя' as user_message_text_header %}
-			{% include 'variables/table_cell.html' with header=user_message_text_header data='{{ user_message_text }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=user_message_text_header data='{{ user_message_text }}' %}
 
 			{% trans 'Данные из базы данных' as database_records_header %}
-			{% include 'variables/table_cell.html' with header=database_records_header data='{{ database_records }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=database_records_header data='{{ database_records }}' %}
 
 			{% trans 'Ответ с API-запроса' as api_response_header %}
-			{% include 'variables/table_cell.html' with header=api_response_header data='{{ api_response }}' %}
+			{% include 'telegram_bot_menu/variables/table_cell.html' with header=api_response_header data='{{ api_response }}' %}
 		</tbody>
 	</table>
 </div>

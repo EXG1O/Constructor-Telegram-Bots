@@ -5,8 +5,8 @@ from django import urls
 
 class ViewsTests(TestCase):
 	def test_home_view(self) -> None:
-		url: str = urls.reverse('home')
+		url: str = urls.reverse('home:index')
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'home.html')
+		self.assertTemplateUsed(response, 'home/index.html')

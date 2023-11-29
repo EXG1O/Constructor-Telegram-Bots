@@ -24,8 +24,8 @@ class TeamMemberModelTests(TestCase):
 
 class ViewsTests(TestCase):
 	def test_team_view(self) -> None:
-		url: str = urls.reverse('team')
+		url: str = urls.reverse('team:index')
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'team.html')
+		self.assertTemplateUsed(response, 'team/index.html')

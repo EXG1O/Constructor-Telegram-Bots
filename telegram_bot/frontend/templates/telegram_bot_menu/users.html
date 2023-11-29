@@ -1,4 +1,4 @@
-{% extends 'extended_base.html' %}
+{% extends 'telegram_bot_menu/base.html' %}
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
@@ -12,7 +12,7 @@
 <div class="card border">
 	<div class="card-body">
 		{% with id='telegramBotUsers' %}
-			{% include 'object_tools.html' with id=id show_add_button=False %}
+			{% include 'telegram_bot_menu/object_tools.html' with id=id show_add_button=False %}
 			<div class="collapse mt-2 show" id="{{ id }}Сollapse">
 				<div class="list-group" id="{{ id }}"></div>
 			</div>
@@ -25,7 +25,7 @@
 {{ block.super }}
 const telegramBotIsPrivate = '{{ telegram_bot.is_private }}' === 'True';
 
-const telegramBotNotActivatedText = "{% trans 'Вашего Telegram бота ещё никто не активировал' %}";
+const telegramBotNotActivatedYetText = "{% trans 'Вашего Telegram бота ещё никто не активировал' %}";
 
 const askConfirmModalDeleteTelegramBotUserTitle = "{% trans 'Удаление пользователя' %}";
 const askConfirmModalDeleteTelegramBotUserText = "{% trans 'Вы точно хотите удалить пользователя Telegram бота?' %}";

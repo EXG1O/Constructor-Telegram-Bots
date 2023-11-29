@@ -5,14 +5,14 @@
 		<h5 class="offcanvas-title" id="telegramBotCommandOffcanvasLabel"></h5>
 		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
-	<div class="offcanvas-body d-flex flex-column gap-3">
+	<div class="offcanvas-body vstack gap-3">
 		<div>
 			<h6 class="mb-1">{% trans "Название команды" %}</h6>
 			<input class="form-control" id="telegramBotCommandOffcanvasNameInput" type="text" placeholder="{% trans "Введите название команды" %}">
 		</div>
 		<div class="d-none" id="telegramBotCommandOffcanvasCommandAddition">
 			<h6 class="mb-1">{% trans "Команда" context "Command" %}</h6>
-			<div class="d-flex flex-column gap-2">
+			<div class="vstack gap-2">
 				<input class="form-control" id="telegramBotCommandOffcanvasCommandTextInput" type="text" placeholder="{% trans "Введите команду" %}">
 				<input class="form-control d-none" id="telegramBotCommandOffcanvasCommandDescriptionInput" type="text" placeholder="{% trans "Введите описание команды" %}">
 				<button class="btn btn-sm btn-dark" id="telegramBotCommandOffcanvasCommandShowInMenuButton" type="button">{% trans "Отображать в меню" %}</button>
@@ -21,7 +21,7 @@
 		</div>
 		<div class="d-none" id="telegramBotCommandOffcanvasImageAddition">
 			<h6 class="mb-1">{% trans "Изображение" %}</h6>
-			<div class="d-flex flex-column gap-2">
+			<div class="vstack gap-2">
 				<img class="img-thumbnail rounded d-none" id="telegramBotCommandOffcanvasImagePreview">
 				<input class="form-control" id="telegramBotCommandOffcanvasImageInput" type="file" accept="image/*">
 			</div>
@@ -32,7 +32,7 @@
 		</div>
 		<div class="d-none" id="telegramBotCommandOffcanvasKeyboardAddition">
 			<h6 class="mb-1">{% trans "Клавиатура" %}</h6>
-			<div class="d-flex flex-column gap-2">
+			<div class="vstack gap-2">
 				<div class="btn-group" role="group">
 					<input class="btn-check" id="telegramBotCommandOffcanvasDefaultKeyboardRadio" name="telegramBotCommandOffcanvasKeyboardModes" value="default" type="radio" autocomplete="off">
 					<label class="btn btn-sm btn-outline-dark w-50" for="telegramBotCommandOffcanvasDefaultKeyboardRadio">{% trans "Обычная" %}</label>
@@ -43,14 +43,14 @@
 				</div>
 				<div class="d-flex flex-wrap bg-light border rounded gap-1 p-1" id="telegramBotCommandOffcanvasKeyboardButtonsRows" style="min-height: 41px;"></div>
 				<div>
-					<div class="d-flex flex-column gap-1" id="telegramBotCommandOffcanvasKeyboardButtons"></div>
+					<div class="vstack gap-1" id="telegramBotCommandOffcanvasKeyboardButtons"></div>
 					<button class="btn btn-sm btn-outline-dark w-100 mt-1" id="telegramBotCommandOffcanvasKeyboardAddButton" type="button">{% trans "Добавить кнопку" %}</button>
 				</div>
 			</div>
 		</div>
 		<div class="d-none" id="telegramBotCommandOffcanvasApiRequestAddition">
 			<h6 class="mb-1">{% trans "API-запрос" %}</h6>
-			<div class="d-flex flex-column gap-2">
+			<div class="vstack gap-2">
 				<input type="text" class="form-control" id="telegramBotCommandOffcanvasApiRequestUrlInput" placeholder="{% trans 'Введите URL-адрес' %}">
 				<div class="btn-group" role="group">
 					{% with 'telegramBotCommandOffcanvasApiRequestMethods' as radio_name %}
@@ -80,7 +80,7 @@
 		</div>
 		<div>
 			<h6 class="mb-1">{% trans "Доступные дополнения" %}</h6>
-			<div class="d-flex flex-column bg-light border rounded gap-1 p-1" id="telegramBotCommandOffcanvasAdditions">
+			<div class="vstack bg-light border rounded gap-1 p-1" id="telegramBotCommandOffcanvasAdditions">
 				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasCommandAddition" type="button">{% trans "Команда" context "Command" %}</button>
 				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasImageAddition" type="button">{% trans "Изображение" %}</button>
 				<button class="btn btn-sm btn-dark" addition-target="#telegramBotCommandOffcanvasKeyboardAddition" type="button">{% trans "Клавиатура" %}</button>

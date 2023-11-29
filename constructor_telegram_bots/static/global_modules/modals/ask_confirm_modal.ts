@@ -1,24 +1,20 @@
-import * as bootstrap from 'bootstrap';
+import { Modal } from 'bootstrap';
 
-const askConfirmBootstrapModal = new bootstrap.Modal('#askConfirmModal');
-const askConfirmModalTitle = document.querySelector('#askConfirmModalTitle') as HTMLHeadingElement;
-const askConfirmModalBody = document.querySelector('#askConfirmModalBody') as HTMLDivElement;
-const askConfirmModalYesButton = document.querySelector('#askConfirmModalYesButton') as HTMLButtonElement;
+const modal = new Modal('#askConfirmModal');
+const titleElement = document.querySelector('#askConfirmModalTitle') as HTMLHeadingElement;
+const bodyElement = document.querySelector('#askConfirmModalBody') as HTMLDivElement;
+const yesButtonElement = document.querySelector('#askConfirmModalYesButton') as HTMLButtonElement;
 
-askConfirmModalYesButton.addEventListener('click', () => askConfirmBootstrapModal.toggle());
+yesButtonElement.addEventListener('click', (): void => modal.toggle());
 
-export function askConfirmModal(
-	title: string,
-	body: string,
-	func: VoidFunction,
-): void {
-	askConfirmModalTitle.innerHTML = title;
-	askConfirmModalBody.innerHTML = body;
+export function askConfirmModal(title: string, body: string, func: () => any): void {
+	titleElement.innerHTML = title;
+	bodyElement.innerHTML = body;
 
-	if (askConfirmModalYesButton.onclick) {
-		askConfirmModalYesButton.removeEventListener('click', askConfirmModalYesButton.onclick);
+	if (yesButtonElement.onclick) {
+		yesButtonElement.removeEventListener('click', yesButtonElement.onclick);
 	}
-	askConfirmModalYesButton.onclick = func;
+	yesButtonElement.onclick = func;
 
-	askConfirmBootstrapModal.toggle();
+	modal.toggle();
 }

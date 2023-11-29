@@ -72,12 +72,12 @@ export namespace RecordAsExist {
 			this.editorContentChangeActionButtonsDiv = document.createElement('div');
 			this.editorContentChangeActionButtonsDiv.className = 'btn-group btn-editor-content-change-group d-none';
 			this.editorContentChangeActionButtonsDiv.role = 'group';
-			this.actionButtonsDiv.appendChild(this.editorContentChangeActionButtonsDiv);
+			this.actionButtonsElement.appendChild(this.editorContentChangeActionButtonsDiv);
 
 			this.createEditorContentChangeActionButtons();
 
 			const deleteButton = this.createActionButton('danger', 'trash');
-			this.actionButtonsDiv.appendChild(deleteButton);
+			this.actionButtonsElement.appendChild(deleteButton);
 
 			deleteButton.addEventListener('click', () => {
 				askConfirmModal(
@@ -107,15 +107,15 @@ export namespace RecordAsNotExist {
 		public constructor() {
 			super(recordsParentElement, 'success-subtle', 'json', JSON.stringify({key: 'value'}, null, 4));
 
-			this.actionButtonsDiv.className = 'btn-group btn-action-group';
-			this.actionButtonsDiv.role = 'group';
+			this.actionButtonsElement.className = 'btn-group btn-action-group';
+			this.actionButtonsElement.role = 'group';
 		}
 
 		protected createActionButtons(): void {
 			const confirmButton = this.createActionButton('success', 'check-lg');
 			const cancelButton = this.createActionButton('danger', 'x-lg');
 
-			this.actionButtonsDiv.append(confirmButton, cancelButton);
+			this.actionButtonsElement.append(confirmButton, cancelButton);
 
 			confirmButton.addEventListener('click', async () => {
 				try {

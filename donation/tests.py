@@ -47,15 +47,15 @@ class DonationButtonModelTests(TestCase):
 
 class ViewsTests(TestCase):
 	def test_donation_view(self) -> None:
-		url: str = urls.reverse('donation')
+		url: str = urls.reverse('donation:index')
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'donation.html')
+		self.assertTemplateUsed(response, 'donation/index.html')
 
 	def test_donation_completed_view(self) -> None:
-		url: str = urls.reverse('donation_completed')
+		url: str = urls.reverse('donation:completed')
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'donation_completed.html')
+		self.assertTemplateUsed(response, 'donation/completed.html')

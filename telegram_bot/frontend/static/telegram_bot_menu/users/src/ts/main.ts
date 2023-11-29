@@ -3,7 +3,7 @@ import { TelegramBotUsersApi } from 'telegram_bot_api/main';
 import * as Components from './components';
 
 declare const telegramBotId: number;
-declare const telegramBotNotActivatedText: string;
+declare const telegramBotNotActivatedYetText: string;
 
 const usersParentElement = document.querySelector('#telegramBotUsers') as HTMLDivElement;
 const usersComponent: Record<number, Components.User> = {};
@@ -13,7 +13,7 @@ function checkUsersComponentCount(): void {
 		const element = document.createElement('div');
 		element.className = 'list-group-item text-center p-3';
 		element.id = 'telegramBotNotActivated';
-		element.innerHTML = telegramBotNotActivatedText;
+		element.innerHTML = telegramBotNotActivatedYetText;
 		usersParentElement.append(element);
 	} else {
 		document.querySelector('#telegramBotNotActivated')?.remove();

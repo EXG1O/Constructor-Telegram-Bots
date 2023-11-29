@@ -95,28 +95,31 @@ WEBPACK_LOADER_BASE_CONFIG = {
 }
 WEBPACK_LOADER = {
 	'DEFAULT': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'default.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/default.webpack.stats.json',
 	},
-	'HOME': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'home.webpack.stats.json',
+	'HOME:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'webpack_stats/index.home.webpack.stats.json',
+	},
+	'TEAM:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
+		'STATS_FILE': BASE_DIR / 'webpack_stats/index.team.webpack.stats.json',
 	},
 	'PERSONAL_CABINET:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'index.personal-cabinet.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/index.personal-cabinet.webpack.stats.json',
 	},
 	'TELEGRAM_BOT_MENU:DEFAULT': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'default.telegram-bot-menu.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/default.telegram-bot-menu.webpack.stats.json',
 	},
 	'TELEGRAM_BOT_MENU:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'index.telegram-bot-menu.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/index.telegram-bot-menu.webpack.stats.json',
 	},
 	'TELEGRAM_BOT_MENU:VARIABLES': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'variables.telegram-bot-menu.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/variables.telegram-bot-menu.webpack.stats.json',
 	},
 	'TELEGRAM_BOT_MENU:USERS': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'users.telegram-bot-menu.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/users.telegram-bot-menu.webpack.stats.json',
 	},
 	'TELEGRAM_BOT_MENU:DATABASE': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'database.telegram-bot-menu.webpack.stats.json',
+		'STATS_FILE': BASE_DIR / 'webpack_stats/database.telegram-bot-menu.webpack.stats.json',
 	},
 }
 

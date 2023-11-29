@@ -16,7 +16,7 @@
 {% block welcome-msg %}{% endblock welcome-msg %}
 
 {% block userlinks %}
-<a href="{% url 'home' %}">{% trans 'Вернуться на сайт' %}</a> /
+<a href="{% url 'home:index' %}">{% trans 'Вернуться на сайт' %}</a> /
 <a href="{% url 'user:logout' %}">{% trans 'Выйти' %}</a> /
 <form action="{% url 'set_language' %}" method="post" style="display:inline">
 	{% csrf_token %}

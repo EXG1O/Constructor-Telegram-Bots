@@ -20,8 +20,8 @@ class InstructionSectionModelTests(TestCase):
 
 class ViewsTests(TestCase):
 	def test_instruction_view(self) -> None:
-		url: str = urls.reverse('instruction')
+		url: str = urls.reverse('instruction:index')
 
 		response: HttpResponse = self.client.get(url)
 		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'instruction.html')
+		self.assertTemplateUsed(response, 'instruction/index.html')

@@ -4,11 +4,11 @@ from django.shortcuts import render
 from .models import DonationSection, DonationButton
 
 
-def donation_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'donation.html', {
+def index_view(request: HttpRequest) -> HttpResponse:
+	return render(request, 'donation/index.html', {
 		'donation_sections': DonationSection.objects.all(),
 		'donation_buttons': DonationButton.objects.all(),
 	})
 
-def donation_completed_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'donation_completed.html')
+def completed_view(request: HttpRequest) -> HttpResponse:
+	return render(request, 'donation/completed.html')

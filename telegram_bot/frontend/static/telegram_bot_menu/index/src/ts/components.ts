@@ -7,8 +7,8 @@ import { TelegramBotCard as BaseTelegramBotCard } from 'telegram_bot_frontend/co
 declare const personalCabinetUrl: string;
 declare const telegramBotCardFooterStartButtonText: string;
 declare const telegramBotCardFooterStopButtonText: string;
-declare const deleteTelegramBotAskConfirmModalTitle: string;
-declare const deleteTelegramBotAskConfirmModalText: string;
+declare const askConfirmModalDeleteTelegramBotTitle: string;
+declare const askConfirmModalDeleteTelegramBotText: string;
 declare const telegramBotCardFooterDeleteButtonText: string;
 
 export class TelegramBotCard extends BaseTelegramBotCard {
@@ -65,8 +65,8 @@ export class TelegramBotCard extends BaseTelegramBotCard {
 		});
 		deleteButton.addEventListener('click', (): void => {
 			askConfirmModal(
-				deleteTelegramBotAskConfirmModalTitle,
-				deleteTelegramBotAskConfirmModalText,
+				askConfirmModalDeleteTelegramBotTitle,
+				askConfirmModalDeleteTelegramBotText,
 				async (): Promise<void> => {
 					const response = await TelegramBotApi.delete_(this.telegramBot.id);
 

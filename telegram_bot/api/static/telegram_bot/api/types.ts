@@ -22,8 +22,8 @@ interface TelegramBotCommandMessageText {
 	text: string;
 }
 
-interface TelegramBotCommandKeyboardButton {
-	id: number | null;
+export interface TelegramBotCommandKeyboardButton {
+	id: number;
 	row: number | null;
 	text: string;
 	url: string | null;
@@ -74,12 +74,12 @@ export interface TelegramBotDatabaseRecord extends ObjectAsJson {
 export namespace Data {
 	export namespace TelegramBot {
 		export interface Create {
-			api_token: string;
-			is_private: boolean;
+			api_token: TelegramBot['api_token'];
+			is_private: TelegramBot['is_private'];
 		}
 		export interface Update {
-			api_token: string | null;
-			is_private: boolean | null;
+			api_token: TelegramBot['api_token'] | null;
+			is_private: TelegramBot['is_private'] | null;
 		}
 
 		export interface UpdateDiagramCurrentScale {
@@ -131,7 +131,7 @@ export namespace Data {
 
 	export namespace TelegramBotDatabaseRecord {
 		export interface Create {
-			record: ObjectAsJson;
+			record: Omit<TelegramBotDatabaseRecord, '_id'>;
 		}
 		export type Update = Create;
 	}

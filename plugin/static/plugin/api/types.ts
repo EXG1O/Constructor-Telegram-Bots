@@ -18,8 +18,8 @@ export interface PluginLog {
 export namespace Data {
 	export namespace Plugin {
 		export interface Create {
-			name: string,
-			code: string;
+			name: Plugin['name'],
+			code: Plugin['code'];
 		}
 		export type Update = Omit<Create, 'name'>;
 	}

@@ -11,7 +11,7 @@
 
 		<title>{% block title %}{% endblock title %} - Constructor Telegram Bots</title>
 		<meta name="robots" content="index, follow">
-		<meta name="description" content="{% trans "Сайт, с помощью которого вы можете легко, бесплатно и без каких-либо знаний в программирование, сделать своего многофункционального Telegram бота." %}">
+		<meta name="description" content="{% trans 'Сайт, с помощью которого вы можете легко, бесплатно и без каких-либо знаний в программирование, сделать своего многофункционального Telegram бота.' %}">
 		<meta name="keywords" content="бесплатный, free, конструктор, constructor, telegram, телеграм, bot, бот, bots, ботов">
 
 		<meta name="google-site-verification" content="YbS9xa_kQpSf_XVG7tmdkCnX-av6lvsIm9m0E5SGTds">
@@ -24,7 +24,7 @@
 		{% render_bundle 'main' 'css' 'DEFAULT' %}
 		{% endblock styles %}
 	</head>
-	<body class="d-flex flex-column h-100">
+	<body class="vstack h-100">
 		{% block navbar %}
 		{% include 'navbar.html' with extra_class=navbar_extra_class %}
 		{% endblock navbar %}
@@ -37,7 +37,7 @@
 		{% endif %}
 		{% endblock modals %}
 
-		<div class="toast-container d-flex flex-column position-fixed bottom-0 end-0 gap-3 p-3" id="toastContainer"></div>
+		<div class="toast-container vstack position-fixed bottom-0 end-0 gap-3 p-3" id="toastContainer"></div>
 
 		<main class="{% block main_class %}my-auto{% endblock main_class %}">
 			{% block main %}{% endblock main %}

@@ -1,6 +1,7 @@
 # Папки
 __pycache__/
 node_modules/
+webpack_stats/
 .vscode/
 /static/
 media/

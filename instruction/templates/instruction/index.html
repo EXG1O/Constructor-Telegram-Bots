@@ -1,16 +1,14 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Инструкция" %}{% endblock title %}
+{% block title %}{% trans 'Инструкция' %}{% endblock title %}
 
 {% block main %}
-<div class="container d-flex flex-column my-3 my-lg-4">
+<div class="container vstack my-3 my-lg-4">
 	{% for instruction_section in instruction_sections %}
 		<div>
 			<h3 class="mb-1">{{ instruction_section.title }}</h3>
-			{% autoescape off %}
-				{{ instruction_section.text }}
-			{% endautoescape %}
+			{% autoescape off %}{{ instruction_section.text }}{% endautoescape %}
 		</div>
 	{% endfor %}
 </div>

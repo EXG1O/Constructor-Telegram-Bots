@@ -1,5 +1,4 @@
-{% extends 'extended_base.html' %}
-{% load static %}
+{% extends 'telegram_bot_menu/base.html' %}
 {% load i18n %}
 {% load render_bundle from webpack_loader %}
 
@@ -14,12 +13,14 @@
 	<div class="col-12 col-lg-6" id="telegramBotCard"></div>
 	<div class="col-12 col-lg-6">
 		<div class="row text-center g-3">
-			{% trans "Количество пользователей" as info_area_text %}
-			{% include 'widgets/info_area.html' with class="col-6" value=telegram_bot.users.count text=info_area_text %}
-			{% trans "Количество команд" as info_area_text %}
-			{% include 'widgets/info_area.html' with class="col-6" value=telegram_bot.commands.count text=info_area_text %}
-			{% comment %} {% trans "Активность за 24 ч." as info_area_text %}
-			{% include 'widgets/info_area.html' with class="col-6" value="0" text=info_area_text %} {% endcomment %}
+			{% trans 'Количество пользователей' as info_area_text %}
+			{% include 'widgets/info_area.html' with class='col-6' value=telegram_bot.users.count text=info_area_text %}
+
+			{% trans 'Количество команд' as info_area_text %}
+			{% include 'widgets/info_area.html' with class='col-6' value=telegram_bot.commands.count text=info_area_text %}
+
+			{% comment %} {% trans 'Активность за 24 ч.' as info_area_text %}
+			{% include 'widgets/info_area.html' with class='col-6' value='0' text=info_area_text %} {% endcomment %}
 		</div>
 	</div>
 </div>
@@ -37,8 +38,8 @@ const stopTelegramBotMessage = "{% trans 'Вы успешно выключили
 const telegramBotCardFooterStartButtonText = "{% trans 'Включить Telegram бота' %}";
 const telegramBotCardFooterStopButtonText = "{% trans 'Выключить Telegram бота' %}";
 
-const deleteTelegramBotAskConfirmModalTitle = "{% trans 'Удаление Telegram бота' %}";
-const deleteTelegramBotAskConfirmModalText = "{% trans 'Вы точно хотите удалить Telegram бота?' %}";
+const askConfirmModalDeleteTelegramBotTitle = "{% trans 'Удаление Telegram бота' %}";
+const askConfirmModalDeleteTelegramBotText = "{% trans 'Вы точно хотите удалить Telegram бота?' %}";
 
 const telegramBotCardFooterDeleteButtonText = "{% trans 'Удалить Telegram бота' %}";
 {% endblock scripts_data %}

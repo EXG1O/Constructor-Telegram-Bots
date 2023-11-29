@@ -1,8 +1,9 @@
 from django.urls import path
 
-from . import views
+from .views import index_view
 
 
+app_name = 'privacy_policy'
 urlpatterns = [
-	path('', views.privacy_policy_view, name='privacy_policy'),
+	path('', index_view, name='index'),
 ]

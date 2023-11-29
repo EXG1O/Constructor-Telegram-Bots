@@ -4,5 +4,5 @@ from django.shortcuts import render
 from .models import TeamMember
 
 
-def team_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'team.html', {'team_members': TeamMember.objects.all()})
+def index_view(request: HttpRequest) -> HttpResponse:
+	return render(request, 'team/index.html', {'team_members': TeamMember.objects.all()})

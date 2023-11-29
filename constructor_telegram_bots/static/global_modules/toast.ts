@@ -10,11 +10,7 @@ const icons = {
 export class Toast extends BaseToast {
 	public element: HTMLDivElement;
 
-	public constructor(
-		message: string,
-		level: keyof typeof icons,
-		delay: number = 6000,
-	) {
+	public constructor(message: string, level: keyof typeof icons, delay: number = 6000) {
 		const element = document.createElement('div');
 		element.className = `toast text-bg-${level} mb-0 fade`;
 		element.role = 'alert';

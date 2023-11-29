@@ -7,8 +7,8 @@ from updates.models import Update
 from donation.models import Donation
 
 
-def home_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'home.html', {
+def index_view(request: HttpRequest) -> HttpResponse:
+	return render(request, 'home/index.html', {
 		'users': User.objects.all(),
 		'telegram_bots': TelegramBot.objects.all(),
 		'updates': Update.objects.all(),
