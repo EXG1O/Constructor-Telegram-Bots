@@ -1,7 +1,7 @@
 import { Configuration } from 'webpack';
-import * as MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import * as BundleTracker from 'webpack-bundle-tracker';
-import * as MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import BundleTracker from 'webpack-bundle-tracker';
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const mainAppStaticDirPath =  `${__dirname}/constructor_telegram_bots/static`;
 const defaultEntryFilePath = `${mainAppStaticDirPath}/default/src/ts/main.ts`;
@@ -56,7 +56,7 @@ namespace TelegramBotMenu {
 			entry: defaultEntryFilesPath,
 		}),
 		generateConfig(`${staticDirRelativePath}/index/dist`, 'index.telegram-bot-menu', {
-			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/index/src/ts/main.ts`],
+			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/index/src/ts/main.tsx`],
 		}),
 		generateConfig(`${staticDirRelativePath}/variables/dist`, 'variables.telegram-bot-menu', {
 			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/variables/src/ts/main.ts`],
@@ -80,7 +80,7 @@ export default [
 		entry: [...baseConfig.entry as string[], `${__dirname}/team/static/team/index/src/css/main.css`],
 	}),
 	generateConfig('personal_cabinet/static/personal_cabinet/index/dist', 'index.personal-cabinet', {
-		entry: [...baseConfig.entry as string[], `${__dirname}/personal_cabinet/static/personal_cabinet/index/src/ts/main.ts`],
+		entry: [...baseConfig.entry as string[], `${__dirname}/personal_cabinet/static/personal_cabinet/index/src/ts/main.tsx`],
 	}),
 	...TelegramBotMenu.configs,
 ]

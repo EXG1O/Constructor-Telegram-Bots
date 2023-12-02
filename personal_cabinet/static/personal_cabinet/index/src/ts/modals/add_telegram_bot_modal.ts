@@ -1,7 +1,6 @@
 import { Toast } from 'global_modules/toast';
 import { TelegramBotApi } from 'telegram_bot_api/main';
 import { TelegramBotCards } from '../main';
-import { TelegramBotCard } from '../components';
 import { Modal } from 'bootstrap';
 
 const modal = new Modal('#addTelegramBotModal');
@@ -18,8 +17,7 @@ addButton.addEventListener('click', async () => {
 	});
 
 	if (response.ok) {
-		new TelegramBotCard(response.json.telegram_bot);
-		TelegramBotCards.checkCount();
+		TelegramBotCards.update();
 
 		modal.hide();
 	}

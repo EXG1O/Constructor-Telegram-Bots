@@ -1,5 +1,5 @@
 import { Toast } from 'global_modules/toast';
-import * as ClipboardJS from 'clipboard';
+import ClipboardJS from 'clipboard';
 
 declare const successMessageTextForClipboard: string;
 declare const errorMessageTextForClipboard: string;
