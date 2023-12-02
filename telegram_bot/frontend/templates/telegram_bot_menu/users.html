@@ -23,7 +23,7 @@
 
 {% block scripts_data %}
 {{ block.super }}
-const telegramBotIsPrivate = '{{ telegram_bot.is_private }}' === 'True';
+const telegramBotIsPrivate = {{ telegram_bot.is_private|lower }};
 
 const telegramBotNotActivatedYetText = "{% trans 'Вашего Telegram бота ещё никто не активировал' %}";
 

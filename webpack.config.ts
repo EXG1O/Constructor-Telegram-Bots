@@ -62,7 +62,7 @@ namespace TelegramBotMenu {
 			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/variables/src/ts/main.ts`],
 		}),
 		generateConfig(`${staticDirRelativePath}/users/dist`, 'users.telegram-bot-menu', {
-			entry: [...defaultEntryFilesPath, animationEntryFilePath, `${staticDirAbsolutePath}/users/src/ts/main.ts`],
+			entry: [...defaultEntryFilesPath, animationEntryFilePath, `${staticDirAbsolutePath}/users/src/main.tsx`],
 		}),
 		generateConfig(`${staticDirRelativePath}/database/dist`, 'database.telegram-bot-menu', {
 			entry: [...defaultEntryFilesPath, animationEntryFilePath, `${staticDirAbsolutePath}/database/src/ts/main.ts`],
