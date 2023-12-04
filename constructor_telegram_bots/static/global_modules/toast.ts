@@ -1,13 +1,13 @@
 import { Toast as BaseToast } from 'bootstrap';
 
-const containerElement = document.querySelector('#toastContainer') as HTMLDivElement;
+const containerElement = document.querySelector<HTMLDivElement>('#toastContainer')!;
 const icons = {
 	success: 'check-circle-fill',
 	primary: 'info-circle-fill',
 	danger: 'exclamation-triangle-fill',
 }
 
-export class Toast extends BaseToast {
+export default class Toast extends BaseToast {
 	public element: HTMLDivElement;
 
 	public constructor(message: string, level: keyof typeof icons, delay: number = 6000) {

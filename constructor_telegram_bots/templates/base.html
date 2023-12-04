@@ -24,6 +24,7 @@
 		{% render_bundle 'main' 'css' 'DEFAULT' %}
 		{% endblock styles %}
 	</head>
+
 	<body class="vstack h-100">
 		{% block navbar %}
 		{% include 'navbar.html' with extra_class=navbar_extra_class %}
@@ -50,7 +51,7 @@
 
 	<script>
 		{% block scripts_data %}
-		const userIsAuth = '{{ user.is_authenticated }}' === 'True';
+		const userIsAuth = {{ user.is_authenticated|lower }};
 		{% if user.is_authenticated %}
 			const userApiToken = '{{ request.user.auth_token.key }}';
 

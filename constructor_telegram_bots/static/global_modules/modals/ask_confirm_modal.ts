@@ -1,9 +1,9 @@
 import { Modal } from 'bootstrap';
 
 const modal = new Modal('#askConfirmModal');
-const titleElement = document.querySelector('#askConfirmModalTitle') as HTMLHeadingElement;
-const bodyElement = document.querySelector('#askConfirmModalBody') as HTMLDivElement;
-const yesButtonElement = document.querySelector('#askConfirmModalYesButton') as HTMLButtonElement;
+const titleElement = document.querySelector<HTMLHeadingElement>('#askConfirmModalTitle')!;
+const bodyElement = document.querySelector<HTMLDivElement>('#askConfirmModalBody')!;
+const yesButtonElement = document.querySelector<HTMLButtonElement>('#askConfirmModalYesButton')!;
 
 yesButtonElement.addEventListener('click', (): void => modal.toggle());
 

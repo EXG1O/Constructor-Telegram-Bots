@@ -1,14 +1,14 @@
 import { Modal } from 'bootstrap';
-import * as QRCode from 'qrcode';
+import QRCode from 'qrcode';
 
 declare const userIsAuth: boolean;
 
 if (!userIsAuth) {
 	const modal = new Modal('#loginViaTelegramModal');
-	const modalToggleButtonElement = document.querySelector('#loginViaTelegramModalButton') as HTMLAnchorElement;
+	const modalToggleButtonElement = document.querySelector<HTMLAnchorElement>('#loginViaTelegramModalButton')!;
 
 	QRCode.toCanvas(
-		document.querySelector('#loginViaTelegramModal .qrcode') as HTMLCanvasElement,
+		document.querySelector<HTMLCanvasElement>('#loginViaTelegramModal .qrcode'),
 		modalToggleButtonElement.href,
 		{width: 256, margin: 0},
 	);

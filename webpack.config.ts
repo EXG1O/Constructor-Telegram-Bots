@@ -4,7 +4,7 @@ import BundleTracker from 'webpack-bundle-tracker';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const mainAppStaticDirPath =  `${__dirname}/constructor_telegram_bots/static`;
-const defaultEntryFilePath = `${mainAppStaticDirPath}/default/src/ts/main.ts`;
+const defaultEntryFilePath = `${mainAppStaticDirPath}/default/src/main.ts`;
 
 const baseConfig: Configuration = {
 	entry: [defaultEntryFilePath],
@@ -49,23 +49,23 @@ namespace TelegramBotMenu {
 	const staticDirRelativePath = 'telegram_bot/frontend/static/telegram_bot_menu';
 	const staticDirAbsolutePath = `${__dirname}/${staticDirRelativePath}`;
 	const animationEntryFilePath = `${staticDirAbsolutePath}/animation/main.ts`;
-	const defaultEntryFilesPath = [...baseConfig.entry as string[], `${staticDirAbsolutePath}/default/src/css/main.css`];
+	const defaultEntryFilesPath = [...baseConfig.entry as string[], `${staticDirAbsolutePath}/default/src/main.css`];
 
 	export const configs: Configuration[] = [
 		generateConfig(`${staticDirRelativePath}/default/dist`, 'default.telegram-bot-menu', {
 			entry: defaultEntryFilesPath,
 		}),
 		generateConfig(`${staticDirRelativePath}/index/dist`, 'index.telegram-bot-menu', {
-			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/index/src/ts/main.tsx`],
+			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/index/src/main.tsx`],
 		}),
 		generateConfig(`${staticDirRelativePath}/variables/dist`, 'variables.telegram-bot-menu', {
-			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/variables/src/ts/main.ts`],
+			entry: [...defaultEntryFilesPath, `${staticDirAbsolutePath}/variables/src/main.ts`],
 		}),
 		generateConfig(`${staticDirRelativePath}/users/dist`, 'users.telegram-bot-menu', {
 			entry: [...defaultEntryFilesPath, animationEntryFilePath, `${staticDirAbsolutePath}/users/src/main.tsx`],
 		}),
 		generateConfig(`${staticDirRelativePath}/database/dist`, 'database.telegram-bot-menu', {
-			entry: [...defaultEntryFilesPath, animationEntryFilePath, `${staticDirAbsolutePath}/database/src/ts/main.ts`],
+			entry: [...defaultEntryFilesPath, animationEntryFilePath, `${staticDirAbsolutePath}/database/src/main.tsx`],
 			plugins: [new MonacoWebpackPlugin()],
 		}),
 	]
@@ -74,13 +74,13 @@ namespace TelegramBotMenu {
 export default [
 	generateConfig('constructor_telegram_bots/static/default/dist', 'default'),
 	generateConfig('home/static/home/index/dist', 'index.home', {
-		entry: [...baseConfig.entry as string[], `${__dirname}/home/static/home/index/src/css/main.css`],
+		entry: [...baseConfig.entry as string[], `${__dirname}/home/static/home/index/src/main.css`],
 	}),
 	generateConfig('team/static/team/index/dist', 'index.team', {
-		entry: [...baseConfig.entry as string[], `${__dirname}/team/static/team/index/src/css/main.css`],
+		entry: [...baseConfig.entry as string[], `${__dirname}/team/static/team/index/src/main.css`],
 	}),
 	generateConfig('personal_cabinet/static/personal_cabinet/index/dist', 'index.personal-cabinet', {
-		entry: [...baseConfig.entry as string[], `${__dirname}/personal_cabinet/static/personal_cabinet/index/src/ts/main.tsx`],
+		entry: [...baseConfig.entry as string[], `${__dirname}/personal_cabinet/static/personal_cabinet/index/src/main.tsx`],
 	}),
 	...TelegramBotMenu.configs,
 ]

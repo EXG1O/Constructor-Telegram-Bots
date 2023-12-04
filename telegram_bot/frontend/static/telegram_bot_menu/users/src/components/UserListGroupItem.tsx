@@ -1,4 +1,4 @@
-import { Toast } from 'global_modules/toast';
+import Toast from 'global_modules/toast';
 import { askConfirmModal } from 'global_modules/modals/ask_confirm_modal';
 import { TelegramBotUserApi, TelegramBotAllowedUserApi } from 'telegram_bot_api/main';
 import { TelegramBotUser } from 'telegram_bot_api/types';
@@ -10,12 +10,16 @@ declare const telegramBotIsPrivate: boolean;
 declare const askConfirmModalDeleteTelegramBotUserTitle: string;
 declare const askConfirmModalDeleteTelegramBotUserText: string;
 
-export default function UserListGroupItem({userInitial}: {userInitial: TelegramBotUser}): React.JSX.Element {
-	const [user, setUser] = React.useState(userInitial);
+const buttonWithOnlyIconStyle: React.CSSProperties = {
+	fontSize: '20px',
+}
 
-	const buttonStyle: React.CSSProperties = {
-		fontSize: '20px',
-	}
+interface UserListGroupItemProps {
+	userInitial: TelegramBotUser;
+}
+
+export default function UserListGroupItem({userInitial}: UserListGroupItemProps): React.JSX.Element {
+	const [user, setUser] = React.useState<TelegramBotUser>(userInitial);
 
 	async function handleSetOrUnsetAllowedButtonClick(): Promise<void> {
 		const response = await TelegramBotAllowedUserApi[(user.is_allowed) ? 'unset' : 'set'](telegramBotId, user.id);
@@ -52,13 +56,13 @@ export default function UserListGroupItem({userInitial}: {userInitial: TelegramB
 						<button
 							className={`btn btn-warning text-light bi bi-${user.is_allowed ? 'star-fill' : 'star'} px-2 py-0`}
 							onClick={handleSetOrUnsetAllowedButtonClick}
-							style={buttonStyle}
+							style={buttonWithOnlyIconStyle}
 						></button>
 					)}
 					<button
 						className='btn btn-danger bi bi-trash px-2 py-0'
 						onClick={handleDeleteButtonClick}
-						style={buttonStyle}
+						style={buttonWithOnlyIconStyle}
 					></button>
 				</div>
 			</div>

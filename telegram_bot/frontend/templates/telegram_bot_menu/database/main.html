@@ -8,6 +8,11 @@
 {% render_bundle 'main' 'css' 'TELEGRAM_BOT_MENU:DATABASE' %}
 {% endblock styles %}
 
+{% block modals %}
+{{ block.super }}
+{% include 'telegram_bot_menu/database/modals/add_record_modal.html' %}
+{% endblock modals %}
+
 {% block content %}
 <div class="card border">
 	<div class="card-body">

@@ -6,7 +6,7 @@ declare const userLogoutAskConfirmModalTitle: string;
 declare const userLogoutAskConfirmModalText: string;
 
 if (userIsAuth) {
-	(document.querySelector('#userLogoutButton') as HTMLButtonElement).addEventListener('click', (): void => {
+	document.querySelector<HTMLButtonElement>('#userLogoutButton')!.addEventListener('click', (): void => {
 		askConfirmModal(
 			userLogoutAskConfirmModalTitle,
 			userLogoutAskConfirmModalText,

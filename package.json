@@ -6,6 +6,7 @@
     "build": "webpack --mode=production -c ./webpack.config.ts"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
     "@types/bootstrap": "^5.2.9",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.39",

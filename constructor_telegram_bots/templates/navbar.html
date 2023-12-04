@@ -9,28 +9,22 @@
 		</button>
 
 		<div class="navbar-collapse justify-content-between collapse" id="navbar">
-			<ul class="navbar-nav nav-underline gap-0">
-				<li class="nav-item">
-					{% url 'home:index' as home_index_url %}
-					<a class="nav-link {% if request.path == home_index_url %}active {% endif %}pb-1" href="{{ home_index_url }}">{% trans 'Главная' %}</a>
-				</li>
-				<li class="nav-item">
-					{% url 'team:index' as team_index_url %}
-					<a class="nav-link {% if request.path == team_index_url %}active {% endif %}pb-1" href="{{ team_index_url }}">{% trans 'Команда' %}</a>
-				</li>
-				<li class="nav-item">
-					{% url 'updates' as updates_url %}
-					<a class="nav-link {% if request.path == updates_url %}active {% endif %}pb-1" href="{{ updates_url }}">{% trans 'Обновления' %}</a>
-				</li>
-				<li class="nav-item">
-					{% url 'instruction:index' as instruction_index_url %}
-					<a class="nav-link {% if request.path == instruction_index_url %}active {% endif %}pb-1" href="{{ instruction_index_url }}">{% trans 'Инструкция' %}</a>
-				</li>
-				<li class="nav-item">
-					{% url 'donation:index' as donation_index_url %}
-					<a class="nav-link {% if request.path == donation_index_url %}active {% endif %}pb-1" href="{{ donation_index_url }}">{% trans 'Пожертвование' %}</a>
-				</li>
-			</ul>
+			<div class="navbar-nav nav-underline gap-0">
+				{% url 'home:index' as home_index_url %}
+				<a class="nav-link {% if request.path == home_index_url %}active {% endif %}pb-1" href="{{ home_index_url }}">{% trans 'Главная' %}</a>
+
+				{% url 'team:index' as team_index_url %}
+				<a class="nav-link {% if request.path == team_index_url %}active {% endif %}pb-1" href="{{ team_index_url }}">{% trans 'Команда' %}</a>
+
+				{% url 'updates' as updates_url %}
+				<a class="nav-link {% if request.path == updates_url %}active {% endif %}pb-1" href="{{ updates_url }}">{% trans 'Обновления' %}</a>
+
+				{% url 'instruction:index' as instruction_index_url %}
+				<a class="nav-link {% if request.path == instruction_index_url %}active {% endif %}pb-1" href="{{ instruction_index_url }}">{% trans 'Инструкция' %}</a>
+
+				{% url 'donation:index' as donation_index_url %}
+				<a class="nav-link {% if request.path == donation_index_url %}active {% endif %}pb-1" href="{{ donation_index_url }}">{% trans 'Пожертвование' %}</a>
+			</div>
 			<hr class="d-xxl-none text-white-50 mt-0 mb-2">
 			<div class="d-flex flex-wrap gap-2">
 				<div class="dropdown flex-fill">
@@ -45,9 +39,7 @@
 							{% get_available_languages as LANGUAGES %}
 							{% get_language_info_list for LANGUAGES as languages %}
 							{% for language in languages %}
-								<li>
-									<button class="dropdown-item" type="submit" name="language" value="{{ language.code }}">{% trans language.name %}</button>
-								</li>
+								<button class="dropdown-item" type="submit" name="language" value="{{ language.code }}">{% trans language.name %}</button>
 							{% endfor %}
 						</form>
 					</ul>
