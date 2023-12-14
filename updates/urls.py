@@ -1,9 +1,8 @@
 from django.urls import path
 
-from . import views
+from .views import UpdatesAPIView
 
 
 urlpatterns = [
-	path('', views.updates_view, name='updates'),
-    path('<int:update_id>/', views.update_view, name='update'),
+	path('updates/', UpdatesAPIView.as_view(), name='updates'),
 ]

@@ -1,9 +1,8 @@
 from django.urls import path
 
-from .views import index_view
+from .views import InstructionSectionsAPIView
 
 
-app_name = 'instruction'
 urlpatterns = [
-	path('', index_view, name='index'),
+	path('sections/', InstructionSectionsAPIView.as_view(), name='instruction-sections'),
 ]

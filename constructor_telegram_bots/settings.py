@@ -33,12 +33,6 @@ POSTGRESQL_DATABASE_PASSWORD: str | None = os.getenv('POSTGRESQL_DATABASE_PASSWO
 
 SITE_DOMAIN = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
 ALLOWED_HOSTS = ['127.0.0.1', 'constructor.exg1o.org']
-CSRF_TRUSTED_ORIGINS = [
-	'http://*.127.0.0.1',
-	'https://*.127.0.0.1',
-	'http://constructor.exg1o.org',
-	'https://constructor.exg1o.org',
-]
 
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
@@ -74,52 +68,22 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 
-	'telegram_bot',
-	'telegram_bot.frontend',
-	'telegram_bot.api',
-
 	'user',
-	'home',
+	'telegram_bot',
+	'plugin',
+
 	'team',
 	'updates',
 	'instruction',
 	'donation',
-	'personal_cabinet',
-	'plugin',
 	'privacy_policy',
 ]
 
-WEBPACK_LOADER_BASE_CONFIG = {
-	'CACHE': not DEBUG,
-	'POLL_INTERVAL': 0.1,
-}
 WEBPACK_LOADER = {
-	'DEFAULT': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/default.webpack.stats.json',
-	},
-	'HOME:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/index.home.webpack.stats.json',
-	},
-	'TEAM:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/index.team.webpack.stats.json',
-	},
-	'PERSONAL_CABINET:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/index.personal-cabinet.webpack.stats.json',
-	},
-	'TELEGRAM_BOT_MENU:DEFAULT': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/default.telegram-bot-menu.webpack.stats.json',
-	},
-	'TELEGRAM_BOT_MENU:INDEX': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/index.telegram-bot-menu.webpack.stats.json',
-	},
-	'TELEGRAM_BOT_MENU:VARIABLES': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/variables.telegram-bot-menu.webpack.stats.json',
-	},
-	'TELEGRAM_BOT_MENU:USERS': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/users.telegram-bot-menu.webpack.stats.json',
-	},
-	'TELEGRAM_BOT_MENU:DATABASE': WEBPACK_LOADER_BASE_CONFIG | {
-		'STATS_FILE': BASE_DIR / 'webpack_stats/database.telegram-bot-menu.webpack.stats.json',
+	'INDEX': {
+		'CACHE': not DEBUG,
+		'POLL_INTERVAL': 0.1,
+		'STATS_FILE': BASE_DIR / 'frontend/webpack.stats.json',
 	},
 }
 
@@ -157,13 +121,11 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-	'DEFAULT_AUTHENTICATION_CLASSES': [
-		'rest_framework.authentication.BasicAuthentication',
-		'rest_framework.authentication.SessionAuthentication',
-	],
 	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
 }
-DRF_STANDARDIZED_ERRORS = {'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter'}
+DRF_STANDARDIZED_ERRORS = {
+	'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter',
+}
 
 
 TEMPLATES = [
@@ -177,8 +139,6 @@ TEMPLATES = [
 				'django.template.context_processors.request',
 				'django.contrib.auth.context_processors.auth',
 				'django.contrib.messages.context_processors.messages',
-
-				'constructor_telegram_bots.context_processors.constructor_telegram_bot_username',
 			],
 		},
 	},
@@ -222,7 +182,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [BASE_DIR / 'constructor_telegram_bots/static']
+STATICFILES_DIRS = [
+	BASE_DIR / 'constructor_telegram_bots/static',
+	BASE_DIR / 'frontend/dist',
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

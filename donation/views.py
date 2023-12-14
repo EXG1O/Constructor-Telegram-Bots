@@ -1,14 +1,57 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.request import Request
+from rest_framework.response import Response
 
-from .models import DonationSection, DonationButton
+from .models import Donation, DonationSection, DonationButton
+from .serializers import (
+	DonationModelSerializer,
+	DonationSectionModelSerializer,
+	DonationButtonModelSerializer,
+	GetDonationsSerializer,
+)
+
+from typing import Any
 
 
-def index_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'donation/index.html', {
-		'donation_sections': DonationSection.objects.all(),
-		'donation_buttons': DonationButton.objects.all(),
-	})
+class DonationsAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
 
-def completed_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'donation/completed.html')
+	def post(self, request: Request) -> Response:
+		serializer = GetDonationsSerializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+
+		validated_data: dict[str, Any] = serializer.validated_data
+		offset: int | None = validated_data['offset']
+		limit: int | None = validated_data['limit']
+
+		return Response(
+			DonationModelSerializer(
+				Donation.objects.all()[offset:limit],
+				many=True,
+			).data
+		)
+
+class DonationSectionsAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response(
+			DonationSectionModelSerializer(
+				DonationSection.objects.all(),
+				many=True,
+			).data
+		)
+
+class DonationButtonsAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response(
+			DonationButtonModelSerializer(
+				DonationButton.objects.all(),
+				many=True,
+			).data
+		)

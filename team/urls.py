@@ -1,9 +1,8 @@
 from django.urls import path
 
-from .views import index_view
+from .views import TeamMembersAPIView
 
 
-app_name = 'team'
 urlpatterns = [
-	path('', index_view, name='index'),
+	path('members/', TeamMembersAPIView.as_view(), name='team-members'),
 ]

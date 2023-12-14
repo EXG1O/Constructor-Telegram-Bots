@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django import urls
 
 from constructor_telegram_bots.utils.other import generate_random_string
 
@@ -45,10 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		if not self.confirm_code:
 			self.generate_confirm_code()
 
-		return settings.SITE_DOMAIN + urls.reverse('user:login', kwargs={
-			'user_id': self.id,
-			'confirm_code': self.confirm_code,
-		})
+		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/'
 
 	@property
 	def login_url(self) -> str:

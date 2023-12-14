@@ -46,7 +46,12 @@ class PluginsView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(PluginModelSerializer(telegram_bot.plugins.all(), many=True).data)
+		return Response(
+			PluginModelSerializer(
+				telegram_bot.plugins.all(),
+				many=True,
+			).data
+		)
 
 class PluginView(APIView):
 	authentication_classes = [TokenAuthentication]

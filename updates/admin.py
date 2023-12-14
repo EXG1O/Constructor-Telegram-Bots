@@ -10,8 +10,7 @@ from .models import Update
 @admin.register(Update)
 class UpdateAdmin(TranslationAdmin):
 	date_hierarchy = 'added_date'
+	list_display = ['version', 'added_date']
 
-	list_display = ('version', 'added_date')
-
-	fields = ('image', 'version', 'description')
+	fields = ['image', 'version', 'description']
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}
