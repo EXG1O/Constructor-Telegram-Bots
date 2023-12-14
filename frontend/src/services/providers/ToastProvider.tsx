@@ -1,0 +1,36 @@
+import React, { ReactNode, useState } from 'react';
+
+import ToastContainer from 'react-bootstrap/ToastContainer';
+
+import MessageToast, { MessageToastProps } from 'components/MessageToast';
+
+import ToastContext from 'services/contexts/ToastContext';
+
+export interface ToastProviderProps {
+	children: ReactNode
+}
+
+function ToastProvider({ children }: ToastProviderProps): ReactNode {
+	const [toasts, setToasts] = useState<ReactNode[]>([]);
+
+	function removeToast(toast: ReactNode): void {
+		setToasts(toasts.filter(t => t !== toast));
+	}
+
+	function createMessageToast(options: Omit<MessageToastProps, 'onExited'>): void {
+		const toast = <MessageToast key={Date.now()} {...options} onExited={() => removeToast(toast)} />;
+
+		setToasts([...toasts, toast]);
+	}
+
+	return (
+		<ToastContext.Provider value={{ createMessageToast }}>
+			<ToastContainer className='vstack position-fixed bottom-0 end-0 gap-3 p-3'>
+				{toasts}
+			</ToastContainer>
+			{children}
+		</ToastContext.Provider>
+	);
+}
+
+export default ToastProvider;

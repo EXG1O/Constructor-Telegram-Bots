@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"module": "CommonJS",
+		"target": "ES2015",
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"allowJs": true,
+		"jsx": "react",
+		"strict": true,
+		"plugins": [{ "name": "typescript-plugin-css-modules" }],
+		"paths": {
+			"components/*": ["./src/components/*"],
+			"routes/*": ["./src/routes/*"],
+			"services/*": ["./src/services/*"],
+			"utils/*": ["./src/utils/*"]
+		}
+	},
+	"include": ["./**/*.ts", "./**/*.tsx"],
+	"exclude": ["./node_modules"]
+}
