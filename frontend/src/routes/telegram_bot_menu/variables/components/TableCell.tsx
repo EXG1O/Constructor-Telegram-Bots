@@ -4,23 +4,23 @@ import Button from 'react-bootstrap/Button';
 
 export interface TableCellProps {
 	header: ReactNode;
-	data: string;
+	data: ReactNode;
 }
 
 function TableCell({ header, data }: TableCellProps): ReactNode {
 	return (
 		<tr>
-			<th>{header}:</th>
-			<td>
-				<div className="d-flex gap-2">
-					<span className="flex-fill">{data}</span>
+			<th>
+				<div className='d-flex gap-2'>
 					<Button
-						variant='secondary'
-						className='btn-clipboard border bi bi-clipboard px-2 py-0'
+						variant='light'
+						className='btn-clipboard bi bi-clipboard border px-2 py-0 my-auto'
 						data-clipboard-text={data}
 					/>
+					<span className='flex-fill'>{header}:</span>
 				</div>
-			</td>
+			</th>
+			<td>{data}</td>
 		</tr>
 	);
 }

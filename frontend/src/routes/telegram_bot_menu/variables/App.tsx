@@ -36,8 +36,8 @@ function App(): ReactNode {
 	}, []);
 
 	return (
-		<div className='border rounded'>
-			<Table className='overflow-hidden border rounded align-middle mb-0'>
+		<div className='border rounded p-1'>
+			<Table borderless className='overflow-hidden border rounded align-middle mb-0'>
 				<tbody>
 					{Object.keys(variables).map((variable, index) => (
 						<TableCell key={index} header={variable} data={variables[variable]} />
