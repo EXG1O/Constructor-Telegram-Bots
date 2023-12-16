@@ -12,7 +12,7 @@ export namespace TelegramBotAPI {
 
 	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotId), 'GET', headersWithAuthToken());
 	export const create = (data: Data.TelegramBotAPI.Create) => makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', headersWithAuthToken(), data);
-	export const update = (telegramBotId: TelegramBot['id'], data: Data.TelegramBotAPI.Update) => makeRequest(url(telegramBotId), 'PATCH', headersWithAuthToken(), data);
+	export const update = (telegramBotId: TelegramBot['id'], data: Data.TelegramBotAPI.Update) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotId), 'PATCH', headersWithAuthToken(), data);
 	export const delete_ = (telegramBotId: TelegramBot['id']) => makeRequest(url(telegramBotId), 'DELETE', headersWithAuthToken());
 
 	export const start = (telegramBotId: TelegramBot['id']) => makeRequest(url(telegramBotId) +'start-or-stop/', 'POST', headersWithAuthToken());

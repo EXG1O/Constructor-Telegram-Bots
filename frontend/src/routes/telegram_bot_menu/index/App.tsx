@@ -16,12 +16,12 @@ import TelegramBotCardFooter from './components/TelegramBotCardFooter';
 import useTelegramBot from 'services/hooks/useTelegramBot';
 
 function App(): ReactNode {
-	const { telegramBot } = useTelegramBot();
+	const { telegramBot, setTelegramBot } = useTelegramBot();
 
 	return (
 		<Row className='g-3 g-lg-4'>
 			<Col xs={12} lg={6}>
-				<TelegramBotCard telegramBot={telegramBot}>
+				<TelegramBotCard telegramBot={telegramBot} setTelegramBot={setTelegramBot}>
 					<TelegramBotCardFooter />
 				</TelegramBotCard>
 			</Col>

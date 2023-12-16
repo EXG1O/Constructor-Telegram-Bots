@@ -142,6 +142,7 @@ export namespace APIResponse {
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot: TelegramBot;
 		}
+		export type Update = Create;
 	}
 
 	export namespace TelegramBotDatabaseRecordAPI {

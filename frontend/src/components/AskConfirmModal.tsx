@@ -3,10 +3,11 @@ import React, { ReactNode } from 'react';
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-export interface AskConfirmModalProps extends ModalProps {
+export interface AskConfirmModalProps extends Omit<ModalProps, 'onHide'> {
 	title: ReactNode;
 	children: ReactNode;
 	onConfirmButtonClick: () => void;
+	onHide: NonNullable<ModalProps['onHide']>;
 }
 
 function AskConfirmModal({ title, children, onConfirmButtonClick, ...modalProps }: AskConfirmModalProps): ReactNode {

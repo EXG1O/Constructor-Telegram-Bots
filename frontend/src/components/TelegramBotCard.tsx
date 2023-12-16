@@ -1,13 +1,16 @@
-import React, { ReactNode, CSSProperties, useState } from 'react';
+import React, { ReactNode, CSSProperties, Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
+import Spinner from 'react-bootstrap/Spinner';
 
 import useToast from 'services/hooks/useToast';
 
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
-import { TelegramBot, Data } from 'services/api/telegram_bots/types';
+import { TelegramBot } from 'services/api/telegram_bots/types';
+
+import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
 
 const buttonOnlyWithIconStyle: CSSProperties = {
 	cursor: 'pointer',
@@ -16,14 +19,33 @@ const buttonOnlyWithIconStyle: CSSProperties = {
 
 export interface TelegramBotCardProps extends CardProps {
 	telegramBot: TelegramBot;
+	setTelegramBot?: Dispatch<SetStateAction<TelegramBot>>;
 }
 
-function TelegramBotCard({ telegramBot: telegramBotInitial, children, ...cardProps }: TelegramBotCardProps): ReactNode {
+function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setTelegramBotInitial, ...props }: TelegramBotCardProps): ReactNode {
 	const { createMessageToast } = useToast();
 
-	const [telegramBot, setTelegramBot] = useState<TelegramBot>(telegramBotInitial);
+	const [telegramBot, setTelegramBot] = setTelegramBotInitial === undefined ? useState<TelegramBot>(telegramBotInitial) : [telegramBotInitial, setTelegramBotInitial];
 	const [apiTokenInputValue, setAPITokenInputValue] = useState<string>(telegramBot.api_token);
 	const [apiTokenIsEditing, setAPITokenIsEditing] = useState<boolean>(false);
+
+	async function checkTelegramBotStatus(): Promise<void> {
+		const response = await TelegramBotAPI.get(telegramBot.id);
+
+		if (response.ok) {
+			if (telegramBotIsStartingOrStopping(response.json)) {
+				setTimeout(checkTelegramBotStatus, 3000);
+			} else {
+				setTelegramBot(response.json);
+			}
+		}
+	}
+
+	useEffect(() => {
+		if (telegramBotIsStartingOrStopping(telegramBot)) {
+			checkTelegramBotStatus();
+		}
+	}, [telegramBot.is_running, telegramBot.is_stopped]);
 
 	function toggleAPITokenState(): void {
 		if (!apiTokenIsEditing) {
@@ -34,12 +56,10 @@ function TelegramBotCard({ telegramBot: telegramBotInitial, children, ...cardPro
 	}
 
 	async function handleAPITokenSaveButtonClick(): Promise<void> {
-		const data: Data.TelegramBotAPI.Update = { api_token: apiTokenInputValue };
-
-		const response = await TelegramBotAPI.update(telegramBot.id, data);
+		const response = await TelegramBotAPI.update(telegramBot.id, { api_token: apiTokenInputValue });
 
 		if (response.ok) {
-			setTelegramBot({...telegramBot, ...data});
+			setTelegramBot(response.json.telegram_bot);
 			toggleAPITokenState();
 		}
 
@@ -47,21 +67,31 @@ function TelegramBotCard({ telegramBot: telegramBotInitial, children, ...cardPro
 	}
 
 	async function handleIsPrivateSwitchChange(): Promise<void> {
-		const data: Data.TelegramBotAPI.Update = { is_private: !telegramBot.is_private };
-
-		const response = await TelegramBotAPI.update(telegramBot.id, data);
+		const response = await TelegramBotAPI.update(telegramBot.id, { is_private: !telegramBot.is_private });
 
 		if (response.ok) {
-			setTelegramBot({...telegramBot, ...data});
+			setTelegramBot(response.json.telegram_bot);
 		}
 
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}
 
 	return (
-		<Card {...cardProps} className={(cardProps.className ? `${cardProps.className} ` : '') + 'border-0'}>
+		<Card {...props} className={(props.className ? `${props.className} ` : '') + 'border-0'}>
 			<Card.Header as='h5' {...(
-				!telegramBot.is_running && telegramBot.is_stopped ? {
+				telegramBotIsStartingOrStopping(telegramBot) ? {
+					className: 'text-bg-secondary border border-secondary text-center',
+					children: (
+						<Spinner
+							animation='border'
+							style={{
+								width: '1rem',
+								height: '1rem',
+								borderWidth: '0.2rem',
+							}}
+						/>
+					),
+				} : !telegramBot.is_running && telegramBot.is_stopped ? {
 					className: 'text-bg-danger border border-danger fw-semibold text-center',
 					children: gettext('Telegram бот выключен'),
 				} : {
@@ -136,7 +166,7 @@ function TelegramBotCard({ telegramBot: telegramBotInitial, children, ...cardPro
 					</tbody>
 				</Table>
 			</Card.Body>
-			{children}
+			{props.children}
 		</Card>
 	);
 }

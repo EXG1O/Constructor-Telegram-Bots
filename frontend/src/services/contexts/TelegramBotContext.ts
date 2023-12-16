@@ -4,7 +4,7 @@ import { TelegramBot } from 'services/api/telegram_bots/types';
 
 export interface TelegramBotContextProps {
 	telegramBot: TelegramBot;
-	setTelegramBot: Dispatch<SetStateAction<TelegramBot | undefined>>;
+	setTelegramBot: Dispatch<SetStateAction<TelegramBot>>;
 }
 
 const TelegramBotContext = createContext<TelegramBotContextProps | undefined>(undefined);
