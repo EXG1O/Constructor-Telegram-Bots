@@ -58,7 +58,7 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 						{telegramBotUser.activated_date}
 					</span>
 					{']: '}
-					<span className='text-primary'>
+					<span className='text-primary-emphasis'>
 						{telegramBotUser.user_id}
 					</span>
 					{' - '}
@@ -69,17 +69,22 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 						<Button
 							variant='warning'
 							className={`text-light bi bi-${telegramBotUser.is_allowed ? 'star-fill' : 'star'} px-2 py-0`}
-							style={{ fontSize: '18px' }}
+							style={{ fontSize: '20px' }}
 							onClick={handleSetOrUnsetAllowedButtonClick}
 						/>
 					)}
 					<Button
 						variant='danger'
-						className='bi bi-trash px-2 py-0'
-						style={{ fontSize: '18px' }}
-						onClick={() => setShowDeleteTelegramBotUserModal(true)}
+						className='text-light bi bi-bi bi-ban px-2 py-0'
+						style={{ fontSize: '20px', WebkitTextStrokeWidth: '0.2px' }}
 					/>
 				</div>
+				<Button
+					variant='danger'
+					className='bi bi-trash px-2 py-0'
+					style={{ fontSize: '20px' }}
+					onClick={() => setShowDeleteTelegramBotUserModal(true)}
+				/>
 			</div>
 		</>
 	);

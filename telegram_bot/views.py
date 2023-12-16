@@ -93,7 +93,7 @@ class TelegramBotView(APIView):
 
 			return CustomResponse(
 				_('Вы успешно изменили API-токен Telegram бота.'),
-				data=TelegramBotModelSerializer(telegram_bot).data,
+				data={'telegram_bot': TelegramBotModelSerializer(telegram_bot).data},
 			)
 		elif is_private is not None:
 			telegram_bot.is_private = is_private
@@ -101,7 +101,7 @@ class TelegramBotView(APIView):
 
 			return CustomResponse(
 				_('Вы успешно сделали Telegram бота%(status)s приватным.') % {'status': ('' if is_private else ' не')},
-				data=TelegramBotModelSerializer(telegram_bot).data,
+				data={'telegram_bot': TelegramBotModelSerializer(telegram_bot).data},
 			)
 		else:
 			return CustomResponse(_('На стороне сайта произошла непредвиденная ошибка, попробуйте ещё раз позже!'), status=500)

@@ -87,18 +87,21 @@ function App(): ReactNode {
 	return (
 		<>
 			<Card className='border'>
+				<Card.Header as='h5' className='border-bottom text-center'>{gettext('Список пользователей')}</Card.Header>
 				<Card.Body className='vstack gap-2'>
 					<Stack direction='horizontal' gap={2}>
 						<Button
+							size='sm'
 							variant='light'
 							className='border bi bi-arrow-repeat px-2 py-0'
-							style={{ fontSize: '24px' }}
+							style={{ fontSize: '20px' }}
 							onClick={updateTelegramBotUsers}
 						/>
 						{telegramBotUsers.length > 0 && (
 							<>
 								<InputGroup>
 									<Form.Control
+										size='sm'
 										className='flex-fill'
 										value={searchInputValue}
 										placeholder={gettext('Введите имя')}
@@ -106,14 +109,15 @@ function App(): ReactNode {
 									/>
 									{searchInputValue !== '' && (
 										<Button
+											size='sm'
 											variant='light'
 											className='border bi bi-x-lg px-2'
-											style={{ WebkitTextStrokeWidth: '1px' }}
+											style={{ WebkitTextStrokeWidth: '0.8px' }}
 											onClick={handleCancelSearchButtonClick}
 										/>
 									)}
 								</InputGroup>
-								<Button variant='dark' onClick={handleSearchButtonClick}>
+								<Button size='sm' variant='dark' onClick={handleSearchButtonClick}>
 									{gettext('Поиск')}
 								</Button>
 							</>
