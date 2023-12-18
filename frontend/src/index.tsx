@@ -107,9 +107,9 @@ const router = createBrowserRouter([
 						},
 					},
 					{
-						path: 'database/',
+						path: 'constructor/',
 						async lazy() {
-							const module = await import('./routes/telegram_bot_menu/database/App');
+							const module = await import('./routes/telegram_bot_menu/constructor/App');
 
 							return { Component: module.default };
 						},

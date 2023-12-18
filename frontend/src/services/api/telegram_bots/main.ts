@@ -1,5 +1,5 @@
 import { headersWithAuthToken, makeRequest } from 'services/api/base';
-import { TelegramBot, TelegramBotCommand, TelegramBotCommandKeyboardButton, TelegramBotUser, TelegramBotDatabaseRecord, Data, APIResponse } from './types';
+import { TelegramBot, TelegramBotCommand, TelegramBotCommandKeyboardButton, TelegramBotUser, Data, APIResponse } from './types';
 
 const rootURL = '/api/telegram-bots/';
 
@@ -123,31 +123,4 @@ export namespace TelegramBotAllowedUserAPI {
 		telegramBotId: TelegramBot['id'],
 		telegramBotUserId: TelegramBotUser['id'],
 	) => makeRequest(url(telegramBotId, telegramBotUserId), 'DELETE', headersWithAuthToken());
-}
-
-export namespace TelegramBotDatabaseRecordsAPI {
-	export const url = (telegramBotId: TelegramBot['id']): string => TelegramBotAPI.url(telegramBotId) + 'database/records/';
-
-	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBotDatabaseRecord[]>(url(telegramBotId), 'GET', headersWithAuthToken());
-}
-
-export namespace TelegramBotDatabaseRecordAPI {
-	export const url = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotDatabaseRecordId: TelegramBotDatabaseRecord['_id'],
-	): string => `${TelegramBotDatabaseRecordsAPI.url(telegramBotId)}${telegramBotDatabaseRecordId}/`;
-
-	export const create = (
-		telegramBotId: TelegramBot['id'],
-		data: Data.TelegramBotDatabaseRecordAPI.Create,
-	) => makeRequest<APIResponse.TelegramBotDatabaseRecordAPI.Create>(TelegramBotDatabaseRecordsAPI.url(telegramBotId), 'POST', headersWithAuthToken(), data);
-	export const update = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotDatabaseRecordId: TelegramBotDatabaseRecord['_id'],
-		data: Data.TelegramBotDatabaseRecordAPI.Update,
-	) => makeRequest<APIResponse.TelegramBotDatabaseRecordAPI.Update>(url(telegramBotId, telegramBotDatabaseRecordId), 'PATCH', headersWithAuthToken(), data);
-	export const delete_ = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotDatabaseRecordId: TelegramBotDatabaseRecord['_id'],
-	) => makeRequest(url(telegramBotId, telegramBotDatabaseRecordId), 'DELETE', headersWithAuthToken());
 }
