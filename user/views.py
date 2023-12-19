@@ -15,6 +15,25 @@ from .serializers import UserModelSerializer, AuthTokenSerializer
 from typing import Any
 
 
+class UsersAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response({'users_count': User.objects.count()})
+
+class UserAPIView(APIView):
+	authentication_classes = [TokenAuthentication]
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request: Request) -> Response:
+		return Response(UserModelSerializer(request.user).data)
+
+	def delete(self, request: Request) -> CustomResponse:
+		request.user.delete()
+
+		return CustomResponse(_('Вы успешно удалили свой аккаунт.'))
+
 class UserLoginAPIView(APIView):
 	authentication_classes = []
 	permission_classes = []
@@ -56,22 +75,3 @@ class UserLogoutAPIView(APIView):
 		response.delete_cookie('auth-token')
 
 		return response
-
-class UsersAPIView(APIView):
-	authentication_classes = []
-	permission_classes = []
-
-	def get(self, request: Request) -> Response:
-		return Response({'users_count': User.objects.count()})
-
-class UserAPIView(APIView):
-	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated]
-
-	def get(self, request: Request) -> Response:
-		return Response(UserModelSerializer(request.user).data)
-
-	def delete(self, request: Request) -> CustomResponse:
-		request.user.delete()
-
-		return CustomResponse(_('Вы успешно удалили свой аккаунт.'))

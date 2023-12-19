@@ -15,7 +15,6 @@ load_dotenv()
 
 SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(length=50, chars=string.ascii_letters + string.digits)}')
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
-DEBUG_ENVIRONMENT: bool = os.getenv('DEBUG_ENVIRONMENT', 'True') == 'True'
 
 match sys.argv:
 	case ['manage.py', 'test', *extra_options]:
@@ -70,13 +69,10 @@ INSTALLED_APPS = [
 
 	'user',
 	'telegram_bot',
-	'plugin',
-
 	'team',
 	'updates',
 	'instruction',
 	'donation',
-	'privacy_policy',
 ]
 
 WEBPACK_LOADER = {

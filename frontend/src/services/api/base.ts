@@ -32,7 +32,7 @@ export async function makeRequest<SuccessAPIResponse extends ObjectAsJSON = APIR
 	headers?: HeadersInit,
 	data?: ObjectAsJSON | FormData,
 ): Promise<APIResponse.Base<true, SuccessAPIResponse> | APIResponse.Base<false, ErrorAPIResponse>> {
-	let requestInit: RequestInit = { method: method };
+	let requestInit: RequestInit = { method };
 
 	if (data !== undefined) {
 		if (data instanceof FormData) {

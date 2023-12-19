@@ -7,14 +7,11 @@ export interface TelegramBot {
 	is_private: boolean;
 	is_running: boolean;
 	is_stopped: boolean;
-	commands_count: number;
-	users_count: number;
 	added_date: string;
 }
 
 interface TelegramBotCommandCommand {
 	text: string;
-	is_show_in_menu: boolean;
 	description: string | null;
 }
 
@@ -70,16 +67,12 @@ export interface TelegramBotUser {
 export namespace Data {
 	export namespace TelegramBotAPI {
 		export interface Create {
-			api_token: TelegramBot['api_token'];
-			is_private: TelegramBot['is_private'];
+			api_token: string;
+			is_private: boolean;
 		}
 		export interface Update {
-			api_token?: TelegramBot['api_token'];
-			is_private?: TelegramBot['is_private'];
-		}
-
-		export interface UpdateDiagramCurrentScale {
-			diagram_current_scale: number;
+			api_token?: string;
+			is_private?: boolean;
 		}
 	}
 

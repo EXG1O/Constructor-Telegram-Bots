@@ -1,7 +1,6 @@
 import { Configuration } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import BundleTracker from 'webpack-bundle-tracker';
-// import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const config: Configuration = {
 	entry: './src/index.tsx',

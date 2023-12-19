@@ -25,24 +25,18 @@ from .decorators import (
 )
 from .functions import get_image_from_request
 
-from .serializers.models import (
+from .serializers import (
 	TelegramBotModelSerializer,
 	TelegramBotCommandModelSerializer,
 	TelegramBotUserModelSerializer,
-)
-from .serializers.regulars import (
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
-	UpdateTelegramBotDiagramCurrentScaleSerializer,
 	CreateTelegramBotCommandSerializer,
 	UpdateTelegramBotCommandSerializer,
 	UpdateTelegramBotCommandPositionSerializer,
 	UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer,
-	CreateTelegramBotDatabeseRecordSerializer,
-	UpdateTelegramBotDatabeseRecordSerializer,
 )
 
-from .services import database_telegram_bot
 from .tasks import start_telegram_bot as celery_start_telegram_bot
 
 from typing import Any
@@ -52,6 +46,9 @@ import json
 class TelegramBotsView(APIView):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated]
+
+	def get(self, request: Request) -> Response:
+		return Response(TelegramBotModelSerializer(request.user.telegram_bots.all(), many=True).data)
 
 	def post(self, request: Request) -> CustomResponse:
 		serializer = CreateTelegramBotSerializer(data=request.data, context={'user': request.user})
@@ -63,9 +60,6 @@ class TelegramBotsView(APIView):
 			_('Вы успешно добавили Telegram бота.'),
 			data={'telegram_bot': TelegramBotModelSerializer(telegram_bot).data},
 		)
-
-	def get(self, request: Request) -> Response:
-		return Response(TelegramBotModelSerializer(request.user.telegram_bots.all(), many=True).data)
 
 class TelegramBotView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -80,7 +74,7 @@ class TelegramBotView(APIView):
 		serializer = UpdateTelegramBotSerializer(data=request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
 
-		validated_data: dict = serializer.validated_data
+		validated_data: dict[str, Any] = serializer.validated_data
 		api_token: str | None = validated_data['api_token']
 		is_private: bool | None = validated_data['is_private']
 
@@ -125,22 +119,13 @@ def start_or_stop_telegram_bot(request: Request, telegram_bot: TelegramBot) -> C
 
 	return CustomResponse()
 
-@api_view(['PATCH'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-@check_telegram_bot_id
-def update_telegram_bot_diagram_current_scale(request: Request, telegram_bot: TelegramBot) -> CustomResponse:
-	serializer = UpdateTelegramBotDiagramCurrentScaleSerializer(data=request.data)
-	serializer.is_valid(raise_exception=True)
-
-	telegram_bot.diagram_current_scale = serializer.validated_data['diagram_current_scale']
-	telegram_bot.save()
-
-	return CustomResponse()
-
 class TelegramBotCommandsView(APIView):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated]
+
+	@check_telegram_bot_id
+	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
+		return Response(TelegramBotCommandModelSerializer(telegram_bot.commands.all(), many=True, context={'escape': True}).data)
 
 	@check_telegram_bot_id
 	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
@@ -157,13 +142,14 @@ class TelegramBotCommandsView(APIView):
 
 		return CustomResponse(_('Вы успешно добавили команду Telegram боту.'))
 
-	@check_telegram_bot_id
-	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(TelegramBotCommandModelSerializer(telegram_bot.commands.all(), many=True, context={'escape': True}).data)
-
 class TelegramBotCommandView(APIView):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated]
+
+	@check_telegram_bot_id
+	@check_telegram_bot_command_id
+	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
+		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
 
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
@@ -187,11 +173,6 @@ class TelegramBotCommandView(APIView):
 
 		return CustomResponse(_('Вы успешно удалили команду Telegram бота.'))
 
-	@check_telegram_bot_id
-	@check_telegram_bot_command_id
-	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
-		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
-
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -201,7 +182,7 @@ def update_telegram_bot_command_position(request: Request, telegram_bot: Telegra
 	serializer = UpdateTelegramBotCommandPositionSerializer(data=request.data)
 	serializer.is_valid(raise_exception=True)
 
-	validated_data: dict = serializer.validated_data
+	validated_data: dict[str, Any] = serializer.validated_data
 
 	telegram_bot_command.x = validated_data['x']
 	telegram_bot_command.y = validated_data['y']
@@ -226,7 +207,7 @@ class TelegramBotCommandKeyboardButtonTelegramBotCommandView(APIView):
 		serializer = UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 
-		validated_data: dict = serializer.validated_data
+		validated_data: dict[str, Any] = serializer.validated_data
 
 		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
 		telegram_bot_command_keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
@@ -290,45 +271,3 @@ class TelegramBotAllowedUserView(APIView):
 		telegram_bot_user.save()
 
 		return CustomResponse(_('Вы успешно удалили пользователя из списка разрешённых пользователей Telegram бота.'))
-
-class TelegramBotDatabeseRecordsView(APIView):
-	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated]
-
-	@check_telegram_bot_id
-	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
-		serializer = CreateTelegramBotDatabeseRecordSerializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
-
-		record: dict = database_telegram_bot.insert_record(telegram_bot, serializer.validated_data['record'])
-
-		return CustomResponse(
-			_('Вы успешно добавили запись в базу данных Telegram бота.'),
-			data={'record': record},
-		)
-
-	@check_telegram_bot_id
-	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(database_telegram_bot.get_records(telegram_bot))
-
-class TelegramBotDatabeseRecordView(APIView):
-	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated]
-
-	@check_telegram_bot_id
-	def patch(self, request: Request, telegram_bot: TelegramBot, record_id: int) -> CustomResponse:
-		serializer = UpdateTelegramBotDatabeseRecordSerializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
-
-		record: dict = database_telegram_bot.update_record(telegram_bot, record_id, serializer.validated_data['record'])
-
-		return CustomResponse(
-			_('Вы успешно обновили запись в базе данных Telegram бота.'),
-			data={'record': record},
-		)
-
-	@check_telegram_bot_id
-	def delete(self, request: Request, telegram_bot: TelegramBot, record_id: int) -> CustomResponse:
-		database_telegram_bot.delete_record(telegram_bot, record_id)
-
-		return CustomResponse(_('Вы успешно удалили запись из базы данных Telegram бота.'))

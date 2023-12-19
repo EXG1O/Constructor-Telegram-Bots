@@ -4,7 +4,12 @@ from rest_framework.request import Request
 
 from constructor_telegram_bots.utils.drf import CustomResponse
 
-from .models import TelegramBot
+from .models import (
+	TelegramBot,
+	TelegramBotCommand,
+	TelegramBotCommandKeyboardButton,
+	TelegramBotUser,
+)
 
 from functools import wraps
 

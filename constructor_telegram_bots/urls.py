@@ -15,13 +15,10 @@ urlpatterns = [
 	path('api/', include([
 		path('', include('user.urls')),
 		path('telegram-bots/', include('telegram_bot.urls')),
-		path('plugins/', include('plugin.urls')),
-
 		path('team/', include('team.urls')),
 		path('', include('updates.urls')),
 		path('donations/', include('donation.urls')),
 		path('instruction/', include('instruction.urls')),
-		path('privacy-policy/', include('privacy_policy.urls')),
 	])),
 
 	re_path(r'^.*', TemplateView.as_view(template_name='index.html')),

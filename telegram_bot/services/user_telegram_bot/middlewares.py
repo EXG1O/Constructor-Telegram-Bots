@@ -25,7 +25,6 @@ from ...models import (
 	TelegramBotUser as DjangoTelegramBotUser,
 )
 
-from .. import database_telegram_bot
 from ..typing import Handler
 
 from aiohttp import ClientSession

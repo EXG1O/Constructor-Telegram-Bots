@@ -8,7 +8,7 @@ export namespace TelegramBotsAPI {
 }
 
 export namespace TelegramBotAPI {
-	export const url = (telegramBotId: TelegramBot['id']): string => rootURL + `${telegramBotId}/`;
+	export const url = (telegramBotId: TelegramBot['id']) => rootURL + `${telegramBotId}/`;
 
 	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotId), 'GET', headersWithAuthToken());
 	export const create = (data: Data.TelegramBotAPI.Create) => makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', headersWithAuthToken(), data);
@@ -17,15 +17,10 @@ export namespace TelegramBotAPI {
 
 	export const start = (telegramBotId: TelegramBot['id']) => makeRequest(url(telegramBotId) +'start-or-stop/', 'POST', headersWithAuthToken());
 	export const stop = start;
-	
-	export const updateDiagramCurrentScale = (
-		telegramBotId: TelegramBot['id'],
-		data: Data.TelegramBotAPI.UpdateDiagramCurrentScale,
-	) => makeRequest(url(telegramBotId) + 'update-diagram-current-scale/', 'PATCH', headersWithAuthToken(), data);
 }
 
 export namespace TelegramBotCommandsAPI {
-	export const url = (telegramBotId: TelegramBot['id']): string => TelegramBotAPI.url(telegramBotId) + 'commands/';
+	export const url = (telegramBotId: TelegramBot['id']) => TelegramBotAPI.url(telegramBotId) + 'commands/';
 
 	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBotCommand[]>(url(telegramBotId), 'GET', headersWithAuthToken());
 }
@@ -34,7 +29,7 @@ export namespace TelegramBotCommandAPI {
 	export const url = (
 		telegramBotId: TelegramBot['id'],
 		telegramBotCommandId: TelegramBotCommand['id'],
-	): string => TelegramBotCommandsAPI.url(telegramBotId) + `${telegramBotCommandId}/`;
+	) => TelegramBotCommandsAPI.url(telegramBotId) + `${telegramBotCommandId}/`;
 
 	export const get = (
 		telegramBotId: TelegramBot['id'],
