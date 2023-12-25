@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from constructor_telegram_bots.utils.drf import CustomResponse
+from utils.drf import CustomResponse
 
 from .models import (
 	TelegramBot,
@@ -16,27 +16,25 @@ from .models import (
 	TelegramBotCommandKeyboardButton,
 	TelegramBotUser,
 )
-
 from .decorators import (
 	check_telegram_bot_id,
 	check_telegram_bot_command_id,
-	check_telegram_bot_command_keyboard_button_id,
 	check_telegram_bot_user_id,
 )
 from .functions import get_image_from_request
-
 from .serializers import (
 	TelegramBotModelSerializer,
 	TelegramBotCommandModelSerializer,
+	TelegramBotCommandDiagramModelSerializer,
 	TelegramBotUserModelSerializer,
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
 	CreateTelegramBotCommandSerializer,
 	UpdateTelegramBotCommandSerializer,
-	UpdateTelegramBotCommandPositionSerializer,
-	UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer,
+	ConnectTelegramBotCommandDiagramKeyboardButtonSerializer,
+	DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer,
+	UpdateTelegramBotCommandDiagramPositionSerializer,
 )
-
 from .tasks import start_telegram_bot as celery_start_telegram_bot
 
 from typing import Any
@@ -48,7 +46,12 @@ class TelegramBotsView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
-		return Response(TelegramBotModelSerializer(request.user.telegram_bots.all(), many=True).data)
+		return Response(
+			TelegramBotModelSerializer(
+				request.user.telegram_bots.all(),
+				many=True,
+			).data
+		)
 
 	def post(self, request: Request) -> CustomResponse:
 		serializer = CreateTelegramBotSerializer(data=request.data, context={'user': request.user})
@@ -125,7 +128,13 @@ class TelegramBotCommandsView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(TelegramBotCommandModelSerializer(telegram_bot.commands.all(), many=True, context={'escape': True}).data)
+		return Response(
+			TelegramBotCommandModelSerializer(
+				telegram_bot.commands.all(),
+				context={'escape': True},
+				many=True,
+			).data
+		)
 
 	@check_telegram_bot_id
 	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
@@ -173,65 +182,78 @@ class TelegramBotCommandView(APIView):
 
 		return CustomResponse(_('Вы успешно удалили команду Telegram бота.'))
 
-@api_view(['PATCH'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-@check_telegram_bot_id
-@check_telegram_bot_command_id
-def update_telegram_bot_command_position(request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
-	serializer = UpdateTelegramBotCommandPositionSerializer(data=request.data)
-	serializer.is_valid(raise_exception=True)
+class TelegramBotCommandsDiagramAPIView(APIView):
+	authentication_classes = [TokenAuthentication]
+	permission_classes = [IsAuthenticated]
 
-	validated_data: dict[str, Any] = serializer.validated_data
+	@check_telegram_bot_id
+	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
+		return Response(
+			TelegramBotCommandDiagramModelSerializer(
+				telegram_bot.commands.all(),
+				context={'escape': True},
+				many=True,
+			).data
+		)
 
-	telegram_bot_command.x = validated_data['x']
-	telegram_bot_command.y = validated_data['y']
-	telegram_bot_command.save()
-
-	return CustomResponse()
-
-class TelegramBotCommandKeyboardButtonTelegramBotCommandView(APIView):
+class TelegramBotCommandDiagramAPIView(APIView):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
-	@check_telegram_bot_command_keyboard_button_id
-	def post(
-		self,
-		request: Request,
-		telegram_bot: TelegramBot,
-		telegram_bot_command: TelegramBotCommand,
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton,
-	) -> CustomResponse:
-		serializer = UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer(data=request.data, context={'telegram_bot': telegram_bot})
+	def post(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
+		serializer = ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(
+			data=request.data,
+			context={
+				'telegram_bot': telegram_bot,
+				'telegram_bot_command': telegram_bot_command,
+			},
+		)
 		serializer.is_valid(raise_exception=True)
 
 		validated_data: dict[str, Any] = serializer.validated_data
 
+		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
 		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
 		telegram_bot_command_keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
 		telegram_bot_command_keyboard_button.end_diagram_connector = validated_data['end_diagram_connector']
 		telegram_bot_command_keyboard_button.save()
 
-		return CustomResponse()
+		return CustomResponse(_('Вы успешно подключили кнопку клавиатуры к другой команде'))
 
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
-	@check_telegram_bot_command_keyboard_button_id
-	def delete(
-		self,
-		request: Request,
-		telegram_bot: TelegramBot,
-		telegram_bot_command: TelegramBotCommand,
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton
-	) -> CustomResponse:
+	def patch(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
+		serializer = UpdateTelegramBotCommandDiagramPositionSerializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+
+		validated_data: dict[str, Any] = serializer.validated_data
+
+		telegram_bot_command.x = validated_data['x']
+		telegram_bot_command.y = validated_data['y']
+		telegram_bot_command.save()
+
+		return Response()
+
+	@check_telegram_bot_id
+	@check_telegram_bot_command_id
+	def delete(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
+		serializer = DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(
+			data=request.data,
+			context={'telegram_bot_command': telegram_bot_command},
+		)
+		serializer.is_valid(raise_exception=True)
+
+		validated_data: dict[str, Any] = serializer.validated_data
+
+		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(validated_data['telegram_bot_command_keyboard_button_id'])
 		telegram_bot_command_keyboard_button.telegram_bot_command = None
 		telegram_bot_command_keyboard_button.start_diagram_connector = None
 		telegram_bot_command_keyboard_button.end_diagram_connector = None
 		telegram_bot_command_keyboard_button.save()
 
-		return CustomResponse()
+		return CustomResponse(_('Вы успешно отсоединили кнопку клавиатуры от другой команды'))
 
 class TelegramBotUsersView(APIView):
 	authentication_classes = [TokenAuthentication]
@@ -239,11 +261,21 @@ class TelegramBotUsersView(APIView):
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(TelegramBotUserModelSerializer(telegram_bot.users.all(), many=True).data)
+		return Response(
+			TelegramBotUserModelSerializer(
+				telegram_bot.users.all(),
+				many=True,
+			).data
+		)
 
 class TelegramBotUserView(APIView):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated]
+
+	@check_telegram_bot_id
+	@check_telegram_bot_user_id
+	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_user: TelegramBotUser) -> Response:
+		return Response(TelegramBotUserModelSerializer(telegram_bot_user).data)
 
 	@check_telegram_bot_id
 	@check_telegram_bot_user_id

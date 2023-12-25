@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
-from constructor_telegram_bots.utils.admin import format_html_url
+from utils.admin import format_html_url
 
 from .models import TelegramBot, TelegramBotUser
 from .tasks import start_telegram_bot as celery_start_telegram_bot
@@ -58,12 +58,12 @@ class TelegramBotAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramBotUser)
 class TelegramBotUserAdmin(admin.ModelAdmin):
-	search_fields = ['user_id', 'full_name']
+	search_fields = ['telegram_id', 'full_name']
 	date_hierarchy = 'activated_date'
 	list_filter = ['activated_date']
-	list_display = ['id', 'telegram_bot', 'user_id', 'full_name', 'is_allowed', 'activated_date']
+	list_display = ['id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'activated_date']
 
-	fields = ['id', 'telegram_bot', 'user_id', 'full_name', 'is_allowed', 'activated_date']
+	fields = ['id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'activated_date']
 
 	def has_add_permission(self, *args, **kwargs) -> bool:
 		return False

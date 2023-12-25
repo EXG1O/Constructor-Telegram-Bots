@@ -7,7 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from constructor_telegram_bots.utils.drf import CustomResponse
+from utils.drf import CustomResponse
 
 from .models import User
 from .serializers import UserModelSerializer, AuthTokenSerializer

@@ -1,9 +1,12 @@
-from django.template import defaultfilters as filters
+from django.template import defaultfilters as django_filters
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
+from utils import filters as utils_filters
+
 from user.models import User
+
 from .models import (
 	TelegramBot,
 	TelegramBotCommand,
@@ -14,7 +17,6 @@ from .models import (
 	TelegramBotCommandApiRequest,
 	TelegramBotUser,
 )
-
 from .functions import is_valid_telegram_bot_api_token
 
 from typing import Any
@@ -28,7 +30,7 @@ class TelegramBotModelSerializer(serializers.ModelSerializer):
 
 	def to_representation(self, instance: TelegramBot) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['added_date'] = f'{filters.date(instance.added_date)} {filters.time(instance.added_date)}'
+		representation['added_date'] = utils_filters.datetime(instance.added_date)
 
 		return representation
 
@@ -42,13 +44,51 @@ class TelegramBotCommandMessageTextModelSerializer(serializers.ModelSerializer):
 		model = TelegramBotCommandMessageText
 		fields = ['text']
 
-	def to_representation(self, instance: TelegramBotCommandMessageText) -> dict[str, Any]:
+class TelegramBotCommandKeyboardButtonModelSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TelegramBotCommandKeyboardButton
+		fields = ['id', 'row', 'text', 'url']
+
+	def to_representation(self, instance: TelegramBotCommandKeyboardButton) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['text'] = representation['text'].replace('\n', '<br>')
+
+		if self.context.get('escape', False):
+			for field in ['text', 'url']:
+				representation[field] = django_filters.escape(representation[field])
 
 		return representation
 
-class TelegramBotCommandKeyboardButtonModelSerializer(serializers.ModelSerializer):
+class TelegramBotCommandKeyboardModelSerializer(serializers.ModelSerializer):
+	buttons = TelegramBotCommandKeyboardButtonModelSerializer(many=True)
+
+	class Meta:
+		model = TelegramBotCommandKeyboard
+		fields = ['type', 'buttons']
+
+class TelegramBotCommandApiRequestModelSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TelegramBotCommandApiRequest
+		fields = ['url', 'method', 'headers', 'body']
+
+class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
+	command = TelegramBotCommandCommandModelSerializer(allow_null=True)
+	message_text = TelegramBotCommandMessageTextModelSerializer(allow_null=True)
+	keyboard = TelegramBotCommandKeyboardModelSerializer(allow_null=True)
+	api_request = TelegramBotCommandApiRequestModelSerializer(allow_null=True)
+
+	class Meta:
+		model = TelegramBotCommand
+		fields = ['id', 'name', 'command', 'image', 'message_text', 'keyboard', 'api_request']
+
+	def to_representation(self, instance: TelegramBotCommand):
+		representation: dict[str, Any] = super().to_representation(instance)
+
+		if self.context.get('escape', False):
+			representation['name'] = django_filters.escape(representation['name'])
+
+		return representation
+
+class TelegramBotCommandKeyboardButtonDiagramModelSerializer(serializers.ModelSerializer):
 	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id', allow_null=True)
 
 	class Meta:
@@ -59,48 +99,34 @@ class TelegramBotCommandKeyboardButtonModelSerializer(serializers.ModelSerialize
 		representation: dict[str, Any] = super().to_representation(instance)
 
 		if self.context.get('escape', False):
-			representation['text'] = filters.escape(representation['text'])
+			for field in ['text', 'url']:
+				representation[field] = django_filters.escape(representation[field])
 
 		return representation
 
-class TelegramBotCommandKeyboardModelSerializer(serializers.ModelSerializer):
-	buttons = TelegramBotCommandKeyboardButtonModelSerializer(many=True)
+class TelegramBotCommandKeyboardDiagramModelSerializer(serializers.ModelSerializer):
+	buttons = TelegramBotCommandKeyboardButtonDiagramModelSerializer(many=True)
 
 	class Meta:
 		model = TelegramBotCommandKeyboard
-		fields = ['mode', 'buttons']
+		fields = ['type', 'buttons']
 
-class TelegramBotCommandApiRequestModelSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = TelegramBotCommandApiRequest
-		fields = ['url', 'method', 'headers', 'data']
-
-class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
-	command = TelegramBotCommandCommandModelSerializer(allow_null=True)
-	message_text = TelegramBotCommandMessageTextModelSerializer(allow_null=True)
-	keyboard = TelegramBotCommandKeyboardModelSerializer(allow_null=True)
-	api_request = TelegramBotCommandApiRequestModelSerializer(allow_null=True)
+class TelegramBotCommandDiagramModelSerializer(serializers.ModelSerializer):
+	message_text = TelegramBotCommandMessageTextModelSerializer()
+	keyboard = TelegramBotCommandKeyboardDiagramModelSerializer(allow_null=True)
 
 	class Meta:
 		model = TelegramBotCommand
-		fields = ['id', 'name', 'command', 'image', 'message_text', 'keyboard', 'api_request', 'database_record', 'x', 'y']
-
-	def to_representation(self, instance: TelegramBotCommand):
-		representation: dict[str, Any] = super().to_representation(instance)
-
-		if self.context.get('escape', False):
-			representation['name'] = filters.escape(representation['name'])
-
-		return representation
+		fields = ['id', 'name', 'image', 'message_text', 'keyboard', 'x', 'y']
 
 class TelegramBotUserModelSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotUser
-		fields = ['id', 'user_id', 'full_name', 'is_allowed']
+		fields = ['id', 'telegram_id', 'full_name', 'is_allowed']
 
 	def to_representation(self, instance: TelegramBotUser) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['activated_date'] = f'{filters.date(instance.activated_date)} {filters.time(instance.activated_date)}'
+		representation['activated_date'] = utils_filters.datetime(instance.activated_date)
 
 		return representation
 
@@ -172,7 +198,7 @@ class TelegramBotCommandKeyboardButtonSerializer(serializers.Serializer):
 	}, default=None)
 
 class TelegramBotCommandKeyboardSerializer(serializers.Serializer):
-	mode =  serializers.ChoiceField(choices=['default', 'inline', 'payment'])
+	type =  serializers.ChoiceField(choices=['default', 'inline', 'payment'])
 	buttons = TelegramBotCommandKeyboardButtonSerializer(many=True)
 
 class TelegramBotCommandApiRequestSerializer(serializers.Serializer):
@@ -183,7 +209,7 @@ class TelegramBotCommandApiRequestSerializer(serializers.Serializer):
 	})
 	method = serializers.ChoiceField(choices=['get', 'post', 'put', 'patch', 'delete'])
 	headers = serializers.JSONField(default=None)
-	data = serializers.JSONField(default=None)
+	body = serializers.JSONField(default=None)
 
 class CreateTelegramBotCommandSerializer(serializers.Serializer):
 	name = serializers.CharField(max_length=255, error_messages={
@@ -194,16 +220,12 @@ class CreateTelegramBotCommandSerializer(serializers.Serializer):
 	message_text = TelegramBotCommandMessageTextSerializer()
 	keyboard = TelegramBotCommandKeyboardSerializer(default=None)
 	api_request = TelegramBotCommandApiRequestSerializer(default=None)
-	database_record = serializers.JSONField(default=None)
 
 class UpdateTelegramBotCommandSerializer(CreateTelegramBotCommandSerializer):
 	pass
 
-class UpdateTelegramBotCommandPositionSerializer(serializers.Serializer):
-	x = serializers.IntegerField()
-	y = serializers.IntegerField()
-
-class UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer(serializers.Serializer):
+class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
+	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
 	telegram_bot_command_id = serializers.IntegerField()
 	start_diagram_connector = serializers.CharField()
 	end_diagram_connector = serializers.CharField()
@@ -215,3 +237,26 @@ class UpdateTelegramBotCommandKeyboardButtonTelegramBotCommandSerializer(seriali
 			raise serializers.ValidationError(_('Команда Telegram бота не найдена!'))
 
 		return telegram_bot_command_id
+
+	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
+		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
+
+		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
+			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
+
+		return telegram_bot_command_keyboard_button_id
+
+class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
+	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
+
+	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
+		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
+
+		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
+			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
+
+		return telegram_bot_command_keyboard_button_id
+
+class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.Serializer):
+	x = serializers.IntegerField()
+	y = serializers.IntegerField()

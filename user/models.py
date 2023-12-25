@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
-from constructor_telegram_bots.utils.other import generate_random_string
+from utils.other import generate_random_string
 
 from asgiref.sync import sync_to_async
 import requests

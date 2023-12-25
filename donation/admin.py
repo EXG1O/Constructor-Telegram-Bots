@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from modeltranslation.admin import TranslationAdmin
 from tinymce.widgets import TinyMCE
 
-from constructor_telegram_bots.utils.admin import format_html_url
+from utils.admin import format_html_url
 
 from .models import Donation, DonationSection, DonationButton
 

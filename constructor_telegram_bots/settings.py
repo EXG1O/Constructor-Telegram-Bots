@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from .utils.other import generate_random_string
+from utils.other import generate_random_string
 
 from dotenv import load_dotenv
 from pathlib import Path

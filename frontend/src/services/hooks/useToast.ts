@@ -6,7 +6,7 @@ function useToast(): ToastContextProps {
 	const toast = useContext<ToastContextProps | undefined>(ToastContext);
 
 	if (toast === undefined) {
-		throw new Error('useToast must be used with a ToastContextProvider or ToastProvider!');
+		throw new Error('useToast must be used with a ToastProvider!');
 	}
 
 	return toast;

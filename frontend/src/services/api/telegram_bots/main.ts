@@ -1,5 +1,5 @@
 import { headersWithAuthToken, makeRequest } from 'services/api/base';
-import { TelegramBot, TelegramBotCommand, TelegramBotCommandKeyboardButton, TelegramBotUser, Data, APIResponse } from './types';
+import { TelegramBot, TelegramBotCommand, TelegramBotCommandKeyboardButton, TelegramBotCommandDiagram, TelegramBotUser, Data, APIResponse } from './types';
 
 const rootURL = '/api/telegram-bots/';
 
@@ -8,114 +8,121 @@ export namespace TelegramBotsAPI {
 }
 
 export namespace TelegramBotAPI {
-	export const url = (telegramBotId: TelegramBot['id']) => rootURL + `${telegramBotId}/`;
+	export const url = (telegramBotID: TelegramBot['id']) => rootURL + `${telegramBotID}/`;
 
-	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotId), 'GET', headersWithAuthToken());
+	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotID), 'GET', headersWithAuthToken());
 	export const create = (data: Data.TelegramBotAPI.Create) => makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', headersWithAuthToken(), data);
-	export const update = (telegramBotId: TelegramBot['id'], data: Data.TelegramBotAPI.Update) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotId), 'PATCH', headersWithAuthToken(), data);
-	export const delete_ = (telegramBotId: TelegramBot['id']) => makeRequest(url(telegramBotId), 'DELETE', headersWithAuthToken());
+	export const update = (telegramBotID: TelegramBot['id'], data: Data.TelegramBotAPI.Update) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PATCH', headersWithAuthToken(), data);
+	export const delete_ = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE', headersWithAuthToken());
 
-	export const start = (telegramBotId: TelegramBot['id']) => makeRequest(url(telegramBotId) +'start-or-stop/', 'POST', headersWithAuthToken());
+	export const start = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) +'start-or-stop/', 'POST', headersWithAuthToken());
 	export const stop = start;
 }
 
 export namespace TelegramBotCommandsAPI {
-	export const url = (telegramBotId: TelegramBot['id']) => TelegramBotAPI.url(telegramBotId) + 'commands/';
+	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'commands/';
 
-	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBotCommand[]>(url(telegramBotId), 'GET', headersWithAuthToken());
+	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotCommand[]>(url(telegramBotID), 'GET', headersWithAuthToken());
 }
 
 export namespace TelegramBotCommandAPI {
 	export const url = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-	) => TelegramBotCommandsAPI.url(telegramBotId) + `${telegramBotCommandId}/`;
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+	) => TelegramBotCommandsAPI.url(telegramBotID) + `${telegramBotCommandID}/`;
 
 	export const get = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-	) => makeRequest<TelegramBotCommand>(url(telegramBotId, telegramBotCommandId), 'GET', headersWithAuthToken());
-	export function create(telegramBotId: TelegramBot['id'], data: Data.TelegramBotCommandAPI.Create) {
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+	) => makeRequest<TelegramBotCommand>(url(telegramBotID, telegramBotCommandID), 'GET', headersWithAuthToken());
+	export function create(telegramBotID: TelegramBot['id'], data: Data.TelegramBotCommandAPI.Create) {
 		const formData = new FormData();
 		formData.append('image', data.image);
 		formData.append('data', JSON.stringify(data.data));
 
-		return makeRequest(TelegramBotCommandsAPI.url(telegramBotId), 'POST', headersWithAuthToken(), formData);
+		return makeRequest(TelegramBotCommandsAPI.url(telegramBotID), 'POST', headersWithAuthToken(), formData);
 	}
 	export function update(
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
 		data: Data.TelegramBotCommandAPI.Update,
 	) {
 		const formData = new FormData();
 		formData.append('image', data.image);
 		formData.append('data', JSON.stringify(data.data));
 
-		return makeRequest(TelegramBotCommandAPI.url(telegramBotId, telegramBotCommandId), 'PATCH', headersWithAuthToken(), formData);
+		return makeRequest(TelegramBotCommandAPI.url(telegramBotID, telegramBotCommandID), 'PATCH', headersWithAuthToken(), formData);
 	}
 	export const delete_ = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-	) => makeRequest(url(telegramBotId, telegramBotCommandId), 'DELETE', headersWithAuthToken());
-
-	export const updatePosition = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-		data: Data.TelegramBotCommandAPI.UpdatePosition,
-	) => makeRequest(`${url(telegramBotId, telegramBotCommandId)}update-position/`, 'PATCH', headersWithAuthToken(), data);
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'DELETE', headersWithAuthToken());
 }
 
-export namespace TelegramBotCommandKeyboardButtonAPI {
+export namespace TelegramBotCommandsDiagramAPI {
+	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'diagram/commands/';
+
+	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotCommandDiagram[]>(url(telegramBotID), 'GET', headersWithAuthToken());
+}
+
+export namespace TelegramBotCommandDiagramAPI {
 	export const url = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-		telegramBotCommandKeyboardButtonId: TelegramBotCommandKeyboardButton['id'],
-	): string => TelegramBotCommandAPI.url(telegramBotId, telegramBotCommandId) + `keyboard-buttons/${telegramBotCommandKeyboardButtonId}/telegram-bot-command/`;
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+	) => TelegramBotCommandsDiagramAPI.url(telegramBotID) + telegramBotCommandID + '/';
 
 	export const connect = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-		telegramBotCommandKeyboardButtonId: TelegramBotCommandKeyboardButton['id'],
-		data: Data.TelegramBotCommandKeyboardButtonAPI.Connect,
-	) => makeRequest(url(telegramBotId, telegramBotCommandId, telegramBotCommandKeyboardButtonId), 'POST', headersWithAuthToken(), data);
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+		data: Data.TelegramBotCommandDiagramAPI.Connect,
+	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'POST', headersWithAuthToken(), data);
 	export const disconnect = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotCommandId: TelegramBotCommand['id'],
-		telegramBotCommandKeyboardButtonId: TelegramBotCommandKeyboardButton['id'],
-		data: Data.TelegramBotCommandKeyboardButtonAPI.Disconnect,
-	) => makeRequest(url(telegramBotId, telegramBotCommandId, telegramBotCommandKeyboardButtonId), 'DELETE', headersWithAuthToken(), data);
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+		data: Data.TelegramBotCommandDiagramAPI.Disconnect,
+	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'DELETE', headersWithAuthToken(), data);
+
+	export const updatePosition = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotCommandID: TelegramBotCommand['id'],
+		data: Data.TelegramBotCommandDiagramAPI.UpdatePosition,
+	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'PATCH', headersWithAuthToken(), data);
 }
 
 export namespace TelegramBotUsersAPI {
-	export const url = (telegramBotId: TelegramBot['id']): string => TelegramBotAPI.url(telegramBotId) + 'users/';
+	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'users/';
 
-	export const get = (telegramBotId: TelegramBot['id']) => makeRequest<TelegramBotUser[]>(url(telegramBotId), 'GET', headersWithAuthToken());
+	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotUser[]>(url(telegramBotID), 'GET', headersWithAuthToken());
 }
 
 export namespace TelegramBotUserAPI {
 	export const url = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotUserId: TelegramBotUser['id'],
-	): string => `${TelegramBotUsersAPI.url(telegramBotId)}${telegramBotUserId}/`;
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => `${TelegramBotUsersAPI.url(telegramBotID)}${telegramBotUserID}/`;
 
+	export const get = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => makeRequest<TelegramBotUser>(url(telegramBotID, telegramBotUserID), 'GET', headersWithAuthToken());
 	export const delete_ = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotUserId: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotId, telegramBotUserId), 'DELETE', headersWithAuthToken());
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => makeRequest(url(telegramBotID, telegramBotUserID), 'DELETE', headersWithAuthToken());
 }
 
 export namespace TelegramBotAllowedUserAPI {
 	export const url = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotUserId: TelegramBotUser['id'],
-	): string => `${TelegramBotUserAPI.url(telegramBotId, telegramBotUserId)}allowed-user/`;
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => `${TelegramBotUserAPI.url(telegramBotID, telegramBotUserID)}allowed-user/`;
 
 	export const set = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotUserId: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotId, telegramBotUserId), 'POST', headersWithAuthToken());
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => makeRequest(url(telegramBotID, telegramBotUserID), 'POST', headersWithAuthToken());
 	export const unset = (
-		telegramBotId: TelegramBot['id'],
-		telegramBotUserId: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotId, telegramBotUserId), 'DELETE', headersWithAuthToken());
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => makeRequest(url(telegramBotID, telegramBotUserID), 'DELETE', headersWithAuthToken());
 }

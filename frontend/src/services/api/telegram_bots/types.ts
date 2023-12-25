@@ -10,12 +10,12 @@ export interface TelegramBot {
 	added_date: string;
 }
 
-interface TelegramBotCommandCommand {
+export interface TelegramBotCommandCommand {
 	text: string;
 	description: string | null;
 }
 
-interface TelegramBotCommandMessageText {
+export interface TelegramBotCommandMessageText {
 	text: string;
 }
 
@@ -24,22 +24,18 @@ export interface TelegramBotCommandKeyboardButton {
 	row: number | null;
 	text: string;
 	url: string | null;
-
-	telegram_bot_command_id: number | null;
-	start_diagram_connector: number | null;
-	end_diagram_connector: number | null;
 }
 
-interface TelegramBotCommandKeyboard {
-	mode: 'default' | 'inline' | 'payment';
+export interface TelegramBotCommandKeyboard {
+	type: 'default' | 'inline' | 'payment';
 	buttons: TelegramBotCommandKeyboardButton[];
 }
 
-interface TelegramBotCommandApiRequest {
+export interface TelegramBotCommandApiRequest {
 	url: string;
 	method: 'get' | 'post' | 'put' | 'patch' | 'delete';
 	headers: ObjectAsJSON | null;
-	data: ObjectAsJSON | null;
+	body: ObjectAsJSON | null;
 }
 
 export interface TelegramBotCommand {
@@ -50,7 +46,20 @@ export interface TelegramBotCommand {
 	message_text: TelegramBotCommandMessageText;
 	keyboard: TelegramBotCommandKeyboard | null;
 	api_request: TelegramBotCommandApiRequest | null;
-	database_record: ObjectAsJSON | null;
+}
+
+export interface TelegramBotCommandKeyboardButtonDiagram extends TelegramBotCommandKeyboardButton {
+	telegram_bot_command_id: number | null;
+	start_diagram_connector: string | null;
+	end_diagram_connector: string | null;
+}
+
+export interface TelegramBotCommandKeyboardDiagram extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
+	buttons: TelegramBotCommandKeyboardButtonDiagram[];
+}
+
+export interface TelegramBotCommandDiagram extends Omit<TelegramBotCommand, 'command' | 'keyboard' | 'api_request'> {
+	keyboard: TelegramBotCommandKeyboardDiagram | null;
 
 	x: number;
 	y: number;
@@ -58,7 +67,7 @@ export interface TelegramBotCommand {
 
 export interface TelegramBotUser {
 	id: number;
-	user_id: number;
+	telegram_id: number;
 	full_name: string;
 	is_allowed: boolean;
 	activated_date: string;
@@ -70,52 +79,73 @@ export namespace Data {
 			api_token: string;
 			is_private: boolean;
 		}
-		export interface Update {
-			api_token?: string;
-			is_private?: boolean;
-		}
+		export type Update = Partial<Create>;
 	}
 
 	export namespace TelegramBotCommandAPI {
-		type CreateTelegramBotCommandKeyboardButton = Omit<TelegramBotCommandKeyboardButton, 'id' | 'telegram_bot_command_id' | 'start_diagram_connector' | 'end_diagram_connector'>;
+		export interface CreateTelegramBotCommandCommand extends Omit<TelegramBotCommandCommand, 'description'> {
+			description?: NonNullable<TelegramBotCommandCommand['description']>;
+		}
+
+		interface CreateTelegramBotCommandKeyboardButton extends Omit<TelegramBotCommandKeyboardButton, 'id' | 'row' | 'url'> {
+			row?: NonNullable<TelegramBotCommandKeyboardButton['row']>;
+			url?: NonNullable<TelegramBotCommandKeyboardButton['url']>;
+		}
 
 		interface CreateTelegramBotCommandKeyboard extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
 			buttons: CreateTelegramBotCommandKeyboardButton[];
 		}
 
-		interface CreateTelegramBotCommand extends Omit<TelegramBotCommand, 'id' | 'image' | 'keyboard' | 'x' | 'y'> {
-			keyboard: CreateTelegramBotCommandKeyboard | null;
+		interface CreateTelegramBotCommandApiRequest extends Omit<TelegramBotCommandApiRequest, 'headers' | 'body'> {
+			headers?: NonNullable<TelegramBotCommandApiRequest['headers']>;
+			body?: NonNullable<TelegramBotCommandApiRequest['body']>;
+		}
+
+		export interface CreateTelegramBotCommand {
+			name: TelegramBotCommand['name'];
+			command?: CreateTelegramBotCommandCommand;
+			message_text: TelegramBotCommand['message_text'];
+			keyboard?: CreateTelegramBotCommandKeyboard;
+			api_request?: CreateTelegramBotCommandApiRequest;
 		}
 
 		export interface Create {
-			image: Blob;
+			image?: Blob;
 			data: CreateTelegramBotCommand;
 		}
 
-		type UpdateTelegramBotCommandKeyboardButton = Omit<TelegramBotCommandKeyboardButton, 'telegram_bot_command_id' | 'start_diagram_connector' | 'end_diagram_connector'>;
+		interface UpdateTelegramBotCommandKeyboardButton extends CreateTelegramBotCommandKeyboardButton {
+			id: TelegramBotCommandKeyboardButton['id'];
+		}
 
 		interface UpdateTelegramBotCommandKeyboard extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
 			buttons: UpdateTelegramBotCommandKeyboardButton[];
 		}
 
-		interface UpdateTelegramBotCommand extends Omit<TelegramBotCommand, | 'image' | 'keyboard' | 'x' | 'y'> {
-			keyboard: UpdateTelegramBotCommandKeyboard | null;
+		export interface UpdateTelegramBotCommand extends Omit<CreateTelegramBotCommand, 'keyboard'> {
+			id: TelegramBotCommand['id'];
+			keyboard?: UpdateTelegramBotCommandKeyboard;
 		}
 
 		export interface Update {
-			image: Blob;
+			image?: Blob;
 			data: UpdateTelegramBotCommand;
 		}
+	}
+
+	export namespace TelegramBotCommandDiagramAPI {
+		export interface Connect {
+			telegram_bot_command_keyboard_button_id: number;
+			telegram_bot_command_id: number;
+			start_diagram_connector: string;
+			end_diagram_connector: string;
+		}
+		export type Disconnect = Pick<Connect, 'telegram_bot_command_keyboard_button_id'>;
 
 		export interface UpdatePosition {
 			x: number;
 			y: number;
 		}
-	}
-
-	export namespace TelegramBotCommandKeyboardButtonAPI {
-		export type Connect = Omit<TelegramBotCommandKeyboardButton, 'id' | 'row' | 'text' | 'url'>;
-		export type Disconnect = Connect;
 	}
 }
 
