@@ -23,6 +23,7 @@
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.1",
     "chart.js": "^4.4.1",
+    "classnames": "^2.3.3",
     "clipboard": "^2.0.11",
     "css-loader": "^6.8.1",
     "exports-loader": "^4.0.0",

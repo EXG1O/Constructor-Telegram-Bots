@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { Params, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, Params } from 'react-router-dom';
 
 import Spinner from 'react-bootstrap/Spinner';
 
@@ -23,7 +23,7 @@ function TelegramBotProvider({ children }: TelegramBotProviderProps): ReactNode 
 
 		useEffect(() => {
 			const getTelegramBot = async (): Promise<void> => {
-				const response = await TelegramBotAPI.get(Number.parseInt(telegramBotID));
+				const response = await TelegramBotAPI.get(parseInt(telegramBotID));
 
 				if (response.ok) {
 					setTelegramBot(response.json);

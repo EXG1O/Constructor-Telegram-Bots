@@ -17,8 +17,8 @@ function ToastProvider({ children }: ToastProviderProps): ReactNode {
 		setToasts(toasts.filter(t => t !== toast));
 	}
 
-	function createMessageToast(options: Omit<MessageToastProps, 'onExited'>): void {
-		const toast = <MessageToast key={Date.now()} {...options} onExited={() => removeToast(toast)} />;
+	function createMessageToast(props: Omit<MessageToastProps, 'onExited'>): void {
+		const toast = <MessageToast key={Date.now()} {...props} onExited={() => removeToast(toast)} />;
 
 		setToasts([...toasts, toast]);
 	}

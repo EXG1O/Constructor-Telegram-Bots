@@ -2,7 +2,7 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.min.css';
 
-import React, { StrictMode } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Params, redirect } from 'react-router-dom';
 
@@ -121,17 +121,15 @@ const router = createBrowserRouter([
 	{
 		path: '/login/:userID/:confirmCode/',
 		loader: async ({ params }: { params: Params<'userID' | 'confirmCode'> }): Promise<Response> => {
-			if (params.userID === undefined || params.confirmCode === undefined) {
-				throw new Error('');
-			}
+			if (params.userID !== undefined && params.confirmCode !== undefined) {
+				const response = await UserAPI.login({
+					user_id: Number.parseInt(params.userID),
+					confirm_code: params.confirmCode,
+				});
 
-			const response = await UserAPI.login({
-				user_id: Number.parseInt(params.userID),
-				confirm_code: params.confirmCode,
-			});
-
-			if (response.ok) {
-				return redirect('/personal-cabinet/');
+				if (response.ok) {
+					return redirect('/personal-cabinet/');
+				}
 			}
 
 			return redirect('/');

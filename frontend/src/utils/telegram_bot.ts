@@ -1,4 +1,4 @@
-import { TelegramBot } from "services/api/telegram_bots/types";
+import { TelegramBot } from 'services/api/telegram_bots/types';
 
 export function telegramBotIsStartingOrStopping(telegramBot: TelegramBot): boolean {
 	return (

@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-
 import Cookies from 'js-cookie';
 
 import Spinner from 'react-bootstrap/Spinner';

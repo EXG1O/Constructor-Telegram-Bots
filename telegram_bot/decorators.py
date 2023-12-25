@@ -4,13 +4,7 @@ from rest_framework.request import Request
 
 from utils.drf import CustomResponse
 
-from .models import (
-	TelegramBot,
-	TelegramBotCommand,
-	# TelegramBotCommandKeyboard,
-	# TelegramBotCommandKeyboardButton,
-	TelegramBotUser,
-)
+from .models import TelegramBot, TelegramBotCommand, TelegramBotUser
 
 from functools import wraps
 
@@ -42,21 +36,6 @@ def check_telegram_bot_command_id(func):
 
 		return func(*args, **kwargs)
 	return wrapper
-
-# def check_telegram_bot_command_keyboard_button_id(func):
-# 	@wraps(func)
-# 	def wrapper(*args, **kwargs):
-# 		telegram_bot_command: TelegramBotCommand = kwargs['telegram_bot_command']
-# 		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = telegram_bot_command.keyboard
-# 		telegram_bot_command_keyboard_button_id: int = kwargs.pop('telegram_bot_command_keyboard_button_id', 0)
-
-# 		try:
-# 			kwargs['telegram_bot_command_keyboard_button'] = telegram_bot_command_keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id)
-# 		except TelegramBotCommandKeyboardButton.DoesNotExist:
-# 			return CustomResponse(_('Кнопка клавиатуры команды Telegram бота не найдена!'), status=404)
-
-# 		return func(*args, **kwargs)
-# 	return wrapper
 
 def check_telegram_bot_user_id(func):
 	def wrapper(*args, **kwargs):

@@ -1,4 +1,5 @@
 import React, { ReactNode, CSSProperties, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
@@ -77,7 +78,7 @@ function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setT
 	}
 
 	return (
-		<Card {...props} className={(props.className ? `${props.className} ` : '') + 'border-0'}>
+		<Card {...props} className={classNames('border-0', props.className)}>
 			<Card.Header as='h5' {...(
 				telegramBotIsStartingOrStopping(telegramBot) ? {
 					className: 'text-bg-secondary border border-secondary text-center',

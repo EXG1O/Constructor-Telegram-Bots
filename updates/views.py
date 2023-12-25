@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from .models import Update
 from .serializers import UpdateModelSerializer, GetUpdatesSerializer
 
+from typing import Any
+
 
 class UpdatesAPIView(APIView):
 	authentication_classes = []
@@ -14,7 +16,7 @@ class UpdatesAPIView(APIView):
 		serializer = GetUpdatesSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
-		validated_data: dict = serializer.validated_data
+		validated_data: dict[str, Any] = serializer.validated_data
 		offset: int | None = validated_data['offset']
 		limit: int | None = validated_data['limit']
 

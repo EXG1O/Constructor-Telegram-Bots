@@ -1,6 +1,6 @@
-from django.template import defaultfilters as filters
-
 from rest_framework import serializers
+
+from utils import filters
 
 from .models import Donation, DonationSection, DonationButton
 
@@ -14,7 +14,7 @@ class DonationModelSerializer(serializers.ModelSerializer):
 
 	def to_representation(self, instance: Donation) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['date'] = f'{filters.date(instance.date)} {filters.time(instance.date)}'
+		representation['date'] = filters.datetime(instance.date)
 
 		return representation
 

@@ -1,7 +1,6 @@
-from django.utils.translation import gettext as _
-from django.template import defaultfilters as filters
-
 from rest_framework import serializers
+
+from utils import filters
 
 from .models import User
 
@@ -15,7 +14,7 @@ class UserModelSerializer(serializers.ModelSerializer):
 
 	def to_representation(self, instance: User) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['joined_date'] = f'{filters.date(instance.joined_date)} {filters.time(instance.joined_date)}'
+		representation['joined_date'] = filters.datetime(instance.joined_date)
 
 		return representation
 

@@ -1,6 +1,6 @@
-from django.template import defaultfilters as filters
-
 from rest_framework import serializers
+
+from utils import filters
 
 from .models import Update
 
@@ -14,7 +14,7 @@ class UpdateModelSerializer(serializers.ModelSerializer):
 
 	def to_representation(self, instance: Update) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['added_date'] = f'{filters.date(instance.added_date)} {filters.time(instance.added_date)}'
+		representation['added_date'] = filters.datetime(instance.added_date)
 
 		return representation
 

@@ -42,7 +42,10 @@ function Header(): ReactNode {
 					{gettext('Вы точно хотите выйти из аккаунта?')}
 				</AskConfirmModal>
 			) : (
-				<LoginViaTelegramModal show={showLoginViaTelegramModal} onHide={() => setShowLoginViaTelegramModal(false)} />
+				<LoginViaTelegramModal
+					show={showLoginViaTelegramModal}
+					onHide={() => setShowLoginViaTelegramModal(false)}
+				/>
 			)}
 			<Navbar expand='xxl' variant='dark' className='bg-dark'>
 				<Container>
@@ -98,11 +101,13 @@ function Header(): ReactNode {
 								</Dropdown>
 							) : (
 								<Button
+									as='a'
 									variant='success'
 									className='flex-fill'
+									href=''
 									onClick={() => setShowLoginViaTelegramModal(true)}
 								>
-									<i className="bi bi-telegram me-1"></i>
+									<i className='bi bi-telegram me-1'></i>
 									{gettext('Войти через Telegram')}
 								</Button>
 							)}

@@ -56,7 +56,9 @@ function App(): ReactNode {
 									</TelegramBotCard>
 								))
 							) : (
-								<div className='border rounded text-center p-3'>{gettext('Вы ещё не добавили Telegram бота')}</div>
+								<div className='border rounded text-center p-3'>
+									{gettext('Вы ещё не добавили Telegram бота')}
+								</div>
 							)}
 						</Row>
 					</TelegramBotsContext.Provider>

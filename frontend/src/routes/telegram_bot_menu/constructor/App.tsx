@@ -58,25 +58,23 @@ function App(): ReactNode {
 
 			const edges: Edge[] = [];
 
-			for (const command of response.json) {
-				if (command.keyboard) {
-					for (const button of command.keyboard.buttons) {
-						if (
-							button.telegram_bot_command_id !== null &&
-							button.start_diagram_connector !== null &&
-							button.end_diagram_connector !== null
-						) {
-							edges.push({
-								id: `reactflow__edge-${button.start_diagram_connector}-${button.end_diagram_connector}`,
-								source: command.id.toString(),
-								sourceHandle: button.start_diagram_connector,
-								target: button.telegram_bot_command_id.toString(),
-								targetHandle: button.end_diagram_connector,
-							});
-						}
+			response.json.forEach(command => {
+				command.keyboard?.buttons.forEach(button => {
+					if (
+						button.telegram_bot_command_id !== null &&
+						button.start_diagram_connector !== null &&
+						button.end_diagram_connector !== null
+					) {
+						edges.push({
+							id: `reactflow__edge-${button.start_diagram_connector}-${button.end_diagram_connector}`,
+							source: command.id.toString(),
+							sourceHandle: button.start_diagram_connector,
+							target: button.telegram_bot_command_id.toString(),
+							targetHandle: button.end_diagram_connector,
+						});
 					}
-				}
-			}
+				});
+			});
 
 			setEdges(edges);
 		}
@@ -112,10 +110,7 @@ function App(): ReactNode {
 
 	return (
 		<>
-			<CommandOffcanvas
-				show={showCommandOffcanvas}
-				onHide={() => setShowCommandOffcanvas(false)}
-			/>
+			<CommandOffcanvas show={showCommandOffcanvas} onHide={() => setShowCommandOffcanvas(false)} />
 			<div className='border rounded' style={{ height: '80vh' }}>
 				<ReactFlow
 					nodes={nodes}

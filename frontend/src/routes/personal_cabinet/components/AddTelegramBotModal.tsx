@@ -9,23 +9,23 @@ import useTelegramBots from '../services/hooks/useTelegramBots';
 
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
 
-interface FormData {
+interface Data {
 	api_token: string;
 	is_private: boolean;
 }
 
 export interface AddTelegramBotModalProps extends Omit<ModalProps, 'onHide'> {
-	onHide: () => void;
+	onHide: NonNullable<ModalProps['onHide']>;
 }
 
 function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactNode {
 	const { createMessageToast } = useToast();
 	const { telegramBots, setTelegramBots } = useTelegramBots();
 
-	const [formData, setFormData] = useState<FormData>({ api_token: '', is_private: false });
+	const [data, setData] = useState<Data>({ api_token: '', is_private: false });
 
 	async function handleAddTelegramBotButtonClick(): Promise<void> {
-		const response = await TelegramBotAPI.create(formData);
+		const response = await TelegramBotAPI.create(data);
 
 		if (response.ok) {
 			setTelegramBots([...telegramBots, response.json.telegram_bot]);
@@ -42,16 +42,15 @@ function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactNode {
 			</Modal.Header>
 			<Modal.Body className='vstack gap-2'>
 				<Form.Control
-					value={formData.api_token}
+					value={data.api_token}
 					placeholder={gettext('Введите API-токен Telegram бота')}
-					onChange={(e) => setFormData({ ...formData, api_token: e.target.value })}
+					onChange={e => setData({ ...data, api_token: e.target.value })}
 				/>
 				<Form.Switch
-					checked={formData.is_private}
-					reverse
+					checked={data.is_private}
 					label={gettext('Сделать Telegram бота приватным')}
 					style={{ width: 'max-content' }}
-					onChange={(e) => setFormData({ ...formData, is_private: e.target.checked })}
+					onChange={e => setData({ ...data, is_private: e.target.checked })}
 				/>
 			</Modal.Body>
 			<Modal.Footer>
