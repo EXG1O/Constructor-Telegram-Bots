@@ -234,7 +234,7 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		telegram_bot_command.y = validated_data['y']
 		telegram_bot_command.save()
 
-		return Response()
+		return Response({})
 
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id

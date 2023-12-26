@@ -27,7 +27,9 @@ function TelegramBotCardFooter(): ReactNode {
 
 		const response = await TelegramBotAPI.delete_(telegramBot.id);
 
-		navigate('/personal-cabinet/');
+		if (response.ok) {
+			navigate('/personal-cabinet/');
+		}
 
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}
@@ -59,9 +61,9 @@ function TelegramBotCardFooter(): ReactNode {
 			<Card.Footer className='d-flex flex-wrap border border-top-0 p-3 gap-3'>
 				{telegramBotIsStartingOrStopping(telegramBot) ? (
 					<Button
+						disabled
 						variant='secondary'
 						className='flex-fill'
-						disabled
 					>
 						<Spinner
 							animation='border'

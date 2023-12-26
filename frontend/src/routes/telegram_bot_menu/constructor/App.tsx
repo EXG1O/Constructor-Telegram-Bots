@@ -1,21 +1,21 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-
 import 'reactflow/dist/style.css';
 import './App.css';
 
+import React, { ReactNode, useEffect, useState } from 'react';
+
 import ReactFlow, {
+	Panel,
 	Controls,
 	MiniMap,
 	Background,
 	BackgroundVariant,
 	useEdgesState,
 	useNodesState,
-	NodeTypes,
 	Connection,
+	NodeTypes,
 	addEdge,
 	Edge,
 	Node,
-	Panel,
 } from 'reactflow';
 
 import Button from 'react-bootstrap/Button';

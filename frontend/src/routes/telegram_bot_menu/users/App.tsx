@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Params, useNavigate, useParams } from 'react-router-dom';
-
 import * as fuzz from 'fuzzball';
 
 import Card from 'react-bootstrap/Card';
@@ -28,7 +27,7 @@ function App(): ReactNode {
 	const [telegramBotUsersIsSorted, setTelegramBotUsersIsSorted] = useState<TelegramBotUsersIsSortedState>({ search: false });
 	const [searchInputValue, setSearchInputValue] = useState<string>('');
 
-	useEffect(() => {updateTelegramBotUsers()}, []);
+	useEffect(() => { updateTelegramBotUsers() }, []);
 	useEffect(() => {
 		setSortedTelegramBotUsers(telegramBotUsers);
 
@@ -38,7 +37,7 @@ function App(): ReactNode {
 	}, [telegramBotUsers]);
 
 	async function updateTelegramBotUsers(): Promise<void> {
-		const response = await TelegramBotUsersAPI.get(Number.parseInt(telegramBotID!));
+		const response = await TelegramBotUsersAPI.get(parseInt(telegramBotID!));
 
 		if (response.ok) {
 			setTelegramBotUsers(response.json);
@@ -50,13 +49,10 @@ function App(): ReactNode {
 	function searchTelegramBotUser(): void {
 		const choices: Record<number, string> = {};
 
-		for (const telegramBotUser of telegramBotUsers) {
-			choices[telegramBotUser.id] = telegramBotUser.full_name;
-		}
-
-		const stringMatchingResults = fuzz.extract(searchInputValue, choices, { scorer: fuzz.token_set_ratio });
+		telegramBotUsers.forEach(telegramBotUser => choices[telegramBotUser.id] = telegramBotUser.full_name);
 
 		const result: TelegramBotUserType[] = [];
+		const stringMatchingResults = fuzz.extract(searchInputValue, choices, { scorer: fuzz.token_set_ratio });
 
 		for (const stringMatchingResult of stringMatchingResults) {
 			for (const telegramBotUser of telegramBotUsers) {

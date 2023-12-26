@@ -21,7 +21,7 @@ function Image({ onChange }: ImageProps): ReactNode {
 
 	const [data, setData] = useState<Data>({});
 
-	useEffect(() => onChange(data));
+	useEffect(() => onChange(data), [data]);
 
 	function handleImageChange(event: ChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
@@ -30,9 +30,11 @@ function Image({ onChange }: ImageProps): ReactNode {
 			if (file.size < 3145728) {
 				const fileRender = new FileReader();
 				fileRender.readAsDataURL(file);
-				fileRender.addEventListener('loadend', e => setData({ ...data, imageURL: e.target?.result as string | null ?? undefined }));
-
-				setData({ ...data, image: file });
+				fileRender.addEventListener('loadend', e => setData({
+					...data,
+					image: file,
+					imageURL: e.target?.result as string | null ?? undefined,
+				}));
 			} else {
 				createMessageToast({ message: gettext('Изображение весит больше 3МБ!'), level: 'danger' });
 			}
@@ -47,7 +49,7 @@ function Image({ onChange }: ImageProps): ReactNode {
 			<Card.Body className='p-2'>
 				<Stack gap={2}>
 					{data.imageURL && (
-						<RBImage thumbnail src={data.imageURL} />
+						<RBImage thumbnail className='p-0' src={data.imageURL} />
 					)}
 					<Form.Control
 						type='file'

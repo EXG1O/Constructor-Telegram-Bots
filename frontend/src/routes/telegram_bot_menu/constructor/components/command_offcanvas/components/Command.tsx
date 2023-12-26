@@ -9,15 +9,25 @@ export interface Data {
 	description?: string;
 }
 
+export type AddonsName = 'description';
+
 export interface CommandProps {
 	onChange: (data: Data) => void;
 }
 
 function Command({ onChange }: CommandProps): ReactNode {
 	const [data, setData] = useState<Data>({ text: '' });
-	const [addons, setAddons] = useState<Record<'description', boolean>>({ description: false });
+	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({ description: false });
 
 	useEffect(() => onChange(data), [data]);
+
+	function toggleAddon(name: AddonsName): void {
+		setAddons({ ...addons, [name]: !addons[name] });
+
+		if (addons[name]) {
+			setData({ ...data, [name]: undefined });
+		}
+	}
 
 	return (
 		<Card className='border'>
@@ -32,16 +42,15 @@ function Command({ onChange }: CommandProps): ReactNode {
 						onChange={e => setData({ ...data, text: e.target.value })}
 					/>
 					<Form.Switch
-						reverse
 						checked={addons.description}
 						label={gettext('Добавить в меню')}
 						className='mb-0'
 						style={{ width: 'max-content' }}
-						onChange={e => setAddons({ ...addons, description: e.target.checked })}
+						onChange={() => toggleAddon('description')}
 					/>
 					{addons.description && (
 						<Form.Control
-							value={data.description}
+							value={data.description ?? ''}
 							placeholder={gettext('Введите описание команды')}
 							onChange={e => setData({ ...data, description: e.target.value })}
 						/>

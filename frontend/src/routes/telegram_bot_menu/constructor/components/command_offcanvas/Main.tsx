@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 
 import Offcanvas, { OffcanvasProps } from 'react-bootstrap/Offcanvas';
-import Button from 'react-bootstrap/Button';
+import Button, { ButtonProps } from 'react-bootstrap/Button';
 import Stack from 'react-bootstrap/Stack';
 
 import CommandName, { Data as CommandNameData } from './components/CommandName';
@@ -25,24 +25,14 @@ export interface Data {
 
 type AddonsName = 'command' | 'image' | 'keyboard';
 
-interface AddonsButtons {
+interface AddonsButtonProps extends Omit<ButtonProps, 'key' | 'size' | 'variant' | 'onClick'> {
 	name: AddonsName;
-	text: string;
 }
 
-const addonsButtons: AddonsButtons[] = [
-	{
-		name: 'command',
-		text: gettext('Команда'),
-	},
-	{
-		name: 'image',
-		text: gettext('Изображение'),
-	},
-	{
-		name: 'keyboard',
-		text: gettext('Клавиатура'),
-	},
+const addonsButton: AddonsButtonProps[] = [
+	{ name: 'command', children: gettext('Команда') },
+	{ name: 'image', children: gettext('Изображение') },
+	{ name: 'keyboard', children: gettext('Клавиатура') },
 ];
 
 function Main(props: OffcanvasProps): ReactNode {
@@ -81,20 +71,25 @@ function Main(props: OffcanvasProps): ReactNode {
 			<Offcanvas.Body>
 				<Stack gap={3}>
 					<CommandName onChange={data_ => setData({ ...data, name: data_.text })} />
-					{addons.command && <Command onChange={data_ => setData({ ...data, command: data_ })} />}
-					{addons.image && <Image onChange={data_ => setData({ ...data, image: data_.image })} />}
+					{addons.command && (
+						<Command onChange={data_ => setData({ ...data, command: data_ })} />
+					)}
+					{addons.image && (
+						<Image onChange={data_ => setData({ ...data, image: data_.image })} />
+					)}
 					<MessageText onChange={data_ => setData({ ...data, message_text: data_ })} />
-					{addons.keyboard && <Keyboard onChange={data_ => setData({ ...data, keyboard: data_ })} />}
+					{addons.keyboard && (
+						<Keyboard onChange={data_ => setData({ ...data, keyboard: data_ })} />
+					)}
 					<Stack className='bg-light border rounded p-1' gap={1}>
-						{addonsButtons.map((data, index) => (
+						{addonsButton.map(({ name, ...props }, index) => (
 							<Button
+								{...props}
 								key={index}
 								size='sm'
-								variant={addons[data.name] ? 'secondary' : 'dark'}
-								onClick={() => toggleAddon(data.name)}
-							>
-								{data.text}
-							</Button>
+								variant={addons[name] ? 'secondary' : 'dark'}
+								onClick={() => toggleAddon(name)}
+							/>
 						))}
 					</Stack>
 				</Stack>

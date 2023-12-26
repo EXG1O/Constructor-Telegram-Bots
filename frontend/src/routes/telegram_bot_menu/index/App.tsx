@@ -45,9 +45,9 @@ function App(): ReactNode {
 						].map((data, index) => (
 							<ToggleButton
 								key={index}
-								variant={`outline-dark ${index === 1 ? 'w-50' : 'w-25'}`}
-								size='sm'
 								id={`btn-radio-type-${data.value}`}
+								size='sm'
+								variant={`outline-dark ${index === 1 ? 'w-50' : 'w-25'}`}
 								value={data.value}
 							>
 								{data.text}
@@ -59,8 +59,8 @@ function App(): ReactNode {
 							<ToggleButton
 								key={index}
 								id={`tbg-radio-${index}`}
-								variant='outline-dark w-25'
 								size='sm'
+								variant='outline-dark w-25'
 								value={index}
 							>
 								{value}
@@ -70,9 +70,7 @@ function App(): ReactNode {
 					<Line
 						data={{
 							datasets: [{
-								data: Array.from(Array(30).keys()).map(date => {
-									return  { x: `${date}.12.2023`, y: Math.floor(Math.random() * 100) };
-								}),
+								data: Array.from(Array(30).keys()).map(date => ({ x: `${date}.12.2023`, y: Math.floor(Math.random() * 100) })),
 								borderColor: '#212529',
 								fill: true,
 								tension: 0.1,

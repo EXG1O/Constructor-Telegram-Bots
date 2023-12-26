@@ -42,17 +42,6 @@ const config: Configuration = {
 			filename: 'webpack.stats.json',
 		}),
 	],
-	optimization: {
-		splitChunks: {
-			cacheGroups: {
-				vendor: {
-					test: /node_modules/,
-					name: 'vendors',
-					chunks: 'all',
-				},
-			},
-		},
-	},
 }
 
 export default config;

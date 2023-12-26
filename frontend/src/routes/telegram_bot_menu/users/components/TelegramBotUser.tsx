@@ -59,7 +59,7 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 					</span>
 					{']: '}
 					<span className='text-primary-emphasis'>
-						{telegramBotUser.user_id}
+						{telegramBotUser.telegram_id}
 					</span>
 					{' - '}
 					{telegramBotUser.full_name}

@@ -169,7 +169,6 @@ class TelegramBotCommandCommandSerializer(serializers.Serializer):
 		'blank': _('Введите команду!'),
 		'max_length': _('Команда должна содержать не более 32 символов!'),
 	})
-	is_show_in_menu = serializers.BooleanField()
 	description = serializers.CharField(max_length=255, error_messages={
 		'blank': _('Введите описание для команды!'),
 		'max_length': _('Описание команды должно содержать не более 255 символов!'),

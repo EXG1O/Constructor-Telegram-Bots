@@ -3,7 +3,7 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import Stack from 'react-bootstrap/Stack'
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
+import ToggleButton, { ToggleButtonProps } from 'react-bootstrap/ToggleButton';
 import RBButton from 'react-bootstrap/Button';
 
 import Button from './Button';
@@ -22,24 +22,14 @@ export interface Data {
 	buttons: ButtonData[];
 }
 
-interface Types {
+interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id' | 'value' | 'size' | 'variant' | 'onChange'> {
 	value: Data['type'];
-	text: string;
 }
 
-const types: Types[] = [
-	{
-		value: 'default',
-		text: gettext('Обычный'),
-	},
-	{
-		value: 'inline',
-		text: gettext('Встроенный'),
-	},
-	{
-		value: 'payment',
-		text: gettext('Платёжный'),
-	},
+const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
+	{ value: 'default', children: gettext('Обычный') },
+	{ value: 'inline', children: gettext('Встроенный') },
+	{ value: 'payment', children: gettext('Платёжный') },
 ];
 
 export interface MainProps {
@@ -82,17 +72,15 @@ function Main({ onChange }: MainProps): ReactNode {
 			<Card.Body className='p-2'>
 				<Stack gap={2}>
 					<ToggleButtonGroup type='radio' name='keyboardTypes' defaultValue='default'>
-						{types.map((type, index) => (
+						{keyboardToggleButtons.map((props, index) => (
 							<ToggleButton
+								{...props}
 								key={index}
+								id={`radioKeyboardType${props.value}`}
 								size='sm'
 								variant='outline-dark'
-								id={`radioKeyboardType${type.value}`}
-								value={type.value}
-								onChange={() => setData({ ...data, type: type.value })}
-							>
-								{type.text}
-							</ToggleButton>
+								onChange={() => setData({ ...data, type: props.value })}
+							/>
 						))}
 					</ToggleButtonGroup>
 					<Stack gap={1}>
@@ -104,8 +92,8 @@ function Main({ onChange }: MainProps): ReactNode {
 											{data.buttons.map((button, index) => (
 												<Draggable
 													key={index}
-													draggableId={`keyboardButton${index}`}
 													index={index}
+													draggableId={`keyboardButton${index}`}
 												>
 													{provided => (
 														<Button

@@ -1,12 +1,11 @@
-import './MessageText.css';
-
-import React, { ReactNode, useEffect, useState } from 'react';
-
 import 'tinymce/tinymce';
 import 'tinymce/models/dom/model';
 import 'tinymce/themes/silver';
 import 'tinymce/icons/default';
 import 'tinymce/skins/ui/oxide/skin.min.css';
+import './MessageText.css';
+
+import React, { ReactNode, useEffect, useState } from 'react';
 
 import { Editor } from '@tinymce/tinymce-react';
 import Card from 'react-bootstrap/Card';
@@ -38,7 +37,6 @@ function MessageText({ onChange }: MessageTextProps): ReactNode {
 						height: 260,
 						placeholder: gettext('Введите текст сообщения'),
 						newline_behavior: 'linebreak',
-						font_size_formats: '1rem',
 						toolbar: 'bold italic underline strikethrough',
 						formats: { underline: { inline: 'u' } },
 						menubar: false,
