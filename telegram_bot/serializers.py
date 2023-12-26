@@ -257,5 +257,5 @@ class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Se
 		return telegram_bot_command_keyboard_button_id
 
 class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.Serializer):
-	x = serializers.IntegerField()
-	y = serializers.IntegerField()
+	x = serializers.FloatField()
+	y = serializers.FloatField()
