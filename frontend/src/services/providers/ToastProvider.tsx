@@ -14,13 +14,13 @@ function ToastProvider({ children }: ToastProviderProps): ReactNode {
 	const [toasts, setToasts] = useState<ReactNode[]>([]);
 
 	function removeToast(toast: ReactNode): void {
-		setToasts(toasts.filter(t => t !== toast));
+		setToasts(prevToasts => prevToasts.filter(t => t !== toast));
 	}
 
 	function createMessageToast(props: Omit<MessageToastProps, 'onExited'>): void {
 		const toast = <MessageToast key={Date.now()} {...props} onExited={() => removeToast(toast)} />;
 
-		setToasts([...toasts, toast]);
+		setToasts(prevToasts => [...prevToasts, toast]);
 	}
 
 	return (

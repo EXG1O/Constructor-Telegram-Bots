@@ -64,7 +64,7 @@ function Main(props: OffcanvasProps): ReactNode {
 	}
 
 	return (
-		<Offcanvas {...props}>
+		<Offcanvas {...props} placement={'end'}>
 			<Offcanvas.Header className='border-bottom' closeButton>
 				<Offcanvas.Title as='h5'>{gettext('Добавление команды')}</Offcanvas.Title>
 			</Offcanvas.Header>

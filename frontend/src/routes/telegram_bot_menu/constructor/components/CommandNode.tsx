@@ -30,11 +30,16 @@ function CommandNode({ data }: CommandNodeProps): ReactNode {
 			</div>
 			<div className='bg-light border rounded text-break text-center px-3 py-2' style={{ position: 'relative' }}>
 				<Handle
-					id={`${data.id}:top:0`}
+					id={`${data.id}:left:0`}
 					type='target'
-					position={Position.Top}
+					position={Position.Left}
 				/>
 				{data.name}
+				<Handle
+					id={`${data.id}:right:0`}
+					type='target'
+					position={Position.Right}
+				/>
 			</div>
 			{data.image && (
 				<Image thumbnail className='p-0' src={data.image} />
@@ -49,15 +54,15 @@ function CommandNode({ data }: CommandNodeProps): ReactNode {
 							style={{ position: 'relative' }}
 						>
 							<Handle
-								id={`${data.id}:right:${button.id}`}
-								type='source'
-								position={Position.Right}
-							/>
-							{button.text}
-							<Handle
 								id={`${data.id}:left:${button.id}`}
 								type='source'
 								position={Position.Left}
+							/>
+							{button.text}
+							<Handle
+								id={`${data.id}:right:${button.id}`}
+								type='source'
+								position={Position.Right}
 							/>
 						</div>
 					))}

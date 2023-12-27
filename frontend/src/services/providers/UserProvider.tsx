@@ -13,7 +13,7 @@ export interface UserProviderProps {
 }
 
 function UserProvider({ children }: UserProviderProps): ReactNode {
-	let location = useLocation();
+	const location = useLocation();
 
 	const [user, setUser] = useState<UserContextProps | undefined>(undefined);
 

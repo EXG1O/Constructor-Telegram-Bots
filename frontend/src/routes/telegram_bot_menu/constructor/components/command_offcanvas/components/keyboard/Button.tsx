@@ -28,8 +28,8 @@ function Button({ data, index, button, provided, onChange, onDelete }: ButtonPro
 				as='div'
 				size='sm'
 				variant='light'
-				className='border bi bi-arrows-move p-auto'
-				style={{ width: '31px', cursor: 'move' }}
+				className='border bi bi-grip-vertical p-0'
+				style={{ width: '31px', cursor: 'grab', fontSize: '19px' }}
 			/>
 			<Form.Control
 				value={button.text}
@@ -61,7 +61,7 @@ function Button({ data, index, button, provided, onChange, onDelete }: ButtonPro
 				size='sm'
 				variant='danger'
 				className='bi bi-x-lg p-0'
-				style={{ width: '31px', WebkitTextStroke: '1.25px' }}
+				style={{ width: '31px', fontSize: '16px', WebkitTextStroke: '1.25px' }}
 				onClick={() => onDelete(index)}
 			/>
 		</InputGroup>

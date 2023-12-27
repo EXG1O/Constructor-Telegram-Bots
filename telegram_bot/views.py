@@ -247,7 +247,7 @@ class TelegramBotCommandDiagramAPIView(APIView):
 
 		validated_data: dict[str, Any] = serializer.validated_data
 
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(validated_data['telegram_bot_command_keyboard_button_id'])
+		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
 		telegram_bot_command_keyboard_button.telegram_bot_command = None
 		telegram_bot_command_keyboard_button.start_diagram_connector = None
 		telegram_bot_command_keyboard_button.end_diagram_connector = None
