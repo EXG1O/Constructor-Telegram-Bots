@@ -4,20 +4,21 @@ import Card from 'react-bootstrap/Card';
 import Stack from 'react-bootstrap/Stack';
 import Form from 'react-bootstrap/Form';
 
+export type AddonsName = 'description';
+
 export interface Data {
 	text: string;
 	description?: string;
 }
 
-export type AddonsName = 'description';
-
 export interface CommandProps {
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function Command({ onChange }: CommandProps): ReactNode {
-	const [data, setData] = useState<Data>({ text: '' });
-	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({ description: false });
+function Command({ initialData, onChange }: CommandProps): ReactNode {
+	const [data, setData] = useState<Data>(initialData ?? { text: '' });
+	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({ description: Boolean(initialData?.description) });
 
 	useEffect(() => onChange(data), [data]);
 

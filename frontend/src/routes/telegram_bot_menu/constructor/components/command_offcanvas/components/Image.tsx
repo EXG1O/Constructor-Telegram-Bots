@@ -8,18 +8,19 @@ import Form from 'react-bootstrap/Form';
 import useToast from 'services/hooks/useToast';
 
 export interface Data {
-	image?: Blob;
-	imageURL?: string;
+	file?: Blob;
+	fileURL?: string;
 }
 
 export interface ImageProps {
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function Image({ onChange }: ImageProps): ReactNode {
+function Image({ initialData, onChange }: ImageProps): ReactNode {
 	const { createMessageToast } = useToast();
 
-	const [data, setData] = useState<Data>({});
+	const [data, setData] = useState<Data>(initialData ?? {});
 
 	useEffect(() => onChange(data), [data]);
 
@@ -30,11 +31,7 @@ function Image({ onChange }: ImageProps): ReactNode {
 			if (file.size < 3145728) {
 				const fileRender = new FileReader();
 				fileRender.readAsDataURL(file);
-				fileRender.addEventListener('loadend', e => setData({
-					...data,
-					image: file,
-					imageURL: e.target?.result as string | null ?? undefined,
-				}));
+				fileRender.addEventListener('loadend', e => setData({ ...data, file, fileURL: e.target?.result as string | null ?? undefined }));
 			} else {
 				createMessageToast({ message: gettext('Изображение весит больше 3МБ!'), level: 'danger' });
 			}
@@ -48,8 +45,8 @@ function Image({ onChange }: ImageProps): ReactNode {
 			</Card.Header>
 			<Card.Body className='p-2'>
 				<Stack gap={2}>
-					{data.imageURL && (
-						<RBImage thumbnail className='p-0' src={data.imageURL} />
+					{data.fileURL && (
+						<RBImage thumbnail className='p-0' src={data.fileURL} />
 					)}
 					<Form.Control
 						type='file'

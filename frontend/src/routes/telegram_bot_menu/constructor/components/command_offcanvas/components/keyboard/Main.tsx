@@ -10,6 +10,10 @@ import Button from './Button';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
+interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id' | 'value' | 'size' | 'variant' | 'onChange'> {
+	value: Data['type'];
+}
+
 export interface ButtonData {
 	id?: number;
 	row?: number;
@@ -22,8 +26,9 @@ export interface Data {
 	buttons: ButtonData[];
 }
 
-interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id' | 'value' | 'size' | 'variant' | 'onChange'> {
-	value: Data['type'];
+export interface MainProps {
+	initialData?: Data;
+	onChange: (data: Data) => void;
 }
 
 const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
@@ -32,12 +37,8 @@ const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
 	{ value: 'payment', children: gettext('Платёжный') },
 ];
 
-export interface MainProps {
-	onChange: (data: Data) => void;
-}
-
-function Main({ onChange }: MainProps): ReactNode {
-	const [data, setData] = useState<Data>({ type: 'default', buttons: [] });
+function Main({ initialData, onChange }: MainProps): ReactNode {
+	const [data, setData] = useState<Data>(initialData ?? { type: 'default', buttons: [] });
 
 	useEffect(() => onChange(data), [data]);
 

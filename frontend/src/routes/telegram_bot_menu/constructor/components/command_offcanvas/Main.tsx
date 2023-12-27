@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useRef, useState } from 'react';
 
 import Offcanvas, { OffcanvasProps } from 'react-bootstrap/Offcanvas';
 import Button, { ButtonProps } from 'react-bootstrap/Button';
@@ -15,18 +15,24 @@ import useTelegramBot from 'services/hooks/useTelegramBot';
 
 import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
 
-export interface Data {
-	name: CommandNameData['text'];
-	command?: CommandData;
-	image?: ImageData['image'];
-	message_text: MessageTextData;
-	keyboard?: KeyboardData;
-}
-
 type AddonsName = 'command' | 'image' | 'keyboard';
 
 interface AddonsButtonProps extends Omit<ButtonProps, 'key' | 'size' | 'variant' | 'onClick'> {
 	name: AddonsName;
+}
+
+export interface Data {
+	name: CommandNameData['text'];
+	command?: CommandData;
+	image?: ImageData['file'];
+	message_text: MessageTextData;
+	keyboard?: KeyboardData;
+}
+
+export interface MainProps extends OffcanvasProps {
+	commandID?: number;
+	initialData?: Data;
+	onUpdateNodes?: () => void;
 }
 
 const addonsButton: AddonsButtonProps[] = [
@@ -35,30 +41,49 @@ const addonsButton: AddonsButtonProps[] = [
 	{ name: 'keyboard', children: gettext('Клавиатура') },
 ];
 
-function Main(props: OffcanvasProps): ReactNode {
+function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): ReactNode {
 	const { createMessageToast } = useToast();
 	const { telegramBot } = useTelegramBot();
 
-	const [data, setData] = useState<Data>({ name: '', message_text: { text: '' } });
+	const data = useRef<Data>(initialData ?? { name: '', message_text: { text: '' } });
 	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({
-		command: false,
-		image: false,
-		keyboard: false,
+		command: Boolean(initialData?.command),
+		image: Boolean(initialData?.image),
+		keyboard: Boolean(initialData?.keyboard),
 	});
 
 	function toggleAddon(name: AddonsName): void {
 		setAddons({ ...addons, [name]: !addons[name] });
 
 		if (addons[name]) {
-			setData({ ...data, [name]: undefined });
+			data.current[name] = undefined;
 		}
 	}
 
-	async function handleAddCommandButtonClick() {
-		const data_ = { ...data };
+	async function handleAddCommandButtonClick(): Promise<void> {
+		const data_ = { ...data.current };
 		delete data_.image;
 
-		const response = await TelegramBotCommandAPI.create(telegramBot.id, { data: data_, image: data.image });
+		const response = await TelegramBotCommandAPI.create(telegramBot.id, { data: data_, image: data.current.image });
+
+		if (response.ok) {
+			props.onHide();
+			onUpdateNodes?.();
+		}
+
+		createMessageToast({ message: response.json.message, level: response.json.level });
+	}
+
+	async function handleUpdateCommandButtonClick(): Promise<void> {
+		const data_ = { ...data.current };
+		delete data_.image;
+
+		const response = await TelegramBotCommandAPI.update(telegramBot.id, commandID!, { data: data_, image: data.current.image });
+
+		if (response.ok) {
+			props.onHide();
+			onUpdateNodes?.();
+		}
 
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}
@@ -66,42 +91,58 @@ function Main(props: OffcanvasProps): ReactNode {
 	return (
 		<Offcanvas {...props} placement={'end'}>
 			<Offcanvas.Header className='border-bottom' closeButton>
-				<Offcanvas.Title as='h5'>{gettext('Добавление команды')}</Offcanvas.Title>
+				<Offcanvas.Title as='h5'>
+					{commandID ? gettext('Редактирование команды') : gettext('Добавление команды')}
+				</Offcanvas.Title>
 			</Offcanvas.Header>
-			<Offcanvas.Body>
-				<Stack gap={3}>
-					<CommandName onChange={data_ => setData({ ...data, name: data_.text })} />
-					{addons.command && (
-						<Command onChange={data_ => setData({ ...data, command: data_ })} />
-					)}
-					{addons.image && (
-						<Image onChange={data_ => setData({ ...data, image: data_.image })} />
-					)}
-					<MessageText onChange={data_ => setData({ ...data, message_text: data_ })} />
-					{addons.keyboard && (
-						<Keyboard onChange={data_ => setData({ ...data, keyboard: data_ })} />
-					)}
-					<Stack className='bg-light border rounded p-1' gap={1}>
-						{addonsButton.map(({ name, ...props }, index) => (
-							<Button
-								{...props}
-								key={index}
-								size='sm'
-								variant={addons[name] ? 'secondary' : 'dark'}
-								onClick={() => toggleAddon(name)}
-							/>
-						))}
-					</Stack>
+			<Offcanvas.Body className='vstack gap-3'>
+				<CommandName
+					initialData={{ text: initialData?.name ?? '' }}
+					onChange={commandName => { data.current.name = commandName.text }}
+				/>
+				{addons.command && (
+					<Command
+						initialData={initialData?.command}
+						onChange={command => { data.current.command = command }}
+					/>
+				)}
+				{addons.image && (
+					<Image onChange={image => { data.current.image = image.file }} />
+				)}
+				<MessageText
+					initialData={initialData?.message_text}
+					onChange={messageText => { data.current.message_text = messageText }}
+				/>
+				{addons.keyboard && (
+					<Keyboard
+						initialData={initialData?.keyboard}
+						onChange={keyboard => { data.current.keyboard = keyboard }}
+					/>
+				)}
+				<Stack className='bg-light border rounded p-1' gap={1}>
+					{addonsButton.map(({ name, ...props }, index) => (
+						<Button
+							{...props}
+							key={index}
+							size='sm'
+							variant={addons[name] ? 'secondary' : 'dark'}
+							onClick={() => toggleAddon(name)}
+						/>
+					))}
 				</Stack>
 			</Offcanvas.Body>
 			<Offcanvas.Header className='border-top'>
 				<Button
 					variant='success'
 					className='flex-fill'
-					onClick={handleAddCommandButtonClick}
-				>
-					{gettext('Добавить команду')}
-				</Button>
+					{...commandID ? {
+						onClick: handleUpdateCommandButtonClick,
+						children: gettext('Редактировать команду'),
+					} : {
+						onClick: handleAddCommandButtonClick,
+						children: gettext('Добавить команду'),
+					}}
+				/>
 			</Offcanvas.Header>
 		</Offcanvas>
 	);

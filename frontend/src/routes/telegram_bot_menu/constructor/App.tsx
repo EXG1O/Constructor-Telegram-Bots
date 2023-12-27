@@ -46,6 +46,8 @@ function App(): ReactNode {
 
 	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState(false);
 
+	useEffect(() => { updateNodes() }, []);
+
 	async function updateNodes(): Promise<void> {
 		const response = await TelegramBotCommandsDiagramAPI.get(telegramBot.id);
 
@@ -80,8 +82,6 @@ function App(): ReactNode {
 			setEdges(newEdges);
 		}
 	}
-
-	useEffect(() => { updateNodes() }, []);
 
 	function handleNodeDragStop(nodes: Node[] | undefined): void {
 		nodes?.forEach(node => TelegramBotCommandDiagramAPI.updatePosition(
@@ -200,10 +200,6 @@ function App(): ReactNode {
 		return true;
 	}
 
-	function handleConnect(connection: Connection): void {
-		addEdge(connection);
-	}
-
 	return (
 		<>
 			<CommandOffcanvas show={showCommandOffcanvas} onHide={() => setShowCommandOffcanvas(false)} />
@@ -220,7 +216,7 @@ function App(): ReactNode {
 					onEdgeUpdate={handleEdgeUpdate}
 					onEdgeUpdateEnd={(event, edge) => handleEdgeUpdateEnd(edge)}
 					isValidConnection={handleValidConnection}
-					onConnect={handleConnect}
+					onConnect={connection => addEdge(connection)}
 				>
 					<Panel position='top-right'>
 						<div className='d-flex justify-content-end gap-2'>

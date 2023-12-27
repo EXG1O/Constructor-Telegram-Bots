@@ -115,7 +115,7 @@ export namespace Data {
 		}
 
 		interface UpdateTelegramBotCommandKeyboardButton extends CreateTelegramBotCommandKeyboardButton {
-			id: TelegramBotCommandKeyboardButton['id'];
+			id?: TelegramBotCommandKeyboardButton['id'];
 		}
 
 		interface UpdateTelegramBotCommandKeyboard extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
@@ -123,7 +123,6 @@ export namespace Data {
 		}
 
 		export interface UpdateTelegramBotCommand extends Omit<CreateTelegramBotCommand, 'keyboard'> {
-			id: TelegramBotCommand['id'];
 			keyboard?: UpdateTelegramBotCommandKeyboard;
 		}
 

@@ -8,11 +8,12 @@ export interface Data {
 }
 
 export interface CommandNameProps {
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function CommandName({ onChange }: CommandNameProps): ReactNode {
-	const [data, setData] = useState<Data>({ text: '' });
+function CommandName({ initialData, onChange }: CommandNameProps): ReactNode {
+	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 
 	useEffect(() => onChange(data), [data]);
 

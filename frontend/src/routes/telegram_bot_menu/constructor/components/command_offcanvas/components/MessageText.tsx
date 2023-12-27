@@ -15,11 +15,12 @@ export interface Data {
 }
 
 export interface MessageTextProps {
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function MessageText({ onChange }: MessageTextProps): ReactNode {
-	const [data, setData] = useState<Data>({ text: '' });
+function MessageText({ initialData, onChange }: MessageTextProps): ReactNode {
+	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 
 	useEffect(() => onChange(data), [data]);
 
