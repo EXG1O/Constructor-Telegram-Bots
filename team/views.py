@@ -1,8 +1,19 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .models import TeamMember
+from .serializers import TeamMemberModelSerializer
 
 
-def team_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'team.html', {'team_members': TeamMember.objects.all()})
+class TeamMembersAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response(
+			TeamMemberModelSerializer(
+				TeamMember.objects.all(),
+				many=True,
+			).data
+		)

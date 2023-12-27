@@ -1,10 +1,13 @@
-from django.urls import path
+from django.urls import path, include
 
-from . import views
+from .views import UsersAPIView, UserAPIView, UserLoginAPIView, UserLogoutAPIView
 
 
-app_name = 'user'
 urlpatterns = [
-	path('login/<int:user_id>/<str:confirm_code>/', views.user_login_view, name='login'),
-	path('logout/', views.user_logout_view, name='logout'),
+	path('users/', UsersAPIView.as_view(), name='users'),
+	path('user/', include([
+		path('', UserAPIView.as_view(), name='user'),
+		path('login/', UserLoginAPIView.as_view(), name='user-login'),
+		path('logout/', UserLogoutAPIView.as_view(), name='user-logout'),
+	])),
 ]

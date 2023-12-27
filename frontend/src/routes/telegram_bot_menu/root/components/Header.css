@@ -1,0 +1,9 @@
+#telegramBotMenuHeader .nav-link {
+	transition: color .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+#telegramBotMenuHeader .nav-link.active,
+#telegramBotMenuHeader .nav-link:hover {
+	color: var(--bs-light)!important;
+    background-color: var(--bs-dark);
+}

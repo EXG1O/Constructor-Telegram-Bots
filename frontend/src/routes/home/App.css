@@ -1,0 +1,33 @@
+.btn-new-update {
+	font-size: 14px;
+	background-color: #ffdb59;
+	box-shadow: 0 0 6px #ffe073;
+}
+
+.btn-new-update:hover {
+	background-color: #f5d256;
+}
+
+.header,
+.stats,
+.donations {
+	width: 100%;
+}
+
+@media (min-width: 992px) {
+	.header {
+		width: 60%;
+	}
+
+	.stats {
+		width: 35%;
+	}
+
+	.donations {
+		width: 50%;
+	}
+}
+
+.sum, .date {
+	width: 32.5%;
+}

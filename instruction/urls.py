@@ -1,8 +1,8 @@
 from django.urls import path
 
-from . import views
+from .views import InstructionSectionsAPIView
 
 
 urlpatterns = [
-	path('', views.instruction_view, name='instruction'),
+	path('sections/', InstructionSectionsAPIView.as_view(), name='instruction-sections'),
 ]

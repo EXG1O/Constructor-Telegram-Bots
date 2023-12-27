@@ -12,8 +12,6 @@ from aiogram.types import (
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from constructor_telegram_bots.environment import areplace_text_variables_to_jinja_variables_values
-
 from ...models import (
 	TelegramBot as DjangoTelegramBot,
 	TelegramBotCommand as DjangoTelegramBotCommand,
@@ -25,7 +23,6 @@ from ...models import (
 	TelegramBotUser as DjangoTelegramBotUser,
 )
 
-from .. import database_telegram_bot
 from ..typing import Handler
 
 from aiohttp import ClientSession

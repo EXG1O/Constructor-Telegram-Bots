@@ -1,8 +1,19 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .models import InstructionSection
+from .serializers import InstructionSectionModelSerializer
 
 
-def instruction_view(request: HttpRequest) -> HttpResponse:
-	return render(request, 'instruction.html', {'instruction_sections': InstructionSection.objects.all()})
+class InstructionSectionsAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response(
+			InstructionSectionModelSerializer(
+				InstructionSection.objects.all(),
+				many=True,
+			).data
+		)

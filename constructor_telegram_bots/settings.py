@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from .utils.other import generate_random_string
+from utils.other import generate_random_string
 
 from dotenv import load_dotenv
 from pathlib import Path
@@ -15,7 +15,6 @@ load_dotenv()
 
 SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(length=50, chars=string.ascii_letters + string.digits)}')
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
-DEBUG_ENVIRONMENT: bool = os.getenv('DEBUG_ENVIRONMENT', 'True') == 'True'
 
 match sys.argv:
 	case ['manage.py', 'test', *extra_options]:
@@ -33,12 +32,6 @@ POSTGRESQL_DATABASE_PASSWORD: str | None = os.getenv('POSTGRESQL_DATABASE_PASSWO
 
 SITE_DOMAIN = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
 ALLOWED_HOSTS = ['127.0.0.1', 'constructor.exg1o.org']
-CSRF_TRUSTED_ORIGINS = [
-	'http://*.127.0.0.1',
-	'https://*.127.0.0.1',
-	'http://constructor.exg1o.org',
-	'https://constructor.exg1o.org',
-]
 
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
@@ -59,6 +52,8 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'drf_standardized_errors',
 
+	'webpack_loader',
+
 	'admin_interface',
 	'colorfield',
 
@@ -73,17 +68,20 @@ INSTALLED_APPS = [
 	'django.contrib.staticfiles',
 
 	'user',
-	'home',
+	'telegram_bot',
 	'team',
 	'updates',
 	'instruction',
 	'donation',
-	'personal_cabinet',
-	'telegram_bot_menu',
-	'telegram_bot',
-	'plugin',
-	'privacy_policy',
 ]
+
+WEBPACK_LOADER = {
+	'INDEX': {
+		'CACHE': not DEBUG,
+		'POLL_INTERVAL': 0.1,
+		'STATS_FILE': BASE_DIR / 'frontend/webpack.stats.json',
+	},
+}
 
 TINYMCE_DEFAULT_CONFIG = {
 	'theme': 'silver',
@@ -119,13 +117,11 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-	'DEFAULT_AUTHENTICATION_CLASSES': [
-		'rest_framework.authentication.BasicAuthentication',
-		'rest_framework.authentication.SessionAuthentication',
-	],
 	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
 }
-DRF_STANDARDIZED_ERRORS = {'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter'}
+DRF_STANDARDIZED_ERRORS = {
+	'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter',
+}
 
 
 TEMPLATES = [
@@ -139,8 +135,6 @@ TEMPLATES = [
 				'django.template.context_processors.request',
 				'django.contrib.auth.context_processors.auth',
 				'django.contrib.messages.context_processors.messages',
-
-				'constructor_telegram_bots.context_processors.constructor_telegram_bot_username',
 			],
 		},
 	},
@@ -186,7 +180,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_DIRS = [
 	BASE_DIR / 'constructor_telegram_bots/static',
-	BASE_DIR / 'node_modules',
+	BASE_DIR / 'frontend/dist',
 ]
 
 MEDIA_URL = '/media/'

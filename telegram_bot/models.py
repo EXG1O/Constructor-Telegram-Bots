@@ -61,13 +61,13 @@ class TelegramBotCommandManager(models.Manager):
 		message_text: dict,
 		keyboard: dict | None,
 		api_request: dict | None,
-		database_record: dict | None,
+		# database_record: dict | None,
 	) -> 'TelegramBotCommand':
 		telegram_bot_command: TelegramBotCommand = super().create(
 			telegram_bot=telegram_bot,
 			name=name,
 			image=image if isinstance(image, InMemoryUploadedFile) else None,
-			database_record=database_record
+			# database_record=database_record
 		)
 
 		if command:
@@ -93,7 +93,6 @@ class TelegramBotCommand(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=255)
 	image = models.ImageField(_('Изображение'), upload_to=upload_telegram_bot_command_image_path, blank=True, null=True)
-	database_record = models.JSONField(_('Запись в базу данных'), blank=True, null=True)
 
 	x =	models.IntegerField(_('Координата X'), default=0)
 	y = models.IntegerField(_('Координата Y'), default=0)
@@ -150,7 +149,7 @@ class TelegramBotCommand(models.Model):
 		message_text: dict,
 		keyboard: dict | None,
 		api_request: dict | None,
-		database_record: dict | None,
+		# database_record: dict | None,
 	):
 		self.name = name
 		self.database_record = database_record
@@ -245,7 +244,6 @@ class TelegramBotCommand(models.Model):
 class TelegramBotCommandCommand(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='command')
 	text = models.CharField(_('Команда'), max_length=32)
-	is_show_in_menu = models.BooleanField(_('Отображать в меню'), default=False)
 	description = models.CharField(_('Описание'), max_length=255, blank=True, null=True)
 
 	class Meta:
@@ -262,10 +260,10 @@ class TelegramBotCommandKeyboardManager(models.Manager):
 	def create(
 		self,
 		telegram_bot_command: TelegramBotCommand,
-		mode: str,
+		type: str,
 		buttons: list
 	) -> 'TelegramBotCommandKeyboard':
-		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = super().create(telegram_bot_command=telegram_bot_command, mode=mode)
+		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = super().create(telegram_bot_command=telegram_bot_command, type=type)
 
 		for button in buttons:
 			TelegramBotCommandKeyboardButton.objects.create(
@@ -279,7 +277,7 @@ class TelegramBotCommandKeyboardManager(models.Manager):
 
 class TelegramBotCommandKeyboard(models.Model):
 	telegram_bot_command = models.OneToOneField(TelegramBotCommand, on_delete=models.CASCADE, related_name='keyboard')
-	mode = models.CharField(_('Режим'), max_length=7, choices=(
+	type = models.CharField(_('Режим'), max_length=7, choices=(
 		('default', _('Обычный')),
 		('inline', _('Встроенный')),
 		('payment', _('Платёжный')),
@@ -322,14 +320,14 @@ class TelegramBotCommandApiRequest(models.Model):
 		('delete', 'DELETE'),
 	), default='get')
 	headers = models.JSONField(_('Заголовки'), blank=True, null=True)
-	data = models.JSONField(_('Данные'), blank=True, null=True)
+	body = models.JSONField(_('Данные'), blank=True, null=True)
 
 	class Meta:
 		db_table = 'telegram_bot_command_api_request'
 
 class TelegramBotUser(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
-	user_id = models.BigIntegerField('Telegram ID')
+	telegram_id = models.BigIntegerField('Telegram ID')
 	full_name = models.CharField(_('Полное имя'), max_length=129, null=True)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
 	activated_date = models.DateTimeField(_('Дата активации'), auto_now_add=True)

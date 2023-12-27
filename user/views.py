@@ -1,48 +1,77 @@
-from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext as _
-from django import urls
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
+
+from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+
+from utils.drf import CustomResponse
 
 from .models import User
+from .serializers import UserModelSerializer, AuthTokenSerializer
+
+from typing import Any
 
 
-def user_login_view(request: HttpRequest, user_id: int, confirm_code: str) -> HttpResponse:
-	context = {
-		'title': _('Ошибка авторизации'),
-		'meta': {'refresh': {'url': urls.reverse('home')}},
-		'content': {'text': _('Автоматический переход на главную страницу через 3 секунды.')},
-	}
+class UsersAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
 
-	try:
-		user: User = User.objects.get(id=user_id)
-	except User.DoesNotExist:
-		context['content']['heading'] = _('Не удалось найти пользователя!')
+	def get(self, request: Request) -> Response:
+		return Response({'users_count': User.objects.count()})
 
-		return render(request, 'base_success_or_error.html', context, status=404)
+class UserAPIView(APIView):
+	authentication_classes = [TokenAuthentication]
+	permission_classes = [IsAuthenticated]
 
-	if user.confirm_code != confirm_code:
-		context['content']['heading'] = _('Неверный код подтверждения!')
+	def get(self, request: Request) -> Response:
+		return Response(UserModelSerializer(request.user).data)
 
-		return render(request, 'base_success_or_error.html', context, status=401)
+	def delete(self, request: Request) -> CustomResponse:
+		request.user.delete()
 
-	user.confirm_code = None
-	user.save()
+		return CustomResponse(_('Вы успешно удалили свой аккаунт.'))
 
-	login(request, user)
+class UserLoginAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
 
-	return redirect('personal_cabinet')
+	def post(self, request: Request) -> CustomResponse:
+		serializer = AuthTokenSerializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
 
-@login_required
-def user_logout_view(request: HttpRequest) -> HttpResponse:
-	logout(request)
+		validated_data: dict[str, Any] = serializer.validated_data
+		user_id: int = validated_data['user_id']
+		confirm_code: str = validated_data['confirm_code']
 
-	return render(request, 'base_success_or_error.html', {
-		'title': _('Выход из аккаунта'),
-		'meta': {'refresh': {'url': urls.reverse('home')}},
-		'content': {
-			'heading': _('Успешный выход из аккаунта'),
-			'text': _('Автоматический переход на главную страницу через 3 секунды.'),
-		},
-	})
+		try:
+			user: User = User.objects.get(id=user_id)
+		except User.DoesNotExist:
+			return CustomResponse(_('Не удалось найти пользователя!'), status=404)
+
+		if user.confirm_code != confirm_code:
+			return CustomResponse(_('Неверный код подтверждения!'), status=401)
+
+		user.confirm_code = None
+		user.save()
+
+		auth_token, created = Token.objects.get_or_create(user=user)
+
+		response = CustomResponse(_('Вы успешно вошли в аккаунт.'))
+		response.set_cookie('auth-token', auth_token.key)
+
+		return response
+
+class UserLogoutAPIView(APIView):
+	authentication_classes = [TokenAuthentication]
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request: Request) -> CustomResponse:
+		request.user.auth_token.delete()
+
+		response = CustomResponse(_('Вы успешно вышли из своего аккаунта.'))
+		response.delete_cookie('auth-token')
+
+		return response

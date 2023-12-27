@@ -1,7 +1,4 @@
-from aiogram import (
-	Bot as Bot_,
-	Dispatcher,
-)
+from aiogram import Bot as Bot_, Dispatcher
 from aiogram.types import Chat, User, Update, Message, CallbackQuery
 from aiogram.methods import TelegramMethod, SetMyCommands
 
