@@ -61,10 +61,7 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 	}
 
 	async function handleAddCommandButtonClick(): Promise<void> {
-		const data_ = { ...data.current };
-		delete data_.image;
-
-		const response = await TelegramBotCommandAPI.create(telegramBot.id, { data: data_, image: data.current.image });
+		const response = await TelegramBotCommandAPI.create(telegramBot.id, data.current);
 
 		if (response.ok) {
 			props.onHide();
@@ -75,10 +72,7 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 	}
 
 	async function handleUpdateCommandButtonClick(): Promise<void> {
-		const data_ = { ...data.current };
-		delete data_.image;
-
-		const response = await TelegramBotCommandAPI.update(telegramBot.id, commandID!, { data: data_, image: data.current.image });
+		const response = await TelegramBotCommandAPI.update(telegramBot.id, commandID!, data.current);
 
 		if (response.ok) {
 			props.onHide();

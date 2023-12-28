@@ -20,12 +20,6 @@ export namespace APIResponse {
 	}
 }
 
-export function headersWithAuthToken(): HeadersInit {
-	const authToken = Cookies.get('auth-token');
-
-	return { 'Authorization': `Token ${authToken}` };
-}
-
 export async function makeRequest<SuccessAPIResponse extends ObjectAsJSON = APIResponse.Success, ErrorAPIResponse extends ObjectAsJSON = APIResponse.Error>(
 	url: string,
 	method: 'GET' | 'POST' | 'PATCH' | 'DELETE',

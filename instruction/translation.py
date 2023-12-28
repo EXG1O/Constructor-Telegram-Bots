@@ -5,4 +5,4 @@ from .models import InstructionSection
 
 @register(InstructionSection)
 class InstructionSectionTranslationOptions(TranslationOptions):
-    fields = ['title', 'text']
+    fields = ('title', 'text')

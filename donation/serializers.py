@@ -7,10 +7,10 @@ from .models import Donation, DonationSection, DonationButton
 from typing import Any
 
 
-class DonationModelSerializer(serializers.ModelSerializer):
+class DonationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Donation
-		fields = ['id', 'sum', 'telegram_url', 'date']
+		fields = ('id', 'sum', 'telegram_url', 'date')
 
 	def to_representation(self, instance: Donation) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
@@ -18,16 +18,12 @@ class DonationModelSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class DonationSectionModelSerializer(serializers.ModelSerializer):
+class DonationSectionSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = DonationSection
-		fields = ['id', 'title', 'text']
+		fields = ('id', 'title', 'text')
 
-class DonationButtonModelSerializer(serializers.ModelSerializer):
+class DonationButtonSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = DonationButton
-		fields = ['id', 'text', 'url']
-
-class GetDonationsSerializer(serializers.Serializer):
-	offset = serializers.IntegerField(default=None)
-	limit = serializers.IntegerField(default=None)
+		fields = ('id', 'text', 'url')

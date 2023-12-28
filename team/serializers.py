@@ -7,10 +7,10 @@ from .models import TeamMember
 from typing import Any
 
 
-class TeamMemberModelSerializer(serializers.ModelSerializer):
+class TeamMemberSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TeamMember
-		fields = ['id', 'image', 'username', 'speciality', 'joined_date']
+		fields = ('id', 'image', 'username', 'speciality', 'joined_date')
 
 	def to_representation(self, instance: TeamMember) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)

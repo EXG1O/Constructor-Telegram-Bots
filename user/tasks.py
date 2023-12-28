@@ -6,7 +6,10 @@ import time
 
 
 @shared_task
-def update_users_first_name() -> None:
+def update_users_first_name_and_last_name() -> None:
 	for user in User.objects.all():
 		user.update_first_name()
-		time.sleep(0.5)
+		user.update_last_name()
+		user.save()
+
+		time.sleep(1)

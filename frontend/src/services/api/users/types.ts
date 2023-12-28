@@ -2,6 +2,7 @@ export interface User {
 	id: number;
 	telegram_id: number;
 	first_name: string;
+	last_name: string;
 	is_staff: boolean;
 	joined_date: string;
 }

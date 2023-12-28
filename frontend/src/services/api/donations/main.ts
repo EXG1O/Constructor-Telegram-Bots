@@ -1,10 +1,12 @@
 import { makeRequest } from 'services/api/base';
-import { Donation, DonationSection, DonationButton, Data } from './types';
+import { DonationSection, DonationButton, APIResponse } from './types';
 
 const rootURL = '/api/donations/';
 
 export namespace DonationsAPI {
-	export const get = (data: Data.DonationsAPI.Get) => makeRequest<Donation[]>(rootURL, 'POST', undefined, data);
+	export const get = (limit?: number, offset?: number) => (
+		makeRequest<APIResponse.DonationsAPI.Get[]>(`${rootURL}?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET')
+	);
 }
 
 export namespace DonationSectionsAPI {

@@ -1,16 +1,17 @@
 from django.utils.translation import gettext as _
+from django.contrib.auth import login, logout
 
 from rest_framework.views import APIView
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
+from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from utils.drf import CustomResponse
 
 from .models import User
-from .serializers import UserModelSerializer, AuthTokenSerializer
+from .serializers import UserSerializer, AuthTokenSerializer
 
 from typing import Any
 
@@ -20,19 +21,22 @@ class UsersAPIView(APIView):
 	permission_classes = []
 
 	def get(self, request: Request) -> Response:
-		return Response({'users_count': User.objects.count()})
+		return Response({'count': User.objects.count()})
 
 class UserAPIView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
-		return Response(UserModelSerializer(request.user).data)
+		return Response(UserSerializer(request.user).data)
 
 	def delete(self, request: Request) -> CustomResponse:
 		request.user.delete()
 
-		return CustomResponse(_('Вы успешно удалили свой аккаунт.'))
+		response = CustomResponse(_('Вы успешно удалили свой аккаунт.'))
+		response.delete_cookie('auth-token')
+
+		return response
 
 class UserLoginAPIView(APIView):
 	authentication_classes = []
@@ -54,6 +58,8 @@ class UserLoginAPIView(APIView):
 		if user.confirm_code != confirm_code:
 			return CustomResponse(_('Неверный код подтверждения!'), status=401)
 
+		login(request, user)
+
 		user.confirm_code = None
 		user.save()
 
@@ -65,11 +71,13 @@ class UserLoginAPIView(APIView):
 		return response
 
 class UserLogoutAPIView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request: Request) -> CustomResponse:
 		request.user.auth_token.delete()
+
+		logout(request)
 
 		response = CustomResponse(_('Вы успешно вышли из своего аккаунта.'))
 		response.delete_cookie('auth-token')

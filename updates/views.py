@@ -1,28 +1,14 @@
-from rest_framework.views import APIView
-from rest_framework.request import Request
-from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import LimitOffsetPagination
 
 from .models import Update
-from .serializers import UpdateModelSerializer, GetUpdatesSerializer
-
-from typing import Any
+from .serializers import UpdateSerializer
 
 
-class UpdatesAPIView(APIView):
+class UpdatesAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
-	def post(self, request: Request) -> Response:
-		serializer = GetUpdatesSerializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
-
-		validated_data: dict[str, Any] = serializer.validated_data
-		offset: int | None = validated_data['offset']
-		limit: int | None = validated_data['limit']
-
-		return Response(
-			UpdateModelSerializer(
-				Update.objects.all()[offset:limit],
-				many=True,
-			).data
-		)
+	queryset = Update.objects.all()
+	serializer_class = UpdateSerializer
+	pagination_class = LimitOffsetPagination

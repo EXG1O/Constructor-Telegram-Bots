@@ -3,11 +3,11 @@ from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from utils.drf import CustomResponse
 
 from .models import (
@@ -21,12 +21,11 @@ from .decorators import (
 	check_telegram_bot_command_id,
 	check_telegram_bot_user_id,
 )
-from .functions import get_image_from_request
 from .serializers import (
-	TelegramBotModelSerializer,
+	TelegramBotSerializer,
 	TelegramBotCommandModelSerializer,
-	TelegramBotCommandDiagramModelSerializer,
-	TelegramBotUserModelSerializer,
+	TelegramBotCommandDiagramSerializer,
+	TelegramBotUserSerializer,
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
 	CreateTelegramBotCommandSerializer,
@@ -35,19 +34,18 @@ from .serializers import (
 	DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer,
 	UpdateTelegramBotCommandDiagramPositionSerializer,
 )
-from .tasks import start_telegram_bot as celery_start_telegram_bot
+from .tasks import start_telegram_bot
 
 from typing import Any
-import json
 
 
 class TelegramBotsView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
 		return Response(
-			TelegramBotModelSerializer(
+			TelegramBotSerializer(
 				request.user.telegram_bots.all(),
 				many=True,
 			).data
@@ -61,16 +59,16 @@ class TelegramBotsView(APIView):
 
 		return CustomResponse(
 			_('Вы успешно добавили Telegram бота.'),
-			data={'telegram_bot': TelegramBotModelSerializer(telegram_bot).data},
+			data={'telegram_bot': TelegramBotSerializer(telegram_bot).data},
 		)
 
 class TelegramBotView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(TelegramBotModelSerializer(telegram_bot).data)
+		return Response(TelegramBotSerializer(telegram_bot).data)
 
 	@check_telegram_bot_id
 	def patch(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
@@ -84,13 +82,13 @@ class TelegramBotView(APIView):
 		if api_token is not None:
 			telegram_bot.api_token = api_token
 			telegram_bot.is_running = False
+			telegram_bot.update_username()
 			telegram_bot.save()
 
-			telegram_bot.update_username()
 
 			return CustomResponse(
 				_('Вы успешно изменили API-токен Telegram бота.'),
-				data={'telegram_bot': TelegramBotModelSerializer(telegram_bot).data},
+				data={'telegram_bot': TelegramBotSerializer(telegram_bot).data},
 			)
 		elif is_private is not None:
 			telegram_bot.is_private = is_private
@@ -98,7 +96,7 @@ class TelegramBotView(APIView):
 
 			return CustomResponse(
 				_('Вы успешно сделали Telegram бота%(status)s приватным.') % {'status': ('' if is_private else ' не')},
-				data={'telegram_bot': TelegramBotModelSerializer(telegram_bot).data},
+				data={'telegram_bot': TelegramBotSerializer(telegram_bot).data},
 			)
 		else:
 			return CustomResponse(_('На стороне сайта произошла непредвиденная ошибка, попробуйте ещё раз позже!'), status=500)
@@ -110,20 +108,20 @@ class TelegramBotView(APIView):
 		return CustomResponse(_('Вы успешно удалили Telegram бота.'))
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([CookiesTokenAuthentication])
 @permission_classes([IsAuthenticated])
 @check_telegram_bot_id
 def start_or_stop_telegram_bot(request: Request, telegram_bot: TelegramBot) -> CustomResponse:
 	if not settings.TEST:
 		if not telegram_bot.is_running and telegram_bot.is_stopped:
-			celery_start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+			start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 		elif telegram_bot.is_running and not telegram_bot.is_stopped:
 			telegram_bot.stop()
 
 	return CustomResponse()
 
 class TelegramBotCommandsView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
@@ -131,28 +129,21 @@ class TelegramBotCommandsView(APIView):
 		return Response(
 			TelegramBotCommandModelSerializer(
 				telegram_bot.commands.all(),
-				context={'escape': True},
 				many=True,
 			).data
 		)
 
 	@check_telegram_bot_id
 	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
-		request_data: dict[str, Any] = json.loads(request.POST['data']) if 'data' in request.POST else request.data
-
-		serializer = CreateTelegramBotCommandSerializer(data=request_data)
+		serializer = CreateTelegramBotCommandSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
-		TelegramBotCommand.objects.create(
-			telegram_bot=telegram_bot,
-			image=get_image_from_request(request),
-			**serializer.validated_data,
-		)
+		TelegramBotCommand.objects.create(telegram_bot=telegram_bot, **serializer.validated_data)
 
 		return CustomResponse(_('Вы успешно добавили команду Telegram боту.'))
 
 class TelegramBotCommandView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
@@ -163,15 +154,10 @@ class TelegramBotCommandView(APIView):
 	@check_telegram_bot_id
 	@check_telegram_bot_command_id
 	def patch(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
-		request_data: dict[str, Any] = json.loads(request.POST['data']) if 'data' in request.POST else request.data
-
-		serializer = UpdateTelegramBotCommandSerializer(data=request_data)
+		serializer = UpdateTelegramBotCommandSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
-		telegram_bot_command.update(
-			image=get_image_from_request(request),
-			**serializer.validated_data,
-		)
+		telegram_bot_command.update(**serializer.validated_data)
 
 		return CustomResponse(_('Вы успешно изменили команду Telegram бота.'))
 
@@ -183,21 +169,20 @@ class TelegramBotCommandView(APIView):
 		return CustomResponse(_('Вы успешно удалили команду Telegram бота.'))
 
 class TelegramBotCommandsDiagramAPIView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(
-			TelegramBotCommandDiagramModelSerializer(
+			TelegramBotCommandDiagramSerializer(
 				telegram_bot.commands.all(),
-				context={'escape': True},
 				many=True,
 			).data
 		)
 
 class TelegramBotCommandDiagramAPIView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
@@ -256,26 +241,26 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		return CustomResponse(_('Вы успешно отсоединили кнопку клавиатуры от другой команды'))
 
 class TelegramBotUsersView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(
-			TelegramBotUserModelSerializer(
+			TelegramBotUserSerializer(
 				telegram_bot.users.all(),
 				many=True,
 			).data
 		)
 
 class TelegramBotUserView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id
 	@check_telegram_bot_user_id
 	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_user: TelegramBotUser) -> Response:
-		return Response(TelegramBotUserModelSerializer(telegram_bot_user).data)
+		return Response(TelegramBotUserSerializer(telegram_bot_user).data)
 
 	@check_telegram_bot_id
 	@check_telegram_bot_user_id
@@ -285,7 +270,7 @@ class TelegramBotUserView(APIView):
 		return CustomResponse(_('Вы успешно удалили пользователя Telegram бота.'))
 
 class TelegramBotAllowedUserView(APIView):
-	authentication_classes = [TokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@check_telegram_bot_id

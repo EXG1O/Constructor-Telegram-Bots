@@ -101,17 +101,12 @@ export namespace Data {
 			body?: NonNullable<TelegramBotCommandApiRequest['body']>;
 		}
 
-		export interface CreateTelegramBotCommand {
+		export interface Create {
 			name: TelegramBotCommand['name'];
 			command?: CreateTelegramBotCommandCommand;
 			message_text: TelegramBotCommand['message_text'];
 			keyboard?: CreateTelegramBotCommandKeyboard;
 			api_request?: CreateTelegramBotCommandApiRequest;
-		}
-
-		export interface Create {
-			image?: Blob;
-			data: CreateTelegramBotCommand;
 		}
 
 		interface UpdateTelegramBotCommandKeyboardButton extends CreateTelegramBotCommandKeyboardButton {
@@ -122,13 +117,8 @@ export namespace Data {
 			buttons: UpdateTelegramBotCommandKeyboardButton[];
 		}
 
-		export interface UpdateTelegramBotCommand extends Omit<CreateTelegramBotCommand, 'keyboard'> {
+		export interface Update extends Omit<Create, 'keyboard'> {
 			keyboard?: UpdateTelegramBotCommandKeyboard;
-		}
-
-		export interface Update {
-			image?: Blob;
-			data: UpdateTelegramBotCommand;
 		}
 	}
 

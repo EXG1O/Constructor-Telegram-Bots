@@ -7,16 +7,16 @@ from django.conf import settings
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
+	path('tinymce/', include('tinymce.urls')),
+
 	path('i18n/', include('django.conf.urls.i18n')),
 	path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-
-	path('tinymce/', include('tinymce.urls')),
 
 	path('api/', include([
 		path('', include('user.urls')),
 		path('telegram-bots/', include('telegram_bot.urls')),
 		path('team/', include('team.urls')),
-		path('', include('updates.urls')),
+		path('updates/', include('updates.urls')),
 		path('donations/', include('donation.urls')),
 		path('instruction/', include('instruction.urls')),
 	])),

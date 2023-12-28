@@ -17,7 +17,7 @@
 
 {% block userlinks %}
 <a href="/">{% trans 'Вернуться на сайт' %}</a> /
-<a href="{% url 'user:logout' %}">{% trans 'Выйти' %}</a> /
+{% comment %} <a href="{% url 'user:logout' %}">{% trans 'Выйти' %}</a> / {% endcomment %}
 <form action="{% url 'set_language' %}" method="post" style="display:inline">
 	{% csrf_token %}
 	<input name="next" type="hidden" value="{{ redirect_to }}">

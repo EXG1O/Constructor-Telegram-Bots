@@ -1,19 +1,12 @@
-from rest_framework.views import APIView
-from rest_framework.request import Request
-from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 
 from .models import TeamMember
-from .serializers import TeamMemberModelSerializer
+from .serializers import TeamMemberSerializer
 
 
-class TeamMembersAPIView(APIView):
+class TeamMembersAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
-	def get(self, request: Request) -> Response:
-		return Response(
-			TeamMemberModelSerializer(
-				TeamMember.objects.all(),
-				many=True,
-			).data
-		)
+	queryset = TeamMember.objects.all()
+	serializer_class = TeamMemberSerializer

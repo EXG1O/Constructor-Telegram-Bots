@@ -17,11 +17,13 @@ export interface DonationButton {
 	url: string;
 }
 
-export namespace Data {
+export namespace APIResponse {
 	export namespace DonationsAPI {
 		export interface Get {
-			offset?: number;
-			limit?: number;
+			count: string;
+			next: string;
+			previous: string;
+			results: Donation[];
 		}
 	}
 }

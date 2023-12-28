@@ -9,7 +9,7 @@ from .models import InstructionSection
 
 @admin.register(InstructionSection)
 class InstructionSectionAdmin(TranslationAdmin):
-	list_display = ['title', 'position']
+	list_display = ('title', 'position')
 
-	fields = ['title', 'text', 'position']
+	fields = ('title', 'text', 'position')
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}

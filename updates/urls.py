@@ -3,6 +3,7 @@ from django.urls import path
 from .views import UpdatesAPIView
 
 
+app_name = 'updates'
 urlpatterns = [
-	path('updates/', UpdatesAPIView.as_view(), name='updates'),
+	path('', UpdatesAPIView.as_view(), name='index'),
 ]

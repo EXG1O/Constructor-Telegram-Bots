@@ -21,8 +21,6 @@ class TelegramBot(models.Model):
 	is_stopped = models.BooleanField(default=True)
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
-	diagram_current_scale = models.FloatField(default=1.0)
-
 	class Meta:
 		db_table = 'telegram_bot'
 
@@ -38,13 +36,11 @@ class TelegramBot(models.Model):
 	def update_username(self) -> None:
 		if settings.TEST:
 			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
-			self.save()
 		else:
 			responce: Response = requests.get(f'https://api.telegram.org/bot{self.api_token}/getMe')
 
 			if responce.status_code == 200:
 				self.username = responce.json()['result']['username']
-				self.save()
 			else:
 				self.delete()
 
@@ -56,17 +52,15 @@ class TelegramBotCommandManager(models.Manager):
 		self,
 		telegram_bot: TelegramBot,
 		name: str,
-		command: dict | None,
-		image: InMemoryUploadedFile | str | None,
 		message_text: dict,
-		keyboard: dict | None,
-		api_request: dict | None,
+		command: dict | None = None,
+		keyboard: dict | None = None,
+		api_request: dict | None = None,
 		# database_record: dict | None,
 	) -> 'TelegramBotCommand':
 		telegram_bot_command: TelegramBotCommand = super().create(
 			telegram_bot=telegram_bot,
 			name=name,
-			image=image if isinstance(image, InMemoryUploadedFile) else None,
 			# database_record=database_record
 		)
 
@@ -144,15 +138,14 @@ class TelegramBotCommand(models.Model):
 	def update(
 		self,
 		name: str,
-		command: dict | None,
-		image: InMemoryUploadedFile | str | None,
 		message_text: dict,
-		keyboard: dict | None,
-		api_request: dict | None,
+		command: dict | None = None,
+		keyboard: dict | None = None,
+		api_request: dict | None = None,
 		# database_record: dict | None,
 	):
 		self.name = name
-		self.database_record = database_record
+		# self.database_record = database_record
 		self.save()
 
 		telegram_bot_command_command: TelegramBotCommandCommand | None = self.get_command()
@@ -160,7 +153,6 @@ class TelegramBotCommand(models.Model):
 		if command:
 			if telegram_bot_command_command:
 				telegram_bot_command_command.text = command['text']
-				telegram_bot_command_command.is_show_in_menu = command['is_show_in_menu']
 				telegram_bot_command_command.description = command['description']
 				telegram_bot_command_command.save()
 			else:
@@ -169,14 +161,6 @@ class TelegramBotCommand(models.Model):
 			if telegram_bot_command_command:
 				telegram_bot_command_command.delete()
 
-		if isinstance(image, InMemoryUploadedFile) or image == 'null' and self.image != None:
-			self.image.delete(save=False)
-
-			if isinstance(image, InMemoryUploadedFile):
-				self.image = image
-
-			self.save()
-
 		self.message_text.text = message_text['text']
 		self.message_text.save()
 
@@ -184,7 +168,7 @@ class TelegramBotCommand(models.Model):
 
 		if keyboard:
 			if telegram_bot_command_keyboard:
-				telegram_bot_command_keyboard.mode = keyboard['mode']
+				telegram_bot_command_keyboard.type = keyboard['mode']
 				telegram_bot_command_keyboard.save()
 
 				buttons_id = []
@@ -230,7 +214,7 @@ class TelegramBotCommand(models.Model):
 				telegram_bot_command_api_request.url = api_request['url']
 				telegram_bot_command_api_request.method = api_request['method']
 				telegram_bot_command_api_request.headers = api_request['headers']
-				telegram_bot_command_api_request.data = api_request['data']
+				telegram_bot_command_api_request.body = api_request['body']
 				telegram_bot_command_api_request.save()
 			else:
 				TelegramBotCommandApiRequest.objects.create(telegram_bot_command=self, **api_request)
@@ -295,7 +279,6 @@ class TelegramBotCommandKeyboardButton(models.Model):
 	url = models.TextField(_('URL-адрес'), max_length=2048, blank=True, null=True)
 
 	telegram_bot_command = models.ForeignKey(TelegramBotCommand, on_delete=models.SET_NULL, blank=True, null=True)
-
 	start_diagram_connector = models.TextField(blank=True, null=True)
 	end_diagram_connector = models.TextField(blank=True, null=True)
 

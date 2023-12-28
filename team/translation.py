@@ -5,4 +5,4 @@ from .models import TeamMember
 
 @register(TeamMember)
 class TeamMemberTranslationOptions(TranslationOptions):
-    fields = ['speciality']
+    fields = ('speciality',)

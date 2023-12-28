@@ -1,57 +1,32 @@
-from rest_framework.views import APIView
-from rest_framework.request import Request
-from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import LimitOffsetPagination
 
 from .models import Donation, DonationSection, DonationButton
 from .serializers import (
-	DonationModelSerializer,
-	DonationSectionModelSerializer,
-	DonationButtonModelSerializer,
-	GetDonationsSerializer,
+	DonationSerializer,
+	DonationSectionSerializer,
+	DonationButtonSerializer,
 )
 
-from typing import Any
 
-
-class DonationsAPIView(APIView):
+class DonationsAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
-	def post(self, request: Request) -> Response:
-		serializer = GetDonationsSerializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
+	queryset = Donation.objects.all()
+	serializer_class = DonationSerializer
+	pagination_class = LimitOffsetPagination
 
-		validated_data: dict[str, Any] = serializer.validated_data
-		offset: int | None = validated_data['offset']
-		limit: int | None = validated_data['limit']
-
-		return Response(
-			DonationModelSerializer(
-				Donation.objects.all()[offset:limit],
-				many=True,
-			).data
-		)
-
-class DonationSectionsAPIView(APIView):
+class DonationSectionsAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
-	def get(self, request: Request) -> Response:
-		return Response(
-			DonationSectionModelSerializer(
-				DonationSection.objects.all(),
-				many=True,
-			).data
-		)
+	queryset = DonationSection.objects.all()
+	serializer_class = DonationSectionSerializer
 
-class DonationButtonsAPIView(APIView):
+class DonationButtonsAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
-	def get(self, request: Request) -> Response:
-		return Response(
-			DonationButtonModelSerializer(
-				DonationButton.objects.all(),
-				many=True,
-			).data
-		)
+	queryset = DonationButton.objects.all()
+	serializer_class = DonationButtonSerializer

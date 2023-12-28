@@ -5,22 +5,24 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from utils.other import generate_random_string
+from .utils import get_user_info
 
+from typing import Any
 from asgiref.sync import sync_to_async
-import requests
 import string
 
 
 class UserManager(BaseUserManager):
-	def create(self, telegram_id: int, first_name: str, **extra_fields) -> 'User':
+	def create(self, telegram_id: int, first_name: str, **extra_fields: Any) -> 'User':
 		return super().create(telegram_id=telegram_id, first_name=first_name, **extra_fields)
 
-	def create_superuser(self, **fields) -> None:
+	def create_superuser(self, **fields: Any) -> None:
 		raise SyntaxError('Not support to create superuser!')
 
 class User(AbstractBaseUser, PermissionsMixin):
 	telegram_id = models.BigIntegerField('Telegram ID', unique=True)
-	first_name = models.CharField(_('Имя пользователя'), max_length=64, null=True)
+	first_name = models.CharField(_('Имя'), max_length=64, null=True)
+	last_name = models.CharField(_('Фамилия'), max_length=64, null=True, default=None)
 	password = None
 	is_staff = models.BooleanField(_('Сотрудник'), default=False)
 	confirm_code = models.CharField(max_length=25, unique=True, null=True)
@@ -55,14 +57,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return await sync_to_async(self.generate_login_url)()
 
 	def update_first_name(self) -> None:
-		response: requests.Response = requests.get(f'https://api.telegram.org/bot{settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN}/getChat?chat_id={self.telegram_id}')
+		user_info = get_user_info(self.telegram_id)
 
-		if response.status_code == 200:
-			first_name: str = response.json()['result']['first_name']
+		if user_info and user_info.first_name and self.first_name != user_info.first_name:
+			self.first_name = user_info.first_name
 
-			if self.first_name != first_name:
-				self.first_name = first_name
-				self.save()
+	def update_last_name(self) -> None:
+		user_info = get_user_info(self.telegram_id)
+
+		if user_info and user_info.last_name and self.last_name != user_info.last_name:
+			self.last_name = user_info.last_name
 
 	def __str__(self) -> str:
 		return self.first_name if self.first_name else str(self.telegram_id)

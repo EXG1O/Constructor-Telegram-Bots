@@ -6,11 +6,13 @@ export interface Update {
 	added_date: string;
 }
 
-export namespace Data {
+export namespace APIResponse {
 	export namespace UpdatesAPI {
 		export interface Get {
-			offset?: number;
-			limit?: number;
+			count: string;
+			next: string;
+			previous: string;
+			results: Update[];
 		}
 	}
 }

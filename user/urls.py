@@ -6,8 +6,8 @@ from .views import UsersAPIView, UserAPIView, UserLoginAPIView, UserLogoutAPIVie
 urlpatterns = [
 	path('users/', UsersAPIView.as_view(), name='users'),
 	path('user/', include([
-		path('', UserAPIView.as_view(), name='user'),
-		path('login/', UserLoginAPIView.as_view(), name='user-login'),
-		path('logout/', UserLogoutAPIView.as_view(), name='user-logout'),
-	])),
+		path('', UserAPIView.as_view(), name='index'),
+		path('login/', UserLoginAPIView.as_view(), name='login'),
+		path('logout/', UserLogoutAPIView.as_view(), name='logout'),
+	]), name='user'),
 ]
