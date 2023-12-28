@@ -1,7 +1,7 @@
 import React, { ChangeEvent, ReactNode, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
-import Card from 'react-bootstrap/Card';
-import Stack from 'react-bootstrap/Stack'
+import Card, { CardProps } from 'react-bootstrap/Card';
 import RBImage from 'react-bootstrap/Image';
 import Form from 'react-bootstrap/Form';
 
@@ -12,12 +12,12 @@ export interface Data {
 	fileURL?: string;
 }
 
-export interface ImageProps {
+export interface ImageProps extends Omit<CardProps, 'onChange' | 'children'> {
 	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function Image({ initialData, onChange }: ImageProps): ReactNode {
+function Image({ initialData, onChange, ...props }: ImageProps): ReactNode {
 	const { createMessageToast } = useToast();
 
 	const [data, setData] = useState<Data>(initialData ?? {});
@@ -39,21 +39,19 @@ function Image({ initialData, onChange }: ImageProps): ReactNode {
 	}
 
 	return (
-		<Card className='border'>
+		<Card {...props} className={classNames('border', props.className)}>
 			<Card.Header as='h6' className='border-bottom text-center'>
 				{gettext('Изображение')}
 			</Card.Header>
-			<Card.Body className='p-2'>
-				<Stack gap={2}>
-					{data.fileURL && (
-						<RBImage thumbnail className='p-0' src={data.fileURL} />
-					)}
-					<Form.Control
-						type='file'
-						accept='image/*'
-						onChange={handleImageChange}
-					/>
-				</Stack>
+			<Card.Body className='vstack gap-2 p-2'>
+				{data.fileURL && (
+					<RBImage thumbnail className='p-0' src={data.fileURL} />
+				)}
+				<Form.Control
+					type='file'
+					accept='image/*'
+					onChange={handleImageChange}
+				/>
 			</Card.Body>
 		</Card>
 	);

@@ -1,14 +1,14 @@
 import React, { ReactNode } from 'react';
 
-import InputGroup from 'react-bootstrap/InputGroup';
+import InputGroup, { InputGroupProps } from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import RBButton from 'react-bootstrap/Button';
 
 import { Data, ButtonData } from './Main';
 
-import { DraggableProvided } from 'react-beautiful-dnd';
+import { DraggableProvided, DraggableProvidedDraggableProps, DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
 
-export interface ButtonProps {
+export interface ButtonProps extends Omit<InputGroupProps, keyof DraggableProvidedDraggableProps | keyof DraggableProvidedDragHandleProps | 'onChange' | 'children'> {
 	data: Data;
 	index: number;
 	button: ButtonData;
@@ -17,10 +17,11 @@ export interface ButtonProps {
 	onDelete: (index: number) => void;
 }
 
-function Button({ data, index, button, provided, onChange, onDelete }: ButtonProps): ReactNode {
+function Button({ data, index, button, provided, onChange, onDelete, ...props }: ButtonProps): ReactNode {
 	return (
 		<InputGroup
 			ref={provided.innerRef}
+			{...props}
 			{...provided.draggableProps}
 			{...provided.dragHandleProps}
 		>

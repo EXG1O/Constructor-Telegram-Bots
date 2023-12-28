@@ -202,7 +202,11 @@ function App(): ReactNode {
 
 	return (
 		<>
-			<CommandOffcanvas show={showCommandOffcanvas} onHide={() => setShowCommandOffcanvas(false)} />
+			<CommandOffcanvas
+				show={showCommandOffcanvas}
+				onHide={() => setShowCommandOffcanvas(false)}
+				onUpdateNodes={updateNodes}
+			/>
 			<div className='border rounded' style={{ height: '80vh' }}>
 				<ReactFlow
 					nodes={nodes}

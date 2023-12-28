@@ -6,26 +6,27 @@ import 'tinymce/skins/ui/oxide/skin.min.css';
 import './MessageText.css';
 
 import React, { ReactNode, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
 import { Editor } from '@tinymce/tinymce-react';
-import Card from 'react-bootstrap/Card';
+import Card, { CardProps } from 'react-bootstrap/Card';
 
 export interface Data {
 	text: string;
 }
 
-export interface MessageTextProps {
+export interface MessageTextProps extends Omit<CardProps, 'onChange' | 'children'> {
 	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function MessageText({ initialData, onChange }: MessageTextProps): ReactNode {
+function MessageText({ initialData, onChange, ...props }: MessageTextProps): ReactNode {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 
 	useEffect(() => onChange(data), [data]);
 
 	return (
-		<Card className='border'>
+		<Card {...props} className={classNames('border', props.className)}>
 			<Card.Header as='h6' className='border-bottom text-center'>
 				{gettext('Текст сообщения')}
 			</Card.Header>

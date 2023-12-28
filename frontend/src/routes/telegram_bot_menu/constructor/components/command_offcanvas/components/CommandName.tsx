@@ -1,24 +1,25 @@
 import React, { ReactNode, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
-import Card from 'react-bootstrap/Card';
+import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
 export interface Data {
 	text: string;
 }
 
-export interface CommandNameProps {
+export interface CommandNameProps extends Omit<CardProps, 'onChange' | 'children'> {
 	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
-function CommandName({ initialData, onChange }: CommandNameProps): ReactNode {
+function CommandName({ initialData, onChange, ...props }: CommandNameProps): ReactNode {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 
 	useEffect(() => onChange(data), [data]);
 
 	return (
-		<Card className='border'>
+		<Card {...props} className={classNames('border', props.className)}>
 			<Card.Header as='h6' className='border-bottom text-center'>
 				{gettext('Название команды')}
 			</Card.Header>

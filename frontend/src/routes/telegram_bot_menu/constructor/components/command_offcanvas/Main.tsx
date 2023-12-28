@@ -3,6 +3,7 @@ import React, { ReactNode, useRef, useState } from 'react';
 import Offcanvas, { OffcanvasProps } from 'react-bootstrap/Offcanvas';
 import Button, { ButtonProps } from 'react-bootstrap/Button';
 import Stack from 'react-bootstrap/Stack';
+import Collapse from 'react-bootstrap/Collapse';
 
 import CommandName, { Data as CommandNameData } from './components/CommandName';
 import Command, { Data as CommandData } from './components/Command';
@@ -83,36 +84,49 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 	}
 
 	return (
-		<Offcanvas {...props} placement={'end'}>
+		<Offcanvas {...props}>
 			<Offcanvas.Header className='border-bottom' closeButton>
 				<Offcanvas.Title as='h5'>
 					{commandID ? gettext('Редактирование команды') : gettext('Добавление команды')}
 				</Offcanvas.Title>
 			</Offcanvas.Header>
-			<Offcanvas.Body className='vstack gap-3'>
+			<Offcanvas.Body>
 				<CommandName
+					className='mb-3'
 					initialData={{ text: initialData?.name ?? '' }}
 					onChange={commandName => { data.current.name = commandName.text }}
 				/>
-				{addons.command && (
-					<Command
-						initialData={initialData?.command}
-						onChange={command => { data.current.command = command }}
-					/>
-				)}
-				{addons.image && (
-					<Image onChange={image => { data.current.image = image.file }} />
-				)}
+				<Collapse in={addons.command}>
+					<div id='command-offcanvas-command-addon'>
+						<Command
+							className='mb-3'
+							initialData={initialData?.command}
+							onChange={command => { data.current.command = command }}
+						/>
+					</div>
+				</Collapse>
+				<Collapse in={addons.image}>
+					<div id='command-offcanvas-image-addon'>
+						<Image
+							className='mb-3'
+							onChange={image => { data.current.image = image.file }}
+						/>
+					</div>
+				</Collapse>
 				<MessageText
+					className='mb-3'
 					initialData={initialData?.message_text}
 					onChange={messageText => { data.current.message_text = messageText }}
 				/>
-				{addons.keyboard && (
-					<Keyboard
-						initialData={initialData?.keyboard}
-						onChange={keyboard => { data.current.keyboard = keyboard }}
-					/>
-				)}
+				<Collapse in={addons.keyboard}>
+					<div id='command-offcanvas-keyboard-addon'>
+						<Keyboard
+							className='mb-3'
+							initialData={initialData?.keyboard}
+							onChange={keyboard => { data.current.keyboard = keyboard }}
+						/>
+					</div>
+				</Collapse>
 				<Stack className='bg-light border rounded p-1' gap={1}>
 					{addonsButton.map(({ name, ...props }, index) => (
 						<Button
@@ -120,6 +134,8 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 							key={index}
 							size='sm'
 							variant={addons[name] ? 'secondary' : 'dark'}
+							aria-controls={`command-offcanvas-${name}-addon`}
+							aria-expanded={addons[name]}
 							onClick={() => toggleAddon(name)}
 						/>
 					))}
