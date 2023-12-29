@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { LinkContainer } from 'react-router-bootstrap';
@@ -15,20 +15,20 @@ import useUser from 'services/hooks/useUser';
 
 import { UserAPI } from 'services/api/users/main';
 
-function Header(): ReactNode {
+function Header(): ReactElement {
 	const navigate = useNavigate();
 	const user = useUser();
 
 	const [showLoginViaTelegramModal, setShowLoginViaTelegramModal] = useState<boolean>(false);
 	const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
 
-	async function handleConfirmLogoutButtonClick(): Promise<void> {
+	const handleConfirmLogoutButtonClick = useCallback(async (): Promise<void> => {
 		setShowLogoutModal(false);
 
 		await UserAPI.logout();
 
 		navigate('/');
-	}
+	}, []);
 
 	return (
 		<>
@@ -36,7 +36,7 @@ function Header(): ReactNode {
 				<AskConfirmModal
 					show={showLogoutModal}
 					title={gettext('Выход из аккаунта')}
-					onHide={() => setShowLogoutModal(false)}
+					onHide={useCallback(() => setShowLogoutModal(false), [])}
 					onConfirmButtonClick={handleConfirmLogoutButtonClick}
 				>
 					{gettext('Вы точно хотите выйти из аккаунта?')}
@@ -44,7 +44,7 @@ function Header(): ReactNode {
 			) : (
 				<LoginViaTelegramModal
 					show={showLoginViaTelegramModal}
-					onHide={() => setShowLoginViaTelegramModal(false)}
+					onHide={useCallback(() => setShowLoginViaTelegramModal(false), [])}
 				/>
 			)}
 			<Navbar expand='xxl' variant='dark' className='bg-dark'>

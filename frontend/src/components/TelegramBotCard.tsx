@@ -1,4 +1,4 @@
-import React, { ReactNode, CSSProperties, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { ReactElement, CSSProperties, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -13,17 +13,17 @@ import { TelegramBot } from 'services/api/telegram_bots/types';
 
 import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
 
-const buttonOnlyWithIconStyle: CSSProperties = {
-	cursor: 'pointer',
-	fontSize: '20px',
-}
-
 export interface TelegramBotCardProps extends CardProps {
 	telegramBot: TelegramBot;
 	setTelegramBot?: Dispatch<SetStateAction<TelegramBot>>;
 }
 
-function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setTelegramBotInitial, ...props }: TelegramBotCardProps): ReactNode {
+const buttonOnlyWithIconStyle: CSSProperties = {
+	cursor: 'pointer',
+	fontSize: '20px',
+}
+
+function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setTelegramBotInitial, ...props }: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
 	const { createMessageToast } = useToast();
 
 	const [telegramBot, setTelegramBot] = setTelegramBotInitial === undefined ? useState<TelegramBot>(telegramBotInitial) : [telegramBotInitial, setTelegramBotInitial];

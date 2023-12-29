@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -9,11 +9,11 @@ export interface Data {
 }
 
 export interface CommandNameProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	initialData?: Data | null;
 	onChange: (data: Data) => void;
 }
 
-function CommandName({ initialData, onChange, ...props }: CommandNameProps): ReactNode {
+function CommandName({ initialData, onChange, ...props }: CommandNameProps): ReactElement<CommandNameProps> {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 
 	useEffect(() => onChange(data), [data]);

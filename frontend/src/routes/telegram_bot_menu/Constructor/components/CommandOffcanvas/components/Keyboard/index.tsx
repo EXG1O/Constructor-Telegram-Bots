@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -16,9 +16,9 @@ interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id'
 
 export interface ButtonData {
 	id?: number;
-	row?: number;
+	row?: number | null;
 	text: string;
-	url?: string;
+	url?: string | null;
 }
 
 export interface Data {
@@ -26,8 +26,8 @@ export interface Data {
 	buttons: ButtonData[];
 }
 
-export interface MainProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+export interface KeyboardProps extends Omit<CardProps, 'onChange' | 'children'> {
+	initialData?: Data | null;
 	onChange: (data: Data) => void;
 }
 
@@ -37,13 +37,13 @@ const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
 	{ value: 'payment', children: gettext('Платёжный') },
 ];
 
-function Main({ initialData, onChange, ...props }: MainProps): ReactNode {
+function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElement<KeyboardProps> {
 	const [data, setData] = useState<Data>(initialData ?? { type: 'default', buttons: [] });
 
 	useEffect(() => onChange(data), [data]);
 
 	function handleButtonChange(index: number, button: ButtonData): void {
-		setData({ ...data, buttons: data.buttons.map((button_, index_) => index_ === index ? button : button_) });
+		setData({ ...data, buttons: data.buttons.map((btn, i) => i === index ? button : btn) });
 	}
 
 	function handleButtonDelete(index: number): void {
@@ -128,4 +128,4 @@ function Main({ initialData, onChange, ...props }: MainProps): ReactNode {
 	);
 }
 
-export default Main;
+export default Keyboard;

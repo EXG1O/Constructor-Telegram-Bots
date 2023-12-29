@@ -1,4 +1,4 @@
-import React, { ReactNode, AnchorHTMLAttributes } from 'react';
+import React, { ReactElement, AnchorHTMLAttributes } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
@@ -19,11 +19,11 @@ const founderLinks: FooterLinkProps[] = [
 	{ href: 'tg://resolve?domain=exg1o_channel', children: 'Telegram Channel' },
 ];
 
-export function FooterLink(props: FooterLinkProps): ReactNode {
+export function FooterLink(props: FooterLinkProps): ReactElement<FooterLinkProps> {
 	return <a target='_blank' {...props} className={classNames('link-secondary link-underline-opacity-0', props.className)} />;
 }
 
-function Footer(): ReactNode {
+function Footer(): ReactElement {
 	return (
 		<footer className='text-bg-dark'>
 			<Container>

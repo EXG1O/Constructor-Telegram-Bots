@@ -1,7 +1,15 @@
 import 'reactflow/dist/style.css';
-import './App.css';
+import './index.css';
 
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, {
+	ReactElement,
+	MouseEvent as ReactMouseEvent,
+	MutableRefObject,
+	memo,
+	useEffect,
+	useCallback,
+	useRef,
+} from 'react';
 
 import ReactFlow, {
 	Panel,
@@ -11,32 +19,38 @@ import ReactFlow, {
 	BackgroundVariant,
 	useEdgesState,
 	useNodesState,
-	Connection,
-	NodeTypes,
-	MarkerType,
 	addEdge as addEdge_,
 	updateEdge,
-	Edge,
+	NodeTypes,
+	MarkerType,
+	Connection,
 	Node,
+	Edge,
 } from 'reactflow';
 
 import Button from 'react-bootstrap/Button';
 
+import { UpdateNodesRef } from '../../.';
 import CommandNode from './components/CommandNode';
 
 import useToast from 'services/hooks/useToast';
 import useTelegramBot from 'services/hooks/useTelegramBot';
 
-import CommandOffcanvas from './components/command_offcanvas/Main';
-
 import { TelegramBotCommandDiagramAPI, TelegramBotCommandsDiagramAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotCommandDiagram } from 'services/api/telegram_bots/types';
 
-export type NodeData = Omit<TelegramBotCommandDiagram, 'x' | 'y'>;
+export interface DiagramProps {
+	innerRef?: MutableRefObject<UpdateNodesRef>;
+	onAddCommandClick: () => void;
+}
+
+export interface NodeData extends Omit<TelegramBotCommandDiagram, 'x' | 'y'> {
+	updateNodes: () => void;
+}
 
 const nodeTypes: NodeTypes = { command: CommandNode };
 
-function App(): ReactNode {
+function Diagram({ innerRef, onAddCommandClick }: DiagramProps): ReactElement<DiagramProps> {
 	const { createMessageToast } = useToast();
 	const { telegramBot } = useTelegramBot();
 
@@ -44,19 +58,15 @@ function App(): ReactNode {
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 	const edgeUpdating = useRef<Edge | null>(null);
 
-	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState(false);
-
-	useEffect(() => { updateNodes() }, []);
-
-	async function updateNodes(): Promise<void> {
+	const updateNodes = useCallback(async (): Promise<void> => {
 		const response = await TelegramBotCommandsDiagramAPI.get(telegramBot.id);
 
 		if (response.ok) {
-			setNodes(response.json.map(data => ({
-				id: data.id.toString(),
+			setNodes(response.json.map(command => ({
+				id: command.id.toString(),
 				type: 'command',
-				position: { x: data.x, y: data.y },
-				data,
+				position: { x: command.x, y: command.y },
+				data: { ...command, updateNodes },
 			})));
 
 			const newEdges: Edge[] = [];
@@ -81,17 +91,23 @@ function App(): ReactNode {
 
 			setEdges(newEdges);
 		}
+	}, []);
+
+	if (innerRef) {
+		innerRef.current.updateNodes = updateNodes;
 	}
 
-	function handleNodeDragStop(nodes: Node[] | undefined): void {
+	useEffect(() => { updateNodes() }, []);
+
+	const handleNodeDragStop = useCallback((event: ReactMouseEvent, node: Node, nodes: Node[] | undefined): void => {
 		nodes?.forEach(node => TelegramBotCommandDiagramAPI.updatePosition(
 			telegramBot.id,
 			parseInt(node.id),
 			node.position,
 		));
-	}
+	}, []);
 
-	async function addEdge(connection: Connection, shouldUpdateEdges: boolean = true, showMessageToast: boolean = true): Promise<void> {
+	const addEdge = useCallback(async (connection: Connection, shouldUpdateEdges: boolean = true, showMessageToast: boolean = true): Promise<void> => {
 		if (connection.source && connection.sourceHandle && connection.target && connection.targetHandle) {
 			const response = await TelegramBotCommandDiagramAPI.connect(
 				telegramBot.id,
@@ -112,7 +128,7 @@ function App(): ReactNode {
 				createMessageToast({ message: response.json.message, level: response.json.level });
 			}
 		}
-	}
+	}, []);
 
 	async function deleteEdge(edge: Edge, shouldUpdateEdges: boolean = true, showMessageToast: boolean = true): Promise<void> {
 		if (edge.sourceHandle) {
@@ -132,11 +148,11 @@ function App(): ReactNode {
 		}
 	}
 
-	function handleEdgeUpdateStart(edge: Edge): void {
+	const handleEdgeUpdateStart = useCallback((event: ReactMouseEvent, edge: Edge): void => {
 		edgeUpdating.current = edge;
-	}
+	}, []);
 
-	function handleEdgeUpdate(oldEdge: Edge, newConnection: Connection): void {
+	const handleEdgeUpdate = useCallback((oldEdge: Edge, newConnection: Connection): void => {
 		if (
 			edgeUpdating.current && (
 				edgeUpdating.current.sourceHandle !== newConnection.sourceHandle ||
@@ -156,17 +172,17 @@ function App(): ReactNode {
 		}
 
 		edgeUpdating.current = null;
-	}
+	}, []);
 
-	function handleEdgeUpdateEnd(edge: Edge): void {
+	const handleEdgeUpdateEnd = useCallback((event: MouseEvent | TouchEvent, edge: Edge): void => {
 		if (edgeUpdating.current) {
 			deleteEdge(edge);
 		}
 
 		edgeUpdating.current = null;
-	}
+	}, []);
 
-	function handleValidConnection(connection: Connection): boolean {
+	const handleValidConnection = useCallback((connection: Connection): boolean => {
 		if (!(connection.source && connection.sourceHandle && connection.target && connection.targetHandle)) {
 			return false;
 		}
@@ -198,48 +214,42 @@ function App(): ReactNode {
 		}
 
 		return true;
-	}
+	}, [edges]);
 
 	return (
-		<>
-			<CommandOffcanvas
-				show={showCommandOffcanvas}
-				onHide={() => setShowCommandOffcanvas(false)}
-				onUpdateNodes={updateNodes}
-			/>
-			<div className='border rounded' style={{ height: '80vh' }}>
-				<ReactFlow
-					nodes={nodes}
-					edges={edges}
-					nodeTypes={nodeTypes}
-					defaultEdgeOptions={{ markerEnd: { type: MarkerType.Arrow, strokeWidth: 1.8 } }}
-					onNodesChange={onNodesChange}
-					onEdgesChange={onEdgesChange}
-					onNodeDragStop={(event, node, nodes) => handleNodeDragStop(nodes)}
-					onEdgeUpdateStart={(event, edge) => handleEdgeUpdateStart(edge)}
-					onEdgeUpdate={handleEdgeUpdate}
-					onEdgeUpdateEnd={(event, edge) => handleEdgeUpdateEnd(edge)}
-					isValidConnection={handleValidConnection}
-					onConnect={connection => addEdge(connection)}
-				>
-					<Panel position='top-right'>
-						<div className='d-flex justify-content-end gap-2'>
-							<Button
-								size='sm'
-								variant='dark'
-								onClick={() => setShowCommandOffcanvas(true)}
-							>
-								{gettext('Добавить команду')}
-							</Button>
-						</div>
-					</Panel>
-					<Controls />
-					<MiniMap />
-					<Background variant={BackgroundVariant.Dots} gap={24} size={1} />
-				</ReactFlow>
-			</div>
-		</>
+		<div className='border rounded' style={{ height: '80vh' }}>
+			<ReactFlow
+				nodes={nodes}
+				edges={edges}
+				nodeTypes={nodeTypes}
+				defaultEdgeOptions={{ markerEnd: { type: MarkerType.Arrow, strokeWidth: 1.8 } }}
+				deleteKeyCode={null}
+				onNodesChange={onNodesChange}
+				onEdgesChange={onEdgesChange}
+				onNodeDragStop={handleNodeDragStop}
+				onEdgeUpdateStart={handleEdgeUpdateStart}
+				onEdgeUpdate={handleEdgeUpdate}
+				onEdgeUpdateEnd={handleEdgeUpdateEnd}
+				isValidConnection={handleValidConnection}
+				onConnect={addEdge}
+			>
+				<Panel position='top-right'>
+					<div className='d-flex justify-content-end gap-2'>
+						<Button
+							size='sm'
+							variant='dark'
+							onClick={onAddCommandClick}
+						>
+							{gettext('Добавить команду')}
+						</Button>
+					</div>
+				</Panel>
+				<Controls />
+				<MiniMap />
+				<Background variant={BackgroundVariant.Dots} gap={24} size={1} />
+			</ReactFlow>
+		</div>
 	);
 }
 
-export default App;
+export default memo(Diagram);

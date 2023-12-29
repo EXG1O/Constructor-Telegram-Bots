@@ -1,4 +1,4 @@
-import React, { ChangeEvent, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ChangeEvent as ReactChangeEvent, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -8,23 +8,23 @@ import Form from 'react-bootstrap/Form';
 import useToast from 'services/hooks/useToast';
 
 export interface Data {
-	file?: Blob;
-	fileURL?: string;
+	file?: Blob | string | null;
+	fileURL?: string | null;
 }
 
 export interface ImageProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	initialData?: Data | null;
 	onChange: (data: Data) => void;
 }
 
-function Image({ initialData, onChange, ...props }: ImageProps): ReactNode {
+function Image({ initialData, onChange, ...props }: ImageProps): ReactElement<ImageProps> {
 	const { createMessageToast } = useToast();
 
 	const [data, setData] = useState<Data>(initialData ?? {});
 
 	useEffect(() => onChange(data), [data]);
 
-	function handleImageChange(event: ChangeEvent<HTMLInputElement>): void {
+	function handleImageChange(event: ReactChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
 			const file: File = event.target.files[0];
 

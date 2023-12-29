@@ -1,10 +1,10 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 
 import InputGroup, { InputGroupProps } from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import RBButton from 'react-bootstrap/Button';
 
-import { Data, ButtonData } from './Main';
+import { Data, ButtonData } from '.';
 
 import { DraggableProvided, DraggableProvidedDraggableProps, DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
 
@@ -17,7 +17,7 @@ export interface ButtonProps extends Omit<InputGroupProps, keyof DraggableProvid
 	onDelete: (index: number) => void;
 }
 
-function Button({ data, index, button, provided, onChange, onDelete, ...props }: ButtonProps): ReactNode {
+function Button({ data, index, button, provided, onChange, onDelete, ...props }: ButtonProps): ReactElement<ButtonProps> {
 	return (
 		<InputGroup
 			ref={provided.innerRef}
@@ -42,7 +42,7 @@ function Button({ data, index, button, provided, onChange, onDelete, ...props }:
 			{(data.type === 'inline' || data.type === 'payment') && (
 				button.url !== undefined ? (
 					<Form.Control
-						value={button.url}
+						value={button.url ?? undefined}
 						size='sm'
 						className='text-center'
 						placeholder='URL-адрес'

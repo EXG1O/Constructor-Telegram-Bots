@@ -84,12 +84,12 @@ export namespace Data {
 
 	export namespace TelegramBotCommandAPI {
 		export interface CreateTelegramBotCommandCommand extends Omit<TelegramBotCommandCommand, 'description'> {
-			description?: NonNullable<TelegramBotCommandCommand['description']>;
+			description?: TelegramBotCommandCommand['description'];
 		}
 
 		interface CreateTelegramBotCommandKeyboardButton extends Omit<TelegramBotCommandKeyboardButton, 'id' | 'row' | 'url'> {
-			row?: NonNullable<TelegramBotCommandKeyboardButton['row']>;
-			url?: NonNullable<TelegramBotCommandKeyboardButton['url']>;
+			row?: TelegramBotCommandKeyboardButton['row'];
+			url?: TelegramBotCommandKeyboardButton['url'];
 		}
 
 		interface CreateTelegramBotCommandKeyboard extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
@@ -97,16 +97,16 @@ export namespace Data {
 		}
 
 		interface CreateTelegramBotCommandApiRequest extends Omit<TelegramBotCommandApiRequest, 'headers' | 'body'> {
-			headers?: NonNullable<TelegramBotCommandApiRequest['headers']>;
-			body?: NonNullable<TelegramBotCommandApiRequest['body']>;
+			headers?: TelegramBotCommandApiRequest['headers'];
+			body?: TelegramBotCommandApiRequest['body'];
 		}
 
 		export interface Create {
 			name: TelegramBotCommand['name'];
-			command?: CreateTelegramBotCommandCommand;
+			command?: CreateTelegramBotCommandCommand | null;
 			message_text: TelegramBotCommand['message_text'];
-			keyboard?: CreateTelegramBotCommandKeyboard;
-			api_request?: CreateTelegramBotCommandApiRequest;
+			keyboard?: CreateTelegramBotCommandKeyboard | null;
+			api_request?: CreateTelegramBotCommandApiRequest | null;
 		}
 
 		interface UpdateTelegramBotCommandKeyboardButton extends CreateTelegramBotCommandKeyboardButton {
@@ -118,7 +118,7 @@ export namespace Data {
 		}
 
 		export interface Update extends Omit<Create, 'keyboard'> {
-			keyboard?: UpdateTelegramBotCommandKeyboard;
+			keyboard?: UpdateTelegramBotCommandKeyboard | null;
 		}
 	}
 

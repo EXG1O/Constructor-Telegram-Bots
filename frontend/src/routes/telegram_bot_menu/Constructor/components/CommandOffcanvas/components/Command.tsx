@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -10,15 +10,15 @@ export type AddonsName = 'description';
 
 export interface Data {
 	text: string;
-	description?: string;
+	description?: string | null;
 }
 
 export interface CommandProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	initialData?: Data | null;
 	onChange: (data: Data) => void;
 }
 
-function Command({ initialData, onChange, ...props }: CommandProps): ReactNode {
+function Command({ initialData, onChange, ...props }: CommandProps): ReactElement<CommandProps> {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({ description: Boolean(initialData?.description) });
 

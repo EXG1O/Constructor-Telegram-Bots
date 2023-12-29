@@ -5,7 +5,7 @@ import 'tinymce/icons/default';
 import 'tinymce/skins/ui/oxide/skin.min.css';
 import './MessageText.css';
 
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Editor } from '@tinymce/tinymce-react';
@@ -16,11 +16,11 @@ export interface Data {
 }
 
 export interface MessageTextProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	initialData?: Data | null;
 	onChange: (data: Data) => void;
 }
 
-function MessageText({ initialData, onChange, ...props }: MessageTextProps): ReactNode {
+function MessageText({ initialData, onChange, ...props }: MessageTextProps): ReactElement<MessageTextProps> {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
 
 	useEffect(() => onChange(data), [data]);

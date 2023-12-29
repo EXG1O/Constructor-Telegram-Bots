@@ -1,11 +1,13 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, memo } from 'react';
 
 import { QRCodeCanvas } from 'qrcode.react';
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 
-function LoginViaTelegramModal(modalProps: ModalProps): ReactNode {
+type LoginViaTelegramModalProps = ModalProps;
+
+function LoginViaTelegramModal(props: LoginViaTelegramModalProps): ReactElement<LoginViaTelegramModalProps> {
 	return (
-		<Modal {...modalProps}>
+		<Modal {...props}>
 			<Modal.Header closeButton className='border-bottom-0' />
 			<Modal.Body className='text-center pt-0 pb-4'>
 				<div className='d-flex justify-content-center mb-3'>
@@ -21,4 +23,4 @@ function LoginViaTelegramModal(modalProps: ModalProps): ReactNode {
 	);
 }
 
-export default LoginViaTelegramModal;
+export default memo(LoginViaTelegramModal);

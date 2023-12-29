@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode, memo } from 'react';
 
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -10,7 +10,7 @@ export interface AskConfirmModalProps extends Omit<ModalProps, 'onHide'> {
 	onHide: NonNullable<ModalProps['onHide']>;
 }
 
-function AskConfirmModal({ title, children, onConfirmButtonClick, ...modalProps }: AskConfirmModalProps): ReactNode {
+function AskConfirmModal({ title, children, onConfirmButtonClick, ...modalProps }: AskConfirmModalProps): ReactElement<AskConfirmModalProps> {
 	return (
 		<Modal {...modalProps}>
 			<Modal.Header closeButton>
@@ -37,4 +37,4 @@ function AskConfirmModal({ title, children, onConfirmButtonClick, ...modalProps 
 	);
 }
 
-export default AskConfirmModal;
+export default memo(AskConfirmModal);

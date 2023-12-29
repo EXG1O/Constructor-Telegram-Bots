@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useState } from 'react';
+import React, { ReactElement, ReactNode, memo, useRef, useState } from 'react';
 
 import Offcanvas, { OffcanvasProps } from 'react-bootstrap/Offcanvas';
 import Button, { ButtonProps } from 'react-bootstrap/Button';
@@ -9,12 +9,7 @@ import CommandName, { Data as CommandNameData } from './components/CommandName';
 import Command, { Data as CommandData } from './components/Command';
 import Image, { Data as ImageData } from './components/Image';
 import MessageText, { Data as MessageTextData } from './components/MessageText';
-import Keyboard, { Data as KeyboardData } from './components/keyboard/Main';
-
-import useToast from 'services/hooks/useToast';
-import useTelegramBot from 'services/hooks/useTelegramBot';
-
-import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
+import Keyboard, { Data as KeyboardData } from './components/Keyboard';
 
 type AddonsName = 'command' | 'image' | 'keyboard';
 
@@ -24,16 +19,16 @@ interface AddonsButtonProps extends Omit<ButtonProps, 'key' | 'size' | 'variant'
 
 export interface Data {
 	name: CommandNameData['text'];
-	command?: CommandData;
-	image?: ImageData['file'];
+	command?: CommandData | null;
+	image?: ImageData['file'] | null;
 	message_text: MessageTextData;
-	keyboard?: KeyboardData;
+	keyboard?: KeyboardData | null;
 }
 
-export interface MainProps extends OffcanvasProps {
-	commandID?: number;
+export interface CommandOffcanvasProps extends Omit<OffcanvasProps, 'children'> {
+	title: ReactNode;
 	initialData?: Data;
-	onUpdateNodes?: () => void;
+	children?: (data: Data) => ReactNode;
 }
 
 const addonsButton: AddonsButtonProps[] = [
@@ -42,10 +37,7 @@ const addonsButton: AddonsButtonProps[] = [
 	{ name: 'keyboard', children: gettext('Клавиатура') },
 ];
 
-function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): ReactNode {
-	const { createMessageToast } = useToast();
-	const { telegramBot } = useTelegramBot();
-
+function CommandOffcanvas({ title, initialData, children, ...props }: CommandOffcanvasProps): ReactElement<CommandOffcanvasProps> {
 	const data = useRef<Data>(initialData ?? { name: '', message_text: { text: '' } });
 	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({
 		command: Boolean(initialData?.command),
@@ -61,34 +53,10 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 		}
 	}
 
-	async function handleAddCommandButtonClick(): Promise<void> {
-		const response = await TelegramBotCommandAPI.create(telegramBot.id, data.current);
-
-		if (response.ok) {
-			props.onHide();
-			onUpdateNodes?.();
-		}
-
-		createMessageToast({ message: response.json.message, level: response.json.level });
-	}
-
-	async function handleUpdateCommandButtonClick(): Promise<void> {
-		const response = await TelegramBotCommandAPI.update(telegramBot.id, commandID!, data.current);
-
-		if (response.ok) {
-			props.onHide();
-			onUpdateNodes?.();
-		}
-
-		createMessageToast({ message: response.json.message, level: response.json.level });
-	}
-
 	return (
 		<Offcanvas {...props}>
 			<Offcanvas.Header className='border-bottom' closeButton>
-				<Offcanvas.Title as='h5'>
-					{commandID ? gettext('Редактирование команды') : gettext('Добавление команды')}
-				</Offcanvas.Title>
+				<Offcanvas.Title as='h5'>{title}</Offcanvas.Title>
 			</Offcanvas.Header>
 			<Offcanvas.Body>
 				<CommandName
@@ -96,7 +64,7 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 					initialData={{ text: initialData?.name ?? '' }}
 					onChange={commandName => { data.current.name = commandName.text }}
 				/>
-				<Collapse in={addons.command}>
+				<Collapse in={addons.command} unmountOnExit>
 					<div id='command-offcanvas-command-addon'>
 						<Command
 							className='mb-3'
@@ -105,7 +73,7 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 						/>
 					</div>
 				</Collapse>
-				<Collapse in={addons.image}>
+				<Collapse in={addons.image} unmountOnExit>
 					<div id='command-offcanvas-image-addon'>
 						<Image
 							className='mb-3'
@@ -118,7 +86,7 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 					initialData={initialData?.message_text}
 					onChange={messageText => { data.current.message_text = messageText }}
 				/>
-				<Collapse in={addons.keyboard}>
+				<Collapse in={addons.keyboard} unmountOnExit>
 					<div id='command-offcanvas-keyboard-addon'>
 						<Keyboard
 							className='mb-3'
@@ -142,20 +110,10 @@ function Main({ commandID, initialData, onUpdateNodes, ...props }: MainProps): R
 				</Stack>
 			</Offcanvas.Body>
 			<Offcanvas.Header className='border-top'>
-				<Button
-					variant='success'
-					className='flex-fill'
-					{...commandID ? {
-						onClick: handleUpdateCommandButtonClick,
-						children: gettext('Редактировать команду'),
-					} : {
-						onClick: handleAddCommandButtonClick,
-						children: gettext('Добавить команду'),
-					}}
-				/>
+				{children?.(data.current)}
 			</Offcanvas.Header>
 		</Offcanvas>
 	);
 }
 
-export default Main;
+export default memo(CommandOffcanvas);

@@ -1,13 +1,7 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 
 import Toast from 'react-bootstrap/Toast';
 import CloseButton from 'react-bootstrap/CloseButton';
-
-const icons = {
-	success: 'check-circle-fill',
-	primary: 'info-circle-fill',
-	danger: 'exclamation-triangle-fill',
-}
 
 export interface MessageToastProps {
 	message: string;
@@ -16,7 +10,13 @@ export interface MessageToastProps {
 	onExited: () => void;
 }
 
-function MessageToast({ message, level, delay = 6000, onExited }: MessageToastProps): ReactNode {
+const icons = {
+	success: 'check-circle-fill',
+	primary: 'info-circle-fill',
+	danger: 'exclamation-triangle-fill',
+}
+
+function MessageToast({ message, level, delay = 6000, onExited }: MessageToastProps): ReactElement<MessageToastProps> {
 	const [show, setShow] = useState<boolean>(false);
 
 	useEffect(() => setShow(true), []);
