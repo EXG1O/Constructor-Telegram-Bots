@@ -11,19 +11,19 @@ from .middlewares import CreateDjangoUserMiddleware
 class ConstructorTelegramBot(BaseTelegramBot):
 	async def start_command(self, message: Message) -> None:
 		await self.bot.send_message(chat_id=message.chat.id, text=(
-			f'Hello, {message.from_user.full_name}!\n'
+			f'Hello, {message.from_user.full_name}!\n' # type: ignore [union-attr]
 			'I am a Telegram bot for Constructor Telegram Bots site.\n'
 			'Thank you for being with us ❤️'
 		))
 
 		try:
-			if message.text.split()[1] == 'login':
+			if message.text.split()[1] == 'login': # type: ignore [union-attr]
 				await self.login_command(message)
 		except IndexError:
 			pass
 
 	async def login_command(self, message: Message) -> None:
-		django_user: DjangoUser = await DjangoUser.objects.aget(telegram_id=message.from_user.id)
+		django_user: DjangoUser = await DjangoUser.objects.aget(telegram_id=message.from_user.id) # type: ignore [union-attr]
 		django_user_login_url: str = await django_user.alogin_url
 
 		await self.bot.send_message(

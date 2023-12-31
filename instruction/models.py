@@ -2,10 +2,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class InstructionSection(models.Model):
-	def position_default() -> int:
+class InstructionSection(models.Model): # type: ignore [django-manager-missing]
+	def position_default() -> int: # type: ignore [misc]
 		try:
-			return InstructionSection.objects.last().position + 1
+			return InstructionSection.objects.last().position + 1 # type: ignore [operator, union-attr]
 		except AttributeError:
 			return 1
 

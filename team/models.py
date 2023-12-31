@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class TeamMember(models.Model):
+class TeamMember(models.Model): # type: ignore [django-manager-missing]
 	image = models.ImageField(_('Изображение'), upload_to='team/')
 	username = models.CharField('@username', max_length=32)
 	speciality = models.CharField(_('Специальность'), max_length=255)

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class Update(models.Model):
+class Update(models.Model): # type: ignore [django-manager-missing]
 	image = models.ImageField(_('Изображение'), upload_to='updates/', blank=True, null=True)
 	version = models.CharField(_('Версия'), max_length=255)
 	description = models.TextField(_('Описание'))

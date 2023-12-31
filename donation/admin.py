@@ -11,7 +11,7 @@ from .models import Donation, DonationSection, DonationButton
 
 
 @admin.register(Donation)
-class DonationAdmin(admin.ModelAdmin):
+class DonationAdmin(admin.ModelAdmin[Donation]):
 	date_hierarchy = 'date'
 	list_display = ('sum_', 'telegram_url_', 'date')
 

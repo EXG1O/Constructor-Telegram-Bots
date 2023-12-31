@@ -22,7 +22,8 @@ def start_telegram_bot_(aiogram_telegram_bot: ConstructorTelegramBot | UserTeleg
 	except (TelegramNetworkError, TelegramServerError, RestartingTelegram):
 		start_telegram_bot_(aiogram_telegram_bot)
 	except TelegramUnauthorizedError:
-		aiogram_telegram_bot.django_telegram_bot.delete()
+		if isinstance(aiogram_telegram_bot, UserTelegramBot):
+			aiogram_telegram_bot.django_telegram_bot.delete()
 
 @shared_task
 def start_telegram_bot(telegram_bot_id: int) -> None:
@@ -41,7 +42,7 @@ def start_telegram_bot(telegram_bot_id: int) -> None:
 def start_all_telegram_bots() -> None:
 	Thread(
 		target=start_telegram_bot_,
-		args=(ConstructorTelegramBot(settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN),),
+		args=(ConstructorTelegramBot(settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN),), # type: ignore [arg-type]
 		daemon=True,
 	).start()
 

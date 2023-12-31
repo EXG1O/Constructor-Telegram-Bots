@@ -7,7 +7,7 @@ from .models import Update
 from typing import Any
 
 
-class UpdateSerializer(serializers.ModelSerializer):
+class UpdateSerializer(serializers.ModelSerializer[Update]):
 	class Meta:
 		model = Update
 		fields = ('id', 'image', 'version', 'description', 'added_date')

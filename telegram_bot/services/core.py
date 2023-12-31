@@ -5,7 +5,7 @@ from aiogram.methods import TelegramMethod, SetMyCommands
 from django.test import TestCase
 from django.conf import settings
 
-from typing import TypeVar
+from typing import TypeVar, Any
 from datetime import datetime
 import asyncio
 
@@ -14,17 +14,17 @@ T = TypeVar('T')
 
 
 class Bot(Bot_):
-	def __init__(self, api_token: str, parse_mode: str | None = None, *args, **kwargs) -> None:
-		super().__init__(token=api_token, parse_mode=parse_mode, *args, **kwargs)
+	def __init__(self, api_token: str, parse_mode: str | None = None, *args: Any, **kwargs: Any) -> None:
+		super().__init__(api_token, parse_mode=parse_mode, *args, **kwargs) # type: ignore [misc]
 
-		self.call_results = []
+		self.call_results: list[TelegramMethod[Any]] = []
 
-	async def __call__(self, method: TelegramMethod[T], *args, **kwargs) -> T | None:
+	async def __call__(self, method: TelegramMethod[T], *args: Any, **kwargs: Any) -> T | None: # type: ignore [override, return]
 		if not isinstance(method, SetMyCommands):
 			self.call_results.append(method)
 
 		if not settings.TEST:
-			return await super().__call__(method, *args, **kwargs)
+			return await super().__call__(method, *args, **kwargs) # type: ignore [arg-type]
 
 class BaseTelegramBot:
 	def __init__(self, api_token: str, parse_mode: str | None = None) -> None:
@@ -37,11 +37,11 @@ class BaseTestCase(TestCase):
 	chat_ = Chat(id=1, type='private')
 	user_ = User(id=1, first_name='Test', username='test', is_bot=False)
 
-	def setUp(self, bot: Bot, dispatcher: Dispatcher):
+	def setUp(self, bot: Bot, dispatcher: Dispatcher): # type: ignore [override]
 		self.bot = bot
 		self.dispatcher = dispatcher
 
-	async def send_message(self, text: str) -> list[TelegramMethod] | None:
+	async def send_message(self, text: str) -> list[TelegramMethod[Any]] | None:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
 			message=Message(
@@ -55,7 +55,7 @@ class BaseTestCase(TestCase):
 
 		return self.bot.call_results
 
-	async def send_callback_query(self, data: str) -> list[TelegramMethod] | None:
+	async def send_callback_query(self, data: str) -> list[TelegramMethod[Any]] | None:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
 			callback_query=CallbackQuery(

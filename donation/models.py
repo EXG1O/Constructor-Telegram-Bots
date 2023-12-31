@@ -17,10 +17,10 @@ class Donation(models.Model):
 	def __str__(self) -> str:
 		return self.telegram_url
 
-class DonationSection(models.Model):
-	def position_default() -> int:
+class DonationSection(models.Model): # type: ignore [django-manager-missing]
+	def position_default() -> int: # type: ignore [misc]
 		try:
-			return DonationSection.objects.last().position + 1
+			return DonationSection.objects.last().position + 1 # type: ignore [operator, union-attr]
 		except AttributeError:
 			return 1
 
@@ -38,10 +38,10 @@ class DonationSection(models.Model):
 	def __str__(self) -> str:
 		return self.title
 
-class DonationButton(models.Model):
-	def position_default() -> int:
+class DonationButton(models.Model): # type: ignore [django-manager-missing]
+	def position_default() -> int: # type: ignore [misc]
 		try:
-			return DonationButton.objects.last().position + 1
+			return DonationButton.objects.last().position + 1 # type: ignore [operator, union-attr]
 		except AttributeError:
 			return 1
 

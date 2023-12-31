@@ -1,38 +1,37 @@
 from django.urls import path, include
 
 from .views import (
-	TelegramBotsView,
-	TelegramBotView,
-	start_or_stop_telegram_bot,
-	TelegramBotCommandsView,
-	TelegramBotCommandView,
+	TelegramBotsAPIView,
+	TelegramBotAPIView,
+	start_or_stop_telegram_bot_api_view,
+	TelegramBotCommandsAPIView,
+	TelegramBotCommandAPIView,
 	TelegramBotCommandsDiagramAPIView,
 	TelegramBotCommandDiagramAPIView,
-	TelegramBotUsersView,
-	TelegramBotUserView,
-	TelegramBotAllowedUserView,
+	TelegramBotUsersAPIView,
+	TelegramBotUserAPIView,
+	TelegramBotAllowedUserAPIView,
 )
 
 
-app_name = 'telegram_bot'
 urlpatterns = [
-	path('', TelegramBotsView.as_view(), name='index'),
+	path('', TelegramBotsAPIView.as_view()),
 	path('<int:telegram_bot_id>/', include([
-		path('', TelegramBotView.as_view(), name='index'),
-		path('start-or-stop/', start_or_stop_telegram_bot, name='start-or-stop-telegram-bot'),
+		path('', TelegramBotAPIView.as_view()),
+		path('start-or-stop/', start_or_stop_telegram_bot_api_view),
 
-		path('commands/', TelegramBotCommandsView.as_view(), name='commands'),
-		path('commands/<int:telegram_bot_command_id>/', TelegramBotCommandView.as_view(), name='command'),
+		path('commands/', TelegramBotCommandsAPIView.as_view()),
+		path('commands/<int:telegram_bot_command_id>/', TelegramBotCommandAPIView.as_view()),
 
 		path('diagram/', include([
-			path('commands/', TelegramBotCommandsDiagramAPIView.as_view(), name='commands'),
-			path('commands/<int:telegram_bot_command_id>/', TelegramBotCommandDiagramAPIView.as_view(), name='command'),
-		]), name='diagram'),
-
-		path('users/', TelegramBotUsersView.as_view(), name='users'),
-		path('users/<int:telegram_bot_user_id>/', include([
-			path('', TelegramBotUserView.as_view(), name='user'),
-			path('allowed-user/', TelegramBotAllowedUserView.as_view(), name='allowed-user'),
+			path('commands/', TelegramBotCommandsDiagramAPIView.as_view()),
+			path('commands/<int:telegram_bot_command_id>/', TelegramBotCommandDiagramAPIView.as_view()),
 		])),
-	]), name='telegram-bot'),
+
+		path('users/', TelegramBotUsersAPIView.as_view()),
+		path('users/<int:telegram_bot_user_id>/', include([
+			path('', TelegramBotUserAPIView.as_view()),
+			path('allowed-user/', TelegramBotAllowedUserAPIView.as_view()),
+		])),
+	])),
 ]

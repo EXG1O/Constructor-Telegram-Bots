@@ -9,7 +9,7 @@ from typing import Any
 
 
 class CreateDjangoUserMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any: # type: ignore [override]
 		event_from_user: AiogramUser = data['event_from_user']
 
 		await DjangoUser.objects.aget_or_create(

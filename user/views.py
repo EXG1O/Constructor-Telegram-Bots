@@ -28,7 +28,7 @@ class UserAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
-		return Response(UserSerializer(request.user).data)
+		return Response(UserSerializer(request.user).data) # type: ignore [arg-type]
 
 	def delete(self, request: Request) -> CustomResponse:
 		request.user.delete()
@@ -75,7 +75,10 @@ class UserLogoutAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request: Request) -> CustomResponse:
-		request.user.auth_token.delete()
+		try:
+			request.user.auth_token.delete() # type: ignore [arg-type, union-attr]
+		except User.DoesNotExist:
+			pass
 
 		logout(request)
 

@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.conf import settings
 
 from user.models import User
@@ -8,7 +7,7 @@ from user.models import User
 import requests
 from requests import Response
 
-from typing import Optional
+from typing import Optional, Any
 from asgiref.sync import sync_to_async
 
 
@@ -47,15 +46,15 @@ class TelegramBot(models.Model):
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class TelegramBotCommandManager(models.Manager):
-	def create(
+class TelegramBotCommandManager(models.Manager['TelegramBotCommand']):
+	def create( # type: ignore [override]
 		self,
 		telegram_bot: TelegramBot,
 		name: str,
-		message_text: dict,
-		command: dict | None = None,
-		keyboard: dict | None = None,
-		api_request: dict | None = None,
+		message_text: dict[str, Any],
+		command: dict[str, Any] | None = None,
+		keyboard: dict[str, Any] | None = None,
+		api_request: dict[str, Any] | None = None,
 		# database_record: dict | None,
 	) -> 'TelegramBotCommand':
 		telegram_bot_command: TelegramBotCommand = super().create(
@@ -138,10 +137,10 @@ class TelegramBotCommand(models.Model):
 	def update(
 		self,
 		name: str,
-		message_text: dict,
-		command: dict | None = None,
-		keyboard: dict | None = None,
-		api_request: dict | None = None,
+		message_text: dict[str, Any],
+		command: dict[str, Any] | None = None,
+		keyboard: dict[str, Any] | None = None,
+		api_request: dict[str, Any] | None = None,
 		# database_record: dict | None,
 	):
 		self.name = name
@@ -240,12 +239,12 @@ class TelegramBotCommandMessageText(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_message_text'
 
-class TelegramBotCommandKeyboardManager(models.Manager):
-	def create(
+class TelegramBotCommandKeyboardManager(models.Manager['TelegramBotCommandKeyboard']):
+	def create( # type: ignore [override]
 		self,
 		telegram_bot_command: TelegramBotCommand,
 		type: str,
-		buttons: list
+		buttons: list[dict[str, Any]]
 	) -> 'TelegramBotCommandKeyboard':
 		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = super().create(telegram_bot_command=telegram_bot_command, type=type)
 
@@ -322,4 +321,4 @@ class TelegramBotUser(models.Model):
 		verbose_name_plural = _('Пользователи')
 
 	def __str__(self) -> str:
-		return self.full_name if self.full_name else str(self.user_id)
+		return self.full_name if self.full_name else str(self.telegram_id)

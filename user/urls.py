@@ -4,10 +4,10 @@ from .views import UsersAPIView, UserAPIView, UserLoginAPIView, UserLogoutAPIVie
 
 
 urlpatterns = [
-	path('users/', UsersAPIView.as_view(), name='users'),
+	path('users/', UsersAPIView.as_view()),
 	path('user/', include([
-		path('', UserAPIView.as_view(), name='index'),
-		path('login/', UserLoginAPIView.as_view(), name='login'),
-		path('logout/', UserLogoutAPIView.as_view(), name='logout'),
-	]), name='user'),
+		path('', UserAPIView.as_view()),
+		path('login/', UserLoginAPIView.as_view()),
+		path('logout/', UserLogoutAPIView.as_view()),
+	])),
 ]
