@@ -7,7 +7,7 @@ from typing import Any
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin[User]):
+class UserAdmin(admin.ModelAdmin):
 	search_fields = ('telegram_id', 'first_name', 'last_name')
 	date_hierarchy = 'joined_date'
 	list_filter = ('is_staff', 'last_login', 'joined_date')

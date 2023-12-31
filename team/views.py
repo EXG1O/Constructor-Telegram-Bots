@@ -4,7 +4,7 @@ from .models import TeamMember
 from .serializers import TeamMemberSerializer
 
 
-class TeamMembersAPIView(ListAPIView[TeamMember]):
+class TeamMembersAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 

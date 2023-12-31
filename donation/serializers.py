@@ -7,7 +7,7 @@ from .models import Donation, DonationSection, DonationButton
 from typing import Any
 
 
-class DonationSerializer(serializers.ModelSerializer[Donation]):
+class DonationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Donation
 		fields = ('id', 'sum', 'telegram_url', 'date')
@@ -18,12 +18,12 @@ class DonationSerializer(serializers.ModelSerializer[Donation]):
 
 		return representation
 
-class DonationSectionSerializer(serializers.ModelSerializer[DonationSection]):
+class DonationSectionSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = DonationSection
 		fields = ('id', 'title', 'text')
 
-class DonationButtonSerializer(serializers.ModelSerializer[DonationButton]):
+class DonationButtonSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = DonationButton
 		fields = ('id', 'text', 'url')

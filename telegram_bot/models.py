@@ -46,7 +46,7 @@ class TelegramBot(models.Model):
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class TelegramBotCommandManager(models.Manager['TelegramBotCommand']):
+class TelegramBotCommandManager(models.Manager):
 	def create( # type: ignore [override]
 		self,
 		telegram_bot: TelegramBot,
@@ -239,7 +239,7 @@ class TelegramBotCommandMessageText(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_message_text'
 
-class TelegramBotCommandKeyboardManager(models.Manager['TelegramBotCommandKeyboard']):
+class TelegramBotCommandKeyboardManager(models.Manager):
 	def create( # type: ignore [override]
 		self,
 		telegram_bot_command: TelegramBotCommand,

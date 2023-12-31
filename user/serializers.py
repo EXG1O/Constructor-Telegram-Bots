@@ -7,7 +7,7 @@ from .models import User
 from typing import Any
 
 
-class UserSerializer(serializers.ModelSerializer[User]):
+class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('id', 'telegram_id', 'first_name', 'last_name', 'is_staff', 'joined_date')
@@ -18,6 +18,6 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
 		return representation
 
-class AuthTokenSerializer(serializers.Serializer[None]):
+class AuthTokenSerializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	confirm_code = serializers.CharField()

@@ -9,7 +9,7 @@ from .serializers import (
 )
 
 
-class DonationsAPIView(ListAPIView[Donation]):
+class DonationsAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
@@ -17,14 +17,14 @@ class DonationsAPIView(ListAPIView[Donation]):
 	serializer_class = DonationSerializer
 	pagination_class = LimitOffsetPagination
 
-class DonationSectionsAPIView(ListAPIView[DonationSection]):
+class DonationSectionsAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 
 	queryset = DonationSection.objects.all()
 	serializer_class = DonationSectionSerializer
 
-class DonationButtonsAPIView(ListAPIView[DonationButton]):
+class DonationButtonsAPIView(ListAPIView):
 	authentication_classes = []
 	permission_classes = []
 

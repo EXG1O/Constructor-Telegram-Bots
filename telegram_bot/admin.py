@@ -12,7 +12,7 @@ from typing import Any
 
 
 @admin.register(TelegramBot)
-class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
+class TelegramBotAdmin(admin.ModelAdmin):
 	search_fields = ('username',)
 	date_hierarchy = 'added_date'
 	list_filter = ('is_running', 'added_date')
@@ -34,7 +34,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		return telegram_bot.users.count()
 
 	@admin.action(description=_('Включить Telegram бота'))
-	def start_telegram_bot_action(self, request: HttpRequest, telegram_bots: QuerySet[TelegramBot]) -> None:
+	def start_telegram_bot_action(self, request: HttpRequest, telegram_bots: 'QuerySet[TelegramBot]') -> None:
 		for telegram_bot in telegram_bots:
 			if not telegram_bot.is_running and telegram_bot.is_stopped:
 				start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
@@ -44,7 +44,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 				messages.error(request, f"@{telegram_bot.username} {_('Telegram бот уже включен!')}")
 
 	@admin.action(description=_('Выключить Telegram бота'))
-	def stop_telegram_bot_action(self, request: HttpRequest, telegram_bots: QuerySet[TelegramBot]) -> None:
+	def stop_telegram_bot_action(self, request: HttpRequest, telegram_bots: 'QuerySet[TelegramBot]') -> None:
 		for telegram_bot in telegram_bots:
 			if telegram_bot.is_running and not telegram_bot.is_stopped:
 				telegram_bot.stop()
@@ -60,7 +60,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		return False
 
 @admin.register(TelegramBotUser)
-class TelegramBotUserAdmin(admin.ModelAdmin[TelegramBotUser]):
+class TelegramBotUserAdmin(admin.ModelAdmin):
 	search_fields = ('telegram_id', 'full_name')
 	date_hierarchy = 'activated_date'
 	list_filter = ('activated_date',)

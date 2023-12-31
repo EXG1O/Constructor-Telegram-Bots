@@ -17,7 +17,7 @@ class Bot(Bot_):
 	def __init__(self, api_token: str, parse_mode: str | None = None, *args: Any, **kwargs: Any) -> None:
 		super().__init__(api_token, parse_mode=parse_mode, *args, **kwargs) # type: ignore [misc]
 
-		self.call_results: list[TelegramMethod[Any]] = []
+		self.call_results: list[TelegramMethod] = []
 
 	async def __call__(self, method: TelegramMethod[T], *args: Any, **kwargs: Any) -> T | None: # type: ignore [override, return]
 		if not isinstance(method, SetMyCommands):
@@ -41,7 +41,7 @@ class BaseTestCase(TestCase):
 		self.bot = bot
 		self.dispatcher = dispatcher
 
-	async def send_message(self, text: str) -> list[TelegramMethod[Any]] | None:
+	async def send_message(self, text: str) -> list[TelegramMethod] | None:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
 			message=Message(
@@ -55,7 +55,7 @@ class BaseTestCase(TestCase):
 
 		return self.bot.call_results
 
-	async def send_callback_query(self, data: str) -> list[TelegramMethod[Any]] | None:
+	async def send_callback_query(self, data: str) -> list[TelegramMethod] | None:
 		await self.dispatcher._process_update(self.bot, Update(
 			update_id=1,
 			callback_query=CallbackQuery(
