@@ -1,7 +1,7 @@
 # Папки
 __pycache__/
 node_modules/
-/constructor_telegram_bots/static/frontend/
+.mypy_cache/
 .vscode/
 /static/
 media/
