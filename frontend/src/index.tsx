@@ -93,7 +93,7 @@ const router = createBrowserRouter([
 					{
 						path: 'variables/',
 						async lazy() {
-							const module = await import('./routes/telegram_bot_menu/variables/App');
+							const module = await import('./routes/telegram_bot_menu/Variables');
 
 							return { Component: module.default };
 						},

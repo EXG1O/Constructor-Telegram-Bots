@@ -16,7 +16,7 @@ function Header(): ReactNode {
 				<Nav.Link className='link-dark'>{gettext('Telegram бот')}</Nav.Link>
 			</LinkContainer>
 			<LinkContainer to={`/telegram-bot-menu/${telegramBot.id}/variables/`}>
-				<Nav.Link className='link-dark'>{gettext('Список переменных')}</Nav.Link>
+				<Nav.Link className='link-dark'>{gettext('Переменные')}</Nav.Link>
 			</LinkContainer>
 			<LinkContainer to={`/telegram-bot-menu/${telegramBot.id}/users/`}>
 				<Nav.Link className='link-dark'>{gettext('Пользователи')}</Nav.Link>
