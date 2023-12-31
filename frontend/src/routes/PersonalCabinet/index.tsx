@@ -27,7 +27,7 @@ export async function loader(): Promise<LoaderData> {
 	return { telegramBots: response.ok ? response.json : [] };
 }
 
-function App(): ReactNode {
+function PersonalCabinet(): ReactNode {
 	const { telegramBots: telegramBotsInit } = useLoaderData() as LoaderData;
 
 	const [telegramBots, setTelegramBots] = useState<TelegramBot[]>(telegramBotsInit);
@@ -68,4 +68,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default PersonalCabinet;

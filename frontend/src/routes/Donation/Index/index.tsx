@@ -22,7 +22,7 @@ export async function loader(): Promise<LoaderData> {
 	}
 }
 
-function App(): ReactNode {
+function Index(): ReactNode {
 	const { sections, buttons } = useLoaderData() as LoaderData;
 
 	return (
@@ -53,4 +53,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Index;

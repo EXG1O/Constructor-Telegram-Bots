@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
-function App(): ReactNode {
+function Updates(): ReactNode {
 	return <></>;
 }
 
-export default App;
+export default Updates;

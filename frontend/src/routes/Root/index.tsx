@@ -7,7 +7,7 @@ import Footer from 'components/Footer';
 import UserProvider from 'services/providers/UserProvider';
 import ToastProvider from 'services/providers/ToastProvider';
 
-function App(): ReactNode {
+function Root(): ReactNode {
 	return (
 		<UserProvider>
 			<ToastProvider>
@@ -19,4 +19,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Root;

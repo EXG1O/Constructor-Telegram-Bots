@@ -18,7 +18,7 @@ interface TelegramBotUsersIsSortedState {
 	search: boolean;
 }
 
-function App(): ReactNode {
+function Users(): ReactNode {
 	const { telegramBotID } = useParams<Params<'telegramBotID'>>();
 	const navigate = useNavigate();
 
@@ -141,4 +141,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Users;

@@ -16,7 +16,7 @@ export async function loader(): Promise<LoaderData> {
 	return { sections: response.ok ? response.json : [] };
 }
 
-function App(): ReactNode {
+function Instruction(): ReactNode {
 	const { sections } = useLoaderData() as LoaderData;
 
 	return (
@@ -33,4 +33,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Instruction;

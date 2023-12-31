@@ -1,4 +1,4 @@
-import './App.css';
+import './index.css';
 
 import React, { ReactNode } from 'react';
 import { useLoaderData } from 'react-router-dom';

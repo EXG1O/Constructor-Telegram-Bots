@@ -15,7 +15,7 @@ import TelegramBotCardFooter from './components/TelegramBotCardFooter';
 
 import useTelegramBot from 'services/hooks/useTelegramBot';
 
-function App(): ReactNode {
+function Index(): ReactNode {
 	const { telegramBot, setTelegramBot } = useTelegramBot();
 
 	return (
@@ -94,4 +94,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Index;

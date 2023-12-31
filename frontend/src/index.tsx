@@ -12,7 +12,7 @@ const router = createBrowserRouter([
 	{
 		path: '/',
 		async lazy() {
-			const module = await import('./routes/root/App');
+			const module = await import('./routes/Root');
 
 			return { Component: module.default };
 		},
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
 			{
 				index: true,
 				async lazy() {
-					const module = await import('./routes/home/App');
+					const module = await import('./routes/Home');
 
 					return {
 						Component: module.default,
@@ -31,7 +31,7 @@ const router = createBrowserRouter([
 			{
 				path: 'team/',
 				async lazy() {
-					const module = await import('./routes/team/App');
+					const module = await import('./routes/Team');
 
 					return {
 						Component: module.default,
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
 					{
 						index: true,
 						async lazy() {
-							const module = await import('./routes/donation/index/App');
+							const module = await import('./routes/Donation/Index');
 
 							return {
 								Component: module.default,
@@ -56,7 +56,7 @@ const router = createBrowserRouter([
 					{
 						path: 'completed/',
 						async lazy() {
-							const module = await import('./routes/donation/completed/App');
+							const module = await import('./routes/Donation/Completed');
 
 							return { Component: module.default };
 						},
@@ -66,7 +66,7 @@ const router = createBrowserRouter([
 			{
 				path: 'personal-cabinet/',
 				async lazy() {
-					const module = await import('./routes/personal_cabinet/App');
+					const module = await import('./routes/PersonalCabinet');
 
 					return {
 						Component: module.default,
@@ -77,7 +77,7 @@ const router = createBrowserRouter([
 			{
 				path: 'telegram-bot-menu/:telegramBotID/',
 				async lazy() {
-					const module = await import('./routes/telegram_bot_menu/root/App');
+					const module = await import('./routes/TelegramBotMenu/Root');
 
 					return { Component: module.default };
 				},
@@ -85,7 +85,7 @@ const router = createBrowserRouter([
 					{
 						index: true,
 						async lazy() {
-							const module = await import('./routes/telegram_bot_menu/index/App');
+							const module = await import('./routes/TelegramBotMenu/Index');
 
 							return { Component: module.default };
 						},
@@ -93,7 +93,7 @@ const router = createBrowserRouter([
 					{
 						path: 'variables/',
 						async lazy() {
-							const module = await import('./routes/telegram_bot_menu/Variables');
+							const module = await import('./routes/TelegramBotMenu/Variables');
 
 							return { Component: module.default };
 						},
@@ -101,7 +101,7 @@ const router = createBrowserRouter([
 					{
 						path: 'users/',
 						async lazy() {
-							const module = await import('./routes/telegram_bot_menu/users/App');
+							const module = await import('./routes/TelegramBotMenu/Users');
 
 							return { Component: module.default };
 						},
@@ -109,7 +109,7 @@ const router = createBrowserRouter([
 					{
 						path: 'constructor/',
 						async lazy() {
-							const module = await import('./routes/telegram_bot_menu/Constructor');
+							const module = await import('./routes/TelegramBotMenu/Constructor');
 
 							return { Component: module.default };
 						},

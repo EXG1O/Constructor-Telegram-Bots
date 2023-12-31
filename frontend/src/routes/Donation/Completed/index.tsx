@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 
 import Container from 'react-bootstrap/Container';
 
-function App(): ReactNode {
+function Completed(): ReactNode {
 	return (
 		<main className='my-auto'>
 			<Container className='my-3 my-lg-4'>
@@ -16,4 +16,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Completed;

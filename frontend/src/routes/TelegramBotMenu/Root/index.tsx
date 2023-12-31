@@ -8,7 +8,7 @@ import Header from './components/Header';
 import AuthRequiredProvider from 'services/providers/AuthRequiredProvider';
 import TelegramBotProvider from 'services/providers/TelegramBotProvider';
 
-function App(): ReactNode {
+function Root(): ReactNode {
 	return (
 		<AuthRequiredProvider>
 			<TelegramBotProvider>
@@ -23,4 +23,4 @@ function App(): ReactNode {
 	);
 }
 
-export default App;
+export default Root;
