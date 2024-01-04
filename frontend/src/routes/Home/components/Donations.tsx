@@ -16,7 +16,7 @@ function Donations({ donations }: DonationsProps): ReactNode {
 		<Stack className='donations align-self-center' gap={2}>
 			<h3 className='mb-0'>{gettext('Список пожертвований')}</h3>
 			<div className='bg-light border rounded'>
-				<Table variant='light' className='overflow-hidden border rounded align-middle mb-0'>
+				<Table variant='light' className='overflow-hidden border-bottom rounded align-middle mb-0'>
 					<thead>
 						<tr>
 							<th className='sum' scope='col'>{gettext('Сумма')}</th>

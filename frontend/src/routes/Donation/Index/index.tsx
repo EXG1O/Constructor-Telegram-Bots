@@ -14,12 +14,18 @@ export interface LoaderData {
 
 export async function loader(): Promise<LoaderData> {
 	const response = await DonationSectionsAPI.get();
+
+	if (!response.ok) {
+		throw new Response(gettext('Сервер вернул код ошибки!'), { status: response.status });
+	}
+
 	const response_ = await DonationButtonsAPI.get();
 
-	return {
-		sections: response.ok ? response.json : [],
-		buttons: response_.ok ? response_.json : [],
+	if (!response_.ok) {
+		throw new Response(gettext('Сервер вернул код ошибки!'), { status: response.status });
 	}
+
+	return { sections: response.json, buttons: response_.json };
 }
 
 function Index(): ReactNode {
@@ -31,7 +37,7 @@ function Index(): ReactNode {
 				{sections.map(section => (
 					<div key={section.id}>
 						<h3 className='mb-1'>{section.title}</h3>
-						{section.text}
+						<div dangerouslySetInnerHTML={{ __html: section.text }}></div>
 					</div>
 				))}
 				<div className='d-flex gap-2'>

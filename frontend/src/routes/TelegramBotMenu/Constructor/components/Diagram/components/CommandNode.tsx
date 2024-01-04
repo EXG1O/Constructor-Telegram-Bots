@@ -78,16 +78,18 @@ function CommandNode({ id, data }: CommandNodeProps): ReactNode {
 			<Stack gap={2} style={{ width: '300px' }}>
 				<div className='d-flex gap-1'>
 					<Button
+						as='i'
 						size='sm'
 						variant='danger'
-						className='bi bi-trash px-1 py-0'
+						className='bi bi-trash d-flex justify-content-center align-items-center p-1'
 						style={{ fontSize: '16px' }}
 						onClick={() => setShowDeleteModal(true)}
 					/>
 					<Button
+						as='i'
 						size='sm'
 						variant='secondary'
-						className='bi bi-pencil-square px-1 py-0'
+						className='bi bi-pencil-square d-flex justify-content-center align-items-center p-1'
 						style={{ fontSize: '16px' }}
 						onClick={() => setShowCommandOffcanvas(true)}
 					/>

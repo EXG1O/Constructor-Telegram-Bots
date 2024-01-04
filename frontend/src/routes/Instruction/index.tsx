@@ -25,7 +25,7 @@ function Instruction(): ReactNode {
 				{sections.map(section => (
 					<div key={section.id}>
 						<h3 className='mb-1'>{section.title}</h3>
-						{section.text}
+						<div dangerouslySetInnerHTML={{ __html: section.text }} />
 					</div>
 				))}
 			</Container>

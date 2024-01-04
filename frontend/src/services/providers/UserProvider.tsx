@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import _ from 'lodash';
 
 import Spinner from 'react-bootstrap/Spinner';
 
@@ -9,7 +10,7 @@ import UserContext, { UserContextProps } from 'services/contexts/UserContext';
 import { UserAPI } from 'services/api/users/main';
 
 export interface UserProviderProps {
-	children: ReactNode
+	children: ReactNode;
 }
 
 function UserProvider({ children }: UserProviderProps): ReactNode {
@@ -24,17 +25,21 @@ function UserProvider({ children }: UserProviderProps): ReactNode {
 			const response = await UserAPI.get();
 
 			if (response.ok) {
-				setUser(response.json);
+				if (!_.isEqual(user, response.json)) {
+					setUser(response.json);
+				}
 			} else {
 				Cookies.remove('auth-token');
 
-				setUser(null);
+				if (user !== null) {
+					setUser(null);
+				}
 			}
 		}
 
 		if (authToken !== undefined) {
 			getUser();
-		} else {
+		} else if (user !== null) {
 			setUser(null);
 		}
 	}, [location]);
@@ -46,7 +51,7 @@ function UserProvider({ children }: UserProviderProps): ReactNode {
 			style={{
 				width: '4rem',
 				height: '4rem',
-				borderWidth: '0.5rem',
+				borderWidth: '0.4rem',
 			}}
 		/>
 	) : (

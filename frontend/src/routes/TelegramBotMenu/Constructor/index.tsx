@@ -2,12 +2,13 @@ import React, { ReactElement, useCallback, useRef, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
-import CommandOffcanvas, { Data } from './components/CommandOffcanvas';
+import CommandOffcanvas, { Data as CommandOffcanvasData } from './components/CommandOffcanvas';
 import Diagram from './components/Diagram';
 
-import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
 import useTelegramBot from 'services/hooks/useTelegramBot';
 import useToast from 'services/hooks/useToast';
+
+import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
 
 export interface UpdateNodesRef {
 	updateNodes?: () => void | Promise<void>;
@@ -20,7 +21,7 @@ function Constructor(): ReactElement {
 	const diagramInnerRef = useRef<UpdateNodesRef>({});
 	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState<boolean>(false);
 
-	async function handleAddCommandButtonClick(data: Data): Promise<void> {
+	async function handleAddCommandButtonClick(data: CommandOffcanvasData): Promise<void> {
 		const response = await TelegramBotCommandAPI.create(telegramBot.id, data);
 
 		if (response.ok) {
@@ -38,7 +39,7 @@ function Constructor(): ReactElement {
 				title={gettext('Добавление команды')}
 				onHide={useCallback(() => setShowCommandOffcanvas(false), [])}
 			>
-				{useCallback((data: Data) => (
+				{useCallback((data: CommandOffcanvasData) => (
 					<Button
 						variant='success'
 						className='w-100'

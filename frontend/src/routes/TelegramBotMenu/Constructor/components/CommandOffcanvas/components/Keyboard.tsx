@@ -1,18 +1,15 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 import ToggleButton, { ToggleButtonProps } from 'react-bootstrap/ToggleButton';
-import RBButton from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
-import Button from './Button';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-
-interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id' | 'value' | 'size' | 'variant' | 'onChange'> {
-	value: Data['type'];
-}
 
 export interface ButtonData {
 	id?: number;
@@ -31,6 +28,10 @@ export interface KeyboardProps extends Omit<CardProps, 'onChange' | 'children'> 
 	onChange: (data: Data) => void;
 }
 
+interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id' | 'value' | 'size' | 'variant' | 'onChange'> {
+	value: Data['type'];
+}
+
 const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
 	{ value: 'default', children: gettext('Обычный') },
 	{ value: 'inline', children: gettext('Встроенный') },
@@ -42,8 +43,15 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 
 	useEffect(() => onChange(data), [data]);
 
-	function handleButtonChange(index: number, button: ButtonData): void {
-		setData({ ...data, buttons: data.buttons.map((btn, i) => i === index ? button : btn) });
+	function handleButtonChange(index: number, buttonData: Partial<ButtonData>): void {
+		const buttons = [...data.buttons];
+
+		let [button] = buttons.splice(index, 1);
+		button = { ...button, ...buttonData };
+
+		buttons.splice(index, 0, button);
+
+		setData({ ...data, buttons });
 	}
 
 	function handleButtonDelete(index: number): void {
@@ -96,15 +104,55 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 												draggableId={`keyboardButton${index}`}
 											>
 												{provided => (
-													<Button
-														data={data}
-														index={index}
-														button={button}
-														provided={provided}
+													<InputGroup
+														ref={provided.innerRef}
 														className='mb-1'
-														onChange={handleButtonChange}
-														onDelete={handleButtonDelete}
-													/>
+														{...provided.draggableProps}
+														{...provided.dragHandleProps}
+													>
+														<Button
+															as='div'
+															size='sm'
+															variant='light'
+															className='border bi bi-grip-vertical d-flex justify-content-center align-items-center p-0'
+															style={{ width: '31px', height: '31px', cursor: 'grab', fontSize: '18px' }}
+														/>
+														<Form.Control
+															value={button.text}
+															size='sm'
+															className='text-center'
+															placeholder={gettext('Название кнопки')}
+															onChange={e => handleButtonChange(index, { text: e.target.value })}
+														/>
+														{(data.type === 'inline' || data.type === 'payment') && (
+															button.url !== undefined ? (
+																<Form.Control
+																	value={button.url ?? undefined}
+																	size='sm'
+																	className='text-center'
+																	placeholder='URL-адрес'
+																	onChange={e => handleButtonChange(index, { url: e.target.value })}
+																/>
+															) : (
+																<Button
+																	as='i'
+																	size='sm'
+																	variant='secondary'
+																	className='bi bi-link-45deg d-flex justify-content-center align-items-center p-0'
+																	style={{ width: '31px', height: '31px', fontSize: '18px' }}
+																	onClick={() => handleButtonChange(index, { url: '' })}
+																/>
+															)
+														)}
+														<Button
+															as='i'
+															size='sm'
+															variant='danger'
+															className='bi bi-trash d-flex justify-content-center align-items-center p-0'
+															style={{ width: '31px', height: '31px', fontSize: '18px' }}
+															onClick={() => handleButtonDelete(index)}
+														/>
+													</InputGroup>
 												)}
 											</Draggable>
 										))}
@@ -114,18 +162,18 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 							)}
 						</Droppable>
 					</DragDropContext>
-					<RBButton
+					<Button
 						size='sm'
 						variant='dark'
 						className='w-100'
 						onClick={() => setData({ ...data, buttons: [...data.buttons, { text: '' }] })}
 					>
 						{gettext('Добавить кнопку')}
-					</RBButton>
+					</Button>
 				</div>
 			</Card.Body>
 		</Card>
 	);
 }
 
-export default Keyboard;
+export default memo(Keyboard);

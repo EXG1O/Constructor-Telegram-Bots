@@ -26,7 +26,7 @@ function UserVariables(): ReactElement {
 						style={{
 							width: '2.5rem',
 							height: '2.5rem',
-							borderWidth: '0.35rem',
+							borderWidth: '0.25rem',
 						}}
 					/>
 				)}

@@ -7,7 +7,7 @@ import MessageToast, { MessageToastProps } from 'components/MessageToast';
 import ToastContext from 'services/contexts/ToastContext';
 
 export interface ToastProviderProps {
-	children: ReactNode
+	children: ReactNode;
 }
 
 function ToastProvider({ children }: ToastProviderProps): ReactNode {

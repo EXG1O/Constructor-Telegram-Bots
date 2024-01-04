@@ -5,25 +5,21 @@ import 'tinymce/icons/default';
 import 'tinymce/skins/ui/oxide/skin.min.css';
 import './MessageText.css';
 
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Editor } from '@tinymce/tinymce-react';
 import Card, { CardProps } from 'react-bootstrap/Card';
 
-export interface Data {
-	text: string;
-}
-
 export interface MessageTextProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data | null;
-	onChange: (data: Data) => void;
+	initialValue?: string | null;
+	onChange: (value: string) => void;
 }
 
-function MessageText({ initialData, onChange, ...props }: MessageTextProps): ReactElement<MessageTextProps> {
-	const [data, setData] = useState<Data>(initialData ?? { text: '' });
+function MessageText({ initialValue, onChange, ...props }: MessageTextProps): ReactElement<MessageTextProps> {
+	const [value, setValue] = useState<string>(initialValue ?? '');
 
-	useEffect(() => onChange(data), [data]);
+	useEffect(() => onChange(value), [value]);
 
 	return (
 		<Card {...props} className={classNames('border', props.className)}>
@@ -32,7 +28,7 @@ function MessageText({ initialData, onChange, ...props }: MessageTextProps): Rea
 			</Card.Header>
 			<Card.Body className='p-2'>
 				<Editor
-					value={data.text}
+					value={value}
 					init={{
 						skin: false,
 						content_css: false,
@@ -46,11 +42,11 @@ function MessageText({ initialData, onChange, ...props }: MessageTextProps): Rea
 						statusbar: false,
 						resize: false,
 					}}
-					onEditorChange={text => setData({ ...data, text })}
+					onEditorChange={value => setValue(value)}
 				/>
 			</Card.Body>
 		</Card>
 	);
 }
 
-export default MessageText;
+export default memo(MessageText);

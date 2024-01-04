@@ -1,12 +1,10 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
-
-export type AddonsName = 'description';
 
 export interface Data {
 	text: string;
@@ -18,16 +16,18 @@ export interface CommandProps extends Omit<CardProps, 'onChange' | 'children'> {
 	onChange: (data: Data) => void;
 }
 
+type AddonNames = 'description';
+
 function Command({ initialData, onChange, ...props }: CommandProps): ReactElement<CommandProps> {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
-	const [addons, setAddons] = useState<Record<AddonsName, boolean>>({ description: Boolean(initialData?.description) });
+	const [showAddons, setShowAddons] = useState<Record<AddonNames, boolean>>({ description: Boolean(initialData?.description) });
 
 	useEffect(() => onChange(data), [data]);
 
-	function toggleAddon(name: AddonsName): void {
-		setAddons({ ...addons, [name]: !addons[name] });
+	function toggleAddon(name: AddonNames): void {
+		setShowAddons({ ...showAddons, [name]: !showAddons[name] });
 
-		if (addons[name]) {
+		if (showAddons[name]) {
 			setData({ ...data, [name]: undefined });
 		}
 	}
@@ -46,19 +46,26 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 				/>
 				<Button
 					size='sm'
-					variant={addons.description ? 'secondary' : 'dark'}
-					className='w-100'
+					{...(
+						showAddons.description ? {
+							variant: 'secondary',
+							className: 'w-100 border-bottom-0 rounded-bottom-0',
+							children: gettext('Убрать из меню'),
+						} : {
+							variant: 'dark',
+							className: 'w-100',
+							children: gettext('Добавить в меню'),
+						}
+					)}
 					aria-controls='command-offcanvas-command-description-addon'
-					aria-expanded={addons.description}
+					aria-expanded={showAddons.description}
 					onClick={() => toggleAddon('description')}
-				>
-					{gettext('Добавить в меню')}
-				</Button>
-				<Collapse in={addons.description}>
+				/>
+				<Collapse in={showAddons.description}>
 					<div id='command-offcanvas-command-description-addon'>
 						<Form.Control
-							className='mt-2'
 							value={data.description ?? ''}
+							className='border-top-0 rounded-top-0'
 							placeholder={gettext('Введите описание команды')}
 							onChange={e => setData({ ...data, description: e.target.value })}
 						/>
@@ -69,4 +76,4 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 	);
 }
 
-export default Command;
+export default memo(Command);
