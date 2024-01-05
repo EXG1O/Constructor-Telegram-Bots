@@ -115,7 +115,7 @@ class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = TelegramBotCommand
-		fields = ('id', 'name', 'image', 'message_text', 'keyboard', 'x', 'y')
+		fields = ('id', 'name', 'message_text', 'keyboard', 'x', 'y')
 
 class TelegramBotUserSerializer(serializers.ModelSerializer):
 	class Meta:
