@@ -42,18 +42,18 @@ class TelegramBotCommandCommandSerializer(serializers.ModelSerializer):
 		fields = ('text', 'description')
 
 class TelegramBotCommandImageSerializer(serializers.ModelSerializer):
-	image = serializers.CharField(source='image.url')
+	url = serializers.CharField(source='image.url')
 
 	class Meta:
 		model = TelegramBotCommandImage
-		fields = ('image',)
+		fields = ('url',)
 
 class TelegramBotCommandFileSerializer(serializers.ModelSerializer):
-	file = serializers.CharField(source='file.url')
+	url = serializers.CharField(source='file.url')
 
 	class Meta:
 		model = TelegramBotCommandFile
-		fields = ('file',)
+		fields = ('url',)
 
 class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer):
 	class Meta:

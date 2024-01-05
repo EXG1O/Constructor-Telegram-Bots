@@ -1,9 +1,5 @@
-import Cookies from 'js-cookie';
-
-export type ObjectAsJSON = Record<string, any>;
-
 export namespace APIResponse {
-	export interface Base<Ok extends boolean, Json extends ObjectAsJSON> extends Omit<Response, 'ok' | 'json'> {
+	export interface Base<Ok extends boolean, Json extends Record<string, any>> extends Omit<Response, 'ok' | 'json'> {
 		ok: Ok;
 		json: Json;
 	}
@@ -20,11 +16,11 @@ export namespace APIResponse {
 	}
 }
 
-export async function makeRequest<SuccessAPIResponse extends ObjectAsJSON = APIResponse.Success, ErrorAPIResponse extends ObjectAsJSON = APIResponse.Error>(
+export async function makeRequest<SuccessAPIResponse extends Record<string, any> = APIResponse.Success, ErrorAPIResponse extends Record<string, any> = APIResponse.Error>(
 	url: string,
 	method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
 	headers?: HeadersInit,
-	data?: ObjectAsJSON | FormData,
+	data?: Record<string, any> | FormData,
 ): Promise<APIResponse.Base<true, SuccessAPIResponse> | APIResponse.Base<false, ErrorAPIResponse>> {
 	let requestInit: RequestInit = { method };
 

@@ -1,4 +1,4 @@
-import { ObjectAsJSON, APIResponse  as BaseApiResponse } from 'services/api/base';
+import { APIResponse  as BaseApiResponse } from 'services/api/base';
 
 export interface TelegramBot {
 	id: number;
@@ -14,6 +14,12 @@ export interface TelegramBotCommandCommand {
 	text: string;
 	description: string | null;
 }
+
+export interface TelegramBotCommandImage {
+	url: string;
+}
+
+export type TelegramBotCommandFile = TelegramBotCommandImage;
 
 export interface TelegramBotCommandMessageText {
 	text: string;
@@ -34,18 +40,24 @@ export interface TelegramBotCommandKeyboard {
 export interface TelegramBotCommandApiRequest {
 	url: string;
 	method: 'get' | 'post' | 'put' | 'patch' | 'delete';
-	headers: ObjectAsJSON | null;
-	body: ObjectAsJSON | null;
+	headers: Record<string, any> | null;
+	body: Record<string, any> | null;
+}
+
+export interface TelegramBotCommandDatabaseRecord {
+	data: Record<string, any>;
 }
 
 export interface TelegramBotCommand {
 	id: number;
 	name: string;
 	command: TelegramBotCommandCommand | null;
-	image: string | null;
+	images: TelegramBotCommandImage[] | null;
+	files: TelegramBotCommandFile[] | null;
 	message_text: TelegramBotCommandMessageText;
 	keyboard: TelegramBotCommandKeyboard | null;
 	api_request: TelegramBotCommandApiRequest | null;
+	database_record: TelegramBotCommandDatabaseRecord | null;
 }
 
 export interface TelegramBotCommandKeyboardButtonDiagram extends TelegramBotCommandKeyboardButton {
@@ -58,7 +70,7 @@ export interface TelegramBotCommandKeyboardDiagram extends Omit<TelegramBotComma
 	buttons: TelegramBotCommandKeyboardButtonDiagram[];
 }
 
-export interface TelegramBotCommandDiagram extends Omit<TelegramBotCommand, 'command' | 'keyboard' | 'api_request'> {
+export interface TelegramBotCommandDiagram extends Pick<TelegramBotCommand, 'id' | 'name' | 'message_text'> {
 	keyboard: TelegramBotCommandKeyboardDiagram | null;
 
 	x: number;
@@ -70,6 +82,7 @@ export interface TelegramBotUser {
 	telegram_id: number;
 	full_name: string;
 	is_allowed: boolean;
+	is_blocked: boolean;
 	activated_date: string;
 }
 
@@ -104,9 +117,12 @@ export namespace Data {
 		export interface Create {
 			name: TelegramBotCommand['name'];
 			command?: CreateTelegramBotCommandCommand | null;
+			images?: File[],
+			files?: File[],
 			message_text: TelegramBotCommand['message_text'];
 			keyboard?: CreateTelegramBotCommandKeyboard | null;
 			api_request?: CreateTelegramBotCommandApiRequest | null;
+			database_record?: TelegramBotCommand['database_record'];
 		}
 
 		interface UpdateTelegramBotCommandKeyboardButton extends CreateTelegramBotCommandKeyboardButton {

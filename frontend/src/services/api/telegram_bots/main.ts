@@ -12,11 +12,14 @@ export namespace TelegramBotAPI {
 
 	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotID), 'GET');
 	export const create = (data: Data.TelegramBotAPI.Create) => makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', undefined, data);
-	export const update = (telegramBotID: TelegramBot['id'], data: Data.TelegramBotAPI.Update) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PATCH', undefined, data);
+	export const update = (
+		telegramBotID: TelegramBot['id'],
+		data: Data.TelegramBotAPI.Update,
+	) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PATCH', undefined, data);
 	export const delete_ = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE');
 
-	export const start = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) +'start-or-stop/', 'POST');
-	export const stop = start;
+	export const start = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=start', 'POST');
+	export const stop = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=stop', 'POST');;
 }
 
 export namespace TelegramBotCommandsAPI {
@@ -106,7 +109,23 @@ export namespace TelegramBotAllowedUserAPI {
 	export const url = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotUserID: TelegramBotUser['id'],
-	) => `${TelegramBotUserAPI.url(telegramBotID, telegramBotUserID)}allowed-user/`;
+	) => `${TelegramBotUserAPI.url(telegramBotID, telegramBotUserID)}allowed/`;
+
+	export const set = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => makeRequest(url(telegramBotID, telegramBotUserID), 'POST');
+	export const unset = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => makeRequest(url(telegramBotID, telegramBotUserID), 'DELETE');
+}
+
+export namespace TelegramBotBlockedUserAPI {
+	export const url = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotUserID: TelegramBotUser['id'],
+	) => `${TelegramBotUserAPI.url(telegramBotID, telegramBotUserID)}blocked/`;
 
 	export const set = (
 		telegramBotID: TelegramBot['id'],
