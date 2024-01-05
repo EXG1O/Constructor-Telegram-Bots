@@ -7,7 +7,6 @@ from rest_framework.views import APIView
 from .models import TelegramBot, TelegramBotCommand, TelegramBotUser
 
 
-
 class TelegramBotIsFound(BasePermission):
 	message = _('Telegram бот не найден!')
 

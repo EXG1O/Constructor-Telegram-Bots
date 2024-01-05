@@ -2,7 +2,6 @@ from django.utils.translation import gettext as _
 from django.conf import settings
 
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -71,6 +70,18 @@ class TelegramBotAPIView(APIView):
 
 		return Response(TelegramBotSerializer(telegram_bot).data)
 
+	def post(self, request: Request) -> Response:
+		if not settings.TEST:
+			telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
+			action: str | None = request.query_params.get('action')
+
+			if action == 'start':
+				start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
+			elif action == 'stop':
+				telegram_bot.stop()
+
+		return Response()
+
 	def patch(self, request: Request) -> CustomResponse:
 		serializer = UpdateTelegramBotSerializer(data=request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
@@ -107,20 +118,6 @@ class TelegramBotAPIView(APIView):
 		telegram_bot.delete()
 
 		return CustomResponse(_('Вы успешно удалили Telegram бота.'))
-
-@api_view(['POST'])
-@authentication_classes([CookiesTokenAuthentication])
-@permission_classes([IsAuthenticated & TelegramBotIsFound])
-def start_or_stop_telegram_bot_api_view(request: Request) -> CustomResponse:
-	if not settings.TEST:
-		telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
-
-		if not telegram_bot.is_running and telegram_bot.is_stopped:
-			start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
-		elif telegram_bot.is_running and not telegram_bot.is_stopped:
-			telegram_bot.stop()
-
-	return CustomResponse()
 
 class TelegramBotCommandsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -229,7 +226,7 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		telegram_bot_command.y = y
 		telegram_bot_command.save()
 
-		return Response({})
+		return Response()
 
 	def delete(self, request: Request) -> CustomResponse:
 		telegram_bot_command: TelegramBotCommand = getattr(request, 'telegram_bot_command')
@@ -297,3 +294,21 @@ class TelegramBotAllowedUserAPIView(APIView):
 		telegram_bot_user.save()
 
 		return CustomResponse(_('Вы успешно удалили пользователя из списка разрешённых пользователей Telegram бота.'))
+
+class TelegramBotBlockedUserAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotUserIsFound]
+
+	def post(self, request: Request) -> CustomResponse:
+		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
+		telegram_bot_user.is_blocked = True
+		telegram_bot_user.save()
+
+		return CustomResponse(_('Вы успешно добавили пользователя в список заблокированных пользователей Telegram бота.'))
+
+	def delete(self, request: Request) -> CustomResponse:
+		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
+		telegram_bot_user.is_blocked = False
+		telegram_bot_user.save()
+
+		return CustomResponse(_('Вы успешно удалили пользователя из списка заблокированных пользователей Telegram бота.'))

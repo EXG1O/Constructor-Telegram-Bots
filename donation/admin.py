@@ -13,16 +13,16 @@ from .models import Donation, DonationSection, DonationButton
 @admin.register(Donation)
 class DonationAdmin(admin.ModelAdmin):
 	date_hierarchy = 'date'
-	list_display = ('sum_', 'telegram_url_', 'date')
+	list_display = ('sum_display', 'telegram_url_display', 'date')
 
 	fields = ('sum', 'telegram_url', 'date')
 
 	@admin.display(description=_('Сумма'), ordering='sum')
-	def sum_(self, donation: Donation) -> str:
+	def sum_display(self, donation: Donation) -> str:
 		return f'{donation.sum}€'
 
 	@admin.display(description=_('Telegram'), ordering='telegram_url')
-	def telegram_url_(self, donation: Donation) -> str:
+	def telegram_url_display(self, donation: Donation) -> str:
 		return format_html_url(donation.telegram_url)
 
 @admin.register(DonationSection)
@@ -34,10 +34,10 @@ class DonationSectionAdmin(TranslationAdmin):
 
 @admin.register(DonationButton)
 class DonationButtonAdmin(TranslationAdmin):
-	list_display = ('text', 'url_', 'position')
+	list_display = ('text', 'url_display', 'position')
 
 	fields = ('text', 'url', 'position')
 
 	@admin.display(description=_('Ссылка'), ordering='url')
-	def url_(self, donation_button: DonationButton) -> str:
+	def url_display(self, donation_button: DonationButton) -> str:
 		return format_html_url(donation_button.url)
