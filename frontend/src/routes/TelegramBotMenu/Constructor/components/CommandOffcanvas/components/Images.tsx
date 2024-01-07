@@ -4,9 +4,10 @@ import classNames from 'classnames';
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
 import Image from 'react-bootstrap/Image';
-import Spinner from 'react-bootstrap/Spinner';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
+
+import Loading from 'components/Loading';
 
 import useToast from 'services/hooks/useToast';
 
@@ -142,15 +143,7 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 			<Card.Body className='vstack gap-2 p-2'>
 				{loadingImages ? (
 					<div className='d-flex border rounded' style={{ height: '200px' }}>
-						<Spinner
-							animation='border'
-							className='m-auto'
-							style={{
-								width: '2.25rem',
-								height: '2.25rem',
-								borderWidth: '0.225rem',
-							}}
-						/>
+						<Loading size='md' className='m-auto' />
 					</div>
 				) : (
 					data.length ? (

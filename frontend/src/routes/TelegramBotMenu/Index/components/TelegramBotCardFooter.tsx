@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
 
+import Loading from 'components/Loading';
 import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
@@ -65,14 +65,7 @@ function TelegramBotCardFooter(): ReactNode {
 						variant='secondary'
 						className='flex-fill'
 					>
-						<Spinner
-							animation='border'
-							style={{
-								width: '1rem',
-								height: '1rem',
-								borderWidth: '0.2rem',
-							}}
-						/>
+						<Loading size='xs' />
 					</Button>
 				) : !telegramBot.is_running && telegramBot.is_stopped ? (
 					<Button

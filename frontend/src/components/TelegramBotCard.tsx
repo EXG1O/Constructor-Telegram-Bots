@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
+
+import Loading from './Loading';
 
 import useToast from 'services/hooks/useToast';
 
@@ -82,16 +83,7 @@ function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setT
 			<Card.Header as='h5' {...(
 				telegramBotIsStartingOrStopping(telegramBot) ? {
 					className: 'text-bg-secondary border border-secondary text-center',
-					children: (
-						<Spinner
-							animation='border'
-							style={{
-								width: '1rem',
-								height: '1rem',
-								borderWidth: '0.2rem',
-							}}
-						/>
-					),
+					children: <Loading size='xs' />,
 				} : !telegramBot.is_running && telegramBot.is_stopped ? {
 					className: 'text-bg-danger border border-danger fw-semibold text-center',
 					children: gettext('Telegram бот выключен'),

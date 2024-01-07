@@ -2,7 +2,8 @@ import React, { ReactElement, useState } from 'react';
 
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
-import Spinner from 'react-bootstrap/Spinner';
+
+import Loading from 'components/Loading';
 
 function UserVariables(): ReactElement {
 	const [variables, setVariables] = useState(undefined);
@@ -20,15 +21,7 @@ function UserVariables(): ReactElement {
 						</Table>
 					</div>
 				) : (
-					<Spinner
-						animation='border'
-						className='align-self-center'
-						style={{
-							width: '2.5rem',
-							height: '2.5rem',
-							borderWidth: '0.25rem',
-						}}
-					/>
+					<Loading size='md' className='align-self-center' />
 				)}
 			</Card.Body>
 		</Card>

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import _ from 'lodash';
 
-import Spinner from 'react-bootstrap/Spinner';
+import Loading from 'components/Loading';
 
 import UserContext, { UserContextProps } from 'services/contexts/UserContext';
 
@@ -45,15 +45,7 @@ function UserProvider({ children }: UserProviderProps): ReactNode {
 	}, [location]);
 
 	return user === undefined ? (
-		<Spinner
-			animation='border'
-			className='m-auto'
-			style={{
-				width: '4rem',
-				height: '4rem',
-				borderWidth: '0.4rem',
-			}}
-		/>
+		<Loading size='xxl' className='m-auto' />
 	) : (
 		<UserContext.Provider value={user}>
 			{children}

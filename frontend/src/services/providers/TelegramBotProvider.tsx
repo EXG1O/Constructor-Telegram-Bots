@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams, Params } from 'react-router-dom';
 import _ from 'lodash';
 
-import Spinner from 'react-bootstrap/Spinner';
+import Loading from 'components/Loading';
 
 import TelegramBotContext from 'services/contexts/TelegramBotContext';
 
@@ -42,15 +42,7 @@ function TelegramBotProvider({ children }: TelegramBotProviderProps): ReactNode 
 	}, [location]);
 
 	return telegramBot === undefined ? (
-		<Spinner
-			animation='border'
-			className='m-auto'
-			style={{
-				width: '4rem',
-				height: '4rem',
-				borderWidth: '0.4rem',
-			}}
-		/>
+		<Loading size='xxl' className='m-auto' />
 	) : (
 		<TelegramBotContext.Provider value={{ telegramBot, setTelegramBot }}>
 			{children}
