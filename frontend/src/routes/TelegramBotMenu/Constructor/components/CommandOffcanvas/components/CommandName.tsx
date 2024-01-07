@@ -5,7 +5,7 @@ import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
 export interface CommandNameProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: string | null;
+	initialValue?: string;
 	onChange: (value: string) => void;
 }
 

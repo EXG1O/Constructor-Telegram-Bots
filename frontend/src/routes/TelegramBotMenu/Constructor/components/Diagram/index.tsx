@@ -62,12 +62,16 @@ function Diagram({ innerRef, onAddCommandClick }: DiagramProps): ReactElement<Di
 		const response = await TelegramBotCommandsDiagramAPI.get(telegramBot.id);
 
 		if (response.ok) {
-			setNodes(response.json.map(command => ({
-				id: command.id.toString(),
-				type: 'command',
-				position: { x: command.x, y: command.y },
-				data: { ...command, updateNodes },
-			})));
+			setNodes(response.json.map(command => {
+				const { x, y, ...command_ } = command;
+
+				return {
+					id: command_.id.toString(),
+					type: 'command',
+					position: { x, y },
+					data: { ...command_, updateNodes },
+				}
+			}));
 
 			const newEdges: Edge[] = [];
 

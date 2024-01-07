@@ -1,5 +1,6 @@
-import React, { ReactNode, useCallback, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { NodeProps, Handle, Position, useReactFlow } from 'reactflow';
+import _ from 'lodash';
 
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
@@ -7,7 +8,7 @@ import Image from 'react-bootstrap/Image';
 
 import { NodeData } from './..';
 
-import CommandOffcanvas, { Data } from './../../CommandOffcanvas';
+import CommandOffcanvas, { Data as CommandOffcanvasData } from './../../CommandOffcanvas';
 import AskConfirmModal from 'components/AskConfirmModal';
 
 import useTelegramBot from 'services/hooks/useTelegramBot';
@@ -19,7 +20,7 @@ interface CommandNodeProps extends Omit<NodeProps, 'data'>{
 	data: NodeData;
 }
 
-function CommandNode({ id, data }: CommandNodeProps): ReactNode {
+function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodeProps> {
 	const { createMessageToast } = useToast();
 	const { telegramBot } = useTelegramBot();
 
@@ -27,6 +28,8 @@ function CommandNode({ id, data }: CommandNodeProps): ReactNode {
 
 	const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState<boolean>(false);
+	const [loadingCommandOffcanvas, setLoadingCommandOffcanvas] = useState<boolean>(true);
+	const [commandOffcanvasInitialData, setCommandOffcanvasInitialData] = useState<CommandOffcanvasData | undefined>(undefined);
 
 	const handleConfirmDeleteButtonClick = useCallback(async (): Promise<void> => {
 		const response = await TelegramBotCommandAPI.delete_(telegramBot.id, data.id);
@@ -39,8 +42,88 @@ function CommandNode({ id, data }: CommandNodeProps): ReactNode {
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}, []);
 
-	async function handleEditCommandButtonClick(commandData: Data): Promise<void> {
-		const response = await TelegramBotCommandAPI.update(telegramBot.id, data.id, commandData);
+	const handleEditCommandButtonClick = useCallback(async (): Promise<void> => {
+		setShowCommandOffcanvas(true);
+
+		const response = await TelegramBotCommandAPI.get(telegramBot.id, data.id);
+
+		if (response.ok) {
+			const { id, name, images, files, command, message_text, keyboard, api_request, database_record } = response.json;
+
+			const initialData: CommandOffcanvasData = {
+				name,
+				images: images ?? undefined,
+				files: files ?? undefined,
+				command: command ? {
+					text: command.text,
+					description: command.description ?? undefined,
+				} : undefined,
+				messageText: message_text.text,
+				keyboard: keyboard ? {
+					type: keyboard.type,
+					buttons: keyboard.buttons.map(button => ({
+						id: button.id,
+						row: button.row ?? undefined,
+						text: button.text,
+						url: button.url ?? undefined,
+					})),
+				} : undefined,
+				apiRequest: api_request ? {
+					url: api_request.url,
+					method: api_request.method,
+					headers: (
+						api_request.headers &&
+						Object.keys(api_request.headers).map(key => ({
+							key,
+							value: api_request.headers![key],
+						}))
+					) ?? undefined,
+					body: (
+						api_request.body &&
+						JSON.stringify(api_request.body, undefined, 4)
+					) ?? undefined,
+				} : undefined,
+				databaseRecord: (
+					database_record &&
+					JSON.stringify(database_record, undefined, 4)
+				) ?? undefined,
+			}
+
+			if (!_.isEqual(initialData, commandOffcanvasInitialData)) {
+				setCommandOffcanvasInitialData(initialData);
+			}
+
+			setLoadingCommandOffcanvas(false);
+		} else {
+			createMessageToast({
+				message: interpolate(
+					(
+						gettext('Не удалось получить данные команды %(name)s!') +
+						gettext('Попробуйте перезагрузить страницу.')
+					),
+					{ name: data.name },
+					true,
+				),
+				level: 'danger',
+			});
+		}
+	}, [commandOffcanvasInitialData]);
+
+	async function handleSaveCommandButtonClick(commandOffcanvasData: CommandOffcanvasData): Promise<void> {
+		const { images, files, messageText, apiRequest, databaseRecord, ...data_ } = commandOffcanvasData;
+
+		const response = await TelegramBotCommandAPI.update(telegramBot.id, data.id, {
+			...data_,
+			message_text: { text: messageText },
+			images: images?.map(image => image.file ?? image.id!),
+			files: files?.map(file => file.file ?? file.id!),
+			api_request: apiRequest && {
+				...apiRequest,
+				headers: apiRequest.headers && apiRequest.headers.map(header => ({ [header.key]: header.value })),
+				body: apiRequest.body && JSON.parse(apiRequest.body),
+			},
+			database_record: databaseRecord !== undefined ? { data: JSON.parse(databaseRecord) } : undefined,
+		});
 
 		if (response.ok) {
 			data.updateNodes();
@@ -63,13 +146,15 @@ function CommandNode({ id, data }: CommandNodeProps): ReactNode {
 			<CommandOffcanvas
 				show={showCommandOffcanvas}
 				title={gettext('Редактирование команды')}
+				loading={loadingCommandOffcanvas}
+				initialData={commandOffcanvasInitialData}
 				onHide={useCallback(() => setShowCommandOffcanvas(false), [])}
 			>
-				{useCallback((commandData: Data) => (
+				{useCallback((commandOffcanvasData: CommandOffcanvasData) => (
 					<Button
 						variant='success'
 						className='w-100'
-						onClick={() => handleEditCommandButtonClick(commandData)}
+						onClick={() => handleSaveCommandButtonClick(commandOffcanvasData)}
 					>
 						{gettext('Сохранить команду')}
 					</Button>
@@ -91,7 +176,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactNode {
 						variant='secondary'
 						className='bi bi-pencil-square d-flex justify-content-center align-items-center p-1'
 						style={{ fontSize: '16px' }}
-						onClick={() => setShowCommandOffcanvas(true)}
+						onClick={handleEditCommandButtonClick}
 					/>
 				</div>
 				<div className='bg-light border rounded text-break text-center px-3 py-2' style={{ position: 'relative' }}>
@@ -107,9 +192,6 @@ function CommandNode({ id, data }: CommandNodeProps): ReactNode {
 						position={Position.Right}
 					/>
 				</div>
-				{data.image && (
-					<Image thumbnail className='p-0' src={data.image} />
-				)}
 				<div className='bg-light border rounded text-break px-3 py-2'>{data.message_text.text}</div>
 				{data.keyboard?.buttons && (
 					<Stack gap={1}>

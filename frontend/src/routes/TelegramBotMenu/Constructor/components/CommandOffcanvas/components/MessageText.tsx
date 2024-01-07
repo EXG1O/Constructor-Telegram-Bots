@@ -12,7 +12,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import Card, { CardProps } from 'react-bootstrap/Card';
 
 export interface MessageTextProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: string | null;
+	initialValue?: string;
 	onChange: (value: string) => void;
 }
 
@@ -33,14 +33,24 @@ function MessageText({ initialValue, onChange, ...props }: MessageTextProps): Re
 						skin: false,
 						content_css: false,
 						height: 260,
-						placeholder: gettext('Введите текст сообщения'),
-						newline_behavior: 'linebreak',
 						toolbar: 'bold italic underline strikethrough',
+						placeholder: gettext('Введите текст сообщения'),
 						formats: { underline: { inline: 'u' } },
+						newline_behavior: 'linebreak',
 						menubar: false,
 						promotion: false,
 						statusbar: false,
 						resize: false,
+						content_style: `
+							body {
+								font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+								margin: 6px 12px;
+							}
+
+							p {
+								margin: 0px;
+							}
+						`,
 					}}
 					onEditorChange={value => setValue(value)}
 				/>

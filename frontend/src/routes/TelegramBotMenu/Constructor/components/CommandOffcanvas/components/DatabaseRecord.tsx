@@ -8,7 +8,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { updateEditorLayout, defaultEditorOptions } from 'utils/monaco_editor';
 
 export interface DatabaseRecordProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: string | null;
+	initialValue?: string;
 	onChange: (value: string) => void;
 }
 

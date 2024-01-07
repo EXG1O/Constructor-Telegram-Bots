@@ -1,5 +1,6 @@
 from django.utils.translation import gettext as _
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -36,6 +37,7 @@ from .serializers import (
 from .tasks import start_telegram_bot
 
 from typing import Any
+import json
 
 
 class TelegramBotsAPIView(APIView):
@@ -80,7 +82,7 @@ class TelegramBotAPIView(APIView):
 			elif action == 'stop':
 				telegram_bot.stop()
 
-		return Response()
+		return CustomResponse()
 
 	def patch(self, request: Request) -> CustomResponse:
 		serializer = UpdateTelegramBotSerializer(data=request.data, context={'user': request.user})
@@ -134,7 +136,20 @@ class TelegramBotCommandsAPIView(APIView):
 		)
 
 	def post(self, request: Request) -> CustomResponse:
-		serializer = CreateTelegramBotCommandSerializer(data=request.data)
+		images: list[InMemoryUploadedFile] = []
+		files: list[InMemoryUploadedFile] = []
+
+		for key in request.FILES:
+			if key.split(':')[0] == 'image':
+				images.append(request.FILES[key])
+			elif key.split(':')[0] == 'file':
+				files.append(request.FILES[key])
+
+		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
+		data['images'] = images
+		data['files'] = files
+
+		serializer = CreateTelegramBotCommandSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
 
 		telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
@@ -153,7 +168,30 @@ class TelegramBotCommandAPIView(APIView):
 		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
 
 	def patch(self, request: Request) -> CustomResponse:
-		serializer = UpdateTelegramBotCommandSerializer(data=request.data)
+		images: list[InMemoryUploadedFile | int] = []
+		files: list[InMemoryUploadedFile | int] = []
+
+		for key in request.data:
+			if key.split(':')[0] == 'image':
+				image: InMemoryUploadedFile | str = request.data[key]
+
+				if isinstance(image, InMemoryUploadedFile):
+					images.append(image)
+				elif image.isdigit():
+					images.append(int(image))
+			elif key.split(':')[0] == 'file':
+				file: InMemoryUploadedFile | str = request.data[key]
+
+				if isinstance(file, InMemoryUploadedFile):
+					files.append(file)
+				elif file.isdigit():
+					files.append(int(file))
+
+		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
+		data['images'] = images
+		data['files'] = files
+
+		serializer = UpdateTelegramBotCommandSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
 
 		telegram_bot_command: TelegramBotCommand = getattr(request, 'telegram_bot_command')
@@ -212,7 +250,7 @@ class TelegramBotCommandDiagramAPIView(APIView):
 
 		return CustomResponse(_('Вы успешно подключили кнопку клавиатуры к другой команде'))
 
-	def patch(self, request: Request) -> Response:
+	def patch(self, request: Request) -> CustomResponse:
 		serializer = UpdateTelegramBotCommandDiagramPositionSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
@@ -226,7 +264,7 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		telegram_bot_command.y = y
 		telegram_bot_command.save()
 
-		return Response()
+		return CustomResponse()
 
 	def delete(self, request: Request) -> CustomResponse:
 		telegram_bot_command: TelegramBotCommand = getattr(request, 'telegram_bot_command')

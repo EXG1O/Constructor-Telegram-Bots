@@ -42,18 +42,22 @@ class TelegramBotCommandCommandSerializer(serializers.ModelSerializer):
 		fields = ('text', 'description')
 
 class TelegramBotCommandImageSerializer(serializers.ModelSerializer):
+	name = serializers.CharField(source='image.name')
+	size = serializers.IntegerField(source='image.size')
 	url = serializers.CharField(source='image.url')
 
 	class Meta:
 		model = TelegramBotCommandImage
-		fields = ('url',)
+		fields = ('id', 'name', 'size', 'url')
 
 class TelegramBotCommandFileSerializer(serializers.ModelSerializer):
+	name = serializers.CharField(source='file.name')
+	size = serializers.IntegerField(source='file.size')
 	url = serializers.CharField(source='file.url')
 
 	class Meta:
 		model = TelegramBotCommandFile
-		fields = ('url',)
+		fields = ('id', 'name', 'size', 'url')
 
 class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -84,8 +88,8 @@ class TelegramBotCommandDatabaseRecordSerializer(serializers.ModelSerializer):
 
 class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
 	command = TelegramBotCommandCommandSerializer(allow_null=True)
-	images = TelegramBotCommandImageSerializer(many=True, allow_null=True)
-	files = TelegramBotCommandFileSerializer(many=True, allow_null=True)
+	images = TelegramBotCommandImageSerializer(many=True)
+	files = TelegramBotCommandFileSerializer(many=True)
 	message_text = TelegramBotCommandMessageTextSerializer(allow_null=True)
 	keyboard = TelegramBotCommandKeyboardSerializer(allow_null=True)
 	api_request = TelegramBotCommandApiRequestSerializer(allow_null=True)
@@ -110,12 +114,14 @@ class TelegramBotCommandKeyboardDiagramSerializer(serializers.ModelSerializer):
 		fields = ('type', 'buttons')
 
 class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer):
+	images = TelegramBotCommandImageSerializer(many=True)
+	files = TelegramBotCommandFileSerializer(many=True)
 	message_text = TelegramBotCommandMessageTextSerializer()
 	keyboard = TelegramBotCommandKeyboardDiagramSerializer(allow_null=True)
 
 	class Meta:
 		model = TelegramBotCommand
-		fields = ('id', 'name', 'message_text', 'keyboard', 'x', 'y')
+		fields = ('id', 'name', 'images', 'files', 'message_text', 'keyboard', 'x', 'y')
 
 class TelegramBotUserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -214,6 +220,8 @@ class CreateTelegramBotCommandSerializer(serializers.Serializer):
 		'max_length': _('Название команды должно содержать не более 255 символов!'),
 	})
 	command = CreateTelegramBotCommandCommandSerializer(default=None)
+	images = serializers.ListField(child=serializers.ImageField(), default=[])
+	files = serializers.ListField(child=serializers.FileField(), default=[])
 	message_text = CreateTelegramBotCommandMessageTextSerializer()
 	keyboard = CreateTelegramBotCommandKeyboardSerializer(default=None)
 	api_request = CreateTelegramBotCommandApiRequestSerializer(default=None)

@@ -15,17 +15,30 @@ export interface UpdateNodesRef {
 }
 
 function Constructor(): ReactElement {
-	const { createMessageToast } = useToast()
-	const { telegramBot } = useTelegramBot()
+	const { createMessageToast } = useToast();
+	const { telegramBot } = useTelegramBot();
 
 	const diagramInnerRef = useRef<UpdateNodesRef>({});
 	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState<boolean>(false);
 
 	async function handleAddCommandButtonClick(data: CommandOffcanvasData): Promise<void> {
-		const response = await TelegramBotCommandAPI.create(telegramBot.id, data);
+		const { images, files, messageText, apiRequest, databaseRecord, ...data_ } = data;
+
+		const response = await TelegramBotCommandAPI.create(telegramBot.id, {
+			...data_,
+			images: images?.map(image => image.file!),
+			files: files?.map(file => file.file!),
+			message_text: { text: messageText },
+			api_request: apiRequest && {
+				...apiRequest,
+				headers: apiRequest.headers && apiRequest.headers.map(header => ({ [header.key]: header.value })),
+				body: apiRequest.body && JSON.parse(apiRequest.body),
+			},
+			database_record: databaseRecord !== undefined ? { data: JSON.parse(databaseRecord) } : undefined,
+		});
 
 		if (response.ok) {
-			diagramInnerRef.current.updateNodes?.()
+			diagramInnerRef.current.updateNodes?.();
 			setShowCommandOffcanvas(false);
 		}
 

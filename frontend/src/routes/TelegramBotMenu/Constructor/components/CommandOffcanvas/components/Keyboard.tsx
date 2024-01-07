@@ -13,9 +13,9 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 
 export interface ButtonData {
 	id?: number;
-	row?: number | null;
+	row?: number;
 	text: string;
-	url?: string | null;
+	url?: string;
 }
 
 export interface Data {
@@ -24,7 +24,7 @@ export interface Data {
 }
 
 export interface KeyboardProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data | null;
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 
@@ -79,12 +79,12 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 				{gettext('Клавиатура')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2 p-2'>
-				<ToggleButtonGroup type='radio' name='keyboardTypes' defaultValue='default'>
+				<ToggleButtonGroup type='radio' name='keyboard-types' defaultValue='default'>
 					{keyboardToggleButtons.map((props, index) => (
 						<ToggleButton
 							{...props}
 							key={index}
-							id={`radioKeyboardType${props.value}`}
+							id={`keyboard-type-${props.value}`}
 							size='sm'
 							variant='outline-dark'
 							onChange={() => setData({ ...data, type: props.value })}
@@ -93,7 +93,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 				</ToggleButtonGroup>
 				<div>
 					<DragDropContext onDragEnd={handleButtonDragEnd}>
-						<Droppable droppableId='keyboardButtons'>
+						<Droppable droppableId='keyboard-buttons'>
 							{provided => (
 								<>
 									<div ref={provided.innerRef} {...provided.droppableProps}>
@@ -101,7 +101,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 											<Draggable
 												key={index}
 												index={index}
-												draggableId={`keyboardButton${index}`}
+												draggableId={`keyboard-button-${index}`}
 											>
 												{provided => (
 													<InputGroup

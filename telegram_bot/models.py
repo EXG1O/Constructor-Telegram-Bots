@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import requests
 from requests import Response
@@ -47,8 +48,8 @@ class TelegramBotCommandManager(models.Manager):
 		telegram_bot: TelegramBot,
 		name: str,
 		message_text: dict[str, Any],
-		images: None = None,
-		files: None = None,
+		images: list[InMemoryUploadedFile] = [],
+		files: list[InMemoryUploadedFile] = [],
 		command: dict[str, Any] | None = None,
 		keyboard: dict[str, Any] | None = None,
 		api_request: dict[str, Any] | None = None,
@@ -70,7 +71,13 @@ class TelegramBotCommandManager(models.Manager):
 			TelegramBotCommandApiRequest.objects.create(**kwargs, **api_request)
 
 		if database_record:
-			TelegramBotCommandDatabaseRecord.objects.create(**kwargs, **database_record) # type: ignore [attr-defined]
+			TelegramBotCommandDatabaseRecord.objects.create(**kwargs, **database_record)
+
+		for image in images:
+			TelegramBotCommandImage.objects.create(**kwargs, image=image)
+
+		for file in files:
+			TelegramBotCommandFile.objects.create(**kwargs, file=file)
 
 		return telegram_bot_command
 
@@ -93,8 +100,8 @@ class TelegramBotCommand(models.Model):
 		self,
 		name: str,
 		message_text: dict[str, Any],
-		images: None = None,
-		files: None = None,
+		images: list[InMemoryUploadedFile | int] = [],
+		files: list[InMemoryUploadedFile | int] = [],
 		command: dict[str, Any] | None = None,
 		keyboard: dict[str, Any] | None = None,
 		api_request: dict[str, Any] | None = None,
@@ -128,7 +135,7 @@ class TelegramBotCommand(models.Model):
 
 				for button in keyboard['buttons']:
 					try:
-						button_: TelegramBotCommandKeyboardButton = self.keyboard.buttons.get(id=button['id']) # type: ignore [no-redef]
+						button_: TelegramBotCommandKeyboardButton = self.keyboard.buttons.get(id=button['id'])
 						button_.row = button['row']
 						button_.text = button['text']
 						button_.url = button['url']
@@ -169,12 +176,12 @@ class TelegramBotCommand(models.Model):
 
 		if database_record:
 			try:
-				self.database_record.data = database_record['data'] # type: ignore [attr-defined]
+				self.database_record.data = database_record['data']
 			except TelegramBotCommandDatabaseRecord.DoesNotExist:
-				TelegramBotCommandDatabaseRecord.objects.create(telegram_bot_command=self, **database_record) # type: ignore [attr-defined]
+				TelegramBotCommandDatabaseRecord.objects.create(telegram_bot_command=self, **database_record)
 		else:
 			try:
-				self.database_record.delete() # type: ignore [attr-defined]
+				self.database_record.delete()
 			except TelegramBotCommandDatabaseRecord.DoesNotExist:
 				pass
 

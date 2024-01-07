@@ -24,12 +24,12 @@ interface DataHeaders {
 export interface Data {
 	url: string;
 	method: 'get' | 'post' | 'put' | 'patch' | 'delete';
-	headers?: DataHeaders[] | null;
-	body?: string | null;
+	headers?: DataHeaders[];
+	body?: string;
 }
 
 export interface APIRequestProps extends Omit<CardProps, 'onChange' | 'children'>  {
-	initialData?: Data | null;
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 

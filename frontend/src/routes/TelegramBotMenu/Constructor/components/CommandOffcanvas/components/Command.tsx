@@ -8,11 +8,11 @@ import Collapse from 'react-bootstrap/Collapse';
 
 export interface Data {
 	text: string;
-	description?: string | null;
+	description?: string;
 }
 
 export interface CommandProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data | null;
+	initialData?: Data;
 	onChange: (data: Data) => void;
 }
 

@@ -40,13 +40,47 @@ export namespace TelegramBotCommandAPI {
 	) => makeRequest<TelegramBotCommand>(url(telegramBotID, telegramBotCommandID), 'GET');
 	export const create = (
 		telegramBotID: TelegramBot['id'],
-		data: Data.TelegramBotCommandAPI.Create
-	) => makeRequest(TelegramBotCommandsAPI.url(telegramBotID), 'POST', undefined, data);
+		data: Data.TelegramBotCommandAPI.Create,
+	) => {
+		const { images, files, ...data_ } = data;
+
+		const formData = new FormData();
+		images?.forEach((image, index) => formData.append(`image:${index}`, image, image.name));
+		files?.forEach((file, index) => formData.append(`file:${index}`, file, file.name));
+		formData.append('data', JSON.stringify(data_));
+
+		return makeRequest(TelegramBotCommandsAPI.url(telegramBotID), 'POST', undefined, formData);
+	}
 	export const update = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotCommandID: TelegramBotCommand['id'],
 		data: Data.TelegramBotCommandAPI.Update,
-	) => makeRequest(TelegramBotCommandAPI.url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, data);
+	) => {
+		const { images, files, ...data_ } = data;
+
+		const formData = new FormData();
+		images?.forEach((image, index) => {
+			const name = `image:${index}`;
+
+			if (typeof image === 'number') {
+				formData.append(name, image.toString());
+			} else {
+				formData.append(name, image, image.name);
+			}
+		});
+		files?.forEach((file, index) => {
+			const name = `file:${index}`;
+
+			if (typeof file === 'number') {
+				formData.append(name, file.toString());
+			} else {
+				formData.append(name, file, file.name);
+			}
+		});
+		formData.append('data', JSON.stringify(data_));
+
+		return makeRequest(TelegramBotCommandAPI.url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, formData);
+	};
 	export const delete_ = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotCommandID: TelegramBotCommand['id'],
