@@ -97,7 +97,7 @@ class TelegramBotAPIView(APIView):
 		if api_token is not None:
 			telegram_bot.api_token = api_token
 			telegram_bot.is_running = False
-			telegram_bot.update_username()
+			telegram_bot.update_username(save=False)
 			telegram_bot.save()
 
 			return CustomResponse(

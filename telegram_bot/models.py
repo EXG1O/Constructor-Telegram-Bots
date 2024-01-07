@@ -30,7 +30,7 @@ class TelegramBot(models.Model):
 		self.is_running = False
 		self.save()
 
-	def update_username(self) -> None:
+	def update_username(self, save: bool = True) -> None:
 		if settings.TEST:
 			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
 		else:
@@ -38,6 +38,9 @@ class TelegramBot(models.Model):
 
 			if responce.status_code == 200:
 				self.username = responce.json()['result']['username']
+
+		if save:
+			self.save()
 
 	def __str__(self) -> str:
 		return f'@{self.username}'

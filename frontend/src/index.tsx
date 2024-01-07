@@ -68,10 +68,7 @@ const router = createBrowserRouter([
 				async lazy() {
 					const module = await import('./routes/PersonalCabinet');
 
-					return {
-						Component: module.default,
-						loader: module.loader,
-					}
+					return { Component: module.default };
 				},
 			},
 			{

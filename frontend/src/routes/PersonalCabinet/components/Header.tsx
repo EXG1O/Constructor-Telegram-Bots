@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, memo, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
@@ -9,9 +9,14 @@ function Header(): ReactNode {
 
 	return (
 		<>
-			<AddTelegramBotModal show={showAddTelegramBotModal} onHide={() => setShowAddTelegramBotModal(false)} />
+			<AddTelegramBotModal
+				show={showAddTelegramBotModal}
+				onHide={(() => setShowAddTelegramBotModal(false))}
+			/>
 			<div className='d-flex flex-wrap justify-content-between gap-2'>
-				<h1 className='flex-grow-1 flex-lg-grow-0 fw-semibold text-center mb-0'>{gettext('Добавленные Telegram боты')}</h1>
+				<h1 className='flex-grow-1 flex-lg-grow-0 fw-semibold text-center mb-0'>
+					{gettext('Добавленные Telegram боты')}
+				</h1>
 				<Button
 					variant='dark'
 					className='flex-grow-1 flex-lg-grow-0 align-self-center'
@@ -25,4 +30,4 @@ function Header(): ReactNode {
 	);
 }
 
-export default Header;
+export default memo(Header);

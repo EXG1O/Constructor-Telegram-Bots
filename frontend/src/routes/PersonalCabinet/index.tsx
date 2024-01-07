@@ -1,5 +1,4 @@
-import React, { ReactNode, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import React, { ReactNode, useEffect, useState } from 'react';
 
 import { LinkContainer } from 'react-router-bootstrap';
 import Container from 'react-bootstrap/Container';
@@ -7,37 +6,52 @@ import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
-import Header from './components/Header';
+import Loading from 'components/Loading';
 import TelegramBotCard from 'components/TelegramBotCard';
 
-import TelegramBotsContext from './services/contexts/TelegramBotsContext';
+import Header from './components/Header';
 
+import TelegramBotsContext from './services/contexts/TelegramBotsContext';
 import AuthRequiredProvider from 'services/providers/AuthRequiredProvider';
+
+import useToast from 'services/hooks/useToast';
 
 import { TelegramBotsAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot } from 'services/api/telegram_bots/types';
 
-export interface LoaderData {
-	telegramBots: TelegramBot[];
-}
-
-export async function loader(): Promise<LoaderData> {
-	const response = await TelegramBotsAPI.get();
-
-	return { telegramBots: response.ok ? response.json : [] };
-}
-
 function PersonalCabinet(): ReactNode {
-	const { telegramBots: telegramBotsInit } = useLoaderData() as LoaderData;
+	const { createMessageToast } = useToast();
 
-	const [telegramBots, setTelegramBots] = useState<TelegramBot[]>(telegramBotsInit);
+	const [telegramBots, setTelegramBots] = useState<TelegramBot[]>([]);
+	const [loading, setLoading] = useState<boolean>(true);
+
+	useEffect(() => {
+		const getTelegramBots = async (): Promise<void> => {
+			const response = await TelegramBotsAPI.get();
+
+			if (response.ok) {
+				setLoading(false);
+				setTelegramBots(response.json);
+			} else {
+				createMessageToast({
+					message: gettext('Не удалось получить список добавленных Telegram ботов!'),
+					level: 'danger',
+				});
+			}
+
+		}
+
+		getTelegramBots();
+	}, []);
 
 	return (
 		<AuthRequiredProvider>
-			<main className='mb-auto'>
-				<Container className='d-flex flex-column gap-3 gap-lg-4 my-3 my-lg-4'>
-					<TelegramBotsContext.Provider value={{telegramBots, setTelegramBots}}>
-						<Header />
+			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
+				<TelegramBotsContext.Provider value={{ telegramBots, setTelegramBots }}>
+					<Header />
+					{loading ? (
+						<Loading size='lg' className='m-auto' />
+					) : (
 						<Row xs={1} md={2} xl={3} className='g-3'>
 							{telegramBots.length ? (
 								telegramBots.map(telegramBot => (
@@ -56,14 +70,14 @@ function PersonalCabinet(): ReactNode {
 									</TelegramBotCard>
 								))
 							) : (
-								<div className='border rounded text-center p-3'>
+								<div className='border rounded text-center px-3 py-2'>
 									{gettext('Вы ещё не добавили Telegram бота')}
 								</div>
 							)}
 						</Row>
-					</TelegramBotsContext.Provider>
-				</Container>
-			</main>
+					)}
+				</TelegramBotsContext.Provider>
+			</Container>
 		</AuthRequiredProvider>
 	);
 }
