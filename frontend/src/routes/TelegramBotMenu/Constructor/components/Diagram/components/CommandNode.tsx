@@ -52,8 +52,8 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 
 			const initialData: CommandOffcanvasData = {
 				name,
-				images: images ?? undefined,
-				files: files ?? undefined,
+				images: images.length ? images : undefined,
+				files: files.length ? files : undefined,
 				command: command ? {
 					text: command.text,
 					description: command.description ?? undefined,

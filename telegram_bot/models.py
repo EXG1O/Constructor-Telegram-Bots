@@ -100,8 +100,10 @@ class TelegramBotCommand(models.Model):
 		self,
 		name: str,
 		message_text: dict[str, Any],
-		images: list[InMemoryUploadedFile | int] = [],
-		files: list[InMemoryUploadedFile | int] = [],
+		images: list[InMemoryUploadedFile] = [],
+		images_id: list[int] = [],
+		files: list[InMemoryUploadedFile] = [],
+		files_id: list[int] = [],
 		command: dict[str, Any] | None = None,
 		keyboard: dict[str, Any] | None = None,
 		api_request: dict[str, Any] | None = None,
@@ -184,6 +186,26 @@ class TelegramBotCommand(models.Model):
 				self.database_record.delete()
 			except TelegramBotCommandDatabaseRecord.DoesNotExist:
 				pass
+
+		for image_id in images_id:
+			try:
+				image: TelegramBotCommandImage = self.images.get(id=image_id)
+				image.delete()
+			except TelegramBotCommandImage.DoesNotExist:
+				pass
+
+		for image in images: # type: ignore [assignment]
+			TelegramBotCommandImage.objects.create(telegram_bot_command=self, image=image)
+
+		for file_id in files_id:
+			try:
+				file: TelegramBotCommandFile = self.files.get(id=file_id)
+				file.delete()
+			except TelegramBotCommandFile.DoesNotExist:
+				pass
+
+		for file in files: # type: ignore [assignment]
+			TelegramBotCommandFile.objects.create(telegram_bot_command=self, file=file)
 
 	def __str__(self) -> str:
 		return self.name

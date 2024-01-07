@@ -55,8 +55,8 @@ export interface TelegramBotCommand {
 	id: number;
 	name: string;
 	command: TelegramBotCommandCommand | null;
-	images: TelegramBotCommandImage[] | null;
-	files: TelegramBotCommandFile[] | null;
+	images: TelegramBotCommandImage[];
+	files: TelegramBotCommandFile[];
 	message_text: TelegramBotCommandMessageText;
 	keyboard: TelegramBotCommandKeyboard | null;
 	api_request: TelegramBotCommandApiRequest | null;

@@ -168,8 +168,11 @@ class TelegramBotCommandAPIView(APIView):
 		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
 
 	def patch(self, request: Request) -> CustomResponse:
-		images: list[InMemoryUploadedFile | int] = []
-		files: list[InMemoryUploadedFile | int] = []
+		images: list[InMemoryUploadedFile] = []
+		images_id: list[int] = []
+
+		files: list[InMemoryUploadedFile] = []
+		files_id: list[int] = []
 
 		for key in request.data:
 			if key.split(':')[0] == 'image':
@@ -178,14 +181,14 @@ class TelegramBotCommandAPIView(APIView):
 				if isinstance(image, InMemoryUploadedFile):
 					images.append(image)
 				elif image.isdigit():
-					images.append(int(image))
+					images_id.append(int(image))
 			elif key.split(':')[0] == 'file':
 				file: InMemoryUploadedFile | str = request.data[key]
 
 				if isinstance(file, InMemoryUploadedFile):
 					files.append(file)
 				elif file.isdigit():
-					files.append(int(file))
+					files_id.append(int(file))
 
 		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
 		data['images'] = images
@@ -194,8 +197,12 @@ class TelegramBotCommandAPIView(APIView):
 		serializer = UpdateTelegramBotCommandSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
 
+		validated_data: dict[str, Any] = serializer.validated_data
+		validated_data['images_id'] = images_id
+		validated_data['files_id'] = files_id
+
 		telegram_bot_command: TelegramBotCommand = getattr(request, 'telegram_bot_command')
-		telegram_bot_command.update(**serializer.validated_data)
+		telegram_bot_command.update(**validated_data)
 
 		return CustomResponse(_('Вы успешно изменили команду Telegram бота.'))
 
