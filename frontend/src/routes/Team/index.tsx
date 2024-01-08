@@ -7,8 +7,6 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack';
 
-import { RouteError } from 'routes/ErrorBoundary';
-
 import { TeamMembersAPI } from 'services/api/team/main';
 import { TeamMember } from 'services/api/team/types';
 
@@ -20,7 +18,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await TeamMembersAPI.get();
 
 	if (!response.ok) {
-		throw json<RouteError['data']>(response.json, { status: response.status });
+		throw json(response.json, { status: response.status });
 	}
 
 	return { members: response.json };

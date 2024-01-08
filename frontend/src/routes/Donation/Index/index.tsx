@@ -4,8 +4,6 @@ import { json, useRouteLoaderData } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
-import { RouteError } from 'routes/ErrorBoundary';
-
 import { DonationSectionsAPI, DonationButtonsAPI } from 'services/api/donations/main';
 import { DonationSection, DonationButton } from 'services/api/donations/types';
 
@@ -22,7 +20,7 @@ export async function loader(): Promise<LoaderData> {
 
 	for (const response of responses) {
 		if (!response.ok) {
-			throw json<RouteError['data']>(response.json, { status: response.status });
+			throw json(response.json, { status: response.status });
 		}
 	}
 

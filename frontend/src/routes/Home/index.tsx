@@ -9,8 +9,6 @@ import Header from './components/Header';
 import Stats from './components/Stats';
 import Donations from './components/Donations';
 
-import { RouteError } from 'routes/ErrorBoundary';
-
 import { DonationsAPI } from 'services/api/donations/main';
 import { APIResponse } from 'services/api/donations/types';
 
@@ -22,7 +20,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await DonationsAPI.get(20);
 
 	if (!response.ok) {
-		throw json<RouteError['data']>(response.json, { status: response.status });
+		throw json(response.json, { status: response.status });
 	}
 
 	return { donations: response.json };

@@ -3,8 +3,6 @@ import { json, useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
-import { RouteError } from 'routes/ErrorBoundary';
-
 import { InstructionSectionsAPI } from 'services/api/instruction/main';
 import { InstructionSection } from 'services/api/instruction/types';
 
@@ -16,7 +14,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await InstructionSectionsAPI.get();
 
 	if (!response.ok) {
-		throw json<RouteError['data']>(response.json, { status: response.status });
+		throw json(response.json, { status: response.status });
 	}
 
 	return { sections: response.json };
