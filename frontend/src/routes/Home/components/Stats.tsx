@@ -1,10 +1,10 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 
 import Stack from 'react-bootstrap/Stack';
 
 import InfoArea from 'components/InfoArea';
 
-function Stats(): ReactNode {
+function Stats(): ReactElement {
 	return (
 		<Stack className='align-self-center stats' gap={2}>
 			<h3 className='mb-0'>{gettext('Информация о сайте')}</h3>

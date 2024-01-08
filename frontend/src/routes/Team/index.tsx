@@ -1,52 +1,56 @@
 import './index.css';
 
-import React, { ReactNode } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import React, { ReactElement } from 'react';
+import { json, useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack';
 
+import { RouteError } from 'routes/ErrorBoundary';
+
 import { TeamMembersAPI } from 'services/api/team/main';
 import { TeamMember } from 'services/api/team/types';
 
 export interface LoaderData {
-	teamMembers: TeamMember[];
+	members: TeamMember[];
 }
 
 export async function loader(): Promise<LoaderData> {
 	const response = await TeamMembersAPI.get();
 
-	return { teamMembers: response.ok ? response.json : [] };
+	if (!response.ok) {
+		throw json<RouteError['data']>(response.json, { status: response.status });
+	}
+
+	return { members: response.json };
 }
 
-function App(): ReactNode {
-	const { teamMembers } = useLoaderData() as LoaderData;
+function Team(): ReactElement {
+	const { members } = useRouteLoaderData('team') as LoaderData;
 
 	return (
 		<main className='my-auto'>
 			<Container className='text-center my-3 my-lg-4'>
 				<Row xs={1} lg={5} className='justify-content-center g-3 g-lg-4'>
-					{teamMembers.length ? (
-						teamMembers.map(teamMember => (
-							<Stack key={teamMember.id} className='align-items-center px-2'>
-								<img className='border img-team-member' src={teamMember.image}></img>
+					{members.length ? (
+						members.map(member => (
+							<Stack key={member.id} className='align-items-center px-2'>
+								<img className='border img-team-member' src={member.image}></img>
 								<a
 									className='h5 link-dark link-underline-opacity-0 fw-semibold'
-									href={`tg://resolve?domain=${teamMember.username}`}
+									href={`tg://resolve?domain=${member.username}`}
 								>
-									@{teamMember.username}
+									@{member.username}
 								</a>
-								<span>{teamMember.speciality}</span>
+								<span>{member.speciality}</span>
 							</Stack>
 						))
-					) : (
-						<></>
-					)}
+					) : undefined}
 				</Row>
 			</Container>
 		</main>
 	);
 }
 
-export default App;
+export default Team;

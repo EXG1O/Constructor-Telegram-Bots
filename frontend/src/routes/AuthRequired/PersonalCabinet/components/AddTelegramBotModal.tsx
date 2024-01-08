@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
@@ -20,7 +20,7 @@ export interface AddTelegramBotModalProps extends Omit<ModalProps, 'onHide'> {
 	onHide: NonNullable<ModalProps['onHide']>;
 }
 
-function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactNode {
+function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactElement<AddTelegramBotModalProps> {
 	const { createMessageToast } = useToast();
 	const { telegramBots, setTelegramBots } = useTelegramBots();
 
@@ -35,6 +35,7 @@ function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactNode {
 		if (response.ok) {
 			setTelegramBots([...telegramBots, response.json.telegram_bot]);
 			props.onHide();
+			setData({ api_token: '', is_private: false });
 		}
 
 		setLoading(false);

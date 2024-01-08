@@ -3,7 +3,7 @@ import React, { ReactElement, memo } from 'react';
 import Spinner, { SpinnerProps } from 'react-bootstrap/Spinner';
 
 interface LoadingProps extends Omit<SpinnerProps, 'size' | 'animation' | 'style'> {
-	size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+	size: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 function Loading({ size, ...props }: LoadingProps): ReactElement<LoadingProps> {
@@ -32,10 +32,6 @@ function Loading({ size, ...props }: LoadingProps): ReactElement<LoadingProps> {
 					width: '3.5rem',
 					height: '3.5rem',
 					borderWidth: '0.35rem',
-				} : size === 'xxl' ? {
-					width: '4rem',
-					height: '4rem',
-					borderWidth: '0.4rem',
 				} : undefined
 			}
 		/>

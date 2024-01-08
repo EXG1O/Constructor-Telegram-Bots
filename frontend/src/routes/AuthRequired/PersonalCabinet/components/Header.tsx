@@ -1,10 +1,10 @@
-import React, { ReactNode, memo, useState } from 'react';
+import React, { ReactElement, memo, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
 import AddTelegramBotModal from './AddTelegramBotModal';
 
-function Header(): ReactNode {
+function Header(): ReactElement {
 	const [showAddTelegramBotModal, setShowAddTelegramBotModal] = useState<boolean>(false);
 
 	return (

@@ -10,42 +10,30 @@ import { UserAPI } from 'services/api/users/main';
 
 const router = createBrowserRouter([
 	{
+		id: 'root',
 		path: '/',
 		async lazy() {
 			const module = await import('./routes/Root');
 
-			return { Component: module.default };
+			return {
+				Component: module.default,
+				loader: module.loader,
+			};
 		},
+		shouldRevalidate: () => true,
 		children: [
 			{
-				index: true,
 				async lazy() {
-					const module = await import('./routes/Home');
+					const module = await import('./routes/ErrorBoundary');
 
-					return {
-						Component: module.default,
-						loader: module.loader,
-					}
+					return { ErrorBoundary: module.default };
 				},
-			},
-			{
-				path: 'team/',
-				async lazy() {
-					const module = await import('./routes/Team');
-
-					return {
-						Component: module.default,
-						loader: module.loader,
-					}
-				},
-			},
-			{
-				path: 'donation/',
 				children: [
 					{
+						id: 'home',
 						index: true,
 						async lazy() {
-							const module = await import('./routes/Donation/Index');
+							const module = await import('./routes/Home');
 
 							return {
 								Component: module.default,
@@ -54,62 +42,112 @@ const router = createBrowserRouter([
 						},
 					},
 					{
-						path: 'completed/',
+						id: 'team',
+						path: 'team/',
 						async lazy() {
-							const module = await import('./routes/Donation/Completed');
+							const module = await import('./routes/Team');
 
-							return { Component: module.default };
-						},
-					},
-				],
-			},
-			{
-				path: 'personal-cabinet/',
-				async lazy() {
-					const module = await import('./routes/PersonalCabinet');
-
-					return { Component: module.default };
-				},
-			},
-			{
-				path: 'telegram-bot-menu/:telegramBotID/',
-				async lazy() {
-					const module = await import('./routes/TelegramBotMenu/Root');
-
-					return { Component: module.default };
-				},
-				children: [
-					{
-						index: true,
-						async lazy() {
-							const module = await import('./routes/TelegramBotMenu/Index');
-
-							return { Component: module.default };
+							return {
+								Component: module.default,
+								loader: module.loader,
+							}
 						},
 					},
 					{
-						path: 'variables/',
-						async lazy() {
-							const module = await import('./routes/TelegramBotMenu/Variables');
+						path: 'donation/',
+						children: [
+							{
+								id: 'donation-index',
+								index: true,
+								async lazy() {
+									const module = await import('./routes/Donation/Index');
 
-							return { Component: module.default };
+									return {
+										Component: module.default,
+										loader: module.loader,
+									}
+								},
+							},
+							{
+								path: 'completed/',
+								async lazy() {
+									const module = await import('./routes/Donation/Completed');
+
+									return { Component: module.default };
+								},
+							},
+						],
+					},
+					{
+						id: 'instruction',
+						path: 'instruction/',
+						async lazy() {
+							const module = await import('./routes/Instruction');
+
+							return {
+								Component: module.default,
+								loader: module.loader,
+							}
 						},
 					},
 					{
-						path: 'users/',
 						async lazy() {
-							const module = await import('./routes/TelegramBotMenu/Users');
+							const module = await import('./routes/AuthRequired/Root');
 
 							return { Component: module.default };
 						},
-					},
-					{
-						path: 'constructor/',
-						async lazy() {
-							const module = await import('./routes/TelegramBotMenu/Constructor');
+						children: [
+							{
+								path: 'personal-cabinet/',
+								async lazy() {
+									const module = await import('./routes/AuthRequired/PersonalCabinet');
 
-							return { Component: module.default };
-						},
+									return { Component: module.default };
+								},
+							},
+							{
+								path: 'telegram-bot-menu/:telegramBotID/',
+								async lazy() {
+									const module = await import('./routes/AuthRequired/TelegramBotMenu/Root');
+
+									return { Component: module.default };
+								},
+								children: [
+									{
+										index: true,
+										async lazy() {
+											const module = await import('./routes/AuthRequired/TelegramBotMenu/Index');
+
+											return { Component: module.default };
+										},
+									},
+									{
+										path: 'variables/',
+										async lazy() {
+											const module = await import('./routes/AuthRequired/TelegramBotMenu/Variables');
+
+											return { Component: module.default };
+										},
+									},
+									{
+										path: 'users/',
+										async lazy() {
+											const module = await import('./routes/AuthRequired/TelegramBotMenu/Users');
+
+											return { Component: module.default };
+										},
+									},
+									{
+										path: 'constructor/',
+										async lazy() {
+											const module = await import('./routes/AuthRequired/TelegramBotMenu/Constructor');
+
+											return { Component: module.default };
+										},
+									},
+								],
+							},
+						],
 					},
 				],
 			},

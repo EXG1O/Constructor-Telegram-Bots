@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useRouteLoaderData } from 'react-router-dom';
 
 import { LinkContainer } from 'react-router-bootstrap';
 import Container from 'react-bootstrap/Container';
@@ -8,16 +8,16 @@ import Nav from 'react-bootstrap/Nav';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
+import { LoaderData as RootLoaderData } from 'routes/Root';
+
 import LoginViaTelegramModal from './LoginViaTelegramModal';
 import AskConfirmModal from './AskConfirmModal';
-
-import useUser from 'services/hooks/useUser';
 
 import { UserAPI } from 'services/api/users/main';
 
 function Header(): ReactElement {
 	const navigate = useNavigate();
-	const user = useUser();
+	const { user } = useRouteLoaderData('root') as RootLoaderData;
 
 	const [showLoginViaTelegramModal, setShowLoginViaTelegramModal] = useState<boolean>(false);
 	const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
@@ -49,9 +49,7 @@ function Header(): ReactElement {
 			)}
 			<Navbar expand='xxl' variant='dark' className='bg-dark'>
 				<Container>
-					<LinkContainer to='/' activeClassName=''>
-						<Navbar.Brand>Constructor Telegram Bots</Navbar.Brand>
-					</LinkContainer>
+					<Navbar.Brand>Constructor Telegram Bots</Navbar.Brand>
 					<Navbar.Toggle aria-controls='header'></Navbar.Toggle>
 					<Navbar.Collapse className='justify-content-between' id='header'>
 						<Nav variant='underline' className='gap-0'>

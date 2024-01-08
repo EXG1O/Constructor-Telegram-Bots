@@ -1,17 +1,16 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement } from 'react';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import { LinkContainer } from 'react-router-bootstrap';
 import Stack from 'react-bootstrap/Stack';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 
-import { Donation } from 'services/api/donations/types';
+import { LoaderData as HomeLoaderData } from '..';
 
-interface DonationsProps {
-	donations: Donation[];
-}
+function Donations(): ReactElement {
+	const { donations } = useRouteLoaderData('home') as HomeLoaderData;
 
-function Donations({ donations }: DonationsProps): ReactNode {
 	return (
 		<Stack className='donations align-self-center' gap={2}>
 			<h3 className='mb-0'>{gettext('Список пожертвований')}</h3>
@@ -25,8 +24,8 @@ function Donations({ donations }: DonationsProps): ReactNode {
 						</tr>
 					</thead>
 					<tbody className='table-group-divider'>
-						{donations.length ? (
-							donations.map(donation => (
+						{donations.count ? (
+							donations.results.map(donation => (
 								<tr key={donation.id}>
 									<td className='sum'>{donation.sum}€</td>
 									<td>

@@ -1,7 +1,7 @@
 import './index.css';
 
-import React, { ReactNode } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import React, { ReactElement } from 'react';
+import { json } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
@@ -9,31 +9,35 @@ import Header from './components/Header';
 import Stats from './components/Stats';
 import Donations from './components/Donations';
 
-import { Donation } from 'services/api/donations/types';
+import { RouteError } from 'routes/ErrorBoundary';
+
 import { DonationsAPI } from 'services/api/donations/main';
+import { APIResponse } from 'services/api/donations/types';
 
 export interface LoaderData {
-	donations: Donation[];
+	donations: APIResponse.DonationsAPI.Get;
 }
 
 export async function loader(): Promise<LoaderData> {
-	const response = await DonationsAPI.get({ limit: 50 });
+	const response = await DonationsAPI.get(20);
 
-	return { donations: (response.ok) ? response.json : [] };
+	if (!response.ok) {
+		throw json<RouteError['data']>(response.json, { status: response.status });
+	}
+
+	return { donations: response.json };
 }
 
-function App(): ReactNode {
-	const { donations } = useLoaderData() as LoaderData;
-
+function Home(): ReactElement {
 	return (
 		<main className='my-auto'>
 			<Container className='vstack align-items-center text-center gap-3 gap-lg-4 my-3 my-lg-4'>
 				<Header />
 				<Stats />
-				<Donations donations={donations} />
+				<Donations />
 			</Container>
 		</main>
 	);
 }
 
-export default App;
+export default Home;

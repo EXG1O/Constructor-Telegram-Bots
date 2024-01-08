@@ -1,7 +1,9 @@
-import React, { ReactNode } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import React, { ReactElement } from 'react';
+import { json, useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
+
+import { RouteError } from 'routes/ErrorBoundary';
 
 import { InstructionSectionsAPI } from 'services/api/instruction/main';
 import { InstructionSection } from 'services/api/instruction/types';
@@ -13,23 +15,25 @@ export interface LoaderData {
 export async function loader(): Promise<LoaderData> {
 	const response = await InstructionSectionsAPI.get();
 
-	return { sections: response.ok ? response.json : [] };
+	if (!response.ok) {
+		throw json<RouteError['data']>(response.json, { status: response.status });
+	}
+
+	return { sections: response.json };
 }
 
-function Instruction(): ReactNode {
-	const { sections } = useLoaderData() as LoaderData;
+function Instruction(): ReactElement {
+	const { sections } = useRouteLoaderData('instruction') as LoaderData;
 
 	return (
-		<main className='my-auto'>
-			<Container className='my-3 my-lg-4'>
-				{sections.map(section => (
-					<div key={section.id}>
-						<h3 className='mb-1'>{section.title}</h3>
-						<div dangerouslySetInnerHTML={{ __html: section.text }} />
-					</div>
-				))}
-			</Container>
-		</main>
+		<Container as='main' className='h-100 my-3 my-lg-4'>
+			{sections.map(section => (
+				<div key={section.id}>
+					<h3 className='mb-1'>{section.title}</h3>
+					<div dangerouslySetInnerHTML={{ __html: section.text }} />
+				</div>
+			))}
+		</Container>
 	);
 }
 

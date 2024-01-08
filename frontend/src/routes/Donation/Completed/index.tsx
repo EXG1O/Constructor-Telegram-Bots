@@ -1,8 +1,8 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 
 import Container from 'react-bootstrap/Container';
 
-function Completed(): ReactNode {
+function Completed(): ReactElement {
 	return (
 		<main className='my-auto'>
 			<Container className='my-3 my-lg-4'>

@@ -5,7 +5,7 @@ const rootURL = '/api/donations/';
 
 export namespace DonationsAPI {
 	export const get = (limit?: number, offset?: number) => (
-		makeRequest<APIResponse.DonationsAPI.Get[]>(`${rootURL}?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET')
+		makeRequest<APIResponse.DonationsAPI.Get>(`${rootURL}?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET')
 	);
 }
 
