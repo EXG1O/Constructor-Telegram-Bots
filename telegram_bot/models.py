@@ -133,7 +133,7 @@ class TelegramBotCommand(models.Model):
 
 		if keyboard:
 			try:
-				self.keyboard.type = keyboard['mode']
+				self.keyboard.type = keyboard['type']
 				self.keyboard.save()
 
 				buttons_id: list[int] = []
@@ -190,22 +190,16 @@ class TelegramBotCommand(models.Model):
 			except TelegramBotCommandDatabaseRecord.DoesNotExist:
 				pass
 
-		for image_id in images_id:
-			try:
-				image: TelegramBotCommandImage = self.images.get(id=image_id)
+		for image in self.images.all():
+			if image.id not in images_id:
 				image.delete()
-			except TelegramBotCommandImage.DoesNotExist:
-				pass
 
 		for image in images: # type: ignore [assignment]
 			TelegramBotCommandImage.objects.create(telegram_bot_command=self, image=image)
 
-		for file_id in files_id:
-			try:
-				file: TelegramBotCommandFile = self.files.get(id=file_id)
+		for file in self.files.all():
+			if file.id not in files_id:
 				file.delete()
-			except TelegramBotCommandFile.DoesNotExist:
-				pass
 
 		for file in files: # type: ignore [assignment]
 			TelegramBotCommandFile.objects.create(telegram_bot_command=self, file=file)

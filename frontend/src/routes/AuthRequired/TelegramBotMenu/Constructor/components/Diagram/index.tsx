@@ -226,6 +226,7 @@ function Diagram({ innerRef, onAddCommandClick }: DiagramProps): ReactElement<Di
 	return (
 		<div className='border rounded' style={{ height: '80vh' }}>
 			<ReactFlow
+				fitView
 				nodes={nodes}
 				edges={edges}
 				nodeTypes={nodeTypes}

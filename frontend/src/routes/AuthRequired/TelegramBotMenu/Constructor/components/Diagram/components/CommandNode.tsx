@@ -46,6 +46,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 	}, []);
 
 	const handleEditCommandButtonClick = useCallback(async (): Promise<void> => {
+		setLoadingCommandOffcanvas(true);
 		setShowCommandOffcanvas(true);
 
 		const response = await TelegramBotCommandAPI.get(telegramBot.id, data.id);
@@ -195,7 +196,10 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 						position={Position.Right}
 					/>
 				</div>
-				<div className='bg-light border rounded text-break px-3 py-2'>{data.message_text.text}</div>
+				<div
+					className='bg-light border rounded text-break px-3 py-2'
+					dangerouslySetInnerHTML={{ __html: data.message_text.text }}
+				/>
 				{data.keyboard?.buttons && (
 					<Stack gap={1}>
 						{data.keyboard.buttons.map(button => (

@@ -64,6 +64,12 @@ class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer):
 		model = TelegramBotCommandMessageText
 		fields = ('text',)
 
+	def to_representation(self, instance: TelegramBotCommandMessageText) -> dict[str, Any]:
+		representation: dict[str, Any] = super().to_representation(instance)
+		representation['text'] = representation['text'].replace('\n', '<br>')
+
+		return representation
+
 class TelegramBotCommandKeyboardButtonSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotCommandKeyboardButton
