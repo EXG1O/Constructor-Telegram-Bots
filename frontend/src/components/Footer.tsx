@@ -20,7 +20,18 @@ const founderLinks: FooterLinkProps[] = [
 ];
 
 export function FooterLink(props: FooterLinkProps): ReactElement<FooterLinkProps> {
-	return <a target='_blank' {...props} className={classNames('link-secondary link-underline-opacity-0', props.className)} />;
+	return (
+		<a
+			target='_blank'
+			{...props}
+			className={
+				classNames(
+					'link-secondary link-underline-opacity-0',
+					props.className,
+				)
+			}
+		/>
+	);
 }
 
 function Footer(): ReactElement {
@@ -42,7 +53,12 @@ function Footer(): ReactElement {
 					</Col>
 					<Col xs={12} lg={2} className='vstack'>
 						<h5 className='mb-0'>{gettext('Другое')}</h5>
-						<Link className='link-secondary link-underline-opacity-0' to='/privacy-policy/'>Privacy Policy</Link>
+						<Link
+							to='/privacy-policy/'
+							className='link-secondary link-underline-opacity-0'
+						>
+							Privacy Policy
+						</Link>
 					</Col>
 					<Col as='hr' xs={11} lg={7} className='text-white-50 my-2' />
 					<span>&copy; 2023 exg1o</span>

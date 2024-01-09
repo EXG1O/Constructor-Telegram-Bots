@@ -1,20 +1,39 @@
-import React, { ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { ReactElement } from 'react';
+import { Outlet, Params, redirect, json } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
 import Header from './components/Header';
 
-import TelegramBotProvider from 'services/providers/TelegramBotProvider';
+import { TelegramBotAPI } from 'services/api/telegram_bots/main';
+import { TelegramBot } from 'services/api/telegram_bots/types';
 
-function Root(): ReactNode {
+export interface LoaderData {
+	telegramBot: TelegramBot;
+}
+
+export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<Response | LoaderData> {
+	const { telegramBotID } = params;
+
+	if (telegramBotID === undefined) {
+		return redirect('/personal-cabinet/');
+	}
+
+	const response = await TelegramBotAPI.get(parseInt(telegramBotID!));
+
+	if (!response.ok) {
+		throw json(response.json, { status: response.status });
+	}
+
+	return { telegramBot: response.json };
+}
+
+function Root(): ReactElement {
 	return (
-		<TelegramBotProvider>
-			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
-				<Header />
-				<Outlet />
-			</Container>
-		</TelegramBotProvider>
+		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
+			<Header />
+			<Outlet />
+		</Container>
 	);
 }
 

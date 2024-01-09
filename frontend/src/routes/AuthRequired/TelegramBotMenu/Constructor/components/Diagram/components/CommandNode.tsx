@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
+import { useRouteLoaderData } from 'react-router';
 import { NodeProps, Handle, Position, useReactFlow } from 'reactflow';
 import _ from 'lodash';
 
@@ -6,12 +7,13 @@ import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+
 import { NodeData } from './..';
 
 import CommandOffcanvas, { Data as CommandOffcanvasData } from './../../CommandOffcanvas';
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import useTelegramBot from 'services/hooks/useTelegramBot';
 import useToast from 'services/hooks/useToast';
 
 import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
@@ -21,8 +23,9 @@ interface CommandNodeProps extends Omit<NodeProps, 'data'>{
 }
 
 function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodeProps> {
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+
 	const { createMessageToast } = useToast();
-	const { telegramBot } = useTelegramBot();
 
 	const { setNodes } = useReactFlow<NodeData>();
 

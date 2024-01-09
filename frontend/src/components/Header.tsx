@@ -13,21 +13,32 @@ import { LoaderData as RootLoaderData } from 'routes/Root';
 import LoginViaTelegramModal from './LoginViaTelegramModal';
 import AskConfirmModal from './AskConfirmModal';
 
+import useToast from 'services/hooks/useToast';
+
 import { UserAPI } from 'services/api/users/main';
 
 function Header(): ReactElement {
 	const navigate = useNavigate();
 	const { user } = useRouteLoaderData('root') as RootLoaderData;
 
+	const { createMessageToast } = useToast();
+
 	const [showLoginViaTelegramModal, setShowLoginViaTelegramModal] = useState<boolean>(false);
 	const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
+	const [loadingLogoutModal, setLoadingLogoutModal] = useState<boolean>(false);
 
 	const handleConfirmLogoutButtonClick = useCallback(async (): Promise<void> => {
-		setShowLogoutModal(false);
+		setLoadingLogoutModal(true);
 
-		await UserAPI.logout();
+		const response = await UserAPI.logout();
 
-		navigate('/');
+		if (response.ok) {
+			setShowLogoutModal(false);
+			setTimeout(() => navigate('/'), 500);
+		}
+
+		setLoadingLogoutModal(false);
+		createMessageToast({ message: response.json.message, level: response.json.level });
 	}, []);
 
 	return (
@@ -35,6 +46,7 @@ function Header(): ReactElement {
 			{user ? (
 				<AskConfirmModal
 					show={showLogoutModal}
+					loading={loadingLogoutModal}
 					title={gettext('Выход из аккаунта')}
 					onHide={useCallback(() => setShowLogoutModal(false), [])}
 					onConfirmButtonClick={handleConfirmLogoutButtonClick}

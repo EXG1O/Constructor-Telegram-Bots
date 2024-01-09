@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
@@ -30,4 +30,4 @@ function Header(): ReactElement {
 	);
 }
 
-export default memo(Header);
+export default Header;

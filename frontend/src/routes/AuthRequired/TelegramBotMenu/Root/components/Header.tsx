@@ -1,14 +1,15 @@
 import './Header.css';
 
-import React, { ReactNode } from 'react';
+import React, { ReactElement } from 'react';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import { LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/Nav';
 
-import useTelegramBot from 'services/hooks/useTelegramBot';
+import { LoaderData as TelegramBotMenuRootLoaderData } from '..';
 
-function Header(): ReactNode {
-	const { telegramBot } = useTelegramBot();
+function Header(): ReactElement {
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	return (
 		<Nav variant='pills' className='nav-fill bg-light border rounded gap-2 p-2' id='telegramBotMenuHeader'>

@@ -16,7 +16,7 @@ interface Data {
 	is_private: boolean;
 }
 
-export interface AddTelegramBotModalProps extends Omit<ModalProps, 'onHide'> {
+export interface AddTelegramBotModalProps extends Omit<ModalProps, 'onHide' | 'children'> {
 	onHide: NonNullable<ModalProps['onHide']>;
 }
 
@@ -66,7 +66,7 @@ function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactElement<AddT
 					</>
 				)}
 			</Modal.Body>
-			{!loading  ? (
+			{!loading ? (
 				<Modal.Footer>
 					<Button
 						variant='success'

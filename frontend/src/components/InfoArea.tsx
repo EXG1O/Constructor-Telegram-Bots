@@ -1,16 +1,17 @@
-import React, { ReactElement, ReactNode, HTMLAttributes } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes, memo } from 'react';
 
-export interface InfoAreaProps extends HTMLAttributes<HTMLDivElement> {
+export interface InfoAreaProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+	value: ReactNode;
 	description: ReactNode;
 }
 
-function InfoArea({ description, children, ...divProps }: InfoAreaProps): ReactElement<InfoAreaProps> {
+function InfoArea({ description, value, ...props }: InfoAreaProps): ReactElement<InfoAreaProps> {
 	return (
-		<div {...divProps}>
-			<div className='border border-2 rounded-4 fw-semibold p-2'>{children}</div>
+		<div {...props}>
+			<div className='border border-2 rounded-4 fw-semibold p-2'>{value}</div>
 			<span>{description}</span>
 		</div>
 	);
 }
 
-export default InfoArea;
+export default memo(InfoArea);

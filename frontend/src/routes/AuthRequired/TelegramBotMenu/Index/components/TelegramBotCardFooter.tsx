@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { Dispatch, ReactElement, SetStateAction, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
@@ -8,17 +8,22 @@ import Loading from 'components/Loading';
 import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
-import useTelegramBot from 'services/hooks/useTelegramBot';
 
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
 
 import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
 
-function TelegramBotCardFooter(): ReactNode {
+import { TelegramBot } from 'services/api/telegram_bots/types';
+
+export interface TelegramBotCardFooterProps {
+	telegramBot: TelegramBot;
+	setTelegramBot: Dispatch<SetStateAction<TelegramBot>>;
+}
+
+function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardFooterProps): ReactElement<TelegramBotCardFooterProps> {
 	const navigate = useNavigate();
 
 	const { createMessageToast } = useToast();
-	const { telegramBot, setTelegramBot } = useTelegramBot();
 
 	const [showDeleteTelegramBotModal, setShowDeleteTelegramBotModal] = useState<boolean>(false);
 

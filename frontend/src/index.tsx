@@ -91,20 +91,29 @@ const router = createBrowserRouter([
 				},
 				children: [
 					{
+						id: 'personal-cabinet',
 						path: 'personal-cabinet/',
 						async lazy() {
 							const module = await import('./routes/AuthRequired/PersonalCabinet');
 
-							return { Component: module.default };
+							return {
+								Component: module.default,
+								loader: module.loader,
+							}
 						},
 					},
 					{
+						id: 'telegram-bot-menu-root',
 						path: 'telegram-bot-menu/:telegramBotID/',
 						async lazy() {
 							const module = await import('./routes/AuthRequired/TelegramBotMenu/Root');
 
-							return { Component: module.default };
+							return {
+								Component: module.default,
+								loader: module.loader,
+							}
 						},
+						shouldRevalidate: () => true,
 						children: [
 							{
 								index: true,

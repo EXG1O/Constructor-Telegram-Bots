@@ -10,6 +10,7 @@ import React, {
 	useCallback,
 	useRef,
 } from 'react';
+import { useRouteLoaderData } from 'react-router';
 
 import ReactFlow, {
 	Panel,
@@ -30,11 +31,12 @@ import ReactFlow, {
 
 import Button from 'react-bootstrap/Button';
 
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+
 import { UpdateNodesRef } from '../../.';
 import CommandNode from './components/CommandNode';
 
 import useToast from 'services/hooks/useToast';
-import useTelegramBot from 'services/hooks/useTelegramBot';
 
 import { TelegramBotCommandDiagramAPI, TelegramBotCommandsDiagramAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotCommandDiagram } from 'services/api/telegram_bots/types';
@@ -51,8 +53,9 @@ export interface NodeData extends Omit<TelegramBotCommandDiagram, 'x' | 'y'> {
 const nodeTypes: NodeTypes = { command: CommandNode };
 
 function Diagram({ innerRef, onAddCommandClick }: DiagramProps): ReactElement<DiagramProps> {
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+
 	const { createMessageToast } = useToast();
-	const { telegramBot } = useTelegramBot();
 
 	const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);

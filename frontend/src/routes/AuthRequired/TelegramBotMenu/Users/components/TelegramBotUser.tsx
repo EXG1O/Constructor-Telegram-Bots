@@ -1,10 +1,12 @@
 import React, { ReactNode, useState } from 'react';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import useTelegramBot from 'services/hooks/useTelegramBot';
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+
 import useToast from 'services/hooks/useToast';
 
 import { TelegramBotUserAPI, TelegramBotAllowedUserAPI } from 'services/api/telegram_bots/main';
@@ -16,7 +18,8 @@ export interface TelegramBotUserProps {
 }
 
 function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBotUserProps): ReactNode {
-	const { telegramBot } = useTelegramBot();
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+
 	const { createMessageToast } = useToast();
 
 	const [showDeleteTelegramBotUserModal, setShowDeleteTelegramBotUserModal] = useState<boolean>(false);

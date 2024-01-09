@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 
 import ToastContainer from 'react-bootstrap/ToastContainer';
 
@@ -10,10 +10,10 @@ export interface ToastProviderProps {
 	children: ReactNode;
 }
 
-function ToastProvider({ children }: ToastProviderProps): ReactNode {
-	const [toasts, setToasts] = useState<ReactNode[]>([]);
+function ToastProvider({ children }: ToastProviderProps): ReactElement {
+	const [toasts, setToasts] = useState<ReactElement[]>([]);
 
-	function removeToast(toast: ReactNode): void {
+	function removeToast(toast: ReactElement): void {
 		setToasts(prevToasts => prevToasts.filter(t => t !== toast));
 	}
 

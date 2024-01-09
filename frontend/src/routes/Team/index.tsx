@@ -33,10 +33,10 @@ function Team(): ReactElement {
 				<Row xs={1} lg={5} className='justify-content-center g-3 g-lg-4'>
 					{members.length ? (
 						members.map(member => (
-							<Stack key={member.id} className='align-items-center px-2'>
-								<img className='border img-team-member' src={member.image}></img>
+							<Stack key={member.id} gap={1} className='align-items-center'>
+								<img src={member.image} className='img-team-member' />
 								<a
-									className='h5 link-dark link-underline-opacity-0 fw-semibold'
+									className='h5 link-dark link-underline-opacity-0 fw-semibold mb-0'
 									href={`tg://resolve?domain=${member.username}`}
 								>
 									@{member.username}

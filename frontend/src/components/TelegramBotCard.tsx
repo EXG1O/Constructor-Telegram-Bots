@@ -1,4 +1,4 @@
-import React, { ReactElement, CSSProperties, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { ReactElement, CSSProperties, Dispatch, SetStateAction, useEffect, useState, ReactNode } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -14,9 +14,14 @@ import { TelegramBot } from 'services/api/telegram_bots/types';
 
 import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
 
-export interface TelegramBotCardProps extends CardProps {
+export interface TelegramBotCardChildrenProps {
 	telegramBot: TelegramBot;
-	setTelegramBot?: Dispatch<SetStateAction<TelegramBot>>;
+	setTelegramBot: Dispatch<SetStateAction<TelegramBot>>;
+}
+
+export interface TelegramBotCardProps extends Omit<CardProps, 'children'> {
+	telegramBot: TelegramBot;
+	children: (props: TelegramBotCardChildrenProps) => ReactNode;
 }
 
 const buttonOnlyWithIconStyle: CSSProperties = {
@@ -24,10 +29,10 @@ const buttonOnlyWithIconStyle: CSSProperties = {
 	fontSize: '20px',
 }
 
-function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setTelegramBotInitial, ...props }: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
+function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
 	const { createMessageToast } = useToast();
 
-	const [telegramBot, setTelegramBot] = setTelegramBotInitial === undefined ? useState<TelegramBot>(telegramBotInitial) : [telegramBotInitial, setTelegramBotInitial];
+	const [telegramBot, setTelegramBot] = useState<TelegramBot>(initialTelegramBot);
 	const [apiTokenInputValue, setAPITokenInputValue] = useState<string>(telegramBot.api_token);
 	const [apiTokenIsEditing, setAPITokenIsEditing] = useState<boolean>(false);
 
@@ -159,7 +164,7 @@ function TelegramBotCard({ telegramBot: telegramBotInitial, setTelegramBot: setT
 					</tbody>
 				</Table>
 			</Card.Body>
-			{props.children}
+			{props.children?.({ telegramBot, setTelegramBot })}
 		</Card>
 	);
 }

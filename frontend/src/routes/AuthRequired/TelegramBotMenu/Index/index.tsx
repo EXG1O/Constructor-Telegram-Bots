@@ -1,6 +1,7 @@
 import 'chart.js/auto';
 
-import React, { ReactNode } from 'react';
+import React, { ReactElement } from 'react';
+import { useRouteLoaderData } from 'react-router';
 
 import { Line } from 'react-chartjs-2';
 import Row from 'react-bootstrap/Row';
@@ -11,18 +12,20 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 
 import TelegramBotCard from 'components/TelegramBotCard';
 
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+
 import TelegramBotCardFooter from './components/TelegramBotCardFooter';
 
-import useTelegramBot from 'services/hooks/useTelegramBot';
-
-function Index(): ReactNode {
-	const { telegramBot, setTelegramBot } = useTelegramBot();
+function Index(): ReactElement {
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	return (
 		<Row className='g-3 g-lg-4'>
 			<Col xs={12} lg={6}>
-				<TelegramBotCard telegramBot={telegramBot} setTelegramBot={setTelegramBot}>
-					<TelegramBotCardFooter />
+				<TelegramBotCard telegramBot={telegramBot}>
+					{props => (
+						<TelegramBotCardFooter {...props} />
+					)}
 				</TelegramBotCard>
 			</Col>
 			<Col xs={12} lg={6}>

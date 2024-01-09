@@ -6,7 +6,6 @@ import CloseButton from 'react-bootstrap/CloseButton';
 export interface MessageToastProps {
 	message: string;
 	level: keyof typeof icons;
-	delay?: number;
 	onExited: () => void;
 }
 
@@ -16,26 +15,24 @@ const icons = {
 	danger: 'exclamation-triangle-fill',
 }
 
-function MessageToast({ message, level, delay = 6000, onExited }: MessageToastProps): ReactElement<MessageToastProps> {
+function MessageToast({ message, level, onExited }: MessageToastProps): ReactElement<MessageToastProps> {
 	const [show, setShow] = useState<boolean>(false);
 
 	useEffect(() => setShow(true), []);
-
-	const handleClose = () => setShow(false);
 
 	return (
 		<Toast
 			className={`text-bg-${level} mb-0`}
 			show={show}
-			delay={delay}
-			autohide={delay !== 0}
+			delay={6000}
+			autohide={level !== 'danger'}
 			onExited={onExited}
-			onClose={handleClose}
+			onClose={() => setShow(false)}
 		>
 			<Toast.Body className='d-flex align-items-center gap-2'>
 				<i className={`bi bi-${icons[level]}`} />
 				<strong className='text-break flex-fill'>{message}</strong>
-				<CloseButton onClick={handleClose} />
+				<CloseButton onClick={() => setShow(false)} />
 			</Toast.Body>
 		</Toast>
 	);

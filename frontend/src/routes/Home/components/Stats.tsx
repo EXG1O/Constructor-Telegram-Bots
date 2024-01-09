@@ -9,9 +9,9 @@ function Stats(): ReactElement {
 		<Stack className='align-self-center stats' gap={2}>
 			<h3 className='mb-0'>{gettext('Информация о сайте')}</h3>
 			<Stack gap={1}>
-				<InfoArea description={gettext('Количество пользователей')}>0</InfoArea>
-				<InfoArea description={gettext('Количество добавленных Telegram ботов')}>1</InfoArea>
-				<InfoArea description={gettext('Количество включенных Telegram ботов')}>1</InfoArea>
+				<InfoArea value={0} description={gettext('Количество пользователей')} />
+				<InfoArea value={1} description={gettext('Количество добавленных Telegram ботов')} />
+				<InfoArea value={1} description={gettext('Количество включенных Telegram ботов')} />
 			</Stack>
 		</Stack>
 	);

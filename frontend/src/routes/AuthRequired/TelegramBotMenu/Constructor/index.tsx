@@ -1,11 +1,13 @@
 import React, { ReactElement, useCallback, useRef, useState } from 'react';
+import { useRouteLoaderData } from 'react-router';
 
 import Button from 'react-bootstrap/Button';
+
+import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 
 import CommandOffcanvas, { Data as CommandOffcanvasData } from './components/CommandOffcanvas';
 import Diagram from './components/Diagram';
 
-import useTelegramBot from 'services/hooks/useTelegramBot';
 import useToast from 'services/hooks/useToast';
 
 import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
@@ -15,8 +17,9 @@ export interface UpdateNodesRef {
 }
 
 function Constructor(): ReactElement {
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+
 	const { createMessageToast } = useToast();
-	const { telegramBot } = useTelegramBot();
 
 	const diagramInnerRef = useRef<UpdateNodesRef>({});
 	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState<boolean>(false);
@@ -34,7 +37,7 @@ function Constructor(): ReactElement {
 				headers: apiRequest.headers && apiRequest.headers.map(header => ({ [header.key]: header.value })),
 				body: apiRequest.body && JSON.parse(apiRequest.body),
 			},
-			database_record: databaseRecord !== undefined ? { data: JSON.parse(databaseRecord) } : undefined,
+			database_record: databaseRecord ? { data: JSON.parse(databaseRecord) } : undefined,
 		});
 
 		if (response.ok) {

@@ -1,5 +1,5 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { Params, useNavigate, useParams } from 'react-router-dom';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { useNavigate, useRouteLoaderData } from 'react-router-dom';
 import * as fuzz from 'fuzzball';
 
 import Card from 'react-bootstrap/Card';
@@ -8,6 +8,8 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
+
+import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 
 import TelegramBotUser from './components/TelegramBotUser';
 
@@ -18,9 +20,9 @@ interface TelegramBotUsersIsSortedState {
 	search: boolean;
 }
 
-function Users(): ReactNode {
-	const { telegramBotID } = useParams<Params<'telegramBotID'>>();
+function Users(): ReactElement {
 	const navigate = useNavigate();
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const [telegramBotUsers, setTelegramBotUsers] = useState<TelegramBotUserType[]>([]);
 	const [sortedTelegramBotUsers, setSortedTelegramBotUsers] = useState<TelegramBotUserType[]>(telegramBotUsers);
@@ -37,7 +39,7 @@ function Users(): ReactNode {
 	}, [telegramBotUsers]);
 
 	async function updateTelegramBotUsers(): Promise<void> {
-		const response = await TelegramBotUsersAPI.get(parseInt(telegramBotID!));
+		const response = await TelegramBotUsersAPI.get(telegramBot.id);
 
 		if (response.ok) {
 			setTelegramBotUsers(response.json);

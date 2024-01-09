@@ -3,7 +3,7 @@ import React, { ReactElement, memo } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 
-type LoginViaTelegramModalProps = ModalProps;
+type LoginViaTelegramModalProps = Omit<ModalProps, 'children'>;
 
 function LoginViaTelegramModal(props: LoginViaTelegramModalProps): ReactElement<LoginViaTelegramModalProps> {
 	return (
