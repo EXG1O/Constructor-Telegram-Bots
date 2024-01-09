@@ -9,6 +9,7 @@ from user.models import User
 from .models import (
 	TelegramBot,
 	TelegramBotCommand,
+	TelegramBotCommandSettings,
 	TelegramBotCommandCommand,
 	TelegramBotCommandImage,
 	TelegramBotCommandFile,
@@ -35,6 +36,11 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 		representation['added_date'] = filters.datetime(instance.added_date)
 
 		return representation
+
+class TelegramBotCommandSettingsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TelegramBotCommandSettings
+		fields = ('is_reply_to_user_message', 'is_delete_user_message', 'is_send_as_new_message')
 
 class TelegramBotCommandCommandSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -93,6 +99,7 @@ class TelegramBotCommandDatabaseRecordSerializer(serializers.ModelSerializer):
 		fields = ('data',)
 
 class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
+	settings = TelegramBotCommandSettingsSerializer()
 	command = TelegramBotCommandCommandSerializer(allow_null=True)
 	images = TelegramBotCommandImageSerializer(many=True)
 	files = TelegramBotCommandFileSerializer(many=True)
@@ -103,7 +110,7 @@ class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = TelegramBotCommand
-		fields = ('id', 'name', 'command', 'images', 'files', 'message_text', 'keyboard', 'api_request', 'database_record')
+		fields = ('id', 'name', 'settings', 'command', 'images', 'files', 'message_text', 'keyboard', 'api_request', 'database_record')
 
 class TelegramBotCommandKeyboardButtonDiagramSerializer(serializers.ModelSerializer):
 	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id', allow_null=True)
@@ -174,6 +181,11 @@ class UpdateTelegramBotSerializer(CreateTelegramBotSerializer):
 
 		return api_token
 
+class CreateTelegramBotCommandSettingsSerializer(serializers.Serializer):
+	is_reply_to_user_message = serializers.BooleanField(default=False)
+	is_delete_user_message = serializers.BooleanField(default=False)
+	is_send_as_new_message = serializers.BooleanField(default=False)
+
 class CreateTelegramBotCommandCommandSerializer(serializers.Serializer):
 	text = serializers.CharField(max_length=32, error_messages={
 		'blank': _('Введите команду!'),
@@ -225,6 +237,7 @@ class CreateTelegramBotCommandSerializer(serializers.Serializer):
 		'blank': _('Введите название команде!'),
 		'max_length': _('Название команды должно содержать не более 255 символов!'),
 	})
+	settings = CreateTelegramBotCommandSettingsSerializer()
 	command = CreateTelegramBotCommandCommandSerializer(default=None)
 	images = serializers.ListField(child=serializers.ImageField(), default=[])
 	files = serializers.ListField(child=serializers.FileField(), default=[])

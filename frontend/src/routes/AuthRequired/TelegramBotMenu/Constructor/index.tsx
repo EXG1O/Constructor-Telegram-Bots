@@ -25,13 +25,19 @@ function Constructor(): ReactElement {
 	const [showCommandOffcanvas, setShowCommandOffcanvas] = useState<boolean>(false);
 
 	async function handleAddCommandButtonClick(data: CommandOffcanvasData): Promise<void> {
-		const { images, files, messageText, apiRequest, databaseRecord, ...data_ } = data;
+		const { name, settings, images, files, messageText, apiRequest, databaseRecord, ...data_ } = data;
 
 		const response = await TelegramBotCommandAPI.create(telegramBot.id, {
 			...data_,
+			name: name ?? '',
+			settings: {
+				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
+				is_delete_user_message: settings?.isDeleteUserMessage ?? false,
+				is_send_as_new_message: settings?.isSendAsNewMessage ?? false,
+			},
 			images: images?.map(image => image.file!),
 			files: files?.map(file => file.file!),
-			message_text: { text: messageText },
+			message_text: { text: messageText ?? '' },
 			api_request: apiRequest && {
 				...apiRequest,
 				headers: apiRequest.headers && apiRequest.headers.map(header => ({ [header.key]: header.value })),

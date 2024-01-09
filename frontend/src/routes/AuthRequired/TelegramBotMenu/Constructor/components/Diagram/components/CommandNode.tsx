@@ -52,10 +52,15 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 		const response = await TelegramBotCommandAPI.get(telegramBot.id, data.id);
 
 		if (response.ok) {
-			const { id, name, images, files, command, message_text, keyboard, api_request, database_record } = response.json;
+			const { id, name, settings, images, files, command, message_text, keyboard, api_request, database_record } = response.json;
 
 			const initialData: CommandOffcanvasData = {
 				name,
+				settings: {
+					isReplyToUserMessage: settings.is_reply_to_user_message,
+					isDeleteUserMessage: settings.is_delete_user_message,
+					isSendAsNewMessage: settings.is_send_as_new_message,
+				},
 				images: images.length ? images : undefined,
 				files: files.length ? files : undefined,
 				command: command ? {
@@ -114,11 +119,17 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 	}, [commandOffcanvasInitialData]);
 
 	async function handleSaveCommandButtonClick(commandOffcanvasData: CommandOffcanvasData): Promise<void> {
-		const { images, files, messageText, apiRequest, databaseRecord, ...data_ } = commandOffcanvasData;
+		const { name, settings, images, files, messageText, apiRequest, databaseRecord, ...data_ } = commandOffcanvasData;
 
 		const response = await TelegramBotCommandAPI.update(telegramBot.id, data.id, {
 			...data_,
-			message_text: { text: messageText },
+			name: name ?? '',
+			settings: {
+				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
+				is_delete_user_message: settings?.isDeleteUserMessage ?? false,
+				is_send_as_new_message: settings?.isSendAsNewMessage ?? false,
+			},
+			message_text: { text: messageText ?? '' },
 			images: images?.map(image => image.file ?? image.id!),
 			files: files?.map(file => file.file ?? file.id!),
 			api_request: apiRequest && {
@@ -149,8 +160,8 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 			</AskConfirmModal>
 			<CommandOffcanvas
 				show={showCommandOffcanvas}
-				title={gettext('Редактирование команды')}
 				loading={loadingCommandOffcanvas}
+				title={gettext('Редактирование команды')}
 				initialData={commandOffcanvasInitialData}
 				onHide={useCallback(() => setShowCommandOffcanvas(false), [])}
 			>

@@ -10,6 +10,12 @@ export interface TelegramBot {
 	added_date: string;
 }
 
+export interface TelegramBotCommandSettings {
+	is_reply_to_user_message: boolean;
+	is_delete_user_message: boolean;
+	is_send_as_new_message: boolean;
+}
+
 export interface TelegramBotCommandCommand {
 	text: string;
 	description: string | null;
@@ -54,6 +60,7 @@ export interface TelegramBotCommandDatabaseRecord {
 export interface TelegramBotCommand {
 	id: number;
 	name: string;
+	settings: TelegramBotCommandSettings;
 	command: TelegramBotCommandCommand | null;
 	images: TelegramBotCommandImage[];
 	files: TelegramBotCommandFile[];
@@ -119,6 +126,7 @@ export namespace Data {
 
 		export interface Create {
 			name: TelegramBotCommand['name'];
+			settings: TelegramBotCommand['settings'];
 			command?: CreateTelegramBotCommandCommand;
 			images?: File[],
 			files?: File[],

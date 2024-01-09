@@ -50,6 +50,7 @@ class TelegramBotCommandManager(models.Manager):
 		self,
 		telegram_bot: TelegramBot,
 		name: str,
+		settings: dict[str, Any],
 		message_text: dict[str, Any],
 		images: list[InMemoryUploadedFile] = [],
 		files: list[InMemoryUploadedFile] = [],
@@ -62,6 +63,7 @@ class TelegramBotCommandManager(models.Manager):
 
 		kwargs: dict[str, TelegramBotCommand] = {'telegram_bot_command': telegram_bot_command}
 
+		TelegramBotCommandSettings.objects.create(**kwargs, **settings) # type: ignore [attr-defined]
 		TelegramBotCommandMessageText.objects.create(**kwargs, **message_text)
 
 		if command:
@@ -102,6 +104,7 @@ class TelegramBotCommand(models.Model):
 	def update(
 		self,
 		name: str,
+		settings: dict[str, Any],
 		message_text: dict[str, Any],
 		images: list[InMemoryUploadedFile] = [],
 		images_id: list[int] = [],
@@ -115,6 +118,17 @@ class TelegramBotCommand(models.Model):
 		self.name = name
 		self.save()
 
+		self.message_text.text = message_text['text']
+		self.message_text.save()
+
+		try:
+			self.settings.is_reply_to_user_message = settings['is_reply_to_user_message']
+			self.settings.is_delete_user_message = settings['is_delete_user_message']
+			self.settings.is_send_as_new_message = settings['is_send_as_new_message']
+			self.settings.save()
+		except TelegramBotCommandSettings.DoesNotExist:
+			TelegramBotCommandSettings.objects.create(telegram_bot_command=self, **settings)
+
 		if command:
 			try:
 				self.command.text = command['text']
@@ -127,9 +141,6 @@ class TelegramBotCommand(models.Model):
 				self.command.delete()
 			except TelegramBotCommandCommand.DoesNotExist:
 				pass
-
-		self.message_text.text = message_text['text']
-		self.message_text.save()
 
 		if keyboard:
 			try:
@@ -206,6 +217,15 @@ class TelegramBotCommand(models.Model):
 
 	def __str__(self) -> str:
 		return self.name
+
+class TelegramBotCommandSettings(models.Model):
+	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='settings')
+	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
+	is_delete_user_message = models.BooleanField(_('Удалить сообщение пользователя'), default=False)
+	is_send_as_new_message = models.BooleanField(_('Отправить сообщение как новое'), default=False)
+
+	class Meta:
+		db_table = 'telegram_bot_command_settings'
 
 class TelegramBotCommandCommand(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='command')
