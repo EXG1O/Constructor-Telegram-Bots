@@ -243,7 +243,7 @@ def upload_telegram_bot_command_file_path(instance: 'TelegramBotCommandFile', fi
 
 class TelegramBotCommandImage(models.Model):
 	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.CASCADE, related_name='images')
-	image = models.ImageField(_('Изображение'), upload_to=upload_telegram_bot_command_file_path)
+	image = models.ImageField(_('Изображение'), upload_to=upload_telegram_bot_command_image_path)
 
 	class Meta:
 		db_table = 'telegram_bot_command_image'

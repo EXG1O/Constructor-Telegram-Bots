@@ -56,6 +56,12 @@ class TelegramBotCommandImageSerializer(serializers.ModelSerializer):
 		model = TelegramBotCommandImage
 		fields = ('id', 'name', 'size', 'url')
 
+	def to_representation(self, instance: TelegramBotCommandImage) -> dict[str, Any]:
+		representation: dict[str, Any] = super().to_representation(instance)
+		representation['name'] = representation['name'].split('images/')[-1]
+
+		return representation
+
 class TelegramBotCommandFileSerializer(serializers.ModelSerializer):
 	name = serializers.CharField(source='file.name')
 	size = serializers.IntegerField(source='file.size')
@@ -64,6 +70,12 @@ class TelegramBotCommandFileSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotCommandFile
 		fields = ('id', 'name', 'size', 'url')
+
+	def to_representation(self, instance: TelegramBotCommandImage) -> dict[str, Any]:
+		representation: dict[str, Any] = super().to_representation(instance)
+		representation['name'] = representation['name'].split('files/')[-1]
+
+		return representation
 
 class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer):
 	class Meta:
