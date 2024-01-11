@@ -1,6 +1,9 @@
 from django.utils.translation import gettext as _
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.utils import timezone
+from django.template import defaultfilters as django_filters
+from django.db.models import QuerySet
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -37,6 +40,7 @@ from .serializers import (
 from .tasks import start_telegram_bot
 
 from typing import Any
+from datetime import datetime, timedelta
 import json
 
 
@@ -306,6 +310,37 @@ class TelegramBotUsersAPIView(APIView):
 				many=True,
 			).data
 		)
+
+class TelegramBotUsersForStatsAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def get(self, request: Request) -> Response:
+		telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
+
+		_type: str = request.query_params.get('type', 'unique')
+		try:
+			days = int(request.query_params.get('days', '1'))
+		except ValueError:
+			days = 1
+
+		current_date: datetime = timezone.now()
+		result: list[dict[str, Any]] = []
+
+		for day in range(days if days <= 31 else 31):
+			start_date: datetime = current_date - timedelta(day + 1)
+			end_date: datetime = current_date - timedelta(day)
+
+			telegram_bot_users: 'QuerySet[TelegramBotUser]' = telegram_bot.users.filter(
+				**{f"{'last_activity' if _type == 'regular' else 'activated'}_date__range": (start_date, end_date)}
+			)
+
+			result.append({
+				'count': telegram_bot_users.count(),
+				'date': django_filters.date(end_date),
+			})
+
+		return Response(result)
 
 class TelegramBotUserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
