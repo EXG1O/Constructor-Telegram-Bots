@@ -1,146 +1,132 @@
-from aiogram import BaseMiddleware as BaseMiddleware_
+from django.utils import timezone
+
+from aiogram import BaseMiddleware
 from aiogram.types import (
-	User as AiogramUser,
 	Update,
 	Message,
 	CallbackQuery,
+	User as AiogramUser,
 	ReplyKeyboardMarkup,
-	KeyboardButton,
 	InlineKeyboardMarkup,
+	KeyboardButton,
 	InlineKeyboardButton,
 )
-
-from django.core.exceptions import ObjectDoesNotExist
 
 from ...models import (
 	TelegramBot as DjangoTelegramBot,
 	TelegramBotCommand as DjangoTelegramBotCommand,
 	TelegramBotCommandCommand as DjangoTelegramBotCommandCommand,
-	TelegramBotCommandMessageText as DjangoTelegramBotCommandMessageText,
 	TelegramBotCommandKeyboard as DjangoTelegramBotCommandKeyboard,
 	TelegramBotCommandKeyboardButton as DjangoTelegramBotCommandKeyboardButton,
-	TelegramBotCommandApiRequest as DjangoTelegramBotCommandApiRequest,
 	TelegramBotUser as DjangoTelegramBotUser,
 )
-
 from ..typing import Handler
 
-from aiohttp import ClientSession
-from aiohttp.client_exceptions import InvalidURL, ContentTypeError
-
-from typing import Callable, Awaitable, Any
-import json
+from typing import Any, TypeVar, Generic, Callable, Awaitable
+from asgiref.sync import sync_to_async
 
 
-class BaseMiddleware(BaseMiddleware_):
+T = TypeVar('T')
+
+
+class CustomBaseMiddleware(BaseMiddleware):
 	def __init__(self, django_telegram_bot: DjangoTelegramBot) -> None:
 		self.django_telegram_bot = django_telegram_bot
 
-class CreateDjangoTelegramBotUserMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		event_from_user: AiogramUser = data['event_from_user']
+class CreateDjangoTelegramBotUserMiddleware(CustomBaseMiddleware):
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any: # type: ignore [override]
+		aiogram_user: AiogramUser | None = data.get('event_from_user')
 
-		data['django_telegram_bot_user'] = (await DjangoTelegramBotUser.objects.aget_or_create(
-			telegram_bot=self.django_telegram_bot,
-			user_id=event_from_user.id,
-			defaults={'full_name': event_from_user.full_name},
-		))[0]
+		if aiogram_user:
+			django_telegram_bot_user, created = await DjangoTelegramBotUser.objects.aget_or_create(
+				telegram_bot=self.django_telegram_bot,
+				telegram_id=aiogram_user.id,
+				defaults={'full_name': aiogram_user.full_name}
+			)
 
-		return await handler(event, data)
+			if not created:
+				django_telegram_bot_user.last_activity_date = timezone.now()
+				django_telegram_bot_user.save()
 
-class CheckDjangoTelegramBotUserIsAllowedMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		django_telegram_bot_user: DjangoTelegramBotUser = data['django_telegram_bot_user']
+			data['django_telegram_bot_user'] = django_telegram_bot_user
 
-		if not self.django_telegram_bot.is_private or self.django_telegram_bot.is_private and django_telegram_bot_user.is_allowed:
 			return await handler(event, data)
 
-class GenerateJinjaVariablesMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		event_from_user: AiogramUser = data['event_from_user']
+class CheckDjangoTelegramBotUserPermissionsMiddleware(CustomBaseMiddleware):
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any: # type: ignore [override]
+		django_telegram_bot_user: DjangoTelegramBotUser = data['django_telegram_bot_user']
 
-		if isinstance(event.event, Message):
-			user_message_id = event.event.message_id
-			user_message_text = event.event.text
-		elif isinstance(event.event, CallbackQuery):
-			user_message_id = event.event.message.message_id
-			user_message_text = event.event.message.text
-		else:
-			user_message_id = None
-			user_message_text = None
+		match (
+			self.django_telegram_bot.is_private,
+			django_telegram_bot_user.is_allowed,
+			django_telegram_bot_user.is_blocked,
+		):
+			case (True, True, False) | (False, _, False):
+				return await handler(event, data)
 
-		database_records = {}
+class SearchDjangoTelegramBotCommandMiddleware(CustomBaseMiddleware):
+	def __init__(self, *args, **kwargs) -> None:
+		super().__init__(*args, **kwargs)
 
-		for database_record in database_telegram_bot.get_records(self.django_telegram_bot):
-			database_records[database_record['_id']] = database_record
+		self.message_event = self.MessageEvent(self.django_telegram_bot)
+		self.callback_query_event = self.CallbackQueryEvent(self.django_telegram_bot)
 
-		data['jinja_variables'] = {
-			'user_id':event_from_user.id,
-			'user_username':event_from_user.username,
-			'user_first_name':event_from_user.first_name,
-			'user_last_name':event_from_user.last_name,
-			'user_message_id': user_message_id,
-			'user_message_text': user_message_text,
-			'database_records': database_records,
-		}
-
-		return await handler(event, data)
-
-class SearchDjangoTelegramBotCommandMiddleware(BaseMiddleware):
-	class Base:
+	class Base(Generic[T]):
 		def __init__(self, django_telegram_bot: DjangoTelegramBot) -> None:
 			self.django_telegram_bot = django_telegram_bot
-			self.event = None
-			self.data = None
+			self.event: T | None = None
+			self.data: dict[str, Any] | None = None
 
-	class MessageEvent(Base):
+	class MessageEvent(Base[Message]):
 		async def get_search_methods(self) -> list[Callable[[], Awaitable[DjangoTelegramBotCommand | None]]]:
 			return [self.search_via_command, self.search_via_keyboard]
 
 		async def search_via_command(self) -> DjangoTelegramBotCommand | None:
-			async for django_telegram_bot_command in self.django_telegram_bot.commands.all():
-				django_telegram_bot_command_command: DjangoTelegramBotCommandCommand | None = await django_telegram_bot_command.aget_command()
+			if self.event and self.event.text:
+				async for django_telegram_bot_command in self.django_telegram_bot.commands.all():
+					try:
+						django_telegram_bot_command_command: DjangoTelegramBotCommandCommand = await sync_to_async(lambda: django_telegram_bot_command.command)()
 
-				if django_telegram_bot_command_command:
-					django_telegram_bot_command_command_text: str = await areplace_text_variables_to_jinja_variables_values(
-						self.django_telegram_bot,
-						django_telegram_bot_command_command.text,
-						self.data['jinja_variables'],
-					)
+						if django_telegram_bot_command_command.text == self.event.text:
+							return django_telegram_bot_command
+					except DjangoTelegramBotCommandCommand.DoesNotExist:
+						pass
 
-					if django_telegram_bot_command_command_text == self.event.text:
-						return django_telegram_bot_command
+			return None
 
 		async def search_via_keyboard(self) -> DjangoTelegramBotCommand | None:
-			async for django_telegram_bot_command in self.django_telegram_bot.commands.all():
-				django_telegram_bot_command_keyboard: DjangoTelegramBotCommandKeyboard | None = await django_telegram_bot_command.aget_keyboard()
+			if self.event and self.event.text:
+				async for django_telegram_bot_command in self.django_telegram_bot.commands.all():
+					try:
+						django_telegram_bot_command_keyboard: DjangoTelegramBotCommandKeyboard = await sync_to_async(lambda: django_telegram_bot_command.keyboard)()
 
-				if django_telegram_bot_command_keyboard and  django_telegram_bot_command_keyboard.mode == 'default':
-					async for django_telegram_bot_command_keyboard_button in django_telegram_bot_command_keyboard.buttons.all():
-						if django_telegram_bot_command_keyboard_button.text == self.event.text:
-							return await django_telegram_bot_command_keyboard_button.aget_telegram_bot_command()
+						if django_telegram_bot_command_keyboard.type == 'default':
+							async for django_telegram_bot_command_keyboard_button in django_telegram_bot_command_keyboard.buttons.all():
+								if django_telegram_bot_command_keyboard_button.text == self.event.text:
+									return await sync_to_async(lambda: django_telegram_bot_command_keyboard_button.telegram_bot_command)()
+					except DjangoTelegramBotCommandKeyboard.DoesNotExist:
+						pass
 
-	class CallbackQueryEvent(Base):
+			return None
+
+	class CallbackQueryEvent(Base[CallbackQuery]):
 		async def get_search_methods(self) -> list[Callable[[], Awaitable[DjangoTelegramBotCommand | None]]]:
 			return [self.search_via_keyboard]
 
 		async def search_via_keyboard(self) -> DjangoTelegramBotCommand | None:
-			try:
-				django_telegram_bot_command_keyboard_button: DjangoTelegramBotCommandKeyboardButton = await DjangoTelegramBotCommandKeyboardButton.objects.aget(id=int(self.event.data))
+			if self.event and self.event.data:
+				try:
+					django_telegram_bot_command_keyboard_button: DjangoTelegramBotCommandKeyboardButton = await DjangoTelegramBotCommandKeyboardButton.objects.aget(id=int(self.event.data))
 
-				return await django_telegram_bot_command_keyboard_button.aget_telegram_bot_command()
-			except ObjectDoesNotExist:
-				return None
+					return await sync_to_async(lambda: django_telegram_bot_command_keyboard_button.telegram_bot_command)()
+				except DjangoTelegramBotCommandKeyboardButton.DoesNotExist:
+					pass
 
-	def __init__(self, *args, **kwargs) -> None:
-		super().__init__(*args, **kwargs)
+			return None
 
-		args = (self.django_telegram_bot,)
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any: # type: ignore [override]
+		search_methods: list[Callable[[], Awaitable[DjangoTelegramBotCommand | None]]] = []
 
-		self.message_event = self.MessageEvent(*args)
-		self.callback_query_event = self.CallbackQueryEvent(*args)
-
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
 		if isinstance(event.event, Message):
 			self.message_event.event = event.event
 			self.message_event.data = data
@@ -151,8 +137,6 @@ class SearchDjangoTelegramBotCommandMiddleware(BaseMiddleware):
 			self.callback_query_event.data = data
 
 			search_methods = await self.callback_query_event.get_search_methods()
-		else:
-			search_methods = []
 
 		for search_method in search_methods:
 			django_telegram_bot_command: DjangoTelegramBotCommand | None = await search_method()
@@ -162,111 +146,60 @@ class SearchDjangoTelegramBotCommandMiddleware(BaseMiddleware):
 
 				return await handler(event, data)
 
-class MakeDjangoTelegramBotCommandApiRequestMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		django_telegram_bot_command: DjangoTelegramBotCommand = data['django_telegram_bot_command']
-		django_telegram_bot_command_api_request: DjangoTelegramBotCommandApiRequest | None = await django_telegram_bot_command.aget_api_request()
+class GenerateMessageTextMiddleware(CustomBaseMiddleware):
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any: # type: ignore [override]
+		django_telegram_bot_command: DjangoTelegramBotCommand | None = data.get('django_telegram_bot_command')
 
-		if django_telegram_bot_command_api_request:
-			jinja_variables: dict[str, Any] = data['jinja_variables']
-
-			method: str = django_telegram_bot_command_api_request.method
-			url: str = await areplace_text_variables_to_jinja_variables_values(
-				self.django_telegram_bot,
-				django_telegram_bot_command_api_request.url,
-				jinja_variables,
-			)
-			headers = None
-			json_data = None
-
-			if django_telegram_bot_command_api_request.headers:
-				headers: dict = json.loads(await areplace_text_variables_to_jinja_variables_values(
-					self.django_telegram_bot,
-					django_telegram_bot_command_api_request.headers,
-					jinja_variables,
-				))
-
-			if django_telegram_bot_command_api_request.data:
-				json_data: dict = json.loads(await areplace_text_variables_to_jinja_variables_values(
-					self.django_telegram_bot,
-					django_telegram_bot_command_api_request.data,
-					jinja_variables,
-				))
-
+		if django_telegram_bot_command:
 			try:
-				async with ClientSession() as session:
-					async with session.request(method, url, headers=headers, json=json_data) as response:
-						data['jinja_variables']['api_response'] = await response.json()
-			except (InvalidURL, ContentTypeError):
+				data['message_text'] = await sync_to_async(lambda: django_telegram_bot_command.message_text.text)()
+
+				return await handler(event, data)
+			except DjangoTelegramBotCommand.DoesNotExist:
 				pass
 
-		return await handler(event, data)
+class GenerateKeyboardMiddleware(CustomBaseMiddleware):
+	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any: # type: ignore [override]
+		django_telegram_bot_command: DjangoTelegramBotCommand | None = data.get('django_telegram_bot_command')
 
-class InsertDjangoTelegramBotCommandDatabaseRecordToDatabaseMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		django_telegram_bot_command: DjangoTelegramBotCommand = data['django_telegram_bot_command']
-		jinja_variables: dict[str, Any]  = data['jinja_variables']
+		if django_telegram_bot_command:
+			try:
+				django_telegram_bot_command_keyboard: DjangoTelegramBotCommandKeyboard = await sync_to_async(lambda: django_telegram_bot_command.keyboard)()
 
-		if django_telegram_bot_command.database_record:
-			django_telegram_bot_command_database_record: dict = json.loads(await areplace_text_variables_to_jinja_variables_values(
-				self.django_telegram_bot,
-				django_telegram_bot_command.database_record,
-				jinja_variables,
-			))
+				if django_telegram_bot_command_keyboard:
+					keyboard: list[list[KeyboardButton | InlineKeyboardButton]] = [[] for _ in range(await django_telegram_bot_command_keyboard.buttons.acount())]
+					keyboard_row = 0
 
-			database_telegram_bot.insert_record(self.django_telegram_bot, django_telegram_bot_command_database_record)
+					async for django_telegram_bot_command_keyboard_button in django_telegram_bot_command_keyboard.buttons.all():
+						keyboard_row_buttons: list[KeyboardButton | InlineKeyboardButton] | None = None
 
-		return await handler(event, data)
+						if django_telegram_bot_command_keyboard_button.row:
+							try:
+								keyboard_row_buttons = keyboard[django_telegram_bot_command_keyboard_button.row - 1]
+							except IndexError:
+								pass
 
-class GetDjangoTelegramBotCommandMessageTextMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		django_telegram_bot_command: DjangoTelegramBotCommand = data['django_telegram_bot_command']
-		django_telegram_bot_command_message_text: DjangoTelegramBotCommandMessageText = await django_telegram_bot_command.aget_message_text()
-		jinja_variables: dict[str, Any]  = data['jinja_variables']
+						if keyboard_row_buttons is None:
+							keyboard_row_buttons = keyboard[keyboard_row]
 
-		message_text: str = await areplace_text_variables_to_jinja_variables_values(
-			self.django_telegram_bot,
-			django_telegram_bot_command_message_text.text,
-			jinja_variables,
-		)
+						if django_telegram_bot_command_keyboard.type == 'default':
+							keyboard_row_buttons.append(KeyboardButton(text=django_telegram_bot_command_keyboard_button.text))
+						else:
+							keyboard_row_buttons.append(
+								InlineKeyboardButton(
+									text=django_telegram_bot_command_keyboard_button.text,
+									url=django_telegram_bot_command_keyboard_button.url,
+									callback_data=str(django_telegram_bot_command_keyboard_button.id),
+								)
+							)
 
-		if message_text and len(message_text) <= 4096:
-			data['message_text'] = message_text
+						keyboard_row += 1
 
-			return await handler(event, data)
-
-class GetDjangoTelegramBotCommandKeyboardMiddleware(BaseMiddleware):
-	async def __call__(self, handler: Handler, event: Update, data: dict[str, Any]) -> Any:
-		django_telegram_bot_command: DjangoTelegramBotCommand = data['django_telegram_bot_command']
-		django_telegram_bot_command_keyboard: DjangoTelegramBotCommandKeyboard = await django_telegram_bot_command.aget_keyboard()
-		keyboard = None
-
-		if django_telegram_bot_command_keyboard:
-			keyboard = [[] for _ in range(await django_telegram_bot_command_keyboard.buttons.acount())]
-			keyboard_row = 0
-
-			async for django_telegram_bot_command_keyboard_button in django_telegram_bot_command_keyboard.buttons.all():
-				if django_telegram_bot_command_keyboard_button.row:
-					keyboard_row_buttons: list = keyboard[django_telegram_bot_command_keyboard_button.row - 1]
-				else:
-					keyboard_row_buttons: list = keyboard[keyboard_row]
-
-				if django_telegram_bot_command_keyboard.mode == 'default':
-					keyboard_row_buttons.append(KeyboardButton(text=django_telegram_bot_command_keyboard_button.text))
-				else:
-					keyboard_row_buttons.append(InlineKeyboardButton(
-						text=django_telegram_bot_command_keyboard_button.text,
-						url=django_telegram_bot_command_keyboard_button.url,
-						callback_data=str(django_telegram_bot_command_keyboard_button.id),
-					))
-
-				keyboard_row += 1
-
-			if django_telegram_bot_command_keyboard.mode == 'default':
-				keyboard = ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, one_time_keyboard=True)
-			else:
-				keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-		data['keyboard'] = keyboard
+					if django_telegram_bot_command_keyboard.type == 'default':
+						data['keyboard'] = ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, one_time_keyboard=True) # type: ignore [arg-type]
+					else:
+						data['keyboard'] = InlineKeyboardMarkup(inline_keyboard=keyboard) # type: ignore [arg-type]
+			except DjangoTelegramBotCommandKeyboard.DoesNotExist:
+				pass
 
 		return await handler(event, data)

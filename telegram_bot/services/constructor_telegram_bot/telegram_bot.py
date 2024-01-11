@@ -1,5 +1,6 @@
-from ..core import BaseTelegramBot
+from ..core import Bot
 
+from aiogram import Dispatcher
 from aiogram.types import Message, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
 
@@ -7,8 +8,16 @@ from user.models import User as DjangoUser
 
 from .middlewares import CreateDjangoUserMiddleware
 
+import asyncio
 
-class ConstructorTelegramBot(BaseTelegramBot):
+
+class ConstructorTelegramBot:
+	def __init__(self, api_token: str) -> None:
+		self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
+
+		self.bot = Bot(api_token, 'html')
+		self.dispatcher = Dispatcher()
+
 	async def start_command(self, message: Message) -> None:
 		await self.bot.send_message(chat_id=message.chat.id, text=(
 			f'Hello, {message.from_user.full_name}!\n' # type: ignore [union-attr]

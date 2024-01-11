@@ -337,6 +337,7 @@ class TelegramBotUser(models.Model):
 	full_name = models.CharField(_('Полное имя'), max_length=129, null=True)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
 	is_blocked = models.BooleanField(_('Заблокирован'), default=False)
+	last_activity_date = models.DateTimeField(_('Дата последней активности'), auto_now_add=True)
 	activated_date = models.DateTimeField(_('Дата активации'), auto_now_add=True)
 
 	class Meta:

@@ -14,7 +14,10 @@ class CreateDjangoUserMiddleware(BaseMiddleware):
 
 		await DjangoUser.objects.aget_or_create(
 			telegram_id=event_from_user.id,
-			defaults={'first_name': event_from_user.first_name},
+			defaults={
+				'first_name': event_from_user.first_name,
+				'last_name': event_from_user.last_name,
+			},
 		)
 
 		return await handler(event, data)
