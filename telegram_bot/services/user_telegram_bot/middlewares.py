@@ -44,7 +44,7 @@ class CreateDjangoTelegramBotUserMiddleware(CustomBaseMiddleware):
 				defaults={'full_name': aiogram_user.full_name}
 			)
 
-			if not created:
+			if not created or django_telegram_bot_user.last_activity_date is None:
 				django_telegram_bot_user.last_activity_date = timezone.now()
 				django_telegram_bot_user.save()
 
