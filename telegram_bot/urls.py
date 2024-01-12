@@ -8,7 +8,6 @@ from .views import (
 	TelegramBotCommandsDiagramAPIView,
 	TelegramBotCommandDiagramAPIView,
 	TelegramBotUsersAPIView,
-	TelegramBotUsersForStatsAPIView,
 	TelegramBotUserAPIView,
 )
 
@@ -27,7 +26,6 @@ urlpatterns = [
 		])),
 
 		path('users/', TelegramBotUsersAPIView.as_view()),
-		path('users/stats/', TelegramBotUsersForStatsAPIView.as_view()),
 		path('users/<int:telegram_bot_user_id>/', TelegramBotUserAPIView.as_view()),
 	])),
 ]

@@ -308,44 +308,6 @@ class TelegramBotUsersAPIView(APIView):
 			).data
 		)
 
-class TelegramBotUsersForStatsAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-
-	def get(self, request: Request) -> Response:
-		telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
-
-		_type: str = request.query_params.get('type', 'regular')
-		try:
-			days_interval = int(request.query_params.get('days_interval', '1'))
-			days_interval = days_interval if days_interval <= 31 else 31
-		except ValueError:
-			days_interval = 1
-
-		current_date: datetime = timezone.now()
-		data: dict[str, Any] = {
-			'type': _type,
-			'days_interval': days_interval,
-			'results': [],
-		}
-
-		for num in range(days_interval):
-			date_interval: tuple[datetime, datetime] = (
-				current_date - timedelta(num + 1),
-				current_date - timedelta(num),
-			)
-
-			telegram_bot_users: 'QuerySet[TelegramBotUser]' = telegram_bot.users.filter(
-				**{f"{'last_activity' if _type == 'regular' else 'activated'}_date__range": date_interval}
-			)
-
-			data['results'].append({
-				'count': telegram_bot_users.count(),
-				'date': django_filters.date(date_interval[1]),
-			})
-
-		return Response(data)
-
 class TelegramBotUserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & TelegramBotUserIsFound]
