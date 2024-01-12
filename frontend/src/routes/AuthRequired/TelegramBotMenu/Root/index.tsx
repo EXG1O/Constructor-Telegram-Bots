@@ -19,7 +19,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 		return redirect('/personal-cabinet/');
 	}
 
-	const response = await TelegramBotAPI.get(parseInt(telegramBotID!));
+	const response = await TelegramBotAPI.get(parseInt(telegramBotID));
 
 	if (!response.ok) {
 		throw json(response.json, { status: response.status });

@@ -116,11 +116,15 @@ const router = createBrowserRouter([
 						shouldRevalidate: () => true,
 						children: [
 							{
+								id: 'telegram-bot-menu-index',
 								index: true,
 								async lazy() {
 									const module = await import('./routes/AuthRequired/TelegramBotMenu/Index');
 
-									return { Component: module.default };
+									return {
+										Component: module.default,
+										loader: module.loader,
+									};
 								},
 							},
 							{

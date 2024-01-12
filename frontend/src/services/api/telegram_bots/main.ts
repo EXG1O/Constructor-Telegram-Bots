@@ -1,5 +1,13 @@
 import { makeRequest } from 'services/api/base';
-import { TelegramBot, TelegramBotCommand, TelegramBotCommandDiagram, TelegramBotUser, Data, APIResponse } from './types';
+import {
+	TelegramBot,
+	TelegramBotCommand,
+	TelegramBotCommandDiagram,
+	TelegramBotUser,
+	TelegramBotUsersStats,
+	Data,
+	APIResponse,
+} from './types';
 
 const rootURL = '/api/telegram-bots/';
 
@@ -121,6 +129,16 @@ export namespace TelegramBotUsersAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'users/';
 
 	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotUser[]>(url(telegramBotID), 'GET');
+}
+
+export namespace TelegramBotUsersStatsAPI {
+	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotUsersAPI.url(telegramBotID) + 'stats/';
+
+	export const get = (
+		telegramBotID: TelegramBot['id'],
+		type?: 'regular' | 'unique',
+		daysInterval?: number,
+	) => makeRequest<TelegramBotUsersStats>(url(telegramBotID) + `?type=${type}&days_interval=${daysInterval}`, 'GET');
 }
 
 export namespace TelegramBotUserAPI {

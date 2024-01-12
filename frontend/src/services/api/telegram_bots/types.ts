@@ -96,6 +96,17 @@ export interface TelegramBotUser {
 	activated_date: string;
 }
 
+export interface TelegramBotUsersStatsResult {
+	count: number;
+	date: string;
+}
+
+export interface TelegramBotUsersStats {
+	type: 'regular' | 'unique';
+	days_interval: number;
+	results: TelegramBotUsersStatsResult[];
+}
+
 export namespace Data {
 	export namespace TelegramBotAPI {
 		export interface Create {

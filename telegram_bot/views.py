@@ -318,29 +318,36 @@ class TelegramBotUsersForStatsAPIView(APIView):
 	def get(self, request: Request) -> Response:
 		telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
 
-		_type: str = request.query_params.get('type', 'unique')
+		_type: str = request.query_params.get('type', 'regular')
 		try:
-			days = int(request.query_params.get('days', '1'))
+			days_interval = int(request.query_params.get('days_interval', '1'))
+			days_interval = days_interval if days_interval <= 31 else 31
 		except ValueError:
-			days = 1
+			days_interval = 1
 
 		current_date: datetime = timezone.now()
-		result: list[dict[str, Any]] = []
+		data: dict[str, Any] = {
+			'type': _type,
+			'days_interval': days_interval,
+			'results': [],
+		}
 
-		for day in range(days if days <= 31 else 31):
-			start_date: datetime = current_date - timedelta(day + 1)
-			end_date: datetime = current_date - timedelta(day)
-
-			telegram_bot_users: 'QuerySet[TelegramBotUser]' = telegram_bot.users.filter(
-				**{f"{'last_activity' if _type == 'regular' else 'activated'}_date__range": (start_date, end_date)}
+		for num in range(days_interval):
+			date_interval: tuple[datetime, datetime] = (
+				current_date - timedelta(num + 1),
+				current_date - timedelta(num),
 			)
 
-			result.append({
+			telegram_bot_users: 'QuerySet[TelegramBotUser]' = telegram_bot.users.filter(
+				**{f"{'last_activity' if _type == 'regular' else 'activated'}_date__range": date_interval}
+			)
+
+			data['results'].append({
 				'count': telegram_bot_users.count(),
-				'date': django_filters.date(end_date),
+				'date': django_filters.date(date_interval[1]),
 			})
 
-		return Response(result)
+		return Response(data)
 
 class TelegramBotUserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
