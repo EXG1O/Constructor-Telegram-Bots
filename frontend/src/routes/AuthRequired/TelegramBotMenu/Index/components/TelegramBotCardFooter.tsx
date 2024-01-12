@@ -30,7 +30,7 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 	async function handleConfirmDeleteTelegramBotButtonClick(): Promise<void> {
 		setShowDeleteTelegramBotModal(false);
 
-		const response = await TelegramBotAPI.delete_(telegramBot.id);
+		const response = await TelegramBotAPI._delete(telegramBot.id);
 
 		if (response.ok) {
 			navigate('/personal-cabinet/');

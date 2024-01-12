@@ -10,7 +10,6 @@ from utils.other import generate_random_string
 from .utils import get_user_info
 
 from typing import Any
-from asgiref.sync import sync_to_async
 import string
 
 
@@ -40,23 +39,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 		verbose_name = _('Пользователя')
 		verbose_name_plural = _('Пользователи')
 
-	def generate_confirm_code(self) -> None:
-		self.confirm_code = generate_random_string(length=25, chars=string.ascii_letters + string.digits)
-		self.save()
-
-	def generate_login_url(self) -> str:
-		if not self.confirm_code:
-			self.generate_confirm_code()
-
-		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/'
-
 	@property
 	def login_url(self) -> str:
-		return self.generate_login_url()
+		if not self.confirm_code:
+			self.confirm_code = generate_random_string(length=25, chars=string.ascii_letters + string.digits)
+			self.save()
 
-	@property
-	async def alogin_url(self) -> str:
-		return await sync_to_async(self.generate_login_url)()
+		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/'
 
 	def update_first_name(self) -> None:
 		user_info: Chat | None = get_user_info(self.telegram_id)

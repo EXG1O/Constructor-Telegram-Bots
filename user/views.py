@@ -16,13 +16,6 @@ from .serializers import UserSerializer, AuthTokenSerializer
 from typing import Any
 
 
-class UsersAPIView(APIView):
-	authentication_classes = []
-	permission_classes = []
-
-	def get(self, request: Request) -> Response:
-		return Response({'count': User.objects.count()})
-
 class UserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
@@ -77,7 +70,7 @@ class UserLogoutAPIView(APIView):
 	def post(self, request: Request) -> CustomResponse:
 		try:
 			request.user.auth_token.delete() # type: ignore [arg-type, union-attr]
-		except User.DoesNotExist:
+		except Token.DoesNotExist:
 			pass
 
 		logout(request)

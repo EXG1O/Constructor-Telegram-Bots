@@ -24,7 +24,7 @@ export namespace TelegramBotAPI {
 		telegramBotID: TelegramBot['id'],
 		data: Data.TelegramBotAPI.Update,
 	) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PATCH', undefined, data);
-	export const delete_ = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE');
+	export const _delete = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE');
 
 	export const start = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=start', 'POST');
 	export const stop = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=stop', 'POST');;
@@ -89,7 +89,7 @@ export namespace TelegramBotCommandAPI {
 
 		return makeRequest(TelegramBotCommandAPI.url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, formData);
 	};
-	export const delete_ = (
+	export const _delete = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotCommandID: TelegramBotCommand['id'],
 	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'DELETE');
@@ -151,39 +151,12 @@ export namespace TelegramBotUserAPI {
 		telegramBotID: TelegramBot['id'],
 		telegramBotUserID: TelegramBotUser['id'],
 	) => makeRequest<TelegramBotUser>(url(telegramBotID, telegramBotUserID), 'GET');
-	export const delete_ = (
+	export const post = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotUserID: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotID, telegramBotUserID), 'DELETE');
-}
-
-export namespace TelegramBotAllowedUserAPI {
-	export const url = (
-		telegramBotID: TelegramBot['id'],
-		telegramBotUserID: TelegramBotUser['id'],
-	) => `${TelegramBotUserAPI.url(telegramBotID, telegramBotUserID)}allowed/`;
-
-	export const set = (
-		telegramBotID: TelegramBot['id'],
-		telegramBotUserID: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotID, telegramBotUserID), 'POST');
-	export const unset = (
-		telegramBotID: TelegramBot['id'],
-		telegramBotUserID: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotID, telegramBotUserID), 'DELETE');
-}
-
-export namespace TelegramBotBlockedUserAPI {
-	export const url = (
-		telegramBotID: TelegramBot['id'],
-		telegramBotUserID: TelegramBotUser['id'],
-	) => `${TelegramBotUserAPI.url(telegramBotID, telegramBotUserID)}blocked/`;
-
-	export const set = (
-		telegramBotID: TelegramBot['id'],
-		telegramBotUserID: TelegramBotUser['id'],
-	) => makeRequest(url(telegramBotID, telegramBotUserID), 'POST');
-	export const unset = (
+		action: 'allow' | 'unallow' | 'block' | 'unblock',
+	) => makeRequest(url(telegramBotID, telegramBotUserID) + `?action=${action}`, 'POST');
+	export const _delete = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotUserID: TelegramBotUser['id'],
 	) => makeRequest(url(telegramBotID, telegramBotUserID), 'DELETE');

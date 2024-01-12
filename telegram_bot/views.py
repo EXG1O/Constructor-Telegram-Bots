@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, pgettext
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils import timezone
@@ -76,7 +76,7 @@ class TelegramBotAPIView(APIView):
 
 		return Response(TelegramBotSerializer(telegram_bot).data)
 
-	def post(self, request: Request) -> Response:
+	def post(self, request: Request) -> CustomResponse:
 		if not settings.TEST:
 			telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
 			action: str | None = request.query_params.get('action')
@@ -85,6 +85,8 @@ class TelegramBotAPIView(APIView):
 				start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
 			elif action == 'stop':
 				telegram_bot.stop()
+			else:
+				return CustomResponse(_('Не удалось найти и выполнить указанное действие в параметрах запроса!'), status=400)
 
 		return CustomResponse()
 
@@ -112,12 +114,14 @@ class TelegramBotAPIView(APIView):
 			telegram_bot.is_private = is_private
 			telegram_bot.save()
 
-			return CustomResponse(
-				_('Вы успешно сделали Telegram бота%(status)s приватным.') % {'status': ('' if is_private else ' не')},
-				data={'telegram_bot': TelegramBotSerializer(telegram_bot).data},
-			)
+			if is_private:
+				success_message = _('Вы успешно сделали Telegram бота приватным.')
+			else:
+				success_message = _('Вы успешно сделали Telegram бота не приватным.')
+
+			return CustomResponse(success_message, data={'telegram_bot': TelegramBotSerializer(telegram_bot).data})
 		else:
-			return CustomResponse(_('На стороне сайта произошла непредвиденная ошибка, попробуйте ещё раз позже!'), status=500)
+			return CustomResponse(status=400)
 
 	def delete(self, request: Request) -> CustomResponse:
 		telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
@@ -140,18 +144,19 @@ class TelegramBotCommandsAPIView(APIView):
 		)
 
 	def post(self, request: Request) -> CustomResponse:
-		images: list[InMemoryUploadedFile] = []
-		files: list[InMemoryUploadedFile] = []
+		sorted_files: dict[str, list[InMemoryUploadedFile]] = {
+			'images': [],
+			'files': [],
+		}
 
-		for key in request.FILES:
-			if key.split(':')[0] == 'image':
-				images.append(request.FILES[key])
-			elif key.split(':')[0] == 'file':
-				files.append(request.FILES[key])
+		for key, file in request.FILES.items():
+			_type: str = key.split(':')[0] + 's'
+
+			if _type in sorted_files:
+				sorted_files[_type].append(file)
 
 		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
-		data['images'] = images
-		data['files'] = files
+		data.update(sorted_files)
 
 		serializer = CreateTelegramBotCommandSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
@@ -172,38 +177,32 @@ class TelegramBotCommandAPIView(APIView):
 		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
 
 	def patch(self, request: Request) -> CustomResponse:
-		images: list[InMemoryUploadedFile] = []
-		images_id: list[int] = []
+		sorted_files: dict[str, list[InMemoryUploadedFile | int]] = {
+			'images': [],
+			'images_id': [],
+			'files': [],
+			'files_id': [],
+		}
 
-		files: list[InMemoryUploadedFile] = []
-		files_id: list[int] = []
+		for key, value in request.data.items():
+			name: str = key.split(':')[0] + 's'
 
-		for key in request.data:
-			if key.split(':')[0] == 'image':
-				image: InMemoryUploadedFile | str = request.data[key]
-
-				if isinstance(image, InMemoryUploadedFile):
-					images.append(image)
-				elif image.isdigit():
-					images_id.append(int(image))
-			elif key.split(':')[0] == 'file':
-				file: InMemoryUploadedFile | str = request.data[key]
-
-				if isinstance(file, InMemoryUploadedFile):
-					files.append(file)
-				elif file.isdigit():
-					files_id.append(int(file))
+			if name in sorted_files:
+				if isinstance(value, InMemoryUploadedFile):
+					sorted_files[name].append(value)
+				elif isinstance(value, str) and value.isdigit():
+					sorted_files[name + '_id'].append(int(value))
 
 		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
-		data['images'] = images
-		data['files'] = files
+		data['images'] = sorted_files['images']
+		data['files'] = sorted_files['files']
 
 		serializer = UpdateTelegramBotCommandSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
 
 		validated_data: dict[str, Any] = serializer.validated_data
-		validated_data['images_id'] = images_id
-		validated_data['files_id'] = files_id
+		validated_data['images_id'] = sorted_files['images_id']
+		validated_data['files_id'] = sorted_files['files_id']
 
 		telegram_bot_command: TelegramBotCommand = getattr(request, 'telegram_bot_command')
 		telegram_bot_command.update(**validated_data)
@@ -248,15 +247,13 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		serializer.is_valid(raise_exception=True)
 
 		validated_data: dict[str, Any] = serializer.validated_data
-		telegram_bot_command_keyboard_button_id: int = validated_data['telegram_bot_command_keyboard_button_id']
-		telegram_bot_command_id: int = validated_data['telegram_bot_command_id']
-		start_diagram_connector: str = validated_data['start_diagram_connector']
-		end_diagram_connector: str = validated_data['end_diagram_connector']
 
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id)
-		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot.commands.get(id=telegram_bot_command_id)
-		telegram_bot_command_keyboard_button.start_diagram_connector = start_diagram_connector
-		telegram_bot_command_keyboard_button.end_diagram_connector = end_diagram_connector
+		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(
+			id=validated_data['telegram_bot_command_keyboard_button_id']
+		)
+		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
+		telegram_bot_command_keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
+		telegram_bot_command_keyboard_button.end_diagram_connector = validated_data['end_diagram_connector']
 		telegram_bot_command_keyboard_button.save()
 
 		return CustomResponse(_('Вы успешно подключили кнопку клавиатуры к другой команде'))
@@ -268,11 +265,9 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		telegram_bot_command: TelegramBotCommand = getattr(request, 'telegram_bot_command')
 
 		validated_data: dict[str, Any] = serializer.validated_data
-		x: int = validated_data['x']
-		y: int = validated_data['y']
 
-		telegram_bot_command.x = x
-		telegram_bot_command.y = y
+		telegram_bot_command.x = validated_data['x']
+		telegram_bot_command.y = validated_data['y']
 		telegram_bot_command.save()
 
 		return CustomResponse()
@@ -289,7 +284,9 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		validated_data: dict[str, Any] = serializer.validated_data
 		telegram_bot_command_keyboard_button_id: int = validated_data['telegram_bot_command_keyboard_button_id']
 
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id)
+		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(
+			id=telegram_bot_command_keyboard_button_id
+		)
 		telegram_bot_command_keyboard_button.telegram_bot_command = None
 		telegram_bot_command_keyboard_button.start_diagram_connector = None
 		telegram_bot_command_keyboard_button.end_diagram_connector = None
@@ -358,44 +355,36 @@ class TelegramBotUserAPIView(APIView):
 
 		return Response(TelegramBotUserSerializer(telegram_bot_user).data)
 
+	def post(self, request: Request) -> Response:
+		action: str | None = request.query_params.get('action')
+
+		if action in ['allow', 'unallow', 'block', 'unblock']:
+			telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
+
+			if action == 'allow':
+				telegram_bot_user.is_allowed = True
+			elif action == 'unallow':
+				telegram_bot_user.is_allowed = False
+			elif action == 'block':
+				telegram_bot_user.is_blocked = True
+			elif action == 'unblock':
+				telegram_bot_user.is_blocked = False
+
+			telegram_bot_user.save()
+
+			success_messages = {
+				'allow': _('Вы успешно добавили пользователя в список разрешённых пользователей Telegram бота.'),
+				'unallow': _('Вы успешно удалили пользователя из списка разрешённых пользователей Telegram бота.'),
+				'block': _('Вы успешно добавили пользователя в список заблокированных пользователей Telegram бота.'),
+				'unblock': _('Вы успешно удалили пользователя из списка заблокированных пользователей Telegram бота.'),
+			}
+
+			return CustomResponse(success_messages[action], status=400)
+		else:
+			return CustomResponse(_('Не удалось найти и выполнить указанное действие в параметрах запроса!'), status=400)
+
 	def delete(self, request: Request) -> CustomResponse:
 		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
 		telegram_bot_user.delete()
 
 		return CustomResponse(_('Вы успешно удалили пользователя Telegram бота.'))
-
-class TelegramBotAllowedUserAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotUserIsFound]
-
-	def post(self, request: Request) -> CustomResponse:
-		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
-		telegram_bot_user.is_allowed = True
-		telegram_bot_user.save()
-
-		return CustomResponse(_('Вы успешно добавили пользователя в список разрешённых пользователей Telegram бота.'))
-
-	def delete(self, request: Request) -> CustomResponse:
-		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
-		telegram_bot_user.is_allowed = False
-		telegram_bot_user.save()
-
-		return CustomResponse(_('Вы успешно удалили пользователя из списка разрешённых пользователей Telegram бота.'))
-
-class TelegramBotBlockedUserAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotUserIsFound]
-
-	def post(self, request: Request) -> CustomResponse:
-		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
-		telegram_bot_user.is_blocked = True
-		telegram_bot_user.save()
-
-		return CustomResponse(_('Вы успешно добавили пользователя в список заблокированных пользователей Telegram бота.'))
-
-	def delete(self, request: Request) -> CustomResponse:
-		telegram_bot_user: TelegramBotUser = getattr(request, 'telegram_bot_user')
-		telegram_bot_user.is_blocked = False
-		telegram_bot_user.save()
-
-		return CustomResponse(_('Вы успешно удалили пользователя из списка заблокированных пользователей Telegram бота.'))

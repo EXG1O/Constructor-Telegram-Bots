@@ -35,7 +35,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 	const [commandOffcanvasInitialData, setCommandOffcanvasInitialData] = useState<CommandOffcanvasData | undefined>(undefined);
 
 	const handleConfirmDeleteButtonClick = useCallback(async (): Promise<void> => {
-		const response = await TelegramBotCommandAPI.delete_(telegramBot.id, data.id);
+		const response = await TelegramBotCommandAPI._delete(telegramBot.id, data.id);
 
 		if (response.ok) {
 			setNodes(prevNodes => prevNodes.filter(node => node.id !== id));

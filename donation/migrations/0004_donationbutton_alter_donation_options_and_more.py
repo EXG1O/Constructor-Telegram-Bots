@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('text_uk', models.CharField(max_length=255, null=True, verbose_name='Текст')),
                 ('text_ru', models.CharField(max_length=255, null=True, verbose_name='Текст')),
                 ('url', models.URLField(verbose_name='Ссылка')),
-                ('position', models.IntegerField(blank=True, default=donation.models.DonationButton.position_default, verbose_name='Позиция')),
+                ('position', models.IntegerField(blank=True, verbose_name='Позиция')),
             ],
             options={
                 'verbose_name': 'Кнопку',
@@ -36,6 +36,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='donationsection',
             name='position',
-            field=models.IntegerField(blank=True, default=donation.models.DonationSection.position_default, verbose_name='Позиция'),
+            field=models.IntegerField(blank=True, verbose_name='Позиция'),
         ),
     ]

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='instructionsection',
             name='position',
-            field=models.IntegerField(blank=True, default=instruction.models.InstructionSection.position_default, verbose_name='Позиция'),
+            field=models.IntegerField(blank=True, verbose_name='Позиция'),
         ),
     ]

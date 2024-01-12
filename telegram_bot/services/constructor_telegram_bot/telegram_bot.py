@@ -8,6 +8,7 @@ from user.models import User as DjangoUser
 
 from .middlewares import CreateDjangoUserMiddleware
 
+from asgiref.sync import sync_to_async
 import asyncio
 
 
@@ -19,7 +20,7 @@ class ConstructorTelegramBot:
 		self.dispatcher = Dispatcher()
 
 	async def start_command(self, message: Message) -> None:
-		await self.bot.send_message(chat_id=message.chat.id, text=(
+		await message.reply((
 			f'Hello, {message.from_user.full_name}!\n' # type: ignore [union-attr]
 			'I am a Telegram bot for Constructor Telegram Bots site.\n'
 			'Thank you for being with us ❤️'
@@ -33,12 +34,12 @@ class ConstructorTelegramBot:
 
 	async def login_command(self, message: Message) -> None:
 		django_user: DjangoUser = await DjangoUser.objects.aget(telegram_id=message.from_user.id) # type: ignore [union-attr]
-		django_user_login_url: str = await django_user.alogin_url
 
-		await self.bot.send_message(
-			chat_id=message.chat.id,
-			text='Click on the button below to login on the site.',
-			reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Login', url=django_user_login_url)]]),
+		await message.reply(
+			'Click on the button below to login on the site.',
+			reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
+				InlineKeyboardButton(text='Login', url=await sync_to_async(lambda: django_user.login_url)()),
+			]])
 		)
 
 	async def setup(self) -> None:

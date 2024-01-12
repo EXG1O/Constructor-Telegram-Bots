@@ -17,16 +17,16 @@ class Donation(models.Model):
 	def __str__(self) -> str:
 		return self.telegram_url
 
-class DonationSection(models.Model): # type: ignore [django-manager-missing]
-	def position_default() -> int: # type: ignore [misc]
-		try:
-			return DonationSection.objects.last().position + 1 # type: ignore [operator, union-attr]
-		except AttributeError:
-			return 1
+def donation_section_position_default() -> int:
+	try:
+		return DonationSection.objects.last().position + 1 # type: ignore [operator, union-attr]
+	except AttributeError:
+		return 1
 
+class DonationSection(models.Model): # type: ignore [django-manager-missing]
 	title = models.CharField(_('Заголовок'), max_length=255)
 	text = models.TextField(_('Текст'))
-	position = models.IntegerField(_('Позиция'), blank=True, default=position_default)
+	position = models.IntegerField(_('Позиция'), blank=True, default=donation_section_position_default)
 
 	class Meta:
 		db_table = 'donation_section'
@@ -38,16 +38,16 @@ class DonationSection(models.Model): # type: ignore [django-manager-missing]
 	def __str__(self) -> str:
 		return self.title
 
-class DonationButton(models.Model): # type: ignore [django-manager-missing]
-	def position_default() -> int: # type: ignore [misc]
-		try:
-			return DonationButton.objects.last().position + 1 # type: ignore [operator, union-attr]
-		except AttributeError:
-			return 1
+def donation_button_position_default() -> int:
+	try:
+		return DonationButton.objects.last().position + 1 # type: ignore [operator, union-attr]
+	except AttributeError:
+		return 1
 
+class DonationButton(models.Model): # type: ignore [django-manager-missing]
 	text = models.CharField(_('Текст'), max_length=255)
 	url = models.URLField(_('Ссылка'))
-	position = models.IntegerField(_('Позиция'), blank=True, default=position_default)
+	position = models.IntegerField(_('Позиция'), blank=True, default=donation_button_position_default)
 
 	class Meta:
 		db_table = 'donation_button'

@@ -9,7 +9,7 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotUserAPI, TelegramBotAllowedUserAPI } from 'services/api/telegram_bots/main';
+import { TelegramBotUserAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotUser as TelegramBotUserType } from 'services/api/telegram_bots/types';
 
 export interface TelegramBotUserProps {
@@ -25,7 +25,7 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 	const [showDeleteTelegramBotUserModal, setShowDeleteTelegramBotUserModal] = useState<boolean>(false);
 
 	async function handleSetOrUnsetAllowedButtonClick(): Promise<void> {
-		const response = await TelegramBotAllowedUserAPI[telegramBotUser.is_allowed ? 'unset' : 'set'](telegramBot.id, telegramBotUser.id);
+		const response = await TelegramBotUserAPI.post(telegramBot.id, telegramBotUser.id, telegramBotUser.is_allowed ? 'unallow' : 'allow');
 
 		if (response.ok) {
 			updateTelegramBotUsers();
@@ -35,7 +35,7 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 	}
 
 	async function handleDeleteButtonClick(): Promise<void> {
-		const response = await TelegramBotUserAPI.delete_(telegramBot.id, telegramBotUser.id);
+		const response = await TelegramBotUserAPI._delete(telegramBot.id, telegramBotUser.id);
 
 		if (response.ok) {
 			updateTelegramBotUsers();
