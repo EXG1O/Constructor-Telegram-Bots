@@ -131,16 +131,6 @@ export namespace TelegramBotUsersAPI {
 	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotUser[]>(url(telegramBotID), 'GET');
 }
 
-export namespace TelegramBotUsersStatsAPI {
-	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotUsersAPI.url(telegramBotID) + 'stats/';
-
-	export const get = (
-		telegramBotID: TelegramBot['id'],
-		type?: 'regular' | 'unique',
-		daysInterval?: number,
-	) => makeRequest<TelegramBotUsersStats>(url(telegramBotID) + `?type=${type}&days_interval=${daysInterval}`, 'GET');
-}
-
 export namespace TelegramBotUserAPI {
 	export const url = (
 		telegramBotID: TelegramBot['id'],
