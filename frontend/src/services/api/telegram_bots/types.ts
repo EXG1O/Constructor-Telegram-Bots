@@ -87,6 +87,16 @@ export interface TelegramBotCommandDiagram extends Pick<TelegramBotCommand, 'id'
 	y: number;
 }
 
+export interface TelegramBotVariable {
+	id: number;
+	name: string;
+	description: string;
+}
+
+export interface TelegramBotVariableDetail extends TelegramBotVariable {
+	value: string;
+}
+
 export interface TelegramBotUser {
 	id: number;
 	telegram_id: number;
@@ -94,17 +104,6 @@ export interface TelegramBotUser {
 	is_allowed: boolean;
 	is_blocked: boolean;
 	activated_date: string;
-}
-
-export interface TelegramBotUsersStatsResult {
-	count: number;
-	date: string;
-}
-
-export interface TelegramBotUsersStats {
-	type: 'regular' | 'unique';
-	days_interval: number;
-	results: TelegramBotUsersStatsResult[];
 }
 
 export namespace Data {
@@ -176,12 +175,28 @@ export namespace Data {
 			y: number;
 		}
 	}
+
+	export namespace TelegramBotVariableAPI {
+		export type Create = Omit<TelegramBotVariableDetail, 'id'>;
+		export type Update = Create;
+	}
 }
 
 export namespace APIResponse {
 	export namespace TelegramBotAPI {
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot: TelegramBot;
+		}
+		export type Update = Create;
+	}
+
+	export namespace TelegramBotVariablesAPI {
+		export type Get = Omit<TelegramBotVariable, 'value'>[];
+	}
+
+	export namespace TelegramBotVariableAPI {
+		export interface Create extends BaseApiResponse.Success {
+			telegram_bot_variable: TelegramBotVariable;
 		}
 		export type Update = Create;
 	}

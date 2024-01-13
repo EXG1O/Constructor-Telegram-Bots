@@ -47,6 +47,12 @@ function MessageText({ initialValue, onChange, ...props }: MessageTextProps): Re
 								margin: 6px 12px;
 							}
 
+							body[data-mce-placeholder]:not(.mce-visualblocks)::before {
+								color: rgba(34, 47, 62, 0.7);
+								content: attr(data-mce-placeholder);
+								position: absolute;
+							}
+
 							p {
 								margin: 0px;
 							}

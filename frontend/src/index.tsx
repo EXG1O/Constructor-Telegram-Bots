@@ -121,18 +121,19 @@ const router = createBrowserRouter([
 								async lazy() {
 									const module = await import('./routes/AuthRequired/TelegramBotMenu/Index');
 
-									return {
-										Component: module.default,
-										loader: module.loader,
-									};
+									return { Component: module.default };
 								},
 							},
 							{
+								id: 'telegram-bot-menu-variables',
 								path: 'variables/',
 								async lazy() {
 									const module = await import('./routes/AuthRequired/TelegramBotMenu/Variables');
 
-									return { Component: module.default };
+									return {
+										Component: module.default,
+										loader: module.loader,
+									}
 								},
 							},
 							{

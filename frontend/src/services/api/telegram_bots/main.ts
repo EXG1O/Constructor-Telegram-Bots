@@ -3,8 +3,8 @@ import {
 	TelegramBot,
 	TelegramBotCommand,
 	TelegramBotCommandDiagram,
+	TelegramBotVariable,
 	TelegramBotUser,
-	TelegramBotUsersStats,
 	Data,
 	APIResponse,
 } from './types';
@@ -123,6 +123,37 @@ export namespace TelegramBotCommandDiagramAPI {
 		telegramBotCommandID: TelegramBotCommand['id'],
 		data: Data.TelegramBotCommandDiagramAPI.UpdatePosition,
 	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, data);
+}
+
+export namespace TelegramBotVariablesAPI {
+	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'variables/';
+
+	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<APIResponse.TelegramBotVariablesAPI.Get>(url(telegramBotID), 'GET');
+}
+
+export namespace TelegramBotVariableAPI {
+	export const url = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotVariableID: TelegramBotVariable['id'],
+	) => TelegramBotVariablesAPI.url(telegramBotID) + `${telegramBotVariableID}/`;
+
+	export const get = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotVariableID: TelegramBotVariable['id'],
+	) => makeRequest<TelegramBotVariable>(url(telegramBotID, telegramBotVariableID), 'GET');
+	export const create = (
+		telegramBotID: TelegramBot['id'],
+		data: Data.TelegramBotVariableAPI.Create,
+	) => makeRequest<APIResponse.TelegramBotVariableAPI.Create>(TelegramBotVariablesAPI.url(telegramBotID), 'POST', undefined, data);
+	export const update = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotVariableID: TelegramBotVariable['id'],
+		data: Data.TelegramBotVariableAPI.Update,
+	) => makeRequest<APIResponse.TelegramBotVariableAPI.Update>(url(telegramBotID, telegramBotVariableID), 'PATCH', undefined, data);
+	export const _delete = (
+		telegramBotID: TelegramBot['id'],
+		telegramBotVariableID: TelegramBotVariable['id'],
+	) => makeRequest(url(telegramBotID, telegramBotVariableID), 'DELETE');
 }
 
 export namespace TelegramBotUsersAPI {
