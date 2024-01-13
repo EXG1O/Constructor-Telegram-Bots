@@ -68,7 +68,7 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 					<Button
 						disabled
 						variant='secondary'
-						className='flex-fill'
+						className='flex-fill d-flex justify-content-center'
 					>
 						<Loading size='xs' />
 					</Button>

@@ -87,7 +87,7 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 		<Card {...props} className={classNames('border-0', props.className)}>
 			<Card.Header as='h5' {...(
 				telegramBotIsStartingOrStopping(telegramBot) ? {
-					className: 'text-bg-secondary border border-secondary text-center',
+					className: 'd-flex justify-content-center juitext-bg-secondary text-bg-secondary border border-secondary text-center',
 					children: <Loading size='xs' />,
 				} : !telegramBot.is_running && telegramBot.is_stopped ? {
 					className: 'text-bg-danger border border-danger fw-semibold text-center',
