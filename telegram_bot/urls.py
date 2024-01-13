@@ -7,6 +7,8 @@ from .views import (
 	TelegramBotCommandAPIView,
 	TelegramBotCommandsDiagramAPIView,
 	TelegramBotCommandDiagramAPIView,
+	TelegramBotVariablesAPIView,
+	TelegramBotVariableAPIView,
 	TelegramBotUsersAPIView,
 	TelegramBotUserAPIView,
 )
@@ -24,6 +26,9 @@ urlpatterns = [
 			path('commands/', TelegramBotCommandsDiagramAPIView.as_view()),
 			path('commands/<int:telegram_bot_command_id>/', TelegramBotCommandDiagramAPIView.as_view()),
 		])),
+
+		path('variables/', TelegramBotVariablesAPIView.as_view()),
+		path('variables/<int:telegram_bot_variable_id>/', TelegramBotVariableAPIView.as_view()),
 
 		path('users/', TelegramBotUsersAPIView.as_view()),
 		path('users/<int:telegram_bot_user_id>/', TelegramBotUserAPIView.as_view()),

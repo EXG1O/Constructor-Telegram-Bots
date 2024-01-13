@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework.exceptions import APIException
 
 from utils import filters
 
@@ -18,6 +19,7 @@ from .models import (
 	TelegramBotCommandKeyboardButton,
 	TelegramBotCommandApiRequest,
 	TelegramBotCommandDatabaseRecord,
+	TelegramBotVariable,
 	TelegramBotUser,
 )
 from .functions import is_valid_telegram_bot_api_token
@@ -147,6 +149,35 @@ class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotCommand
 		fields = ('id', 'name', 'images', 'files', 'message_text', 'keyboard', 'x', 'y')
+
+class TelegramBotVariableSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TelegramBotVariable
+		fields = ('id', 'name', 'description')
+
+class TelegramBotVariableDetailSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TelegramBotVariable
+		fields = ('id', 'name', 'value', 'description')
+
+	def create(self, validated_data: dict[str, Any]) -> TelegramBotVariable:
+		telegram_bot: TelegramBot | None = self.context.get('telegram_bot')
+
+		if telegram_bot is None:
+			raise APIException()
+
+		return TelegramBotVariable.objects.create(telegram_bot=telegram_bot, **validated_data)
+
+	def update(self, instance: TelegramBotVariable, validated_data: dict[str, Any]) -> TelegramBotVariable:
+		instance.name = validated_data['name']
+		instance.value = validated_data['value']
+		instance.description = validated_data['description']
+		instance.save()
+
+		return instance
+
+	def to_representation(self, instance: TelegramBotVariable) -> dict[str, Any]:
+		return TelegramBotVariableSerializer(instance).data
 
 class TelegramBotUserSerializer(serializers.ModelSerializer):
 	class Meta:

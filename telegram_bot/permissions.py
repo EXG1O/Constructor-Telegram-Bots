@@ -4,7 +4,12 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from .models import TelegramBot, TelegramBotCommand, TelegramBotUser
+from .models import (
+	TelegramBot,
+	TelegramBotCommand,
+	TelegramBotVariable,
+	TelegramBotUser,
+)
 
 
 class TelegramBotIsFound(BasePermission):
@@ -34,6 +39,24 @@ class TelegramBotCommandIsFound(BasePermission):
 		try:
 			setattr(request, 'telegram_bot_command', telegram_bot.commands.get(id=telegram_bot_command_id))
 		except TelegramBotCommand.DoesNotExist:
+			return False
+
+		return True
+
+class TelegramBotVariableIsFound(BasePermission):
+	message = _('Переменная Telegram бота не найдена!')
+
+	def has_permission(self, request: Request, view: APIView) -> bool:
+		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
+
+		if not telegram_bot:
+			return False
+
+		telegram_bot_variable_id: int = view.kwargs.pop('telegram_bot_variable_id', 0)
+
+		try:
+			setattr(request, 'telegram_bot_variable', telegram_bot.variables.get(id=telegram_bot_variable_id))
+		except TelegramBotVariable.DoesNotExist:
 			return False
 
 		return True

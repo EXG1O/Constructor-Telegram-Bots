@@ -1,9 +1,6 @@
-from django.utils.translation import gettext as _, pgettext
+from django.utils.translation import gettext as _
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.utils import timezone
-from django.template import defaultfilters as django_filters
-from django.db.models import QuerySet
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -17,18 +14,22 @@ from .models import (
 	TelegramBot,
 	TelegramBotCommand,
 	TelegramBotCommandKeyboardButton,
+	TelegramBotVariable,
 	TelegramBotUser,
 )
 from .permissions import (
 	TelegramBotIsFound,
 	TelegramBotCommandIsFound,
+	TelegramBotVariableIsFound,
 	TelegramBotUserIsFound,
 )
 from .serializers import (
 	TelegramBotSerializer,
 	TelegramBotCommandModelSerializer,
 	TelegramBotCommandDiagramSerializer,
+	TelegramBotVariableSerializer,
 	TelegramBotUserSerializer,
+	TelegramBotVariableDetailSerializer,
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
 	CreateTelegramBotCommandSerializer,
@@ -40,7 +41,6 @@ from .serializers import (
 from .tasks import start_telegram_bot
 
 from typing import Any
-from datetime import datetime, timedelta
 import json
 
 
@@ -293,6 +293,64 @@ class TelegramBotCommandDiagramAPIView(APIView):
 		telegram_bot_command_keyboard_button.save()
 
 		return CustomResponse(_('Вы успешно отсоединили кнопку клавиатуры от другой команды'))
+
+class TelegramBotVariablesAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def initial(self, request: Request, *args: Any, **kwargs: Any) -> None:
+		super().initial(request, *args, **kwargs)
+
+		self.telegram_bot: TelegramBot = getattr(request, 'telegram_bot')
+
+	def get(self, request: Request) -> Response:
+		return Response(
+			TelegramBotVariableSerializer(
+				instance=self.telegram_bot.variables.all(),
+				many=True,
+			).data
+		)
+
+	def post(self, request: Request) -> CustomResponse:
+		serializer = TelegramBotVariableDetailSerializer(
+			data=request.data,
+			context={'telegram_bot': self.telegram_bot},
+		)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return CustomResponse(
+			_('Вы успешно создали новую переменную Telegram бота.'),
+			data={'telegram_bot_variable': serializer.data},
+			status=201,
+		)
+
+class TelegramBotVariableAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & TelegramBotVariableIsFound]
+
+	def initial(self, request: Request, *args: Any, **kwargs: Any) -> None:
+		super().initial(request, *args, **kwargs)
+
+		self.telegram_bot_variable: TelegramBotVariable = getattr(request, 'telegram_bot_variable')
+
+	def get(self, request: Request) -> Response:
+		return Response(TelegramBotVariableDetailSerializer(self.telegram_bot_variable).data)
+
+	def patch(self, request: Request) -> Response:
+		serializer = TelegramBotVariableDetailSerializer(self.telegram_bot_variable, request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return CustomResponse(
+			_('Вы успешно обновили переменную Telegram бота.'),
+			data={'telegram_bot_variable': serializer.data},
+		)
+
+	def delete(self, request: Request) -> CustomResponse:
+		self.telegram_bot_variable.delete()
+
+		return CustomResponse(_('Вы успешно удалили переменную Telegram бота.'))
 
 class TelegramBotUsersAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]

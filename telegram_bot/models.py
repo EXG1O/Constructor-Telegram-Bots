@@ -63,7 +63,7 @@ class TelegramBotCommandManager(models.Manager):
 
 		kwargs: dict[str, TelegramBotCommand] = {'telegram_bot_command': telegram_bot_command}
 
-		TelegramBotCommandSettings.objects.create(**kwargs, **settings) # type: ignore [attr-defined]
+		TelegramBotCommandSettings.objects.create(**kwargs, **settings)
 		TelegramBotCommandMessageText.objects.create(**kwargs, **message_text)
 
 		if command:
@@ -330,6 +330,12 @@ class TelegramBotCommandDatabaseRecord(models.Model):
 
 	class Meta:
 		db_table = 'telegram_bot_command_database_record'
+
+class TelegramBotVariable(models.Model):
+	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='variables', verbose_name=_('Telegram бот'))
+	name = models.CharField(_('Название'), max_length=64)
+	value = models.TextField(_('Значение'), max_length=2048)
+	description = models.CharField(_('Описание'), max_length=255)
 
 class TelegramBotUser(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
