@@ -1,19 +1,12 @@
-import 'tinymce/tinymce';
-import 'tinymce/models/dom/model';
-import 'tinymce/themes/silver';
-import 'tinymce/icons/default';
-import 'tinymce/skins/ui/oxide/skin.min.css';
-import './CreateVariableModal.css';
-
 import React, { ReactElement, memo, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-import { Editor } from '@tinymce/tinymce-react';
 import Button from 'react-bootstrap/Button';
 
 import Loading from 'components/Loading';
+import TinymceEditor from 'components/TinymceEditor';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
@@ -64,37 +57,9 @@ function CreateVariableModal({ onCreate, ...props }: CreateVariableModalProps): 
 							placeholder={gettext('Придумайте название переменной')}
 							onChange={e => setData({ ...data, name: e.target.value })}
 						/>
-						<Editor
+						<TinymceEditor
 							value={data.value}
-							init={{
-								skin: false,
-								content_css: false,
-								height: 260,
-								toolbar: 'bold italic underline strikethrough',
-								placeholder: gettext('Введите значение переменной'),
-								formats: { underline: { inline: 'u' } },
-								newline_behavior: 'linebreak',
-								menubar: false,
-								promotion: false,
-								statusbar: false,
-								resize: false,
-								content_style: `
-									body {
-										font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-										margin: 6px 12px;
-									}
-
-									body[data-mce-placeholder]:not(.mce-visualblocks)::before {
-										color: rgba(34, 47, 62, 0.7);
-										content: attr(data-mce-placeholder);
-										position: absolute;
-									}
-
-									p {
-										margin: 0px;
-									}
-								`,
-							}}
+							init={{ placeholder: gettext('Введите значение переменной') }}
 							onEditorChange={value => setData({ ...data, value })}
 						/>
 						<Form.Control
