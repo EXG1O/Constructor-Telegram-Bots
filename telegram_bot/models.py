@@ -1,17 +1,14 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import requests
 from requests import Response
 
-from typing import Any
 
-
-class TelegramBot(models.Model):
+class TelegramBot(models.Model): # type: ignore [django-manager-missing]
 	owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'))
-	username = models.CharField('@username', max_length=32, null=True)
+	username = models.CharField('@username', max_length=32)
 	api_token = models.CharField(_('API-токен'), max_length=50, unique=True)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_running = models.BooleanField(_('Включён'), default=False)
@@ -45,175 +42,18 @@ class TelegramBot(models.Model):
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class TelegramBotCommandManager(models.Manager):
-	def create( # type: ignore [override]
-		self,
-		telegram_bot: TelegramBot,
-		name: str,
-		settings: dict[str, Any],
-		message_text: dict[str, Any],
-		images: list[InMemoryUploadedFile] = [],
-		files: list[InMemoryUploadedFile] = [],
-		command: dict[str, Any] | None = None,
-		keyboard: dict[str, Any] | None = None,
-		api_request: dict[str, Any] | None = None,
-		database_record: dict[str, Any] | None = None,
-	) -> 'TelegramBotCommand':
-		telegram_bot_command: TelegramBotCommand = super().create(telegram_bot=telegram_bot, name=name) # type: ignore [assignment]
-
-		kwargs: dict[str, TelegramBotCommand] = {'telegram_bot_command': telegram_bot_command}
-
-		TelegramBotCommandSettings.objects.create(**kwargs, **settings)
-		TelegramBotCommandMessageText.objects.create(**kwargs, **message_text)
-
-		if command:
-			TelegramBotCommandCommand.objects.create(**kwargs, **command)
-
-		if keyboard:
-			TelegramBotCommandKeyboard.objects.create(**kwargs, **keyboard) # type: ignore [misc, arg-type]
-
-		if api_request:
-			TelegramBotCommandApiRequest.objects.create(**kwargs, **api_request)
-
-		if database_record:
-			TelegramBotCommandDatabaseRecord.objects.create(**kwargs, **database_record)
-
-		for image in images:
-			TelegramBotCommandImage.objects.create(**kwargs, image=image)
-
-		for file in files:
-			TelegramBotCommandFile.objects.create(**kwargs, file=file)
-
-		return telegram_bot_command
-
-class TelegramBotCommand(models.Model):
+class TelegramBotCommand(models.Model): # type: ignore [django-manager-missing]
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
-	name = models.CharField(_('Название'), max_length=255)
+	name = models.CharField(_('Название'), max_length=128)
 
 	x =	models.IntegerField(_('Координата X'), default=0)
 	y = models.IntegerField(_('Координата Y'), default=0)
-
-	objects = TelegramBotCommandManager()
 
 	class Meta:
 		db_table = 'telegram_bot_command'
 
 		verbose_name = _('Команда')
 		verbose_name_plural = _('Команды')
-
-	def update(
-		self,
-		name: str,
-		settings: dict[str, Any],
-		message_text: dict[str, Any],
-		images: list[InMemoryUploadedFile] = [],
-		images_id: list[int] = [],
-		files: list[InMemoryUploadedFile] = [],
-		files_id: list[int] = [],
-		command: dict[str, Any] | None = None,
-		keyboard: dict[str, Any] | None = None,
-		api_request: dict[str, Any] | None = None,
-		database_record: dict[str, Any] | None = None,
-	):
-		self.name = name
-		self.save()
-
-		self.message_text.text = message_text['text']
-		self.message_text.save()
-
-		try:
-			self.settings.is_reply_to_user_message = settings['is_reply_to_user_message']
-			self.settings.is_delete_user_message = settings['is_delete_user_message']
-			self.settings.is_send_as_new_message = settings['is_send_as_new_message']
-			self.settings.save()
-		except TelegramBotCommandSettings.DoesNotExist:
-			TelegramBotCommandSettings.objects.create(telegram_bot_command=self, **settings)
-
-		if command:
-			try:
-				self.command.text = command['text']
-				self.command.description = command['description']
-				self.command.save()
-			except TelegramBotCommandCommand.DoesNotExist:
-				TelegramBotCommandCommand.objects.create(telegram_bot_command=self, **command)
-		else:
-			try:
-				self.command.delete()
-			except TelegramBotCommandCommand.DoesNotExist:
-				pass
-
-		if keyboard:
-			try:
-				self.keyboard.type = keyboard['type']
-				self.keyboard.save()
-
-				buttons_id: list[int] = []
-
-				for button in keyboard['buttons']:
-					try:
-						button_: TelegramBotCommandKeyboardButton = self.keyboard.buttons.get(id=button['id'])
-						button_.row = button['row']
-						button_.text = button['text']
-						button_.url = button['url']
-						button_.save()
-					except TelegramBotCommandKeyboardButton.DoesNotExist:
-						button_: TelegramBotCommandKeyboardButton = TelegramBotCommandKeyboardButton.objects.create( # type: ignore [no-redef]
-							telegram_bot_command_keyboard=self.keyboard,
-							**button
-						)
-
-					buttons_id.append(button_.id)
-
-				for button in self.keyboard.buttons.all():
-					if button.id not in buttons_id:
-						button.delete()
-			except TelegramBotCommandKeyboard.DoesNotExist:
-				TelegramBotCommandKeyboard.objects.create(telegram_bot_command=self, **keyboard)
-		else:
-			try:
-				self.keyboard.delete()
-			except TelegramBotCommandKeyboard.DoesNotExist:
-				pass
-
-		if api_request:
-			try:
-				self.api_request.url = api_request['url']
-				self.api_request.method = api_request['method']
-				self.api_request.headers = api_request['headers']
-				self.api_request.body = api_request['body']
-				self.api_request.save()
-			except TelegramBotCommandApiRequest.DoesNotExist:
-				TelegramBotCommandApiRequest.objects.create(telegram_bot_command=self, **api_request)
-		else:
-			try:
-				self.api_request.delete()
-			except TelegramBotCommandApiRequest.DoesNotExist:
-				pass
-
-		if database_record:
-			try:
-				self.database_record.data = database_record['data']
-			except TelegramBotCommandDatabaseRecord.DoesNotExist:
-				TelegramBotCommandDatabaseRecord.objects.create(telegram_bot_command=self, **database_record)
-		else:
-			try:
-				self.database_record.delete()
-			except TelegramBotCommandDatabaseRecord.DoesNotExist:
-				pass
-
-		for image in self.images.all():
-			if image.id not in images_id:
-				image.delete()
-
-		for image in images: # type: ignore [assignment]
-			TelegramBotCommandImage.objects.create(telegram_bot_command=self, image=image)
-
-		for file in self.files.all():
-			if file.id not in files_id:
-				file.delete()
-
-		for file in files: # type: ignore [assignment]
-			TelegramBotCommandFile.objects.create(telegram_bot_command=self, file=file)
 
 	def __str__(self) -> str:
 		return self.name
@@ -229,7 +69,7 @@ class TelegramBotCommandSettings(models.Model):
 
 class TelegramBotCommandCommand(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='command')
-	text = models.CharField(_('Команда'), max_length=32)
+	text = models.CharField(_('Команда'), max_length=255)
 	description = models.CharField(_('Описание'), max_length=255, blank=True, null=True)
 
 	class Meta:
@@ -262,34 +102,13 @@ class TelegramBotCommandMessageText(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_message_text'
 
-class TelegramBotCommandKeyboardManager(models.Manager):
-	def create( # type: ignore [override]
-		self,
-		telegram_bot_command: 'TelegramBotCommand',
-		type: str,
-		buttons: list[dict[str, Any]]
-	) -> 'TelegramBotCommandKeyboard':
-		telegram_bot_command_keyboard: TelegramBotCommandKeyboard = super().create(telegram_bot_command=telegram_bot_command, type=type) # type: ignore [assignment]
-
-		for button in buttons:
-			TelegramBotCommandKeyboardButton.objects.create(
-				telegram_bot_command_keyboard=telegram_bot_command_keyboard,
-				row=button['row'],
-				text=button['text'],
-				url=button['url'],
-			)
-
-		return telegram_bot_command_keyboard
-
-class TelegramBotCommandKeyboard(models.Model):
+class TelegramBotCommandKeyboard(models.Model): # type: ignore [django-manager-missing]
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='keyboard')
 	type = models.CharField(_('Режим'), max_length=7, choices=(
 		('default', _('Обычный')),
 		('inline', _('Встроенный')),
 		('payment', _('Платёжный')),
 	), default='default')
-
-	objects = TelegramBotCommandKeyboardManager()
 
 	class Meta:
 		db_table = 'telegram_bot_command_keyboard'
@@ -298,11 +117,11 @@ class TelegramBotCommandKeyboardButton(models.Model):
 	telegram_bot_command_keyboard = models.ForeignKey(TelegramBotCommandKeyboard, on_delete=models.CASCADE, related_name='buttons')
 	row = models.IntegerField(_('Ряд'), blank=True, null=True)
 	text = models.TextField(_('Текст'), max_length=4096)
-	url = models.TextField(_('URL-адрес'), max_length=2048, blank=True, null=True)
+	url = models.URLField(_('URL-адрес'), blank=True, null=True)
 
 	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.SET_NULL, blank=True, null=True)
-	start_diagram_connector = models.TextField(blank=True, null=True)
-	end_diagram_connector = models.TextField(blank=True, null=True)
+	start_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
+	end_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
 
 	class Meta:
 		db_table = 'telegram_bot_command_keyboard_button'
@@ -310,7 +129,7 @@ class TelegramBotCommandKeyboardButton(models.Model):
 
 class TelegramBotCommandApiRequest(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='api_request')
-	url = models.TextField(_('URL-адрес'), max_length=2048)
+	url = models.URLField(_('URL-адрес'))
 	method = models.CharField(_('Метод'), max_length=6, choices=(
 		('get', 'GET'),
 		('post', 'POST'),

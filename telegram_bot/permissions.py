@@ -13,8 +13,6 @@ from .models import (
 
 
 class TelegramBotIsFound(BasePermission):
-	message = _('Telegram бот не найден!')
-
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot_id: int = view.kwargs.pop('telegram_bot_id', 0)
 
@@ -26,8 +24,6 @@ class TelegramBotIsFound(BasePermission):
 		return True
 
 class TelegramBotCommandIsFound(BasePermission):
-	message = _('Команда Telegram бота не найдена!')
-
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
 
@@ -44,8 +40,6 @@ class TelegramBotCommandIsFound(BasePermission):
 		return True
 
 class TelegramBotVariableIsFound(BasePermission):
-	message = _('Переменная Telegram бота не найдена!')
-
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
 
@@ -62,8 +56,6 @@ class TelegramBotVariableIsFound(BasePermission):
 		return True
 
 class TelegramBotUserIsFound(BasePermission):
-	message = _('Пользователь Telegram бота не найдена!')
-
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
 

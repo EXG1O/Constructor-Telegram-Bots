@@ -1,7 +1,11 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .models import TelegramBot, TelegramBotCommandImage, TelegramBotCommandFile
+from .models import (
+	TelegramBot,
+	TelegramBotCommandImage,
+	TelegramBotCommandFile,
+)
 
 from typing import Any
 
