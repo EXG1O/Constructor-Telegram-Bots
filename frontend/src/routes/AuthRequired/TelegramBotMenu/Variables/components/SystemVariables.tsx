@@ -70,7 +70,7 @@ function SystemVariables(): ReactElement {
 						<tbody>
 							{variables[variablesType].map((data, index) => (
 								<tr key={index}>
-									<td>
+									<td className='w-50'>
 										<div className='d-flex gap-2'>
 											<i
 												className='btn-clipboard bi bi-clipboard'

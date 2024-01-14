@@ -12,8 +12,14 @@ import useToast from 'services/hooks/useToast';
 import useVariables from '../services/hooks/useVariables';
 
 import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
+import { TelegramBotVariable } from 'services/api/telegram_bots/types';
 
-function CreateVariableModal(props: ModalProps): ReactElement<ModalProps> {
+export interface UpdateVariableModal extends ModalProps {
+	index: number;
+	variable: TelegramBotVariable;
+}
+
+function UpdateVariableModal({ index, variable, ...props }: UpdateVariableModal): ReactElement<UpdateVariableModal> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
@@ -21,13 +27,15 @@ function CreateVariableModal(props: ModalProps): ReactElement<ModalProps> {
 
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function handleCreateButtonClick(data: BaseVariableModalData): Promise<void> {
+	async function handleSaveButtonClick(data: BaseVariableModalData): Promise<void> {
 		setLoading(true);
 
-		const response = await TelegramBotVariableAPI.create(telegramBot.id, data);
+		const response = await TelegramBotVariableAPI.update(telegramBot.id, variable.id, data);
 
 		if (response.ok) {
-			setVariables([...variables, response.json.telegram_bot_variable]);
+			const _variables = [...variables];
+			_variables.splice(index, 1, response.json.telegram_bot_variable);
+			setVariables(_variables);
 			props.onHide?.();
 		}
 
@@ -39,19 +47,20 @@ function CreateVariableModal(props: ModalProps): ReactElement<ModalProps> {
 		<BaseVariableModal
 			{...props}
 			loading={loading}
-			title={gettext('Создание переменной')}
+			initialData={variable}
+			title={gettext('Редактирование переменной')}
 		>
 			{data => (
 				<Button
 					variant='success'
 					className='w-100'
-					onClick={() => handleCreateButtonClick(data)}
+					onClick={() => handleSaveButtonClick(data)}
 				>
-					{gettext('Создать')}
+					{gettext('Сохранить')}
 				</Button>
 			)}
 		</BaseVariableModal>
 	);
 }
 
-export default memo(CreateVariableModal);
+export default memo(UpdateVariableModal);

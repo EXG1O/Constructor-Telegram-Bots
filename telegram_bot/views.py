@@ -29,7 +29,6 @@ from .serializers import (
 	TelegramBotCommandDiagramSerializer,
 	TelegramBotVariableSerializer,
 	TelegramBotUserSerializer,
-	TelegramBotVariableDetailSerializer,
 	CreateTelegramBotSerializer,
 	UpdateTelegramBotSerializer,
 	CreateTelegramBotCommandSerializer,
@@ -312,7 +311,7 @@ class TelegramBotVariablesAPIView(APIView):
 		)
 
 	def post(self, request: Request) -> CustomResponse:
-		serializer = TelegramBotVariableDetailSerializer(
+		serializer = TelegramBotVariableSerializer(
 			data=request.data,
 			context={'telegram_bot': self.telegram_bot},
 		)
@@ -335,10 +334,10 @@ class TelegramBotVariableAPIView(APIView):
 		self.telegram_bot_variable: TelegramBotVariable = getattr(request, 'telegram_bot_variable')
 
 	def get(self, request: Request) -> Response:
-		return Response(TelegramBotVariableDetailSerializer(self.telegram_bot_variable).data)
+		return Response(TelegramBotVariableSerializer(self.telegram_bot_variable).data)
 
 	def patch(self, request: Request) -> Response:
-		serializer = TelegramBotVariableDetailSerializer(self.telegram_bot_variable, request.data)
+		serializer = TelegramBotVariableSerializer(self.telegram_bot_variable, request.data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 

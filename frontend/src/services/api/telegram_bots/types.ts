@@ -90,11 +90,8 @@ export interface TelegramBotCommandDiagram extends Pick<TelegramBotCommand, 'id'
 export interface TelegramBotVariable {
 	id: number;
 	name: string;
-	description: string;
-}
-
-export interface TelegramBotVariableDetail extends TelegramBotVariable {
 	value: string;
+	description: string;
 }
 
 export interface TelegramBotUser {
@@ -177,7 +174,7 @@ export namespace Data {
 	}
 
 	export namespace TelegramBotVariableAPI {
-		export type Create = Omit<TelegramBotVariableDetail, 'id'>;
+		export type Create = Omit<TelegramBotVariable, 'id'>;
 		export type Update = Create;
 	}
 }

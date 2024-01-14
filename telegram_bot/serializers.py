@@ -153,11 +153,6 @@ class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer):
 class TelegramBotVariableSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotVariable
-		fields = ('id', 'name', 'description')
-
-class TelegramBotVariableDetailSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = TelegramBotVariable
 		fields = ('id', 'name', 'value', 'description')
 
 	def create(self, validated_data: dict[str, Any]) -> TelegramBotVariable:
@@ -175,9 +170,6 @@ class TelegramBotVariableDetailSerializer(serializers.ModelSerializer):
 		instance.save()
 
 		return instance
-
-	def to_representation(self, instance: TelegramBotVariable) -> dict[str, Any]:
-		return TelegramBotVariableSerializer(instance).data
 
 class TelegramBotUserSerializer(serializers.ModelSerializer):
 	class Meta:

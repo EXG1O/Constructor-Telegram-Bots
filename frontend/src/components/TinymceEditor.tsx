@@ -48,4 +48,4 @@ function TinymceEditor(props: TinymceEditorProps): ReactElement<TinymceEditorPro
 	);
 }
 
-export default memo(TinymceEditor);
+export default TinymceEditor;
