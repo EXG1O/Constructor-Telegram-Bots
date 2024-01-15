@@ -34,7 +34,7 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}
 
-	async function handleDeleteButtonClick(): Promise<void> {
+	async function handleConfirmDelete(): Promise<void> {
 		const response = await TelegramBotUserAPI._delete(telegramBot.id, telegramBotUser.id);
 
 		if (response.ok) {
@@ -50,7 +50,7 @@ function TelegramBotUser({ telegramBotUser, updateTelegramBotUsers }: TelegramBo
 				show={showDeleteTelegramBotUserModal}
 				title={'Удаление пользователя'}
 				onHide={() => setShowDeleteTelegramBotUserModal(false)}
-				onConfirmButtonClick={handleDeleteButtonClick}
+				onConfirm={handleConfirmDelete}
 			>
 				{gettext('Вы точно хотите удалить пользователя Telegram бота?')}
 			</AskConfirmModal>

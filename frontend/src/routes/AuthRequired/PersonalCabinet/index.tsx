@@ -32,6 +32,7 @@ export async function loader(): Promise<LoaderData> {
 
 function PersonalCabinet(): ReactElement {
 	const { telegramBots: initialTelegramBots } = useRouteLoaderData('personal-cabinet') as LoaderData;
+
 	const [telegramBots, setTelegramBots] = useState<TelegramBot[]>(initialTelegramBots);
 
 	return (

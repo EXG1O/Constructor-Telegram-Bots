@@ -27,17 +27,17 @@ function Header(): ReactElement {
 	const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
 	const [loadingLogoutModal, setLoadingLogoutModal] = useState<boolean>(false);
 
-	const handleConfirmLogoutButtonClick = useCallback(async (): Promise<void> => {
+	const handleConfirmLogout = useCallback(async () => {
 		setLoadingLogoutModal(true);
 
 		const response = await UserAPI.logout();
 
 		if (response.ok) {
 			setShowLogoutModal(false);
-			setTimeout(() => navigate('/'), 500);
+			setLoadingLogoutModal(false);
+			navigate('/');
 		}
 
-		setLoadingLogoutModal(false);
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}, []);
 
@@ -48,8 +48,8 @@ function Header(): ReactElement {
 					show={showLogoutModal}
 					loading={loadingLogoutModal}
 					title={gettext('Выход из аккаунта')}
+					onConfirm={handleConfirmLogout}
 					onHide={useCallback(() => setShowLogoutModal(false), [])}
-					onConfirmButtonClick={handleConfirmLogoutButtonClick}
 				>
 					{gettext('Вы точно хотите выйти из аккаунта?')}
 				</AskConfirmModal>

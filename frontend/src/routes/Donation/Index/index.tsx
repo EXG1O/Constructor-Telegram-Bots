@@ -38,7 +38,7 @@ function Index(): ReactElement {
 			{sections.map(section => (
 				<div key={section.id}>
 					<h3 className='mb-1'>{section.title}</h3>
-					<div dangerouslySetInnerHTML={{ __html: section.text }}></div>
+					<div dangerouslySetInnerHTML={{ __html: section.text }} />
 				</div>
 			))}
 			<div className='d-flex gap-2'>

@@ -1,7 +1,7 @@
-import './index.css';
-
 import React, { ReactElement } from 'react';
 import { json } from 'react-router-dom';
+
+import './index.css';
 
 import Container from 'react-bootstrap/Container';
 
@@ -29,7 +29,7 @@ export async function loader(): Promise<LoaderData> {
 function Home(): ReactElement {
 	return (
 		<main className='my-auto'>
-			<Container className='vstack align-items-center text-center gap-3 gap-lg-4 my-3 my-lg-4'>
+			<Container className='vstack justify-content-center align-items-center text-center gap-3 my-3 my-lg-4'>
 				<Header />
 				<Stats />
 				<Donations />

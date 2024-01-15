@@ -34,7 +34,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 	const [loadingCommandOffcanvas, setLoadingCommandOffcanvas] = useState<boolean>(true);
 	const [commandOffcanvasInitialData, setCommandOffcanvasInitialData] = useState<CommandOffcanvasData | undefined>(undefined);
 
-	const handleConfirmDeleteButtonClick = useCallback(async (): Promise<void> => {
+	const handleConfirmDelete = useCallback(async (): Promise<void> => {
 		const response = await TelegramBotCommandAPI._delete(telegramBot.id, data.id);
 
 		if (response.ok) {
@@ -154,7 +154,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 				show={showDeleteModal}
 				title={gettext('Удаление команды')}
 				onHide={useCallback(() => setShowDeleteModal(false), [])}
-				onConfirmButtonClick={handleConfirmDeleteButtonClick}
+				onConfirm={handleConfirmDelete}
 			>
 				{gettext('Вы точно хотите удалить команду Telegram бота?')}
 			</AskConfirmModal>

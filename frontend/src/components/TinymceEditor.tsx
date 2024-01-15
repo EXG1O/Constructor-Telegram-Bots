@@ -1,4 +1,4 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement } from 'react';
 
 import 'tinymce/tinymce';
 import 'tinymce/models/dom/model';

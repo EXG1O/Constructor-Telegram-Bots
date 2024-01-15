@@ -12,32 +12,37 @@ function Donations(): ReactElement {
 	const { donations } = useRouteLoaderData('home') as HomeLoaderData;
 
 	return (
-		<Stack className='donations align-self-center' gap={2}>
+		<Stack gap={2} className='donations align-self-center'>
 			<h3 className='mb-0'>{gettext('Список пожертвований')}</h3>
-			<div className='bg-light border rounded'>
-				<Table variant='light' className='overflow-hidden border-bottom rounded align-middle mb-0'>
-					<thead>
+			<div className='border rounded'>
+				<Table
+					responsive
+					striped
+					borderless
+					className='overflow-hidden align-middle rounded mb-0'
+				>
+					<thead className='border-bottom'>
 						<tr>
-							<th className='sum' scope='col'>{gettext('Сумма')}</th>
-							<th scope='col'>Telegram</th>
-							<th className='date' scope='col'>{gettext('Дата')}</th>
+							<th scope='col' style={{ width: '30%' }}>{gettext('Сумма')}</th>
+							<th scope='col' style={{ width: '40%' }}>Telegram</th>
+							<th scope='col' style={{ width: '30%' }}>{gettext('Дата')}</th>
 						</tr>
 					</thead>
-					<tbody className='table-group-divider'>
+					<tbody>
 						{donations.count ? (
 							donations.results.map(donation => (
 								<tr key={donation.id}>
-									<td className='sum'>{donation.sum}€</td>
+									<td>{donation.sum}€</td>
 									<td>
 										<a
-											className='link-dark link-underline-opacity-0 text-break'
+											className='link-dark link-underline-opacity-0'
 											href={donation.telegram_url}
 											target='_blank'
 										>
 											{donation.telegram_url}
 										</a>
 									</td>
-									<td className='date'>{donation.date}</td>
+									<td>{donation.date}</td>
 								</tr>
 							))
 						) : (
@@ -49,7 +54,12 @@ function Donations(): ReactElement {
 				</Table>
 			</div>
 			<LinkContainer to='/donation/'>
-				<Button variant='success' className='align-self-center'>{gettext('Поддержать разработчика')}</Button>
+				<Button
+					variant='success'
+					className='align-self-center'
+				>
+					{gettext('Поддержать разработчика')}
+				</Button>
 			</LinkContainer>
 		</Stack>
 	);

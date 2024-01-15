@@ -27,7 +27,7 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 
 	const [showDeleteTelegramBotModal, setShowDeleteTelegramBotModal] = useState<boolean>(false);
 
-	async function handleConfirmDeleteTelegramBotButtonClick(): Promise<void> {
+	async function handleConfirmDelete(): Promise<void> {
 		setShowDeleteTelegramBotModal(false);
 
 		const response = await TelegramBotAPI._delete(telegramBot.id);
@@ -58,7 +58,7 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 			<AskConfirmModal
 				show={showDeleteTelegramBotModal}
 				title={gettext('Удаление Telegram бота')}
-				onConfirmButtonClick={handleConfirmDeleteTelegramBotButtonClick}
+				onConfirm={handleConfirmDelete}
 				onHide={() => setShowDeleteTelegramBotModal(false)}
 			>
 				{gettext('Вы точно хотите удалить Telegram бота?')}

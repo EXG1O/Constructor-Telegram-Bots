@@ -32,32 +32,34 @@ function BaseVariableModal({ loading, initialData, title, children, ...props }: 
 				<Modal.Title as='h5'>{title}</Modal.Title>
 			</Modal.Header>
 			{!loading ? (
-				<Modal.Body className='vstack gap-2'>
-					<Form.Control
-						value={data.name}
-						placeholder={gettext('Придумайте название переменной')}
-						onChange={e => setData({ ...data, name: e.target.value })}
-					/>
-					<TinymceEditor
-						value={data.value}
-						init={{ placeholder: gettext('Введите значение переменной') }}
-						onEditorChange={value => setData({ ...data, value })}
-					/>
-					<Form.Control
-						value={data.description}
-						placeholder={gettext('Введите описание переменной')}
-						onChange={e => setData({ ...data, description: e.target.value })}
-					/>
-				</Modal.Body>
+				<>
+					<Modal.Body className='vstack gap-2'>
+						<Form.Control
+							value={data.name}
+							placeholder={gettext('Придумайте название переменной')}
+							onChange={e => setData({ ...data, name: e.target.value })}
+						/>
+						<TinymceEditor
+							value={data.value}
+							init={{ placeholder: gettext('Введите значение переменной') }}
+							onEditorChange={value => setData({ ...data, value })}
+						/>
+						<Form.Control
+							value={data.description}
+							placeholder={gettext('Введите описание переменной')}
+							onChange={e => setData({ ...data, description: e.target.value })}
+						/>
+					</Modal.Body>
+					{children && (
+						<Modal.Footer>
+							{children(data)}
+						</Modal.Footer>
+					)}
+				</>
 			) : (
 				<Modal.Body className='d-flex justify-content-center align-items-center'>
 					<Loading size='md' />
 				</Modal.Body>
-			)}
-			{children && (
-				<Modal.Footer>
-					{!loading ? children(data) : undefined}
-				</Modal.Footer>
 			)}
 		</Modal>
 	);

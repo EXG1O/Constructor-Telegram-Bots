@@ -187,10 +187,6 @@ export namespace APIResponse {
 		export type Update = Create;
 	}
 
-	export namespace TelegramBotVariablesAPI {
-		export type Get = Omit<TelegramBotVariable, 'value'>[];
-	}
-
 	export namespace TelegramBotVariableAPI {
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot_variable: TelegramBotVariable;

@@ -45,13 +45,13 @@ function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactElement<AddT
 	return (
 		<Modal {...props}>
 			<Modal.Header closeButton>
-				<Modal.Title as='h5'>{gettext('Добавление Telegram бота')}</Modal.Title>
+				<Modal.Title as='h5'>
+					{gettext('Добавление Telegram бота')}
+				</Modal.Title>
 			</Modal.Header>
-			<Modal.Body className='vstack gap-2'>
-				{loading ? (
-					<Loading size='md' className='m-auto' />
-				) : (
-					<>
+			{!loading ? (
+				<>
+					<Modal.Body className='vstack gap-2'>
 						<Form.Control
 							value={data.api_token}
 							placeholder={gettext('Введите API-токен Telegram бота')}
@@ -63,20 +63,22 @@ function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactElement<AddT
 							style={{ width: 'max-content' }}
 							onChange={e => setData({ ...data, is_private: e.target.checked })}
 						/>
-					</>
-				)}
-			</Modal.Body>
-			{!loading ? (
-				<Modal.Footer>
-					<Button
-						variant='success'
-						className='w-100'
-						onClick={handleAddTelegramBotButtonClick}
-					>
-						{gettext('Добавить Telegram бота')}
-					</Button>
-				</Modal.Footer>
-			) : undefined}
+					</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant='success'
+							className='w-100'
+							onClick={handleAddTelegramBotButtonClick}
+						>
+							{gettext('Добавить Telegram бота')}
+						</Button>
+					</Modal.Footer>
+				</>
+			) : (
+				<Modal.Body className='d-flex justify-content-center'>
+					<Loading size='md' />
+				</Modal.Body>
+			)}
 		</Modal>
 	);
 }

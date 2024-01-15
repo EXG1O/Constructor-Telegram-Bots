@@ -128,7 +128,7 @@ export namespace TelegramBotCommandDiagramAPI {
 export namespace TelegramBotVariablesAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'variables/';
 
-	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<APIResponse.TelegramBotVariablesAPI.Get>(url(telegramBotID), 'GET');
+	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotVariable[]>(url(telegramBotID), 'GET');
 }
 
 export namespace TelegramBotVariableAPI {

@@ -5,43 +5,44 @@ import Button from 'react-bootstrap/Button';
 
 import Loading from './Loading';
 
-export interface AskConfirmModalProps extends Omit<ModalProps, 'onHide'> {
+export interface AskConfirmModalProps extends ModalProps {
 	loading?: boolean;
 	title: ReactNode;
-	onConfirmButtonClick: () => void;
-	onHide: NonNullable<ModalProps['onHide']>;
+	children: ReactNode;
+	onConfirm?: () => void;
+	onCancel?: () => void;
 }
 
-function AskConfirmModal({ loading, title, children, onConfirmButtonClick, ...props }: AskConfirmModalProps): ReactElement<AskConfirmModalProps> {
+function AskConfirmModal({ loading, title, children, onConfirm, onCancel, ...props }: AskConfirmModalProps): ReactElement<AskConfirmModalProps> {
 	return (
 		<Modal {...props}>
 			<Modal.Header closeButton>
 				<Modal.Title as='h5'>{title}</Modal.Title>
 			</Modal.Header>
-			{loading ? (
-				<Modal.Body>
-					<Loading size='md' className='m-auto' />
-				</Modal.Body>
-			) : (
+			{!loading ? (
 				<>
 					<Modal.Body>{children}</Modal.Body>
 					<Modal.Footer className='d-flex gap-2'>
 						<Button
 							variant='success'
 							className='flex-fill'
-							onClick={onConfirmButtonClick}
+							onClick={onConfirm ?? props.onHide}
 						>
 							{gettext('Да')}
 						</Button>
 						<Button
 							variant='danger'
 							className='flex-fill'
-							onClick={props.onHide}
+							onClick={onCancel ?? props.onHide}
 						>
 							{gettext('Нет')}
 						</Button>
 					</Modal.Footer>
 				</>
+			) : (
+				<Modal.Body className='d-flex justify-content-center'>
+					<Loading size='md' />
+				</Modal.Body>
 			)}
 		</Modal>
 	);

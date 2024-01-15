@@ -49,7 +49,7 @@ function SystemVariables(): ReactElement {
 				<div className='col col-lg-3'>
 					<ToggleButtonGroup
 						type='radio'
-						name='systemVariablesTypes'
+						name='system-variables-types'
 						defaultValue='personal'
 						className='w-100'
 					>
@@ -66,7 +66,12 @@ function SystemVariables(): ReactElement {
 					</ToggleButtonGroup>
 				</div>
 				<div className='border rounded'>
-					<Table responsive borderless striped className='overflow-hidden rounded mb-0'>
+					<Table
+						responsive
+						borderless
+						striped
+						className='overflow-hidden rounded mb-0'
+					>
 						<tbody>
 							{variables[variablesType].map((data, index) => (
 								<tr key={index}>

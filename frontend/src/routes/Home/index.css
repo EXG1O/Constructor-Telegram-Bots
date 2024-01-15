@@ -24,10 +24,6 @@
 	}
 
 	.donations {
-		width: 50%;
+		width: 40%;
 	}
-}
-
-.sum, .date {
-	width: 32.5%;
 }

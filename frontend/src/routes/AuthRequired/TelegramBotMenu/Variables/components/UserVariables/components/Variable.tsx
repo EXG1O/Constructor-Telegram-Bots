@@ -27,7 +27,7 @@ function Variable({ index, variable }: VariableProps): ReactElement<VariableProp
 	const [showUpdateVariableModal, setShowUpdateVariableModal] = useState<boolean>(false);
 	const [showDeleteVariableModal, setShowDeleteVariableModal] = useState<boolean>(false);
 
-	const handleDeleteButtonClick = useCallback(async () => {
+	const handleConfirmDelete = useCallback(async () => {
 		const response = await TelegramBotVariableAPI._delete(telegramBot.id, variable.id);
 
 		if (response.ok) {
@@ -51,7 +51,7 @@ function Variable({ index, variable }: VariableProps): ReactElement<VariableProp
 			<AskConfirmModal
 				show={showDeleteVariableModal}
 				title={gettext('Удаление переменной')}
-				onConfirmButtonClick={handleDeleteButtonClick}
+				onConfirm={handleConfirmDelete}
 				onHide={useCallback(() => setShowDeleteVariableModal(false), [])}
 			>
 				{gettext('Вы точно хотите удалить переменную Telegram бота?')}

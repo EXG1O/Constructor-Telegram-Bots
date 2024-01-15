@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Params, json, useRouteLoaderData } from 'react-router-dom';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
