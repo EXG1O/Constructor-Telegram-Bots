@@ -17,7 +17,7 @@ class TelegramBotIsFound(BasePermission):
 		telegram_bot_id: int = view.kwargs.pop('telegram_bot_id', 0)
 
 		try:
-			setattr(request, 'telegram_bot', request.user.telegram_bots.get(id=telegram_bot_id)) # type: ignore [union-attr]
+			view.kwargs['telegram_bot'] = request.user.telegram_bots.get(id=telegram_bot_id) # type: ignore [union-attr]
 		except TelegramBot.DoesNotExist:
 			return False
 
@@ -25,7 +25,7 @@ class TelegramBotIsFound(BasePermission):
 
 class TelegramBotCommandIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
-		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
+		telegram_bot: TelegramBot | None = view.kwargs.get('telegram_bot')
 
 		if not telegram_bot:
 			return False
@@ -33,7 +33,7 @@ class TelegramBotCommandIsFound(BasePermission):
 		telegram_bot_command_id: int = view.kwargs.pop('telegram_bot_command_id', 0)
 
 		try:
-			setattr(request, 'telegram_bot_command', telegram_bot.commands.get(id=telegram_bot_command_id))
+			view.kwargs['telegram_bot_command'] = telegram_bot.commands.get(id=telegram_bot_command_id)
 		except TelegramBotCommand.DoesNotExist:
 			return False
 
@@ -41,7 +41,7 @@ class TelegramBotCommandIsFound(BasePermission):
 
 class TelegramBotVariableIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
-		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
+		telegram_bot: TelegramBot | None = view.kwargs.get('telegram_bot')
 
 		if not telegram_bot:
 			return False
@@ -49,7 +49,7 @@ class TelegramBotVariableIsFound(BasePermission):
 		telegram_bot_variable_id: int = view.kwargs.pop('telegram_bot_variable_id', 0)
 
 		try:
-			setattr(request, 'telegram_bot_variable', telegram_bot.variables.get(id=telegram_bot_variable_id))
+			view.kwargs['telegram_bot_variable'] = telegram_bot.variables.get(id=telegram_bot_variable_id)
 		except TelegramBotVariable.DoesNotExist:
 			return False
 
@@ -57,7 +57,7 @@ class TelegramBotVariableIsFound(BasePermission):
 
 class TelegramBotUserIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
-		telegram_bot: TelegramBot | None = getattr(request, 'telegram_bot', None)
+		telegram_bot: TelegramBot | None = view.kwargs.get('telegram_bot')
 
 		if not telegram_bot:
 			return False
@@ -65,7 +65,7 @@ class TelegramBotUserIsFound(BasePermission):
 		telegram_bot_user_id: int = view.kwargs.pop('telegram_bot_user_id', 0)
 
 		try:
-			setattr(request, 'telegram_bot_user', telegram_bot.users.get(id=telegram_bot_user_id))
+			view.kwargs['telegram_bot_user'] = telegram_bot.users.get(id=telegram_bot_user_id)
 		except TelegramBotUser.DoesNotExist:
 			return False
 
