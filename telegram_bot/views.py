@@ -4,6 +4,7 @@ from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -25,6 +26,7 @@ from .permissions import (
 )
 from .serializers import (
 	TelegramBotSerializer,
+	UpdateTelegramBotSerializer,
 	TelegramBotCommandModelSerializer,
 	TelegramBotCommandDiagramSerializer,
 	TelegramBotVariableSerializer,
@@ -89,7 +91,7 @@ class TelegramBotAPIView(APIView):
 		return CustomResponse()
 
 	def patch(self, request: Request) -> CustomResponse:
-		serializer = TelegramBotSerializer(self.telegram_bot, request.data, context={'user': request.user})
+		serializer = UpdateTelegramBotSerializer(self.telegram_bot, request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 

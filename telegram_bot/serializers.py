@@ -48,20 +48,6 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 	def create(self, validated_data: dict[str, Any]) -> TelegramBot:
 		return TelegramBot.objects.create(owner=self.user, **validated_data)
 
-	def update(self, instance: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
-		api_token: str | None = validated_data.get('api_token')
-		is_private: bool = validated_data.get('is_private', instance.is_private)
-
-		if api_token:
-			instance.api_token = api_token
-			instance.is_running = False
-			instance.update_username(save=False)
-
-		instance.is_private = is_private
-		instance.save()
-
-		return instance
-
 	def validate_api_token(self, api_token: str) -> str:
 		if not is_valid_telegram_bot_api_token(api_token):
 			raise serializers.ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
@@ -73,6 +59,35 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 		representation['added_date'] = filters.datetime(instance.added_date)
 
 		return representation
+
+class UpdateTelegramBotSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = TelegramBot
+		fields = ('api_token', 'is_private')
+		extra_kwargs = {
+			'api_token': {'default': None},
+			'is_private': {'default': None},
+		}
+
+	def update(self, instance: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
+		api_token: str | None = validated_data.get('api_token')
+		is_private: bool | None = validated_data.get('is_private')
+
+		if api_token:
+			instance.api_token = api_token
+			instance.is_running = False
+			instance.update_username(save=False)
+
+		if is_private is not None:
+			instance.is_private = is_private
+
+		if api_token and is_private is not None:
+			instance.save()
+
+		return instance
+
+	def to_representation(self, instance: TelegramBot) -> dict[str, Any]:
+		return TelegramBotSerializer(instance).data
 
 class TelegramBotCommandSettingsSerializer(serializers.ModelSerializer):
 	class Meta:
