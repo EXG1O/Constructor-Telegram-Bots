@@ -14,7 +14,6 @@ from utils.drf import CustomResponse
 from .models import (
 	TelegramBot,
 	TelegramBotCommand,
-	TelegramBotCommandKeyboardButton,
 	TelegramBotVariable,
 	TelegramBotUser,
 )
@@ -26,7 +25,6 @@ from .permissions import (
 )
 from .serializers import (
 	TelegramBotSerializer,
-	UpdateTelegramBotSerializer,
 	TelegramBotCommandModelSerializer,
 	TelegramBotCommandDiagramSerializer,
 	TelegramBotVariableSerializer,
@@ -86,7 +84,7 @@ class TelegramBotAPIView(APIView):
 		return CustomResponse()
 
 	def patch(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
-		serializer = UpdateTelegramBotSerializer(telegram_bot, request.data, context={'user': request.user})
+		serializer = TelegramBotSerializer(telegram_bot, request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
@@ -206,55 +204,26 @@ class TelegramBotCommandDiagramAPIView(APIView):
 
 	def post(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
 		serializer = ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(
-			data=request.data,
-			context={
-				'telegram_bot': telegram_bot,
-				'telegram_bot_command': telegram_bot_command,
-			},
+			telegram_bot_command,
+			request.data,
+			context={'telegram_bot': telegram_bot},
 		)
 		serializer.is_valid(raise_exception=True)
-
-		validated_data: dict[str, Any] = serializer.validated_data
-
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(
-			id=validated_data['telegram_bot_command_keyboard_button_id']
-		)
-		telegram_bot_command_keyboard_button.telegram_bot_command = telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
-		telegram_bot_command_keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
-		telegram_bot_command_keyboard_button.end_diagram_connector = validated_data['end_diagram_connector']
-		telegram_bot_command_keyboard_button.save()
+		serializer.save()
 
 		return CustomResponse(_('Вы успешно подключили кнопку клавиатуры к другой команде'))
 
 	def patch(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
-		serializer = UpdateTelegramBotCommandDiagramPositionSerializer(data=request.data)
+		serializer = UpdateTelegramBotCommandDiagramPositionSerializer(telegram_bot_command, request.data)
 		serializer.is_valid(raise_exception=True)
-
-		validated_data: dict[str, Any] = serializer.validated_data
-
-		telegram_bot_command.x = validated_data['x']
-		telegram_bot_command.y = validated_data['y']
-		telegram_bot_command.save()
+		serializer.save()
 
 		return CustomResponse()
 
 	def delete(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> CustomResponse:
-		serializer = DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(
-			data=request.data,
-			context={'telegram_bot_command': telegram_bot_command},
-		)
+		serializer = DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(telegram_bot_command, request.data)
 		serializer.is_valid(raise_exception=True)
-
-		validated_data: dict[str, Any] = serializer.validated_data
-		telegram_bot_command_keyboard_button_id: int = validated_data['telegram_bot_command_keyboard_button_id']
-
-		telegram_bot_command_keyboard_button: TelegramBotCommandKeyboardButton = telegram_bot_command.keyboard.buttons.get(
-			id=telegram_bot_command_keyboard_button_id
-		)
-		telegram_bot_command_keyboard_button.telegram_bot_command = None
-		telegram_bot_command_keyboard_button.start_diagram_connector = None
-		telegram_bot_command_keyboard_button.end_diagram_connector = None
-		telegram_bot_command_keyboard_button.save()
+		serializer.save()
 
 		return CustomResponse(_('Вы успешно отсоединили кнопку клавиатуры от другой команды'))
 

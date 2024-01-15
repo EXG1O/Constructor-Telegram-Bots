@@ -1,9 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import QuerySet
 
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
 
 from utils import filters
 
@@ -31,6 +29,14 @@ import re
 
 
 class TelegramBotSerializer(serializers.ModelSerializer):
+	def __init__(self, *args: Any, **kwargs: Any) -> None:
+		super().__init__(*args, **kwargs)
+
+		if self.instance:
+			for field in ('api_token', 'is_private'):
+				self.fields[field].required = False
+				self.fields[field].default = None
+
 	class Meta:
 		model = TelegramBot
 		fields = ('id', 'username', 'api_token', 'is_private', 'is_running', 'is_stopped')
@@ -40,13 +46,10 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 	def user(self) -> User:
 		user: User | None = self.context.get('user')
 
-		if user is None:
-			raise ValueError('Failed to retrieve user from context!')
+		if not isinstance(user, User):
+			raise TypeError('You not passed a User instance to the serializer context!')
 
 		return user
-
-	def create(self, validated_data: dict[str, Any]) -> TelegramBot:
-		return TelegramBot.objects.create(owner=self.user, **validated_data)
 
 	def validate_api_token(self, api_token: str) -> str:
 		if not is_valid_telegram_bot_api_token(api_token):
@@ -54,20 +57,8 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 
 		return api_token
 
-	def to_representation(self, instance: TelegramBot) -> dict[str, Any]:
-		representation: dict[str, Any] = super().to_representation(instance)
-		representation['added_date'] = filters.datetime(instance.added_date)
-
-		return representation
-
-class UpdateTelegramBotSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = TelegramBot
-		fields = ('api_token', 'is_private')
-		extra_kwargs = {
-			'api_token': {'default': None},
-			'is_private': {'default': None},
-		}
+	def create(self, validated_data: dict[str, Any]) -> TelegramBot:
+		return TelegramBot.objects.create(owner=self.user, **validated_data)
 
 	def update(self, instance: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
 		api_token: str | None = validated_data.get('api_token')
@@ -87,7 +78,10 @@ class UpdateTelegramBotSerializer(serializers.ModelSerializer):
 		return instance
 
 	def to_representation(self, instance: TelegramBot) -> dict[str, Any]:
-		return TelegramBotSerializer(instance).data
+		representation: dict[str, Any] = super().to_representation(instance)
+		representation['added_date'] = filters.datetime(instance.added_date)
+
+		return representation
 
 class TelegramBotCommandSettingsSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -180,12 +174,16 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
 	images = serializers.ListField(child=serializers.ImageField(), default=[]) # type: ignore [assignment]
 	files = serializers.ListField(child=serializers.FileField(), default=[]) # type: ignore [assignment]
 
-	def create(self, validated_data: dict[str, Any]) -> TelegramBotCommand:
+	@property
+	def telegram_bot(self) -> TelegramBot:
 		telegram_bot: TelegramBot | None = self.context.get('telegram_bot')
 
-		if not telegram_bot:
-			raise ValueError('Failed to retrieve telegram_bot from context!')
+		if not isinstance(telegram_bot, TelegramBot):
+			raise TypeError('You not passed a TelegramBot instance to the serializer context!')
 
+		return telegram_bot
+
+	def create(self, validated_data: dict[str, Any]) -> TelegramBotCommand:
 		settings: dict[str, Any] = validated_data.pop('settings')
 		command: dict[str, Any] | None = validated_data.pop('command')
 		images: list[InMemoryUploadedFile] = validated_data.pop('images')
@@ -195,7 +193,7 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
 		api_request: dict[str, Any] | None = validated_data.pop('api_request')
 		database_record: dict[str, Any] | None = validated_data.pop('database_record')
 
-		telegram_bot_command: TelegramBotCommand = TelegramBotCommand.objects.create(telegram_bot=telegram_bot, **validated_data)
+		telegram_bot_command: TelegramBotCommand = TelegramBotCommand.objects.create(telegram_bot=self.telegram_bot, **validated_data)
 
 		kwargs: dict[str, TelegramBotCommand] = {'telegram_bot_command': telegram_bot_command}
 
@@ -385,18 +383,94 @@ class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer):
 		model = TelegramBotCommand
 		fields = ('id', 'name', 'images', 'files', 'message_text', 'keyboard', 'x', 'y')
 
+class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
+	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
+	telegram_bot_command_id = serializers.IntegerField()
+	start_diagram_connector = serializers.CharField()
+	end_diagram_connector = serializers.CharField()
+
+	@property
+	def telegram_bot(self) -> TelegramBot:
+		telegram_bot: TelegramBot | None = self.context.get('telegram_bot')
+
+		if not isinstance(telegram_bot, TelegramBot):
+			raise TypeError('You not passed a TelegramBot instance to the serializer context!')
+
+		return telegram_bot
+
+	def validate_telegram_bot_command_id(self, telegram_bot_command_id: int) -> int:
+		telegram_bot: TelegramBot = self.context['telegram_bot']
+
+		if not telegram_bot.commands.filter(id=telegram_bot_command_id).exists():
+			raise serializers.ValidationError(_('Команда Telegram бота не найдена!'))
+
+		return telegram_bot_command_id
+
+	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
+		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
+
+		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
+			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
+
+		return telegram_bot_command_keyboard_button_id
+
+	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
+		keyboard_button: TelegramBotCommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
+		keyboard_button.telegram_bot_command = self.telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
+		keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
+		keyboard_button.end_diagram_connector = validated_data['end_diagram_connector']
+		keyboard_button.save()
+
+		return instance
+
+class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
+	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
+
+	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
+		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
+
+		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
+			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
+
+		return telegram_bot_command_keyboard_button_id
+
+	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
+		keyboard_button: TelegramBotCommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
+		keyboard_button.telegram_bot_command = None
+		keyboard_button.start_diagram_connector = None
+		keyboard_button.end_diagram_connector = None
+		keyboard_button.save()
+
+		return instance
+
+class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.Serializer):
+	class Meta:
+		model = TelegramBotCommand
+		fields = ('x', 'y')
+
+	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
+		instance.x = validated_data['x']
+		instance.y = validated_data['y']
+		instance.save()
+
+		return instance
+
 class TelegramBotVariableSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotVariable
 		fields = ('id', 'name', 'value', 'description')
 
-	def create(self, validated_data: dict[str, Any]) -> TelegramBotVariable:
+	@property
+	def telegram_bot(self) -> TelegramBot:
 		telegram_bot: TelegramBot | None = self.context.get('telegram_bot')
 
-		if telegram_bot is None:
-			raise APIException()
+		if not isinstance(telegram_bot, TelegramBot):
+			raise TypeError('You not passed a TelegramBot instance to the serializer context!')
 
-		return TelegramBotVariable.objects.create(telegram_bot=telegram_bot, **validated_data)
+		return telegram_bot
+
+	def create(self, validated_data: dict[str, Any]) -> TelegramBotVariable:
+		return TelegramBotVariable.objects.create(telegram_bot=self.telegram_bot, **validated_data)
 
 	def update(self, instance: TelegramBotVariable, validated_data: dict[str, Any]) -> TelegramBotVariable:
 		instance.name = validated_data['name']
@@ -416,40 +490,3 @@ class TelegramBotUserSerializer(serializers.ModelSerializer):
 		representation['activated_date'] = filters.datetime(instance.activated_date)
 
 		return representation
-
-class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
-	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
-	telegram_bot_command_id = serializers.IntegerField()
-	start_diagram_connector = serializers.CharField()
-	end_diagram_connector = serializers.CharField()
-
-	def validate_telegram_bot_command_id(self, telegram_bot_command_id: int) -> int:
-		telegram_bot: TelegramBot = self.context['telegram_bot']
-
-		if not telegram_bot.commands.filter(id=telegram_bot_command_id).exists():
-			raise serializers.ValidationError(_('Команда Telegram бота не найдена!'))
-
-		return telegram_bot_command_id
-
-	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
-		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
-
-		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
-			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
-
-		return telegram_bot_command_keyboard_button_id
-
-class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
-	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
-
-	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
-		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
-
-		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
-			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
-
-		return telegram_bot_command_keyboard_button_id
-
-class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.Serializer):
-	x = serializers.FloatField()
-	y = serializers.FloatField()
