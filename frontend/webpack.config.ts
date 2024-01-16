@@ -20,14 +20,15 @@ const config: Configuration = {
 				use: 'babel-loader',
 			},
 			{
-				test: /\.css$/,
-				use: [MiniCssExtractPlugin.loader, 'css-loader'],
+				test: /\.s?css$/,
+				use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
 			},
 		],
 	},
 	resolve: {
-		extensions: ['.js', '.ts', '.tsx', '.css'],
+		extensions: ['.js', '.jsx', '.ts', '.tsx', '.css'],
 		alias: {
+			styles: `${__dirname}/src/styles/`,
 			components: `${__dirname}/src/components/`,
 			routes: `${__dirname}/src/routes/`,
 			services: `${__dirname}/src/services/`,

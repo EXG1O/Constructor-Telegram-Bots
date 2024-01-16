@@ -1,10 +1,9 @@
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.min.css';
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Params, redirect } from 'react-router-dom';
+
+import 'styles/bootstrap.scss';
+import 'bootstrap-icons/font/bootstrap-icons.scss';
 
 import { UserAPI } from 'services/api/users/main';
 

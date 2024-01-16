@@ -1,4 +1,5 @@
 declare module '*.css';
+declare module '*.scss';
 
 declare function pluralidx(n: number): number;
 declare function gettext(msgid: string): string;
