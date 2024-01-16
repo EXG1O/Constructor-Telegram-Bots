@@ -18,6 +18,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class AuthTokenSerializer(serializers.Serializer):
+class UserLoginSerializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	confirm_code = serializers.CharField()

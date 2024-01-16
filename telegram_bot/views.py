@@ -313,7 +313,7 @@ class TelegramBotUserAPIView(APIView):
 	def post(self, request: Request, telegram_bot: TelegramBot, telegram_bot_user: TelegramBotUser) -> Response:
 		action: str | None = request.query_params.get('action')
 
-		if action in ['allow', 'unallow', 'block', 'unblock']:
+		if action in ('allow', 'unallow', 'block', 'unblock'):
 			if action == 'allow':
 				telegram_bot_user.is_allowed = True
 			elif action == 'unallow':

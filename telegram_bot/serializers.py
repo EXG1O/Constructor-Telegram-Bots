@@ -25,7 +25,6 @@ from .models import (
 from .functions import is_valid_telegram_bot_api_token
 
 from typing import Any
-import re
 
 
 class TelegramBotSerializer(serializers.ModelSerializer):
@@ -208,9 +207,7 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
 		for file in files:
 			TelegramBotCommandFile.objects.create(**kwargs, file=file)
 
-		message_text_text: str = re.sub(r'<[/]?p>', '', message_text.pop('text')).replace('<br>', '\n')
-
-		TelegramBotCommandMessageText.objects.create(**kwargs, **message_text, text=message_text_text)
+		TelegramBotCommandMessageText.objects.create(**kwargs, **message_text)
 
 		if keyboard:
 			buttons: list[dict[str, Any]] = keyboard.pop('buttons')
@@ -290,7 +287,7 @@ class UpdateTelegramBotCommandSerializer(CreateTelegramBotCommandSerializer):
 			TelegramBotCommandFile.objects.create(telegram_bot_command=instance, file=file) # type: ignore [misc]
 
 		if message_text:
-			instance.message_text.text = re.sub(r'<[/]?p>', '', message_text.get('text', instance.message_text.text)).replace('<br>', '\n')
+			instance.message_text.text = message_text.get('text', instance.message_text.text)
 			instance.message_text.save()
 
 		if keyboard:

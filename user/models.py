@@ -47,17 +47,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/'
 
-	def update_first_name(self) -> None:
+	def update_first_name(self, save: bool = False) -> None:
 		user_info: Chat | None = get_user_info(self.telegram_id)
 
-		if user_info and user_info.first_name and self.first_name != user_info.first_name:
+		if user_info and user_info.first_name and user_info.first_name != self.first_name:
 			self.first_name = user_info.first_name
 
-	def update_last_name(self) -> None:
+			if save:
+				self.save()
+
+	def update_last_name(self, save: bool = False) -> None:
 		user_info: Chat | None = get_user_info(self.telegram_id)
 
-		if user_info and user_info.last_name and self.last_name != user_info.last_name:
+		if user_info and user_info.last_name and user_info.last_name != self.last_name:
 			self.last_name = user_info.last_name
+
+			if save:
+				self.save()
 
 	def __str__(self) -> str:
 		return self.first_name if self.first_name else str(self.telegram_id)

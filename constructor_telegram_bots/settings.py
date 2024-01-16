@@ -9,25 +9,25 @@ import sys
 import os
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
-SECRET_KEY = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(length=50, chars=string.ascii_letters + string.digits)}')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(length=50, chars=string.ascii_letters + string.digits)}')
+DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
 
 match sys.argv:
 	case ['manage.py', 'test', *extra_options]:
 		TEST = True
-	case _:
+	case __:
 		TEST = False
 
-CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-CONSTRUCTOR_TELEGRAM_BOT_USERNAME = os.getenv('TELEGRAM_BOT_USERNAME')
+CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN: str | None = os.getenv('TELEGRAM_BOT_TOKEN')
+CONSTRUCTOR_TELEGRAM_BOT_USERNAME: str | None = os.getenv('TELEGRAM_BOT_USERNAME')
 
-POSTGRESQL_DATABASE_NAME = os.getenv('POSTGRESQL_DATABASE_NAME')
-POSTGRESQL_DATABASE_USER = os.getenv('POSTGRESQL_DATABASE_USER')
-POSTGRESQL_DATABASE_PASSWORD = os.getenv('POSTGRESQL_DATABASE_PASSWORD')
+POSTGRESQL_DATABASE_NAME: str | None = os.getenv('POSTGRESQL_DATABASE_NAME')
+POSTGRESQL_DATABASE_USER: str | None = os.getenv('POSTGRESQL_DATABASE_USER')
+POSTGRESQL_DATABASE_PASSWORD: str | None = os.getenv('POSTGRESQL_DATABASE_PASSWORD')
 
 
 SITE_DOMAIN = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'

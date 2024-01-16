@@ -10,7 +10,7 @@ from user.models import User
 
 class CookiesTokenAuthentication(BaseAuthentication):
 	def authenticate(self, request: Request) -> tuple[User, str] | None:
-		auth_token: str | None  = request.COOKIES.get('auth-token', None)
+		auth_token: str | None  = request.COOKIES.get('auth-token')
 
 		if not auth_token:
 			return None

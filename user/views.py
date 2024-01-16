@@ -11,7 +11,7 @@ from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from utils.drf import CustomResponse
 
 from .models import User
-from .serializers import UserSerializer, AuthTokenSerializer
+from .serializers import UserSerializer, UserLoginSerializer
 
 from typing import Any
 
@@ -36,7 +36,7 @@ class UserLoginAPIView(APIView):
 	permission_classes = []
 
 	def post(self, request: Request) -> CustomResponse:
-		serializer = AuthTokenSerializer(data=request.data)
+		serializer = UserLoginSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
 		validated_data: dict[str, Any] = serializer.validated_data
@@ -68,10 +68,7 @@ class UserLogoutAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request: Request) -> CustomResponse:
-		try:
-			request.user.auth_token.delete() # type: ignore [arg-type, union-attr]
-		except Token.DoesNotExist:
-			pass
+		request.user.auth_token.delete() # type: ignore [arg-type, union-attr]
 
 		logout(request)
 
