@@ -52,8 +52,6 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'drf_standardized_errors',
 
-	'webpack_loader',
-
 	'admin_interface',
 	'colorfield',
 
@@ -74,14 +72,6 @@ INSTALLED_APPS = [
 	'instruction',
 	'donation',
 ]
-
-WEBPACK_LOADER = {
-	'INDEX': {
-		'CACHE': not DEBUG,
-		'POLL_INTERVAL': 0.1,
-		'STATS_FILE': BASE_DIR / 'frontend/webpack.stats.json',
-	},
-}
 
 TINYMCE_DEFAULT_CONFIG = {
 	'theme': 'silver',
@@ -127,7 +117,10 @@ DRF_STANDARDIZED_ERRORS = {
 TEMPLATES = [
 	{
 		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [BASE_DIR / 'constructor_telegram_bots/templates'],
+		'DIRS': [
+			BASE_DIR / 'constructor_telegram_bots/templates',
+			BASE_DIR / 'frontend/dist',
+		],
 		'APP_DIRS': True,
 		'OPTIONS': {
 			'context_processors': [

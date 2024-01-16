@@ -1,14 +1,14 @@
 import { Configuration } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-import BundleTracker from 'webpack-bundle-tracker';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import Dotenv from 'dotenv-webpack';
 
 const config: Configuration = {
 	entry: './src/index.tsx',
 	output: {
 		clean: true,
 		path: `${__dirname}/dist/frontend`,
-		publicPath: '/static/frontend/',
 		filename: '[name].[contenthash].bundle.js',
 		chunkFilename: '[name].[contenthash].chunk.js',
 	},
@@ -42,12 +42,13 @@ const config: Configuration = {
 		],
 	},
 	plugins: [
+		new Dotenv(),
+		new HtmlWebpackPlugin({
+			template: './src/index.html',
+			publicPath: '/static/frontend/',
+		}),
 		new MiniCssExtractPlugin({
 			filename: '[name].[contenthash].css',
-		}),
-		new BundleTracker({
-			path: './',
-			filename: 'webpack.stats.json',
 		}),
 	],
 }

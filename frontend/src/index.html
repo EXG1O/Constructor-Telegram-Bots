@@ -1,6 +1,5 @@
 {% load static %}
 {% load i18n %}
-{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -17,19 +16,10 @@
 		<meta name="google-site-verification" content="YbS9xa_kQpSf_XVG7tmdkCnX-av6lvsIm9m0E5SGTds">
 
 		<link rel="icon" href="{% static 'favicon.png' %}">
-
-		{% block styles %}
-		{% render_bundle 'main' 'css' 'INDEX' %}
-		{% endblock styles %}
 	</head>
-
 	<body class="h-100">
 		<div class="vstack h-100" id="root"></div>
 
 		<script src="{% url 'javascript-catalog' %}"></script>
-
-		{% block scripts %}
-		{% render_bundle 'main' 'js' 'INDEX' %}
-		{% endblock scripts %}
 	</body>
 </html>
