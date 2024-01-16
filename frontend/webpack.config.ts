@@ -1,5 +1,6 @@
 import { Configuration } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import BundleTracker from 'webpack-bundle-tracker';
 
 const config: Configuration = {
@@ -32,6 +33,12 @@ const config: Configuration = {
 			services: `${__dirname}/src/services/`,
 			utils: `${__dirname}/src/utils/`,
 		},
+	},
+	optimization: {
+		minimizer: [
+			'...',
+			new CssMinimizerPlugin(),
+		],
 	},
 	plugins: [
 		new MiniCssExtractPlugin({
