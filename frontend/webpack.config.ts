@@ -1,10 +1,15 @@
-import { Configuration } from 'webpack';
+import { Configuration as WebpackConfiguration } from 'webpack';
+import { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
 
-const config: Configuration = {
+interface Configuration extends WebpackConfiguration {
+	devServer?: WebpackDevServerConfiguration;
+}
+
+const config = (env: any, argv: any): Configuration => ({
 	entry: './src/index.tsx',
 	output: {
 		clean: true,
@@ -12,6 +17,15 @@ const config: Configuration = {
 		filename: '[name].[contenthash].bundle.js',
 		chunkFilename: '[name].[contenthash].chunk.js',
 	},
+	devServer: env.WEBPACK_SERVE ? {
+		historyApiFallback: true,
+		proxy: {
+			context: ['/api/', '/media/'],
+			target: 'http://localhost:8000/',
+		},
+		static: `${__dirname}/dist/frontend`,
+		hot: true,
+	} : undefined,
 	module: {
 		rules: [
 			{
@@ -43,14 +57,19 @@ const config: Configuration = {
 	},
 	plugins: [
 		new Dotenv(),
-		new HtmlWebpackPlugin({
-			template: './src/index.html',
-			publicPath: '/static/frontend/',
-		}),
+		new HtmlWebpackPlugin(
+			argv.mode === 'development' ? {
+				template: './src/dev.html',
+				publicPath: '/',
+			} : {
+				template: './src/prod.html',
+				publicPath: '/static/frontend/',
+			}
+		),
 		new MiniCssExtractPlugin({
 			filename: '[name].[contenthash].css',
 		}),
 	],
-}
+});
 
 export default config;
