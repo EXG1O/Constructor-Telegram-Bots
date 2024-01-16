@@ -1,15 +1,17 @@
 from django.utils.translation import gettext as _
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.conf import settings
+from django.db.models import QuerySet
 
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from utils.drf import CustomResponse
+from utils.mixins import PaginationMixin
 
 from .models import (
 	TelegramBot,
@@ -227,17 +229,24 @@ class TelegramBotCommandDiagramAPIView(APIView):
 
 		return CustomResponse(_('Вы успешно отсоединили кнопку клавиатуры от другой команды'))
 
-class TelegramBotVariablesAPIView(APIView):
+class TelegramBotVariablesAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 
+	pagination_class = LimitOffsetPagination
+
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(
-			TelegramBotVariableSerializer(
-				instance=telegram_bot.variables.all(),
-				many=True,
-			).data
-		)
+		queryset: 'QuerySet[TelegramBotVariable]' = telegram_bot.variables.all()
+		results: list[TelegramBotVariable] | None = self.paginate_queryset(request, queryset)
+
+		if results is None:
+			return Response(
+				TelegramBotVariableSerializer(queryset, many=True).data
+			)
+		else:
+			return self.get_paginated_response(
+				TelegramBotVariableSerializer(results, many=True).data
+			)
 
 	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
 		serializer = TelegramBotVariableSerializer(
@@ -275,17 +284,24 @@ class TelegramBotVariableAPIView(APIView):
 
 		return CustomResponse(_('Вы успешно удалили переменную Telegram бота.'))
 
-class TelegramBotUsersAPIView(APIView):
+class TelegramBotUsersAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 
+	pagination_class = LimitOffsetPagination
+
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(
-			TelegramBotUserSerializer(
-				telegram_bot.users.all(),
-				many=True,
-			).data
-		)
+		queryset: 'QuerySet[TelegramBotUser]' = telegram_bot.users.all()
+		results: list[TelegramBotUser] | None = self.paginate_queryset(request, queryset)
+
+		if results is None:
+			return Response(
+				TelegramBotUserSerializer(queryset, many=True).data
+			)
+		else:
+			return self.get_paginated_response(
+				TelegramBotUserSerializer(results, many=True).data
+			)
 
 class TelegramBotUserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
