@@ -1,5 +1,8 @@
 export namespace APIResponse {
-	export interface Base<Ok extends boolean, Json extends Record<string, any>> extends Omit<Response, 'ok' | 'json'> {
+	export interface Base<
+		Ok extends boolean,
+		Json extends Record<string, any>
+	> extends Omit<Response, 'ok' | 'json'> {
 		ok: Ok;
 		json: Json;
 	}
@@ -16,12 +19,18 @@ export namespace APIResponse {
 	}
 }
 
-export async function makeRequest<SuccessAPIResponse extends Record<string, any> = APIResponse.Success, ErrorAPIResponse extends Record<string, any> = APIResponse.Error>(
+export async function makeRequest<
+	SuccessAPIResponse extends Record<string, any> = APIResponse.Success,
+	ErrorAPIResponse extends Record<string, any> = APIResponse.Error
+>(
 	url: string,
 	method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
 	headers?: HeadersInit,
 	data?: Record<string, any> | FormData,
-): Promise<APIResponse.Base<true, SuccessAPIResponse> | APIResponse.Base<false, ErrorAPIResponse>> {
+): Promise<
+	APIResponse.Base<true, SuccessAPIResponse> |
+	APIResponse.Base<false, ErrorAPIResponse>
+> {
 	let requestInit: RequestInit = { method };
 
 	if (data !== undefined) {
@@ -35,7 +44,12 @@ export async function makeRequest<SuccessAPIResponse extends Record<string, any>
 		}
 	}
 
-	const response = await fetch(url, Object.assign(requestInit, { headers: Object.assign(requestInit.headers || {}, headers || {}) }));
+	const response = await fetch(
+		url,
+		Object.assign(requestInit, {
+			headers: Object.assign(requestInit.headers || {}, headers || {}),
+		}),
+	);
 
 	return Object.assign(response, { json: await response.json() });
 }

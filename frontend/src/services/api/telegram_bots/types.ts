@@ -187,10 +187,34 @@ export namespace APIResponse {
 		export type Update = Create;
 	}
 
+	export namespace TelegramBotVariablesAPI {
+		export namespace Get {
+			export type Default = TelegramBotVariable[];
+			export interface Pagination {
+				count: number;
+				next: string | null;
+				previous: string | null;
+				results: TelegramBotVariable[];
+			}
+		}
+	}
+
 	export namespace TelegramBotVariableAPI {
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot_variable: TelegramBotVariable;
 		}
 		export type Update = Create;
+	}
+
+	export namespace TelegramBotUsersAPI {
+		export namespace Get {
+			export type Default = TelegramBotUser[];
+			export interface Pagination {
+				count: number;
+				next: string | null;
+				previous: string | null;
+				results: TelegramBotUser[];
+			}
+		}
 	}
 }

@@ -19,11 +19,14 @@ export interface DonationButton {
 
 export namespace APIResponse {
 	export namespace DonationsAPI {
-		export interface Get {
-			count: string;
-			next: string;
-			previous: string;
-			results: Donation[];
+		export namespace Get {
+			export type Default = Donation[];
+			export interface Pagination {
+				count: number;
+				next: string | null;
+				previous: string | null;
+				results: Donation[];
+			}
 		}
 	}
 }

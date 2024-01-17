@@ -19,7 +19,9 @@ export namespace TelegramBotAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => rootURL + `${telegramBotID}/`;
 
 	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotID), 'GET');
-	export const create = (data: Data.TelegramBotAPI.Create) => makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', undefined, data);
+	export const create = (data: Data.TelegramBotAPI.Create) => (
+		makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', undefined, data)
+	);
 	export const update = (
 		telegramBotID: TelegramBot['id'],
 		data: Data.TelegramBotAPI.Update,
@@ -27,7 +29,7 @@ export namespace TelegramBotAPI {
 	export const _delete = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE');
 
 	export const start = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=start', 'POST');
-	export const stop = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=stop', 'POST');;
+	export const stop = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=stop', 'POST');
 }
 
 export namespace TelegramBotCommandsAPI {
@@ -128,7 +130,15 @@ export namespace TelegramBotCommandDiagramAPI {
 export namespace TelegramBotVariablesAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'variables/';
 
-	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotVariable[]>(url(telegramBotID), 'GET');
+	export const get = <Limit extends number | undefined>(
+		telegramBotID: TelegramBot['id'],
+		limit: Limit,
+		offset?: number,
+	) => makeRequest<
+		Limit extends number ?
+		APIResponse.TelegramBotVariablesAPI.Get.Pagination :
+		APIResponse.TelegramBotVariablesAPI.Get.Default
+	>(url(telegramBotID) + `?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET');
 }
 
 export namespace TelegramBotVariableAPI {
@@ -159,7 +169,15 @@ export namespace TelegramBotVariableAPI {
 export namespace TelegramBotUsersAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'users/';
 
-	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotUser[]>(url(telegramBotID), 'GET');
+	export const get = <Limit extends number | undefined>(
+		telegramBotID: TelegramBot['id'],
+		limit: Limit,
+		offset?: number,
+	) => makeRequest<
+		Limit extends number ?
+		APIResponse.TelegramBotUsersAPI.Get.Pagination :
+		APIResponse.TelegramBotUsersAPI.Get.Default
+	>(url(telegramBotID) + `?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET');
 }
 
 export namespace TelegramBotUserAPI {

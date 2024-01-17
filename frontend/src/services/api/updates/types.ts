@@ -8,11 +8,14 @@ export interface Update {
 
 export namespace APIResponse {
 	export namespace UpdatesAPI {
-		export interface Get {
-			count: string;
-			next: string;
-			previous: string;
-			results: Update[];
+		export namespace Get {
+			export type Default = Update[];
+			export interface Pagination {
+				count: number;
+				next: string | null;
+				previous: string | null;
+				results: Update[];
+			}
 		}
 	}
 }

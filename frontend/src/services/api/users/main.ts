@@ -3,12 +3,6 @@ import { User, Data } from './types';
 
 const rootURL = '/api/';
 
-export namespace UsersAPI {
-	export const url = rootURL + 'users/';
-
-	export const get = () => makeRequest(url, 'GET');
-}
-
 export namespace UserAPI {
 	export const url = rootURL + 'user/';
 
