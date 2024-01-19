@@ -9,6 +9,16 @@
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/utilities";
 
+$pagination-color: $dark;
+
+$pagination-focus-color: $dark;
+$pagination-focus-box-shadow: none;
+
+$pagination-hover-color: $dark;
+
+$pagination-active-bg: $dark;
+$pagination-active-border-color: $dark;
+
 // Layout & components
 @import "~bootstrap/scss/root";
 @import "~bootstrap/scss/reboot";
@@ -30,7 +40,7 @@
 @import "~bootstrap/scss/pagination";
 // @import "badge";
 @import "~bootstrap/scss/alert";
-@import "~bootstrap/scss/progress";
+// @import "~bootstrap/scss/progress";
 @import "~bootstrap/scss/list-group";
 @import "~bootstrap/scss/close";
 @import "~bootstrap/scss/toasts";
@@ -41,6 +51,14 @@
 @import "~bootstrap/scss/spinners";
 @import "~bootstrap/scss/offcanvas";
 @import "~bootstrap/scss/placeholders";
+
+.pagination {
+	margin-bottom: unset;
+
+	& .page-item.active > .page-link {
+		cursor: default;
+	}
+}
 
 // Helpers
 @import "~bootstrap/scss/helpers";

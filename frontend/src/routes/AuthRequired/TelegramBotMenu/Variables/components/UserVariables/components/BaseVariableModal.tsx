@@ -17,6 +17,7 @@ export interface BaseVariableModalProps extends ModalProps {
 	initialData?: Data;
 	title: ReactNode;
 	children?: (data: Data) => ReactNode;
+	onHide: NonNullable<ModalProps['onHide']>;
 }
 
 function BaseVariableModal({ loading, initialData, title, children, ...props }: BaseVariableModalProps): ReactElement<BaseVariableModalProps> {

@@ -8,22 +8,35 @@ import UserVariables from './components/UserVariables';
 import useToast from 'services/hooks/useToast';
 
 import { TelegramBotVariablesAPI } from 'services/api/telegram_bots/main';
-import { TelegramBotVariable } from 'services/api/telegram_bots/types';
+import { APIResponse } from 'services/api/telegram_bots/types';
+
+export interface UserVariablesPaginationData extends Omit<APIResponse.TelegramBotVariablesAPI.Get.Pagination, 'next' | 'previous'> {
+	limit: number;
+	offset: number;
+}
 
 export interface LoaderData {
-	telegramBotVariables: TelegramBotVariable[];
+	userVariablesPaginationData: UserVariablesPaginationData;
 }
 
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
-	const { telegramBotID } = params;
+	const telegramBotID: number = parseInt(params.telegramBotID!);
+	const [limit, offset] = [10, 0];
 
-	const response = await TelegramBotVariablesAPI.get(parseInt(telegramBotID!));
+	const response = await TelegramBotVariablesAPI.get(telegramBotID, limit, offset);
 
 	if (!response.ok) {
 		throw json(response.json, { status: response.status });
 	}
 
-	return { telegramBotVariables: response.json };
+	return {
+		userVariablesPaginationData: {
+			count: response.json.count,
+			limit,
+			offset,
+			results: response.json.results,
+		},
+	}
 }
 
 function Variables(): ReactElement {

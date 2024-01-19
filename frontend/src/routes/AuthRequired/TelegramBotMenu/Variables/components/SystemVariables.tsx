@@ -11,15 +11,15 @@ interface VariablesTypeToggleButtonProps extends Omit<ToggleButtonProps, 'key' |
 	value: VariablesTypes;
 }
 
-const variablesTypeToggleButtons: VariablesTypeToggleButtonProps[] = [
-	{ value: 'personal', children: gettext('Персональные') },
-	{ value: 'global', children: gettext('Глобальные') },
-];
-
 interface Variables {
 	variable: string;
 	description: string;
 }
+
+const variablesTypeToggleButtons: VariablesTypeToggleButtonProps[] = [
+	{ value: 'personal', children: gettext('Персональные') },
+	{ value: 'global', children: gettext('Глобальные') },
+];
 
 const variables: Record<VariablesTypes, Variables[]> = {
 	personal: [

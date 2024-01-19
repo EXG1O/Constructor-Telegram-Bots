@@ -9,21 +9,21 @@ import BaseVariableModal, { Data as BaseVariableModalData } from './BaseVariable
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import useToast from 'services/hooks/useToast';
-import useVariables from '../services/hooks/useVariables';
 
 import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotVariable } from 'services/api/telegram_bots/types';
 
-export interface UpdateVariableModal extends ModalProps {
+export interface UpdateVariableModalProps extends ModalProps {
 	index: number;
 	variable: TelegramBotVariable;
+	onUpdated: () => void;
+	onHide: NonNullable<ModalProps['onHide']>;
 }
 
-function UpdateVariableModal({ index, variable, ...props }: UpdateVariableModal): ReactElement<UpdateVariableModal> {
+function UpdateVariableModal({ index, variable, onUpdated, onHide, ...props }: UpdateVariableModalProps): ReactElement<UpdateVariableModalProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
-	const [variables, setVariables] = useVariables();
 
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -33,10 +33,8 @@ function UpdateVariableModal({ index, variable, ...props }: UpdateVariableModal)
 		const response = await TelegramBotVariableAPI.update(telegramBot.id, variable.id, data);
 
 		if (response.ok) {
-			const _variables = [...variables];
-			_variables.splice(index, 1, response.json.telegram_bot_variable);
-			setVariables(_variables);
-			props.onHide?.();
+			onUpdated();
+			onHide();
 		}
 
 		setLoading(false);
@@ -49,6 +47,7 @@ function UpdateVariableModal({ index, variable, ...props }: UpdateVariableModal)
 			loading={loading}
 			initialData={variable}
 			title={gettext('Редактирование переменной')}
+			onHide={onHide}
 		>
 			{data => (
 				<Button

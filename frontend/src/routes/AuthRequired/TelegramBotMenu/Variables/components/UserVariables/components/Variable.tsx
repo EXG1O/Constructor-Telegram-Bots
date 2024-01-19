@@ -3,26 +3,25 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import UpdateVariableModal from './UpdateVariableModal';
+import UpdateVariableModal, { UpdateVariableModalProps } from './UpdateVariableModal';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import useToast from 'services/hooks/useToast';
-import useVariables from '../services/hooks/useVariables';
 
 import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotVariable } from 'services/api/telegram_bots/types';
 
-export interface VariableProps {
+export interface VariableProps extends Pick<UpdateVariableModalProps, 'onUpdated'> {
 	index: number;
 	variable: TelegramBotVariable;
+	onDeleted: () => void;
 }
 
-function Variable({ index, variable }: VariableProps): ReactElement<VariableProps> {
+function Variable({ index, variable, onUpdated, onDeleted }: VariableProps): ReactElement<VariableProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
-	const [variables, setVariables] = useVariables();
 
 	const [showUpdateVariableModal, setShowUpdateVariableModal] = useState<boolean>(false);
 	const [showDeleteVariableModal, setShowDeleteVariableModal] = useState<boolean>(false);
@@ -31,14 +30,12 @@ function Variable({ index, variable }: VariableProps): ReactElement<VariableProp
 		const response = await TelegramBotVariableAPI._delete(telegramBot.id, variable.id);
 
 		if (response.ok) {
-			const _variables = [...variables];
-			_variables.splice(index, 1);
-			setVariables(_variables);
+			onDeleted();
 			setShowDeleteVariableModal(false);
 		}
 
 		createMessageToast({ message: response.json.message, level: response.json.level });
-	}, [variables]);
+	}, []);
 
 	return(
 		<>
@@ -46,6 +43,7 @@ function Variable({ index, variable }: VariableProps): ReactElement<VariableProp
 				index={index}
 				variable={variable}
 				show={showUpdateVariableModal}
+				onUpdated={onUpdated}
 				onHide={useCallback(() => setShowUpdateVariableModal(false), [])}
 			/>
 			<AskConfirmModal
@@ -74,16 +72,18 @@ function Variable({ index, variable }: VariableProps): ReactElement<VariableProp
 						<span className='flex-fill text-nowrap'>
 							{variable.description}
 						</span>
-						<i
-							className='d-flex text-secondary bi bi-pencil-square my-auto'
-							style={{ fontSize: '18px', cursor: 'pointer' }}
-							onClick={() => setShowUpdateVariableModal(true)}
-						/>
-						<i
-							className='d-flex text-danger bi bi-trash my-auto'
-							style={{ fontSize: '19px', cursor: 'pointer' }}
-							onClick={() => setShowDeleteVariableModal(true)}
-						/>
+						<div className='d-flex gap-1'>
+							<i
+								className='d-flex text-secondary bi bi-pencil-square my-auto'
+								style={{ fontSize: '18px', cursor: 'pointer' }}
+								onClick={() => setShowUpdateVariableModal(true)}
+							/>
+							<i
+								className='d-flex text-danger bi bi-trash my-auto'
+								style={{ fontSize: '19px', cursor: 'pointer' }}
+								onClick={() => setShowDeleteVariableModal(true)}
+							/>
+						</div>
 					</div>
 				</td>
 			</tr>
