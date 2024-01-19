@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useRef, useState } from 'react';
-import { useRouteLoaderData } from 'react-router';
+import { Params, json, useRouteLoaderData } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 
@@ -10,10 +10,27 @@ import Diagram from './components/Diagram';
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
+import { TelegramBotCommandAPI, TelegramBotCommandsDiagramAPI } from 'services/api/telegram_bots/main';
+import { TelegramBotCommandDiagram } from 'services/api/telegram_bots/types';
 
 export interface UpdateNodesRef {
 	updateNodes?: () => void | Promise<void>;
+}
+
+export interface LoaderData {
+	diagramCommands: TelegramBotCommandDiagram[];
+}
+
+export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
+	const telegramBotID: number = parseInt(params.telegramBotID!);
+
+	const response = await TelegramBotCommandsDiagramAPI.get(telegramBotID);
+
+	if (!response.ok) {
+		throw json(response.json, { status: response.status });
+	}
+
+	return { diagramCommands: response.json };
 }
 
 function Constructor(): ReactElement {

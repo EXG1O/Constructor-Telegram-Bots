@@ -148,11 +148,15 @@ const router = createBrowserRouter([
 								},
 							},
 							{
+								id: 'telegram-bot-menu-constructor',
 								path: 'constructor/',
 								async lazy() {
 									const module = await import('./routes/AuthRequired/TelegramBotMenu/Constructor');
 
-									return { Component: module.default };
+									return {
+										Component: module.default,
+										loader: module.loader,
+									}
 								},
 							},
 						],

@@ -1,12 +1,8 @@
-import 'reactflow/dist/style.css';
-import './index.css';
-
 import React, {
 	ReactElement,
 	MouseEvent as ReactMouseEvent,
 	MutableRefObject,
 	memo,
-	useEffect,
 	useCallback,
 	useRef,
 } from 'react';
@@ -29,14 +25,18 @@ import ReactFlow, {
 	Edge,
 } from 'reactflow';
 
+import 'reactflow/dist/style.css';
+import './index.scss';
+
 import Button from 'react-bootstrap/Button';
 
-import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+import { UpdateNodesRef, LoaderData as TelegramBotMenuConstructorLoaderData } from '../..';
 
-import { UpdateNodesRef } from '../../.';
 import CommandNode from './components/CommandNode';
 
 import useToast from 'services/hooks/useToast';
+
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import { TelegramBotCommandDiagramAPI, TelegramBotCommandsDiagramAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotCommandDiagram } from 'services/api/telegram_bots/types';
@@ -54,57 +54,63 @@ const nodeTypes: NodeTypes = { command: CommandNode };
 
 function Diagram({ innerRef, onAddCommandClick }: DiagramProps): ReactElement<DiagramProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+	const { diagramCommands } = useRouteLoaderData('telegram-bot-menu-constructor') as TelegramBotMenuConstructorLoaderData;
 
 	const { createMessageToast } = useToast();
 
-	const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
-	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+	const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(parseNodesFromDiagramCommands(diagramCommands));
+	const [edges, setEdges, onEdgesChange] = useEdgesState(parseEdgesFromDiagramCommands(diagramCommands));
 	const edgeUpdating = useRef<Edge | null>(null);
+
+	function parseNodesFromDiagramCommands(diagramCommands: TelegramBotCommandDiagram[]): Node<NodeData>[] {
+		return diagramCommands.map(diagramCommand => {
+			const { x, y, ..._diagramCommand } = diagramCommand;
+
+			return {
+				id: _diagramCommand.id.toString(),
+				type: 'command',
+				position: { x, y },
+				data: { ..._diagramCommand, updateNodes },
+			}
+		});
+	}
+
+	function parseEdgesFromDiagramCommands(diagramCommands: TelegramBotCommandDiagram[]): Edge[] {
+		const _edges: Edge[] = [];
+
+		diagramCommands.forEach(diagramCommand => {
+			diagramCommand.keyboard?.buttons.forEach(button => {
+				if (
+					button.telegram_bot_command_id !== null &&
+					button.start_diagram_connector !== null &&
+					button.end_diagram_connector !== null
+				) {
+					_edges.push({
+						id: `reactflow__edge-${button.start_diagram_connector}-${button.end_diagram_connector}`,
+						source: diagramCommand.id.toString(),
+						sourceHandle: button.start_diagram_connector,
+						target: button.telegram_bot_command_id.toString(),
+						targetHandle: button.end_diagram_connector,
+					});
+				}
+			});
+		});
+
+		return _edges;
+	}
 
 	const updateNodes = useCallback(async (): Promise<void> => {
 		const response = await TelegramBotCommandsDiagramAPI.get(telegramBot.id);
 
 		if (response.ok) {
-			setNodes(response.json.map(command => {
-				const { x, y, ...command_ } = command;
-
-				return {
-					id: command_.id.toString(),
-					type: 'command',
-					position: { x, y },
-					data: { ...command_, updateNodes },
-				}
-			}));
-
-			const newEdges: Edge[] = [];
-
-			response.json.forEach(command => {
-				command.keyboard?.buttons.forEach(button => {
-					if (
-						button.telegram_bot_command_id !== null &&
-						button.start_diagram_connector !== null &&
-						button.end_diagram_connector !== null
-					) {
-						newEdges.push({
-							id: `reactflow__edge-${button.start_diagram_connector}-${button.end_diagram_connector}`,
-							source: command.id.toString(),
-							sourceHandle: button.start_diagram_connector,
-							target: button.telegram_bot_command_id.toString(),
-							targetHandle: button.end_diagram_connector,
-						});
-					}
-				});
-			});
-
-			setEdges(newEdges);
+			setNodes(parseNodesFromDiagramCommands(response.json));
+			setEdges(parseEdgesFromDiagramCommands(response.json));
 		}
 	}, []);
 
 	if (innerRef) {
 		innerRef.current.updateNodes = updateNodes;
 	}
-
-	useEffect(() => { updateNodes() }, []);
 
 	const handleNodeDragStop = useCallback((event: ReactMouseEvent, node: Node, nodes: Node[] | undefined): void => {
 		nodes?.forEach(node => TelegramBotCommandDiagramAPI.updatePosition(
