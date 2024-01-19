@@ -92,10 +92,9 @@ function UserVariables(): ReactElement {
 									className='overflow-hidden align-middle rounded mb-0'
 								>
 									<tbody>
-										{paginationData.results.map((variable, index) => (
+										{paginationData.results.map(variable => (
 											<Variable
 												key={variable.id}
-												index={index}
 												variable={variable}
 												onUpdated={updateVariables}
 												onDeleted={updateVariables}

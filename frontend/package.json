@@ -32,7 +32,6 @@
     "css-minimizer-webpack-plugin": "^5.0.1",
     "dotenv-webpack": "^8.0.1",
     "exports-loader": "^4.0.0",
-    "fuzzball": "^2.1.2",
     "html-webpack-plugin": "^5.6.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",

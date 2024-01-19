@@ -1,142 +1,125 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { useNavigate, useRouteLoaderData } from 'react-router-dom';
-import * as fuzz from 'fuzzball';
+import React, { ReactElement, useState } from 'react';
+import { Params, json, useRouteLoaderData } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
-import Stack from 'react-bootstrap/Stack';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Button from 'react-bootstrap/Button';
+import Table from 'react-bootstrap/Table';
 
-import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
+import Loading from 'components/Loading';
+import Pagination from 'components/Pagination';
 
 import TelegramBotUser from './components/TelegramBotUser';
 
-import { TelegramBotUsersAPI } from 'services/api/telegram_bots/main';
-import { TelegramBotUser as TelegramBotUserType } from 'services/api/telegram_bots/types';
+import useToast from 'services/hooks/useToast';
 
-interface TelegramBotUsersIsSortedState {
-	search: boolean;
+import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
+
+import { TelegramBotUsersAPI } from 'services/api/telegram_bots/main';
+import { APIResponse } from 'services/api/telegram_bots/types';
+
+export interface TelegramBotUsersPaginationData extends Omit<APIResponse.TelegramBotUsersAPI.Get.Pagination, 'next' | 'previous'> {
+	limit: number;
+	offset: number;
+}
+
+export interface LoaderData {
+	telegramBotUsersPaginationData: TelegramBotUsersPaginationData;
+}
+
+export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
+	const telegramBotID: number = parseInt(params.telegramBotID!);
+	const [limit, offset] = [20, 0];
+
+	const response = await TelegramBotUsersAPI.get(telegramBotID, limit, offset);
+
+	if (!response.ok) {
+		throw json(response.json, { status: response.status });
+	}
+
+	return {
+		telegramBotUsersPaginationData: {
+			count: response.json.count,
+			limit,
+			offset,
+			results: response.json.results,
+		},
+	}
 }
 
 function Users(): ReactElement {
-	const navigate = useNavigate();
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+	const { telegramBotUsersPaginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-users') as LoaderData;
 
-	const [telegramBotUsers, setTelegramBotUsers] = useState<TelegramBotUserType[]>([]);
-	const [sortedTelegramBotUsers, setSortedTelegramBotUsers] = useState<TelegramBotUserType[]>(telegramBotUsers);
-	const [telegramBotUsersIsSorted, setTelegramBotUsersIsSorted] = useState<TelegramBotUsersIsSortedState>({ search: false });
-	const [searchInputValue, setSearchInputValue] = useState<string>('');
+	const { createMessageToast } = useToast();
 
-	useEffect(() => { updateTelegramBotUsers() }, []);
-	useEffect(() => {
-		setSortedTelegramBotUsers(telegramBotUsers);
+	const [paginationData, setPaginationData] = useState<TelegramBotUsersPaginationData>(initialPaginationData);
+	const [loading, setLoading] = useState<boolean>(false);
 
-		if (telegramBotUsersIsSorted.search) {
-			searchTelegramBotUser();
-		}
-	}, [telegramBotUsers]);
+	async function updateTelegramBotUsers(limit?: number, offset?: number): Promise<void> {
+		setLoading(true);
 
-	async function updateTelegramBotUsers(): Promise<void> {
-		const response = await TelegramBotUsersAPI.get(telegramBot.id);
+		limit ??= paginationData.limit;
+		offset ??= paginationData.offset;
+
+		const response = await TelegramBotUsersAPI.get(telegramBot.id, limit, offset);
 
 		if (response.ok) {
-			setTelegramBotUsers(response.json);
+			setPaginationData({
+				count: response.json.count,
+				limit,
+				offset,
+				results: response.json.results,
+			});
+			setLoading(false);
 		} else {
-			navigate('/personal-cabinet/');
-		}
-	}
-
-	function searchTelegramBotUser(): void {
-		const choices: Record<number, string> = {};
-
-		telegramBotUsers.forEach(telegramBotUser => choices[telegramBotUser.id] = telegramBotUser.full_name);
-
-		const result: TelegramBotUserType[] = [];
-		const stringMatchingResults = fuzz.extract(searchInputValue, choices, { scorer: fuzz.token_set_ratio });
-
-		for (const stringMatchingResult of stringMatchingResults) {
-			for (const telegramBotUser of telegramBotUsers) {
-				if (stringMatchingResult[2] === telegramBotUser.id.toString()) {
-					result.push(telegramBotUser);
-					break;
-				}
-			}
-		}
-
-		setSortedTelegramBotUsers(result);
-	}
-
-	function handleSearchButtonClick(): void {
-		searchTelegramBotUser();
-		setTelegramBotUsersIsSorted({ ...telegramBotUsersIsSorted, search: true });
-	}
-
-	function handleCancelSearchButtonClick(): void {
-		setSearchInputValue('');
-
-		if (telegramBotUsersIsSorted.search) {
-			setSortedTelegramBotUsers(telegramBotUsers);
-			setTelegramBotUsersIsSorted({ ...telegramBotUsersIsSorted, search: true });
+			createMessageToast({ message: response.json.message, level: response.json.level });
 		}
 	}
 
 	return (
 		<>
 			<Card className='border'>
-				<Card.Header as='h5' className='border-bottom text-center'>{gettext('Список пользователей')}</Card.Header>
+				<Card.Header as='h5' className='border-bottom text-center'>
+					{gettext('Список пользователей')}
+				</Card.Header>
 				<Card.Body className='vstack gap-2'>
-					<Stack direction='horizontal' gap={2}>
-						<Button
-							size='sm'
-							variant='light'
-							className='border bi bi-arrow-repeat px-2 py-0'
-							style={{ fontSize: '20px' }}
-							onClick={updateTelegramBotUsers}
-						/>
-						{telegramBotUsers.length > 0 && (
-							<>
-								<InputGroup>
-									<Form.Control
-										size='sm'
-										className='flex-fill'
-										value={searchInputValue}
-										placeholder={gettext('Введите имя')}
-										onChange={e => setSearchInputValue(e.target.value)}
-									/>
-									{searchInputValue !== '' && (
-										<Button
-											size='sm'
-											variant='light'
-											className='border bi bi-x-lg px-2'
-											style={{ WebkitTextStrokeWidth: '0.8px' }}
-											onClick={handleCancelSearchButtonClick}
-										/>
-									)}
-								</InputGroup>
-								<Button size='sm' variant='dark' onClick={handleSearchButtonClick}>
-									{gettext('Поиск')}
-								</Button>
-							</>
-						)}
-					</Stack>
-					<ListGroup>
-						{telegramBotUsers.length ? (
-							sortedTelegramBotUsers.map(telegramBotUser => (
-								<ListGroup.Item key={telegramBotUser.id} className='p-3'>
-									<TelegramBotUser
-										telegramBotUser={telegramBotUser}
-										updateTelegramBotUsers={updateTelegramBotUsers}
-									/>
-								</ListGroup.Item>
-							))
+					<Pagination
+						count={paginationData.count}
+						limit={paginationData.limit}
+						offset={paginationData.offset}
+						size='sm'
+						className='align-self-center'
+						onPageChange={offset => updateTelegramBotUsers(undefined, offset)}
+					/>
+					{!loading ? (
+						paginationData.count ? (
+							<div className='border rounded'>
+								<Table
+									responsive
+									striped
+									borderless
+									className='overflow-hidden align-middle text-nowrap rounded mb-0'
+								>
+									<tbody>
+										{paginationData.results.map(telegramBotUser => (
+											<TelegramBotUser
+												key={telegramBotUser.id}
+												telegramBotUser={telegramBotUser}
+												onDeleted={updateTelegramBotUsers}
+											/>
+										))}
+									</tbody>
+								</Table>
+							</div>
 						) : (
-							<ListGroup.Item className='text-center p-3'>
+							<div className='border rounded text-center px-3 py-2'>
 								{gettext('Вашего Telegram бота ещё никто не активировал')}
-							</ListGroup.Item>
-						)}
-					</ListGroup>
+							</div>
+						)
+					) : (
+						<div className='d-flex justify-content-center border rounded p-3'>
+							<Loading size='md' />
+						</div>
+					)}
 				</Card.Body>
 			</Card>
 		</>

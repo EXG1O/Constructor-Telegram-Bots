@@ -13,12 +13,11 @@ import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotVariable } from 'services/api/telegram_bots/types';
 
 export interface VariableProps extends Pick<UpdateVariableModalProps, 'onUpdated'> {
-	index: number;
 	variable: TelegramBotVariable;
 	onDeleted: () => void;
 }
 
-function Variable({ index, variable, onUpdated, onDeleted }: VariableProps): ReactElement<VariableProps> {
+function Variable({ variable, onUpdated, onDeleted }: VariableProps): ReactElement<VariableProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
@@ -40,7 +39,6 @@ function Variable({ index, variable, onUpdated, onDeleted }: VariableProps): Rea
 	return(
 		<>
 			<UpdateVariableModal
-				index={index}
 				variable={variable}
 				show={showUpdateVariableModal}
 				onUpdated={onUpdated}
