@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2023 exg1o
+Copyright (c) 2024 exg1o
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
 to modify, distribute, and use the Software only on your own computer system, subject to the following conditions:
