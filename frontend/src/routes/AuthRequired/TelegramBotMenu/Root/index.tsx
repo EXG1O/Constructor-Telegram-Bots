@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
-import { Outlet, Params, redirect, json } from 'react-router-dom';
+import { Outlet, Params, json, redirect } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
 import Header from './components/Header';
 
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
-import { TelegramBot } from 'services/api/telegram_bots/types';
+import { APIResponse } from 'services/api/telegram_bots/types';
 
 export interface LoaderData {
-	telegramBot: TelegramBot;
+	telegramBot: APIResponse.TelegramBotAPI.Get;
 }
 
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<Response | LoaderData> {

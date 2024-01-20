@@ -13,7 +13,7 @@ import { DonationsAPI } from 'services/api/donations/main';
 import { APIResponse } from 'services/api/donations/types';
 
 export interface LoaderData {
-	donations: APIResponse.DonationsAPI.Get;
+	donations: APIResponse.DonationsAPI.Get.Pagination;
 }
 
 export async function loader(): Promise<LoaderData> {

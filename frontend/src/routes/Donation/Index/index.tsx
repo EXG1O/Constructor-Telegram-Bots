@@ -5,11 +5,11 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
 import { DonationSectionsAPI, DonationButtonsAPI } from 'services/api/donations/main';
-import { DonationSection, DonationButton } from 'services/api/donations/types';
+import { APIResponse } from 'services/api/donations/types';
 
 export interface LoaderData {
-	sections: DonationSection[],
-	buttons: DonationButton[],
+	sections: APIResponse.DonationSectionsAPI.Get,
+	buttons: APIResponse.DonationButtonsAPI.Get,
 }
 
 export async function loader(): Promise<LoaderData> {
@@ -25,8 +25,8 @@ export async function loader(): Promise<LoaderData> {
 	}
 
 	return {
-		sections: responses[0].json as DonationSection[],
-		buttons: responses[1].json as DonationButton[],
+		sections: responses[0].json as APIResponse.DonationSectionsAPI.Get,
+		buttons: responses[1].json as APIResponse.DonationButtonsAPI.Get,
 	}
 }
 

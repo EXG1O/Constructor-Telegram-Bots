@@ -5,7 +5,7 @@ import 'tinymce/models/dom/model';
 import 'tinymce/themes/silver';
 import 'tinymce/icons/default';
 import 'tinymce/skins/ui/oxide/skin.min.css';
-import './TinymceEditor.css';
+import './TinymceEditor.scss';
 
 import { Editor, IAllProps } from '@tinymce/tinymce-react';
 

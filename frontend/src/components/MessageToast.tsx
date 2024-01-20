@@ -22,10 +22,10 @@ function MessageToast({ message, level, onExited }: MessageToastProps): ReactEle
 
 	return (
 		<Toast
-			className={`text-bg-${level} mb-0`}
-			show={show}
 			autohide
+			show={show}
 			delay={6000}
+			className={`text-bg-${level} mb-0`}
 			onExited={onExited}
 			onClose={() => setShow(false)}
 		>

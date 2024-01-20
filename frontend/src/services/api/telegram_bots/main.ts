@@ -2,7 +2,6 @@ import { makeRequest } from 'services/api/base';
 import {
 	TelegramBot,
 	TelegramBotCommand,
-	TelegramBotCommandDiagram,
 	TelegramBotVariable,
 	TelegramBotUser,
 	Data,
@@ -12,13 +11,15 @@ import {
 const rootURL = '/api/telegram-bots/';
 
 export namespace TelegramBotsAPI {
-	export const get = () => makeRequest<TelegramBot[]>(rootURL, 'GET');
+	export const get = () => makeRequest<APIResponse.TelegramBotsAPI.Get>(rootURL, 'GET');
 }
 
 export namespace TelegramBotAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => rootURL + `${telegramBotID}/`;
 
-	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBot>(url(telegramBotID), 'GET');
+	export const get = (telegramBotID: TelegramBot['id']) => (
+		makeRequest<APIResponse.TelegramBotAPI.Get>(url(telegramBotID), 'GET')
+	);
 	export const create = (data: Data.TelegramBotAPI.Create) => (
 		makeRequest<APIResponse.TelegramBotAPI.Create>(rootURL, 'POST', undefined, data)
 	);
@@ -35,7 +36,9 @@ export namespace TelegramBotAPI {
 export namespace TelegramBotCommandsAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'commands/';
 
-	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotCommand[]>(url(telegramBotID), 'GET');
+	export const get = (telegramBotID: TelegramBot['id']) => (
+		makeRequest<APIResponse.TelegramBotCommandsAPI.Get>(url(telegramBotID), 'GET')
+	);
 }
 
 export namespace TelegramBotCommandAPI {
@@ -47,17 +50,17 @@ export namespace TelegramBotCommandAPI {
 	export const get = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotCommandID: TelegramBotCommand['id'],
-	) => makeRequest<TelegramBotCommand>(url(telegramBotID, telegramBotCommandID), 'GET');
+	) => makeRequest<APIResponse.TelegramBotCommandAPI.Get>(url(telegramBotID, telegramBotCommandID), 'GET');
 	export const create = (
 		telegramBotID: TelegramBot['id'],
 		data: Data.TelegramBotCommandAPI.Create,
 	) => {
-		const { images, files, ...data_ } = data;
+		const { images, files, ..._data } = data;
 
 		const formData = new FormData();
 		images?.forEach((image, index) => formData.append(`image:${index}`, image, image.name));
 		files?.forEach((file, index) => formData.append(`file:${index}`, file, file.name));
-		formData.append('data', JSON.stringify(data_));
+		formData.append('data', JSON.stringify(_data));
 
 		return makeRequest(TelegramBotCommandsAPI.url(telegramBotID), 'POST', undefined, formData);
 	}
@@ -66,7 +69,7 @@ export namespace TelegramBotCommandAPI {
 		telegramBotCommandID: TelegramBotCommand['id'],
 		data: Data.TelegramBotCommandAPI.Update,
 	) => {
-		const { images, files, ...data_ } = data;
+		const { images, files, ..._data } = data;
 
 		const formData = new FormData();
 		images?.forEach((image, index) => {
@@ -87,7 +90,7 @@ export namespace TelegramBotCommandAPI {
 				formData.append(name, file, file.name);
 			}
 		});
-		formData.append('data', JSON.stringify(data_));
+		formData.append('data', JSON.stringify(_data));
 
 		return makeRequest(TelegramBotCommandAPI.url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, formData);
 	};
@@ -100,7 +103,9 @@ export namespace TelegramBotCommandAPI {
 export namespace TelegramBotCommandsDiagramAPI {
 	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'diagram/commands/';
 
-	export const get = (telegramBotID: TelegramBot['id']) => makeRequest<TelegramBotCommandDiagram[]>(url(telegramBotID), 'GET');
+	export const get = (telegramBotID: TelegramBot['id']) => (
+		makeRequest<APIResponse.TelegramBotCommandsDiagramAPI.Get>(url(telegramBotID), 'GET')
+	);
 }
 
 export namespace TelegramBotCommandDiagramAPI {
@@ -150,7 +155,7 @@ export namespace TelegramBotVariableAPI {
 	export const get = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotVariableID: TelegramBotVariable['id'],
-	) => makeRequest<TelegramBotVariable>(url(telegramBotID, telegramBotVariableID), 'GET');
+	) => makeRequest<APIResponse.TelegramBotVariableAPI.Get>(url(telegramBotID, telegramBotVariableID), 'GET');
 	export const create = (
 		telegramBotID: TelegramBot['id'],
 		data: Data.TelegramBotVariableAPI.Create,
@@ -189,7 +194,7 @@ export namespace TelegramBotUserAPI {
 	export const get = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotUserID: TelegramBotUser['id'],
-	) => makeRequest<TelegramBotUser>(url(telegramBotID, telegramBotUserID), 'GET');
+	) => makeRequest<APIResponse.TelegramBotUserAPI.Get>(url(telegramBotID, telegramBotUserID), 'GET');
 	export const post = (
 		telegramBotID: TelegramBot['id'],
 		telegramBotUserID: TelegramBotUser['id'],

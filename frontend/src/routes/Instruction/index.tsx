@@ -4,10 +4,10 @@ import { json, useRouteLoaderData } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import { InstructionSectionsAPI } from 'services/api/instruction/main';
-import { InstructionSection } from 'services/api/instruction/types';
+import { APIResponse } from 'services/api/instruction/types';
 
 export interface LoaderData {
-	sections: InstructionSection[];
+	sections: APIResponse.InstructionSectionsAPI.Get;
 }
 
 export async function loader(): Promise<LoaderData> {

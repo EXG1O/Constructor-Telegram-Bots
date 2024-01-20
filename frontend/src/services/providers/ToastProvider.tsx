@@ -10,11 +10,11 @@ export interface ToastProviderProps {
 	children: ReactNode;
 }
 
-function ToastProvider({ children }: ToastProviderProps): ReactElement {
+function ToastProvider({ children }: ToastProviderProps): ReactElement<ToastProviderProps> {
 	const [toasts, setToasts] = useState<ReactElement[]>([]);
 
 	function removeToast(toast: ReactElement): void {
-		setToasts(prevToasts => prevToasts.filter(t => t !== toast));
+		setToasts(prevToasts => prevToasts.filter(_toast => _toast !== toast));
 	}
 
 	function createMessageToast(props: Omit<MessageToastProps, 'onExited'>): void {

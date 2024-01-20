@@ -16,13 +16,13 @@ interface Data {
 	is_private: boolean;
 }
 
-export interface AddTelegramBotModalProps extends Omit<ModalProps, 'onHide' | 'children'> {
+export interface AddTelegramBotModalProps extends Omit<ModalProps, 'children'> {
 	onHide: NonNullable<ModalProps['onHide']>;
 }
 
 function AddTelegramBotModal(props: AddTelegramBotModalProps): ReactElement<AddTelegramBotModalProps> {
 	const { createMessageToast } = useToast();
-	const { telegramBots, setTelegramBots } = useTelegramBots();
+	const [telegramBots, setTelegramBots] = useTelegramBots();
 
 	const [data, setData] = useState<Data>({ api_token: '', is_private: false });
 	const [loading, setLoading] = useState<boolean>(false);

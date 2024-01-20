@@ -31,9 +31,9 @@ function TelegramBotUser({ telegramBotUser, onDeleted }: TelegramBotUserProps): 
 		if (response.ok) {
 			onDeleted();
 			setShowDeleteTelegramBotUserModal(false);
-			setLoadingDeleteTelegramBotUserModal(false);
 		}
 
+		setLoadingDeleteTelegramBotUserModal(false);
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}
 

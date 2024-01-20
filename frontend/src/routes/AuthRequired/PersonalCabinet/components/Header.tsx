@@ -22,7 +22,7 @@ function Header(): ReactElement {
 					className='flex-grow-1 flex-lg-grow-0 align-self-center'
 					onClick={() => setShowAddTelegramBotModal(true)}
 				>
-					<i className='bi bi-plus-lg me-1' style={{ WebkitTextStroke: '1px' }}></i>
+					<i className='bi bi-plus-lg me-1' style={{ WebkitTextStroke: '0.6px' }} />
 					{gettext('Добавить Telegram бота')}
 				</Button>
 			</div>

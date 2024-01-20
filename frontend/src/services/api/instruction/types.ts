@@ -3,3 +3,9 @@ export interface InstructionSection {
 	title: string;
 	text: string;
 }
+
+export namespace APIResponse {
+	export namespace InstructionSectionsAPI {
+		export type Get = InstructionSection[];
+	}
+}

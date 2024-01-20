@@ -11,10 +11,12 @@ function Root(): ReactElement {
 
 	useEffect(() => { !user && navigate('/') }, [user]);
 
-	return user ? (
-		<Outlet />
-	) : (
-		<Loading size='xl' className='m-auto' />
+	return (
+		user ? (
+			<Outlet />
+		) : (
+			<Loading size='xl' className='m-auto' />
+		)
 	);
 }
 

@@ -3,9 +3,9 @@ import React, { ReactElement, memo } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
 
-export type LoginViaTelegramModalProps = Omit<ModalProps, 'children'>;
+export type LoginModalProps = Omit<ModalProps, 'children'>;
 
-function LoginViaTelegramModal(props: LoginViaTelegramModalProps): ReactElement<LoginViaTelegramModalProps> {
+function LoginModal(props: LoginModalProps): ReactElement<LoginModalProps> {
 	return (
 		<Modal {...props}>
 			<Modal.Header closeButton className='border-bottom-0' />
@@ -21,7 +21,7 @@ function LoginViaTelegramModal(props: LoginViaTelegramModalProps): ReactElement<
 				<p className='mb-1'>
 					{gettext('Отсканируйте QR-код с устройства на котором установлен Telegram.')}
 				</p>
-				<a href='https://t.me/?start=login' target='_blank'>
+				<a href={`https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=login`} target='_blank'>
 					{gettext('Перейти по ссылке')}
 				</a>
 			</Modal.Body>
@@ -29,4 +29,4 @@ function LoginViaTelegramModal(props: LoginViaTelegramModalProps): ReactElement<
 	);
 }
 
-export default memo(LoginViaTelegramModal);
+export default memo(LoginModal);

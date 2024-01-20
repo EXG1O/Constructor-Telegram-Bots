@@ -1,5 +1,5 @@
 import { makeRequest } from 'services/api/base';
-import { DonationSection, DonationButton, APIResponse } from './types';
+import { APIResponse } from './types';
 
 const rootURL = '/api/donations/';
 
@@ -16,11 +16,11 @@ export namespace DonationsAPI {
 export namespace DonationSectionsAPI {
 	export const url = rootURL + 'sections/';
 
-	export const get = () => makeRequest<DonationSection[]>(url, 'GET');
+	export const get = () => makeRequest<APIResponse.DonationSectionsAPI.Get>(url, 'GET');
 }
 
 export namespace DonationButtonsAPI {
 	export const url = rootURL + 'buttons/';
 
-	export const get = () => makeRequest<DonationButton[]>(url, 'GET');
+	export const get = () => makeRequest<APIResponse.DonationButtonsAPI.Get>(url, 'GET');
 }

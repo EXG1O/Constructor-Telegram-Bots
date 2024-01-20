@@ -1,11 +1,9 @@
 import React, { ReactElement, useState } from 'react';
-import { json, useRouteLoaderData } from 'react-router-dom';
+import { Link, json, useRouteLoaderData } from 'react-router-dom';
 
-import { LinkContainer } from 'react-router-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 
 import TelegramBotCard from 'components/TelegramBotCard';
 
@@ -14,10 +12,10 @@ import Header from './components/Header';
 import TelegramBotsContext from './services/contexts/TelegramBotsContext';
 
 import { TelegramBotsAPI } from 'services/api/telegram_bots/main';
-import { TelegramBot } from 'services/api/telegram_bots/types';
+import { TelegramBot, APIResponse } from 'services/api/telegram_bots/types';
 
 export interface LoaderData {
-	telegramBots: TelegramBot[]
+	telegramBots: APIResponse.TelegramBotsAPI.Get;
 }
 
 export async function loader(): Promise<LoaderData> {
@@ -37,7 +35,7 @@ function PersonalCabinet(): ReactElement {
 
 	return (
 		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
-			<TelegramBotsContext.Provider value={{ telegramBots, setTelegramBots }}>
+			<TelegramBotsContext.Provider value={[telegramBots, setTelegramBots]}>
 				<Header />
 				<Row xs={1} md={2} xl={3} className='g-3'>
 					{telegramBots.length ? (
@@ -45,15 +43,12 @@ function PersonalCabinet(): ReactElement {
 							<TelegramBotCard key={telegramBot.id} telegramBot={telegramBot}>
 								{() => (
 									<Card.Footer className='border-0 p-0'>
-										<LinkContainer to={`/telegram-bot-menu/${telegramBot.id}/`}>
-											<Button
-												as='a'
-												variant='light'
-												className=' border border-top-0 rounded-top-0 w-100 px-3 py-2'
-											>
-												{gettext('Меню Telegram бота')}
-											</Button>
-										</LinkContainer>
+										<Link
+											to={`/telegram-bot-menu/${telegramBot.id}/`}
+											className='btn btn-light border border-top-0 rounded-top-0 w-100 px-3 py-2'
+										>
+											{gettext('Меню Telegram бота')}
+										</Link>
 									</Card.Footer>
 								)}
 							</TelegramBotCard>

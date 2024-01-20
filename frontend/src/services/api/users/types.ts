@@ -15,3 +15,9 @@ export namespace Data {
 		}
 	}
 }
+
+export namespace APIResponse {
+	export namespace UserAPI {
+		export type Get = User;
+	}
+}

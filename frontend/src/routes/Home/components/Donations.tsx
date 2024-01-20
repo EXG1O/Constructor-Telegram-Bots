@@ -1,10 +1,8 @@
 import React, { ReactElement } from 'react';
-import { useRouteLoaderData } from 'react-router-dom';
+import { Link, useRouteLoaderData } from 'react-router-dom';
 
-import { LinkContainer } from 'react-router-bootstrap';
 import Stack from 'react-bootstrap/Stack';
 import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
 
 import { LoaderData as HomeLoaderData } from '..';
 
@@ -53,14 +51,12 @@ function Donations(): ReactElement {
 					</tbody>
 				</Table>
 			</div>
-			<LinkContainer to='/donation/'>
-				<Button
-					variant='success'
-					className='align-self-center'
-				>
-					{gettext('Поддержать разработчика')}
-				</Button>
-			</LinkContainer>
+			<Link
+				to='/donation/'
+				className='btn btn-success align-self-center'
+			>
+				{gettext('Поддержать разработчика')}
+			</Link>
 		</Stack>
 	);
 }

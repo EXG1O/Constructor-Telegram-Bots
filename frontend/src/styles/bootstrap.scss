@@ -50,7 +50,17 @@ $pagination-active-border-color: $dark;
 @import "~bootstrap/scss/carousel";
 @import "~bootstrap/scss/spinners";
 @import "~bootstrap/scss/offcanvas";
-@import "~bootstrap/scss/placeholders";
+// @import "~bootstrap/scss/placeholders";
+
+.nav-pills .nav-link {
+	color: $dark;
+	transition: color .15s ease-in-out, background-color .15s ease-in-out;
+
+	&.active, &:hover {
+		color: $light;
+		background-color: $dark;
+	}
+}
 
 .pagination {
 	margin-bottom: unset;

@@ -9,6 +9,25 @@ import { UserAPI } from 'services/api/users/main';
 
 const router = createBrowserRouter([
 	{
+		path: '/login/:userID/:confirmCode/',
+		loader: async ({ params }: { params: Params<'userID' | 'confirmCode'> }): Promise<Response> => {
+			const { userID, confirmCode } = params;
+
+			if (userID !== undefined && confirmCode !== undefined) {
+				const response = await UserAPI.login({
+					user_id: Number.parseInt(userID),
+					confirm_code: confirmCode,
+				});
+
+				if (response.ok) {
+					return redirect('/personal-cabinet/');
+				}
+			}
+
+			return redirect('/');
+		},
+	},
+	{
 		id: 'root',
 		path: '/',
 		async lazy() {
@@ -17,7 +36,7 @@ const router = createBrowserRouter([
 			return {
 				Component: module.default,
 				loader: module.loader,
-			};
+			}
 		},
 		shouldRevalidate: () => true,
 		children: [
@@ -164,23 +183,6 @@ const router = createBrowserRouter([
 				],
 			},
 		],
-	},
-	{
-		path: '/login/:userID/:confirmCode/',
-		loader: async ({ params }: { params: Params<'userID' | 'confirmCode'> }): Promise<Response> => {
-			if (params.userID !== undefined && params.confirmCode !== undefined) {
-				const response = await UserAPI.login({
-					user_id: Number.parseInt(params.userID),
-					confirm_code: params.confirmCode,
-				});
-
-				if (response.ok) {
-					return redirect('/personal-cabinet/');
-				}
-			}
-
-			return redirect('/');
-		},
 	},
 ]);
 

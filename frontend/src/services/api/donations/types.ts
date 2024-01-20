@@ -29,4 +29,12 @@ export namespace APIResponse {
 			}
 		}
 	}
+
+	export namespace DonationSectionsAPI {
+		export type Get = DonationSection[];
+	}
+
+	export namespace DonationButtonsAPI {
+		export type Get = DonationButton[];
+	}
 }

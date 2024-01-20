@@ -1,4 +1,4 @@
-import React, { Dispatch, ReactElement, SetStateAction, useState } from 'react';
+import React, { ReactElement, Dispatch, SetStateAction, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
@@ -9,10 +9,9 @@ import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotAPI } from 'services/api/telegram_bots/main';
-
 import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
 
+import { TelegramBotAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot } from 'services/api/telegram_bots/types';
 
 export interface TelegramBotCardFooterProps {

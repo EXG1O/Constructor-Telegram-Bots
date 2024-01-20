@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import RBPagination, { PaginationProps as RBPaginationProps } from 'react-bootstrap/Pagination';
 
 export interface PaginationProps extends Omit<RBPaginationProps, 'children'> {
-	count: number;
-	limit: number;
-	offset: number;
-	onPageChange: (offset: number) => void;
+	itemCount: number;
+	itemLimit: number;
+	itemOffset: number;
+	onPageChange: (newItemOffset: number) => void;
 }
 
 export interface PaginationItemProps<As extends ElementType = ElementType> extends HTMLAttributes<As> {
@@ -25,23 +25,23 @@ export function PaginationItem({ as: Component = 'button', active, children, ...
 	);
 }
 
-function Pagination({ count, limit, offset, onPageChange, ...props }: PaginationProps): ReactElement<PaginationProps> {
+function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }: PaginationProps): ReactElement<PaginationProps> {
 	const [items, setItems] = useState<ReactNode[]>([]);
 
 	useEffect(() => {
-		const pagesCount: number = Math.ceil(count / limit);
-		const activePageNum: number = Math.ceil(offset / limit) + 1;
+		const pageCount: number = Math.ceil(itemCount / itemLimit);
+		const activePageNum: number = Math.ceil(itemOffset / itemLimit) + 1;
 
 		setItems(
-			pagesCount > 1 ? (
-				Array.from({ length: pagesCount }, (_, num) => {
+			pageCount > 1 ? (
+				Array.from({ length: pageCount }, (_, num) => {
 					num++;
 
 					if (
-						pagesCount <= 7 ||
-						num === 1 || num === pagesCount ||
+						pageCount <= 7 ||
+						num === 1 || num === pageCount ||
 						num <= 5 && activePageNum <= 5 && activePageNum !== 5 ||
-						num >= pagesCount - 4 && activePageNum >= pagesCount - 4 && activePageNum !== pagesCount - 4 ||
+						num >= pageCount - 4 && activePageNum >= pageCount - 4 && activePageNum !== pageCount - 4 ||
 						num >= activePageNum - 1 && num <= activePageNum + 1
 					) {
 						return (
@@ -51,14 +51,14 @@ function Pagination({ count, limit, offset, onPageChange, ...props }: Pagination
 									activePageNum === num ? {
 										active: true,
 									} : {
-										onClick: () => onPageChange((num - 1) * limit),
+										onClick: () => onPageChange((num - 1) * itemLimit),
 									}
 								)}
 							>
 								{num}
 							</PaginationItem>
 						);
-					} else if (num === 2 || num === pagesCount - 2) {
+					} else if (num === 2 || num === pageCount - 2) {
 						return (
 							<PaginationItem key={num} as='span' style={{ cursor: 'default' }}>
 								...
@@ -68,7 +68,7 @@ function Pagination({ count, limit, offset, onPageChange, ...props }: Pagination
 				})
 			) : []
 		);
-	}, [count, limit, offset]);
+	}, [itemCount, itemLimit, itemOffset]);
 
 	return (
 		items.length ? (

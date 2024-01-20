@@ -74,9 +74,9 @@ function UserVariables(): ReactElement {
 							{gettext('Добавить переменную')}
 						</Button>
 						<Pagination
-							count={paginationData.count}
-							limit={paginationData.limit}
-							offset={paginationData.offset}
+							itemCount={paginationData.count}
+							itemLimit={paginationData.limit}
+							itemOffset={paginationData.offset}
 							size='sm'
 							className='justify-content-center'
 							onPageChange={offset => updateVariables(undefined, offset)}

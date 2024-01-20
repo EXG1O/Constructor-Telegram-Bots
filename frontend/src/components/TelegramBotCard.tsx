@@ -1,4 +1,4 @@
-import React, { ReactElement, CSSProperties, Dispatch, SetStateAction, useEffect, useState, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -9,10 +9,10 @@ import Loading from './Loading';
 
 import useToast from 'services/hooks/useToast';
 
+import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
+
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot } from 'services/api/telegram_bots/types';
-
-import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
 
 export interface TelegramBotCardChildrenProps {
 	telegramBot: TelegramBot;
@@ -22,11 +22,6 @@ export interface TelegramBotCardChildrenProps {
 export interface TelegramBotCardProps extends Omit<CardProps, 'children'> {
 	telegramBot: TelegramBot;
 	children: (props: TelegramBotCardChildrenProps) => ReactNode;
-}
-
-const buttonOnlyWithIconStyle: CSSProperties = {
-	cursor: 'pointer',
-	fontSize: '20px',
 }
 
 function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
@@ -87,13 +82,13 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 		<Card {...props} className={classNames('border-0', props.className)}>
 			<Card.Header as='h5' {...(
 				telegramBotIsStartingOrStopping(telegramBot) ? {
-					className: 'd-flex justify-content-center juitext-bg-secondary text-bg-secondary border border-secondary text-center',
+					className: 'd-flex justify-content-center juitext-bg-secondary text-bg-secondary border-secondary text-center',
 					children: <Loading size='xs' />,
 				} : !telegramBot.is_running && telegramBot.is_stopped ? {
-					className: 'text-bg-danger border border-danger fw-semibold text-center',
+					className: 'text-bg-danger border-danger fw-semibold text-center',
 					children: gettext('Telegram бот выключен'),
 				} : {
-					className: 'text-bg-success border border-success fw-semibold text-center',
+					className: 'text-bg-success border-success fw-semibold text-center',
 					children: gettext('Telegram бот включен'),
 				}
 			)} />
@@ -117,31 +112,35 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 								<div className='d-flex align-items-center gap-2'>
 									{apiTokenIsEditing ? (
 										<Form.Control
+											size='sm'
 											type='text'
 											value={apiTokenInputValue}
 											placeholder={gettext('Введите API-токен Telegram бота')}
+											style={{ fontSize: '16px' }}
 											onChange={(event) => setAPITokenInputValue(event.target.value)}
 										/>
 									) : (
-										<span className='text-break flex-fill'>{telegramBot.api_token}</span>
+										<span className='text-break flex-fill'>
+											{telegramBot.api_token}
+										</span>
 									)}
 									{apiTokenIsEditing ? (
-										<>
+										<div className='d-flex gap-1'>
 											<i
 												className='bi bi-check-lg text-success'
-												style={{...buttonOnlyWithIconStyle, WebkitTextStroke: '1.4px'}}
+												style={{ cursor: 'pointer', fontSize: '22px', WebkitTextStroke: '0.3px' }}
 												onClick={handleAPITokenSaveButtonClick}
 											/>
 											<i
-												className='bi bi-x-lg text-danger'
-												style={{...buttonOnlyWithIconStyle, WebkitTextStroke: '1.8px'}}
+												className='bi bi-x-lg text-danger my-auto'
+												style={{ cursor: 'pointer', fontSize: '18px', WebkitTextStroke: '1px' }}
 												onClick={toggleAPITokenState}
 											/>
-										</>
+										</div>
 									) : (
 										<i
 											className='bi bi-pencil-square text-secondary'
-											style={{...buttonOnlyWithIconStyle, WebkitTextStroke: '0.4px'}}
+											style={{ cursor: 'pointer', fontSize: '19px' }}
 											onClick={toggleAPITokenState}
 										/>
 									)}

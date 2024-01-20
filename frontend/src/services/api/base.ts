@@ -51,5 +51,13 @@ export async function makeRequest<
 		}),
 	);
 
-	return Object.assign(response, { json: await response.json() });
+	let json: any;
+
+	try {
+		json = await response.json();
+	} catch {
+		json = {};
+	}
+
+	return Object.assign(response, { json });
 }

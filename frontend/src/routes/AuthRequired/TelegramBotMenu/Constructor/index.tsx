@@ -11,14 +11,14 @@ import Diagram from './components/Diagram';
 import useToast from 'services/hooks/useToast';
 
 import { TelegramBotCommandAPI, TelegramBotCommandsDiagramAPI } from 'services/api/telegram_bots/main';
-import { TelegramBotCommandDiagram } from 'services/api/telegram_bots/types';
+import { APIResponse } from 'services/api/telegram_bots/types';
 
 export interface UpdateNodesRef {
 	updateNodes?: () => void | Promise<void>;
 }
 
 export interface LoaderData {
-	diagramCommands: TelegramBotCommandDiagram[];
+	diagramCommands: APIResponse.TelegramBotCommandsDiagramAPI.Get;
 }
 
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {

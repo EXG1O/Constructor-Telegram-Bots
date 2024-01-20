@@ -180,11 +180,28 @@ export namespace Data {
 }
 
 export namespace APIResponse {
+	export namespace TelegramBotsAPI {
+		export type Get = TelegramBot[];
+	}
+
 	export namespace TelegramBotAPI {
+		export type Get = TelegramBot;
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot: TelegramBot;
 		}
 		export type Update = Create;
+	}
+
+	export namespace TelegramBotCommandsAPI {
+		export type Get = TelegramBotCommand[];
+	}
+
+	export namespace TelegramBotCommandAPI {
+		export type Get = TelegramBotCommand;
+	}
+
+	export namespace TelegramBotCommandsDiagramAPI {
+		export type Get = TelegramBotCommandDiagram[];
 	}
 
 	export namespace TelegramBotVariablesAPI {
@@ -200,10 +217,15 @@ export namespace APIResponse {
 	}
 
 	export namespace TelegramBotVariableAPI {
+		export type Get = TelegramBotVariable;
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot_variable: TelegramBotVariable;
 		}
 		export type Update = Create;
+	}
+
+	export namespace TelegramBotUserAPI {
+		export type Get = TelegramBotUser;
 	}
 
 	export namespace TelegramBotUsersAPI {

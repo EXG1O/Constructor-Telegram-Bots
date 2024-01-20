@@ -2,13 +2,11 @@ import React, { ReactElement, memo } from 'react';
 
 import Spinner, { SpinnerProps } from 'react-bootstrap/Spinner';
 
-type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-
 export interface LoadingProps extends Omit<SpinnerProps, 'size' | 'animation' | 'style'> {
-	size?: Sizes;
+	size?: keyof typeof multipliers;
 }
 
-const multipliers: Record<Sizes, number> = { 'xs': 1, 'sm': 2, 'md': 3, 'lg': 4, 'xl': 5 };
+const multipliers = { 'xs': 1, 'sm': 2, 'md': 3, 'lg': 4, 'xl': 5 };
 
 function Loading({ size, ...props }: LoadingProps): ReactElement<LoadingProps> {
 	let multiplier: number | undefined = size && multipliers[size];

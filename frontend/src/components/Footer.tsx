@@ -1,4 +1,4 @@
-import React, { ReactElement, AnchorHTMLAttributes } from 'react';
+import React, { ReactElement, ReactNode, AnchorHTMLAttributes } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
@@ -6,7 +6,9 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-export type FooterLinkProps = AnchorHTMLAttributes<HTMLAnchorElement>;
+export interface FooterLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+	children: ReactNode;
+}
 
 const projectLinks: FooterLinkProps[] = [
 	{ href: 'https://github.com/EXG1O/Constructor-Telegram-Bots', children: 'GitHub' },
@@ -61,11 +63,11 @@ function Footer(): ReactElement {
 						</Link>
 					</Col>
 					<Col as='hr' xs={11} lg={7} className='text-white-50 my-2' />
-					<span>&copy; 2023 exg1o</span>
+					<span>&copy; 2024 exg1o</span>
 				</Row>
 			</Container>
 		</footer>
 	);
 }
 
-export default Footer;
+export default Object.assign(Footer, { Link: FooterLink });

@@ -5,3 +5,9 @@ export interface TeamMember {
 	speciality: string;
 	joined_date: string;
 }
+
+export namespace APIResponse {
+	export namespace TeamMembersAPI {
+		export type Get = TeamMember[];
+	}
+}

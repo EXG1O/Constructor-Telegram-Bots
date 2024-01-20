@@ -83,9 +83,9 @@ function Users(): ReactElement {
 				</Card.Header>
 				<Card.Body className='vstack gap-2'>
 					<Pagination
-						count={paginationData.count}
-						limit={paginationData.limit}
-						offset={paginationData.offset}
+						itemCount={paginationData.count}
+						itemLimit={paginationData.limit}
+						itemOffset={paginationData.offset}
 						size='sm'
 						className='align-self-center'
 						onPageChange={offset => updateTelegramBotUsers(undefined, offset)}
