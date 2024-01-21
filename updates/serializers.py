@@ -10,7 +10,7 @@ from typing import Any
 class UpdateSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Update
-		fields = ('id', 'image', 'version', 'description', 'added_date')
+		fields = ('id', 'version', 'description', 'added_date')
 
 	def to_representation(self, instance: Update) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
