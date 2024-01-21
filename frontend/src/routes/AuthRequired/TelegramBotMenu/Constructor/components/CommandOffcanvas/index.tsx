@@ -29,7 +29,7 @@ export interface Data {
 	databaseRecord?: string;
 }
 
-export interface CommandOffcanvasProps extends Omit<OffcanvasProps, 'children'> {
+export interface CommandOffcanvasProps extends OffcanvasProps {
 	loading?: boolean;
 	title: ReactNode;
 	initialData?: Data;
@@ -192,15 +192,15 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 			<Offcanvas.Header className='border-bottom' closeButton>
 				<Offcanvas.Title as='h5'>{title}</Offcanvas.Title>
 			</Offcanvas.Header>
-			{loading ? (
-				<Offcanvas.Body className='d-flex'>
-					<Loading size='md' className='m-auto' />
-				</Offcanvas.Body>
-			) : (
+			{!loading ? (
 				<CommandOffcanvasBody
 					initialData={initialData}
 					children={children}
 				/>
+			) : (
+				<Offcanvas.Body className='d-flex'>
+					<Loading size='md' className='m-auto' />
+				</Offcanvas.Body>
 			)}
 		</Offcanvas>
 	);
