@@ -1,6 +1,5 @@
 export interface Update {
 	id: number;
-	image: string;
 	version: string;
 	description: string;
 	added_date: string;

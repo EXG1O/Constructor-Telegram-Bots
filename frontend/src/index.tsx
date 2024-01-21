@@ -65,6 +65,18 @@ const router = createBrowserRouter([
 				},
 			},
 			{
+				id: 'updates',
+				path: 'updates/',
+				async lazy() {
+					const module = await import('./routes/Updates');
+
+					return {
+						Component: module.default,
+						loader: module.loader,
+					}
+				},
+			},
+			{
 				path: 'donation/',
 				children: [
 					{
