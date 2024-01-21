@@ -440,7 +440,7 @@ class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Se
 
 		return instance
 
-class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.Serializer):
+class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = TelegramBotCommand
 		fields = ('x', 'y')

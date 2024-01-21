@@ -46,8 +46,8 @@ class TelegramBotCommand(models.Model): # type: ignore [django-manager-missing]
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=128)
 
-	x =	models.IntegerField(_('Координата X'), default=0)
-	y = models.IntegerField(_('Координата Y'), default=0)
+	x =	models.FloatField(_('Координата X'), default=0)
+	y = models.FloatField(_('Координата Y'), default=0)
 
 	class Meta:
 		db_table = 'telegram_bot_command'
