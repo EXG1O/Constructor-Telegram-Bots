@@ -6,9 +6,6 @@ export interface PrivacyPolicySection {
 
 export namespace APIResponse {
 	export namespace PrivacyPolicySectionsAPI {
-		export interface Get {
-			last_update_date: string | null;
-			results: PrivacyPolicySection[];
-		}
+		export type Get = PrivacyPolicySection[];
 	}
 }

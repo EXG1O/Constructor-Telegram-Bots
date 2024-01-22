@@ -9,7 +9,7 @@ from .models import PrivacyPolicySection
 
 @admin.register(PrivacyPolicySection)
 class PrivacyPolicySectionAdmin(TranslationAdmin):
-	list_display = ('title', 'position', 'last_update_date')
+	list_display = ('title', 'position')
 
 	fields = ('title', 'text', 'position')
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}

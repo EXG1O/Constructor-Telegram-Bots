@@ -12,7 +12,6 @@ class PrivacyPolicySection(models.Model):
 	title = models.CharField(_('Заголовок'), max_length=255)
 	text = models.TextField(_('Текст'))
 	position = models.IntegerField(_('Позиция'), blank=True, default=privacy_policy_section_position_default)
-	last_update_date = models.DateTimeField(_('Дата последнего обновления'), auto_now=True)
 
 	class Meta:
 		db_table = 'privacy_policy_section'
