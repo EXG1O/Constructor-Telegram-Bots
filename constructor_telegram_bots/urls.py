@@ -19,6 +19,7 @@ urlpatterns = [
 		path('updates/', include('updates.urls')),
 		path('donations/', include('donation.urls')),
 		path('instruction/', include('instruction.urls')),
+		path('privacy-policy/', include('privacy_policy.urls')),
 	])),
 ]
 
