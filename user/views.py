@@ -2,6 +2,7 @@ from django.utils.translation import gettext as _
 from django.contrib.auth import login, logout
 
 from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,7 +18,7 @@ from typing import Any
 
 
 class UserAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication, TokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
@@ -64,7 +65,7 @@ class UserLoginAPIView(APIView):
 		return response
 
 class UserLogoutAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [CookiesTokenAuthentication, TokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request: Request) -> CustomResponse:
