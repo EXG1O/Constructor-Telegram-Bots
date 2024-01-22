@@ -16,11 +16,11 @@ from .services.user_telegram_bot.telegram_bot import UserTelegramBot
 from threading import Thread
 
 
-def start_telegram_bot_(aiogram_telegram_bot: ConstructorTelegramBot | UserTelegramBot) -> None:
+def _start_telegram_bot(aiogram_telegram_bot: ConstructorTelegramBot | UserTelegramBot) -> None:
 	try:
 		aiogram_telegram_bot.loop.run_until_complete(aiogram_telegram_bot.start())
 	except (TelegramNetworkError, TelegramServerError, RestartingTelegram):
-		start_telegram_bot_(aiogram_telegram_bot)
+		_start_telegram_bot(aiogram_telegram_bot)
 	except TelegramUnauthorizedError:
 		if isinstance(aiogram_telegram_bot, UserTelegramBot):
 			aiogram_telegram_bot.django_telegram_bot.delete()
@@ -33,7 +33,7 @@ def start_telegram_bot(telegram_bot_id: int) -> None:
 	django_telegram_bot.save()
 
 	Thread(
-		target=start_telegram_bot_,
+		target=_start_telegram_bot,
 		args=(UserTelegramBot(django_telegram_bot),),
 		daemon=True,
 	).start()
@@ -41,7 +41,7 @@ def start_telegram_bot(telegram_bot_id: int) -> None:
 @shared_task
 def start_all_telegram_bots() -> None:
 	Thread(
-		target=start_telegram_bot_,
+		target=_start_telegram_bot,
 		args=(ConstructorTelegramBot(settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN),), # type: ignore [arg-type]
 		daemon=True,
 	).start()
@@ -49,7 +49,7 @@ def start_all_telegram_bots() -> None:
 	for django_telegram_bot in TelegramBot.objects.all():
 		if django_telegram_bot.is_running:
 			Thread(
-				target=start_telegram_bot_,
+				target=_start_telegram_bot,
 				args=(UserTelegramBot(django_telegram_bot),),
 				daemon=True,
 			).start()

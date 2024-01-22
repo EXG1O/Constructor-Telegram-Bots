@@ -63,10 +63,10 @@ class TelegramBotAdmin(admin.ModelAdmin):
 class TelegramBotUserAdmin(admin.ModelAdmin):
 	search_fields = ('telegram_id', 'full_name')
 	date_hierarchy = 'activated_date'
-	list_filter = ('activated_date',)
-	list_display = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'activated_date')
+	list_filter = ('is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
+	list_display = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
 
-	fields = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'activated_date')
+	fields = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
 
 	def has_add_permission(self, *args: Any, **kwargs: Any) -> bool:
 		return False

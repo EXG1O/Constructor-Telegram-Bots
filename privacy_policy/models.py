@@ -4,11 +4,11 @@ from django.utils.translation import gettext_lazy as _
 
 def privacy_policy_section_position_default() -> int:
 	try:
-		return PrivacyPolicySection.objects.last().position + 1
+		return PrivacyPolicySection.objects.last().position + 1 # type: ignore [union-attr, operator]
 	except AttributeError:
 		return 1
 
-class PrivacyPolicySection(models.Model):
+class PrivacyPolicySection(models.Model): # type: ignore [django-manager-missing]
 	title = models.CharField(_('Заголовок'), max_length=255)
 	text = models.TextField(_('Текст'))
 	position = models.IntegerField(_('Позиция'), blank=True, default=privacy_policy_section_position_default)

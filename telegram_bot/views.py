@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
-from utils.drf import CustomResponse
+from utils.custom_response import CustomResponse
 from utils.mixins import PaginationMixin
 
 from .models import (

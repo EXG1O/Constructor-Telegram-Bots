@@ -13,20 +13,17 @@ from typing import Any
 import string
 
 
-class UserManager(BaseUserManager['User']):
-	def create(self, telegram_id: int, first_name: str, **extra_fields: Any) -> 'User': # type: ignore [override]
-		return super().create(telegram_id=telegram_id, first_name=first_name, **extra_fields)
-
-	def create_superuser(self, **fields: Any) -> None:
-		raise SyntaxError('Not support to create superuser!')
+class UserManager(BaseUserManager):
+	def create_superuser(self, **fields: Any) -> 'User':
+		return self.create(is_staff=True, is_superuser=True, **fields) # type: ignore [return-value]
 
 class User(AbstractBaseUser, PermissionsMixin):
 	telegram_id = models.BigIntegerField('Telegram ID', unique=True)
 	first_name = models.CharField(_('Имя'), max_length=64, null=True)
 	last_name = models.CharField(_('Фамилия'), max_length=64, null=True, default=None)
+	confirm_code = models.CharField(max_length=25, null=True)
 	password = None # type: ignore [assignment]
 	is_staff = models.BooleanField(_('Сотрудник'), default=False)
-	confirm_code = models.CharField(max_length=25, unique=True, null=True)
 	joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
 
 	USERNAME_FIELD = 'telegram_id'

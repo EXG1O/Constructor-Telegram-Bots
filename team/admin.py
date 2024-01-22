@@ -7,6 +7,7 @@ from .models import TeamMember
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(TranslationAdmin):
+	search_fields = ('username',)
 	date_hierarchy = 'joined_date'
 	list_filter = ('speciality', 'joined_date')
 

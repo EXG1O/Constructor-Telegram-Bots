@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
@@ -6,10 +7,14 @@ import requests
 from requests import Response
 
 
-class TelegramBot(models.Model): # type: ignore [django-manager-missing]
+def validate_api_token(api_token: str) -> None:
+	if not settings.TEST and requests.get(f'https://api.telegram.org/bot{api_token}/getMe').status_code != 200:
+		raise ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
+
+class TelegramBot(models.Model):
 	owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'))
 	username = models.CharField('@username', max_length=32)
-	api_token = models.CharField(_('API-токен'), max_length=50, unique=True)
+	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=(validate_api_token,))
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_running = models.BooleanField(_('Включён'), default=False)
 	is_stopped = models.BooleanField(_('Выключен'), default=True)
@@ -42,7 +47,7 @@ class TelegramBot(models.Model): # type: ignore [django-manager-missing]
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class TelegramBotCommand(models.Model): # type: ignore [django-manager-missing]
+class TelegramBotCommand(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=128)
 
@@ -102,7 +107,7 @@ class TelegramBotCommandMessageText(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_message_text'
 
-class TelegramBotCommandKeyboard(models.Model): # type: ignore [django-manager-missing]
+class TelegramBotCommandKeyboard(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='keyboard')
 	type = models.CharField(_('Режим'), max_length=7, choices=(
 		('default', _('Обычный')),

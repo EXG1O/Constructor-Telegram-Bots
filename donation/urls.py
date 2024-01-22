@@ -1,6 +1,10 @@
 from django.urls import path
 
-from .views import DonationsAPIView, DonationButtonsAPIView, DonationSectionsAPIView
+from .views import (
+	DonationsAPIView,
+	DonationButtonsAPIView,
+	DonationSectionsAPIView,
+)
 
 
 urlpatterns = [

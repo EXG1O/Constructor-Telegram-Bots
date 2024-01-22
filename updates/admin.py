@@ -12,5 +12,6 @@ class UpdateAdmin(TranslationAdmin):
 	date_hierarchy = 'added_date'
 	list_display = ('version', 'added_date')
 
-	fields = ('version', 'description')
+	fields = ('version', 'description', 'added_date')
+	readonly_fields = ('added_date',)
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}

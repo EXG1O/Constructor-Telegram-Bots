@@ -15,7 +15,7 @@ class InstructionSection(models.Model): # type: ignore [django-manager-missing]
 
 	class Meta:
 		db_table = 'instruction_section'
-		ordering = ['position']
+		ordering = ('position',)
 
 		verbose_name = _('Раздел')
 		verbose_name_plural = _('Разделы')

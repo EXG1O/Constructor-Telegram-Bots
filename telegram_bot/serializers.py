@@ -22,7 +22,6 @@ from .models import (
 	TelegramBotVariable,
 	TelegramBotUser,
 )
-from .functions import is_valid_telegram_bot_api_token
 
 from typing import Any
 
@@ -49,12 +48,6 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 			raise TypeError('You not passed a User instance to the serializer context!')
 
 		return user
-
-	def validate_api_token(self, api_token: str) -> str:
-		if not is_valid_telegram_bot_api_token(api_token):
-			raise serializers.ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
-
-		return api_token
 
 	def create(self, validated_data: dict[str, Any]) -> TelegramBot:
 		return TelegramBot.objects.create(owner=self.user, **validated_data)
@@ -284,7 +277,7 @@ class UpdateTelegramBotCommandSerializer(CreateTelegramBotCommandSerializer):
 				file.delete()
 
 		for file in files: # type: ignore [assignment]
-			TelegramBotCommandFile.objects.create(telegram_bot_command=instance, file=file) # type: ignore [misc]
+			TelegramBotCommandFile.objects.create(telegram_bot_command=instance, file=file)
 
 		if message_text:
 			instance.message_text.text = message_text.get('text', instance.message_text.text)
