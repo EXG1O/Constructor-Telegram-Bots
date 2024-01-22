@@ -114,6 +114,18 @@ const router = createBrowserRouter([
 				},
 			},
 			{
+				id: 'privacy-policy',
+				path: 'privacy-policy/',
+				async lazy() {
+					const module = await import('./routes/PrivacyPolicy');
+
+					return {
+						Component: module.default,
+						loader: module.loader,
+					}
+				},
+			},
+			{
 				async lazy() {
 					const module = await import('./routes/AuthRequired/Root');
 
