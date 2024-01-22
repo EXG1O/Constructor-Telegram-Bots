@@ -7,6 +7,3 @@ class UpdatesConfig(AppConfig):
 
 	name = 'updates'
 	verbose_name = _('Обновления')
-
-	def ready(self) -> None:
-		from . import signals
