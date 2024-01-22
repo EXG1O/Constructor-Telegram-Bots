@@ -71,6 +71,7 @@ INSTALLED_APPS = [
 	'updates',
 	'instruction',
 	'donation',
+	'privacy_policy',
 ]
 
 TINYMCE_DEFAULT_CONFIG = {
