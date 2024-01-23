@@ -7,8 +7,9 @@ from .views import (
 )
 
 
+app_name = 'donation'
 urlpatterns = [
-	path('', DonationsAPIView.as_view()),
-	path('sections/', DonationSectionsAPIView.as_view()),
-	path('buttons/', DonationButtonsAPIView.as_view()),
+	path('', DonationsAPIView.as_view(), name='index'),
+	path('sections/', DonationSectionsAPIView.as_view(), name='sections'),
+	path('buttons/', DonationButtonsAPIView.as_view(), name='buttons'),
 ]
