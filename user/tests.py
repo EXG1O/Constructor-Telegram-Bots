@@ -47,6 +47,12 @@ class UserAPIViewTests(CustomTestCase):
 class UserLoginAPIViewTests(CustomTestCase):
 	url: str = reverse('api:user:login')
 
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.user.confirm_code = 'Do you love Python?'
+		self.user.save()
+
 	def test_post_method(self) -> None:
 		response: HttpResponse = self.client.post(
 			self.url,
@@ -54,6 +60,7 @@ class UserLoginAPIViewTests(CustomTestCase):
 				'user_id': 0,
 				'confirm_code': self.user.confirm_code,
 			},
+			format='json',
 		)
 		self.assertEqual(response.status_code, 404)
 
@@ -61,10 +68,11 @@ class UserLoginAPIViewTests(CustomTestCase):
 			self.url,
 			data={
 				'user_id': self.user.id,
-				'confirm_code': '',
+				'confirm_code': 'Yes, I love Python <3',
 			},
+			format='json',
 		)
-		self.assertEqual(response.status_code, 400)
+		self.assertEqual(response.status_code, 401)
 
 		response: HttpResponse = self.client.post( # type: ignore [no-redef]
 			self.url,
@@ -72,6 +80,7 @@ class UserLoginAPIViewTests(CustomTestCase):
 				'user_id': self.user.id,
 				'confirm_code': self.user.confirm_code,
 			},
+			format='json',
 		)
 		self.assertEqual(response.status_code, 200)
 
