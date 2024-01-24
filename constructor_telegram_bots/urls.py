@@ -9,10 +9,10 @@ urlpatterns = [
 	path('admin/', admin.site.urls),
 	path('tinymce/', include('tinymce.urls')),
 
-	path('i18n/', include('django.conf.urls.i18n')),
 	path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 
 	path('api/', include(([
+		path('languages/', include('languages.urls')),
 		path('user/', include('user.urls')),
 		path('telegram-bots/', include('telegram_bot.urls')),
 		path('team/', include('team.urls')),

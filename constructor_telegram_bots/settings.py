@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 
+	'languages',
 	'user',
 	'telegram_bot',
 	'team',
@@ -155,6 +156,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 USE_I18N = True
 USE_L10N = True
+
+LANGUAGE_COOKIE_NAME = 'lang'
 
 LANGUAGES = [
 	('en', _('Английский')),
