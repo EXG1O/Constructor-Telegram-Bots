@@ -1,11 +1,10 @@
-import React, { ReactElement, ReactNode, AnchorHTMLAttributes, useCallback, useState } from 'react';
+import React, { ReactElement, ReactNode, useCallback, useState } from 'react';
 import { Link, LinkProps, useLocation, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import classNames from 'classnames';
 
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
-import { NavLinkProps } from 'react-bootstrap/NavLink';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
@@ -18,7 +17,7 @@ import { LoaderData as RootLoaderData } from 'routes/Root';
 
 import { UserAPI } from 'services/api/users/main';
 
-export interface HeaderLinkProps extends NavLinkProps, Omit<LinkProps, keyof AnchorHTMLAttributes<HTMLAnchorElement>> {
+export interface HeaderLinkProps extends LinkProps {
 	children: ReactNode;
 }
 
@@ -48,10 +47,10 @@ function Header(): ReactElement {
 
 		if (response.ok) {
 			setShowLogoutModal(false);
-			setLoadingLogoutModal(false);
 			navigate('/');
 		}
 
+		setLoadingLogoutModal(false);
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}, []);
 
@@ -100,21 +99,24 @@ function Header(): ReactElement {
 									<Dropdown.Toggle
 										bsPrefix=' '
 										variant='light'
-										style={{ minWidth: 125 }}
+										style={{ minWidth: '125px' }}
 									>
 										{user.first_name}
 									</Dropdown.Toggle>
 									<Dropdown.Menu>
 										{user.is_staff && (
-											<Dropdown.Item href='/admin/'>{gettext('Админ панель')}</Dropdown.Item>
+											<Dropdown.Item href='/admin/'>
+												{gettext('Админ панель')}
+											</Dropdown.Item>
 										)}
-										<Link
-											to='/personal-cabinet/'
-											className='dropdown-item'
+										<Dropdown.Item
+											onClick={() => navigate('/personal-cabinet/')}
 										>
 											{gettext('Личный кабинет')}
-										</Link>
-										<Dropdown.Item>{gettext('Настройки')}</Dropdown.Item>
+										</Dropdown.Item>
+										<Dropdown.Item>
+											{gettext('Настройки')}
+										</Dropdown.Item>
 										<Dropdown.Divider />
 										<Dropdown.Item
 											as='button'
@@ -127,10 +129,10 @@ function Header(): ReactElement {
 							) : (
 								<Button
 									as='a'
-									variant='success'
-									className='flex-fill'
 									href={`https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=login`}
 									target='_blank'
+									variant='success'
+									className='flex-fill'
 									onClick={() => setShowLoginModal(true)}
 								>
 									<i className='bi bi-telegram me-1' />
