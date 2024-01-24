@@ -49,5 +49,8 @@ jobs:
           echo "POSTGRESQL_DATABASE_USER=github" >> .env
           echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
 
+      - name: Run mypy
+        run: mypy .
+
       - name: Run tests
         run: python manage.py test --verbosity 3
