@@ -60,7 +60,11 @@ function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }
 						);
 					} else if (num === 2 || num === pageCount - 2) {
 						return (
-							<PaginationItem key={num} as='span' style={{ cursor: 'default' }}>
+							<PaginationItem
+								key={num}
+								as='span'
+								style={{ cursor: 'default' }}
+							>
 								...
 							</PaginationItem>
 						);
