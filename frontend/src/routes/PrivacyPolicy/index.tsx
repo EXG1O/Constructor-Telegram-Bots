@@ -28,7 +28,7 @@ function PrivacyPolicy(): ReactElement {
 	return (
 		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
 			{sections.map(section => (
-				<div key={section.id} className='section'>
+				<div key={section.id} className='privacy-policy-section'>
 					<h3 className='mb-1'>{section.title}</h3>
 					<div dangerouslySetInnerHTML={{ __html: section.text }} />
 				</div>

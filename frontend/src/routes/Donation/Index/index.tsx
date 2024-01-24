@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 import { json, useRouteLoaderData } from 'react-router-dom';
 
+import './index.scss';
+
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
@@ -34,22 +36,22 @@ function Index(): ReactElement {
 	const { sections, buttons } = useRouteLoaderData('donation-index') as LoaderData;
 
 	return (
-		<Container as='main' className='h-100 my-3 my-lg-4'>
+		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
 			{sections.map(section => (
-				<div key={section.id}>
+				<div key={section.id} className='donation-section'>
 					<h3 className='mb-1'>{section.title}</h3>
 					<div dangerouslySetInnerHTML={{ __html: section.text }} />
 				</div>
 			))}
-			<div className='d-flex gap-2'>
+			<div className='d-flex gap-2 mt-auto'>
 				{buttons.map(button => (
 					<Button
 						key={button.id}
 						as='a'
-						variant='dark'
-						className='flex-fill'
 						href={button.url}
 						target='_blank'
+						variant='dark'
+						className='flex-fill'
 					>
 						{button.text}
 					</Button>

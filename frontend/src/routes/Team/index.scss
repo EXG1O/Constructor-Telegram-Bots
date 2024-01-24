@@ -1,0 +1,10 @@
+$img-size: 140px;
+
+.team-member {
+	img {
+		width: $img-size;
+		height: $img-size;
+
+		border-radius: 50%;
+	}
+}
