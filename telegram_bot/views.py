@@ -63,6 +63,7 @@ class TelegramBotsAPIView(APIView):
 		return CustomResponse(
 			_('Вы успешно добавили Telegram бота.'),
 			data={'telegram_bot': serializer.data},
+			status=201,
 		)
 
 class TelegramBotAPIView(APIView):
@@ -73,15 +74,16 @@ class TelegramBotAPIView(APIView):
 		return Response(TelegramBotSerializer(telegram_bot).data)
 
 	def post(self, request: Request, telegram_bot: TelegramBot) -> CustomResponse:
-		if not settings.TEST:
-			action: str | None = request.query_params.get('action')
+		action: str | None = request.query_params.get('action')
 
-			if action == 'start':
+		if action == 'start':
+			if not settings.TEST:
 				start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
-			elif action == 'stop':
+		elif action == 'stop':
+			if not settings.TEST:
 				telegram_bot.stop()
-			else:
-				return CustomResponse(_('Укажите действие в параметрах запроса!'), status=400)
+		else:
+			return CustomResponse(_('Укажите действие в параметрах запроса!'), status=400)
 
 		return CustomResponse()
 
@@ -145,6 +147,7 @@ class TelegramBotCommandsAPIView(APIView):
 		return CustomResponse(
 			_('Вы успешно добавили команду Telegram боту.'),
 			data={'telegram_bot_command': serializer.data},
+			status=201,
 		)
 
 class TelegramBotCommandAPIView(APIView):
@@ -332,7 +335,7 @@ class TelegramBotUserAPIView(APIView):
 				'unblock': _('Вы успешно удалили пользователя из списка заблокированных пользователей Telegram бота.'),
 			}
 
-			return CustomResponse(success_messages[action], status=400)
+			return CustomResponse(success_messages[action])
 		else:
 			return CustomResponse(_('Не удалось найти и выполнить указанное действие в параметрах запроса!'), status=400)
 

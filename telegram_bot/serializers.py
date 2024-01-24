@@ -379,6 +379,9 @@ class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Seria
 	start_diagram_connector = serializers.CharField()
 	end_diagram_connector = serializers.CharField()
 
+	class Meta:
+		fields = ('telegram_bot_command_keyboard_button_id', 'telegram_bot_command_id', 'start_diagram_connector', 'end_diagram_connector')
+
 	@property
 	def telegram_bot(self) -> TelegramBot:
 		telegram_bot: TelegramBot | None = self.context.get('telegram_bot')
@@ -389,17 +392,17 @@ class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Seria
 		return telegram_bot
 
 	def validate_telegram_bot_command_id(self, telegram_bot_command_id: int) -> int:
-		telegram_bot: TelegramBot = self.context['telegram_bot']
-
-		if not telegram_bot.commands.filter(id=telegram_bot_command_id).exists():
+		if not self.telegram_bot.commands.filter(id=telegram_bot_command_id).exists():
 			raise serializers.ValidationError(_('Команда Telegram бота не найдена!'))
 
 		return telegram_bot_command_id
 
 	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
-		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
-
-		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
+		try:
+			self.instance.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id) # type: ignore [union-attr]
+		except TelegramBotCommandKeyboard.DoesNotExist:
+			raise serializers.ValidationError(_('У команды Telegram бота нет клавиатуры!'))
+		except TelegramBotCommandKeyboardButton.DoesNotExist:
 			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
 
 		return telegram_bot_command_keyboard_button_id
@@ -417,9 +420,11 @@ class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Se
 	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
 
 	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
-		telegram_bot_command: TelegramBotCommand = self.context['telegram_bot_command']
-
-		if not telegram_bot_command.keyboard.buttons.filter(id=telegram_bot_command_keyboard_button_id).exists():
+		try:
+			self.instance.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id) # type: ignore [union-attr]
+		except TelegramBotCommandKeyboard.DoesNotExist:
+			raise serializers.ValidationError(_('У команды Telegram бота нет клавиатуры!'))
+		except TelegramBotCommandKeyboardButton.DoesNotExist:
 			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
 
 		return telegram_bot_command_keyboard_button_id
@@ -437,6 +442,10 @@ class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.ModelSeriali
 	class Meta:
 		model = TelegramBotCommand
 		fields = ('x', 'y')
+		extra_kwargs = {
+			'x': {'required': True},
+			'y': {'required': True},
+		}
 
 	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
 		instance.x = validated_data['x']
