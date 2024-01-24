@@ -1,10 +1,9 @@
 import React, { ReactElement, memo, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
-import { ModalProps } from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-import BaseVariableModal, { Data as BaseVariableModalData } from './BaseVariableModal';
+import VariableModal, { VariableModalProps, Data as BaseVariableModalData } from './VariableModal';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
@@ -13,10 +12,9 @@ import useToast from 'services/hooks/useToast';
 import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
 import { TelegramBotVariable } from 'services/api/telegram_bots/types';
 
-export interface UpdateVariableModalProps extends ModalProps {
+export interface UpdateVariableModalProps extends Pick<VariableModalProps, 'show' | 'onHide'> {
 	variable: TelegramBotVariable;
 	onUpdated: () => void;
-	onHide: NonNullable<ModalProps['onHide']>;
 }
 
 function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVariableModalProps): ReactElement<UpdateVariableModalProps> {
@@ -41,7 +39,7 @@ function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVa
 	}
 
 	return (
-		<BaseVariableModal
+		<VariableModal
 			{...props}
 			loading={loading}
 			initialData={variable}
@@ -57,7 +55,7 @@ function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVa
 					{gettext('Сохранить')}
 				</Button>
 			)}
-		</BaseVariableModal>
+		</VariableModal>
 	);
 }
 

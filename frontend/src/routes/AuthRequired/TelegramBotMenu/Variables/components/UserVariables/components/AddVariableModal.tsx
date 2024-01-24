@@ -1,10 +1,9 @@
 import React, { ReactElement, memo, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
-import { ModalProps } from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-import BaseVariableModal, { Data as BaseVariableModalData } from './BaseVariableModal';
+import VariableModal, { VariableModalProps, Data as BaseVariableModalData } from './VariableModal';
 
 import useToast from 'services/hooks/useToast';
 
@@ -12,12 +11,11 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
 
-export interface CreateVariableModalProps extends ModalProps {
+export interface AddVariableModalProps extends Pick<VariableModalProps, 'show' | 'onHide'> {
 	onCreated: () => void;
-	onHide: NonNullable<ModalProps['onHide']>;
 }
 
-function CreateVariableModal({ onCreated, onHide, ...props }: CreateVariableModalProps): ReactElement<CreateVariableModalProps> {
+function AddVariableModal({ onCreated, onHide, ...props }: AddVariableModalProps): ReactElement<AddVariableModalProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
@@ -39,10 +37,10 @@ function CreateVariableModal({ onCreated, onHide, ...props }: CreateVariableModa
 	}
 
 	return (
-		<BaseVariableModal
+		<VariableModal
 			{...props}
 			loading={loading}
-			title={gettext('Создание переменной')}
+			title={gettext('Добавление переменной')}
 			onHide={onHide}
 		>
 			{data => (
@@ -51,11 +49,11 @@ function CreateVariableModal({ onCreated, onHide, ...props }: CreateVariableModa
 					className='w-100'
 					onClick={() => handleCreateButtonClick(data)}
 				>
-					{gettext('Создать')}
+					{gettext('Добавить')}
 				</Button>
 			)}
-		</BaseVariableModal>
+		</VariableModal>
 	);
 }
 
-export default memo(CreateVariableModal);
+export default memo(AddVariableModal);

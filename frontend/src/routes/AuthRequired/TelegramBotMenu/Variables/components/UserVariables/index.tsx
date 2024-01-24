@@ -8,7 +8,7 @@ import Table from 'react-bootstrap/Table';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
 
-import CreateVariableModal from './components/CreateVariableModal';
+import AddVariableModal from './components/AddVariableModal';
 import Variable from './components/Variable';
 
 import useToast from 'services/hooks/useToast';
@@ -51,7 +51,7 @@ function UserVariables(): ReactElement {
 
 	return (
 		<>
-			<CreateVariableModal
+			<AddVariableModal
 				show={showCreateVariableModal}
 				onCreated={updateVariables}
 				onHide={useCallback(() => setShowCreateVariableModal(false), [])}

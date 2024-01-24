@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
 
-import Modal, { ModalProps } from 'react-bootstrap/Modal';
+import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 
 import Loading from 'components/Loading';
@@ -12,23 +12,29 @@ export interface Data {
 	description: string;
 }
 
-export interface BaseVariableModalProps extends ModalProps {
-	loading: boolean;
+export interface VariableModalProps {
+	show: boolean;
+	loading?: boolean;
 	initialData?: Data;
 	title: ReactNode;
 	children?: (data: Data) => ReactNode;
-	onHide: NonNullable<ModalProps['onHide']>;
+	onHide: () => void;
 }
 
-function BaseVariableModal({ loading, initialData, title, children, ...props }: BaseVariableModalProps): ReactElement<BaseVariableModalProps> {
-	const [data, setData] = useState<Data>(initialData ?? {
-		name: '',
-		value: '',
-		description: '',
-	});
+const defaultData: Data = {
+	name: '',
+	value: '',
+	description: '',
+}
+
+function VariableModal({ loading, initialData, title, children, ...props }: VariableModalProps): ReactElement<VariableModalProps> {
+	const [data, setData] = useState<Data>(initialData ?? defaultData);
 
 	return (
-		<Modal {...props}>
+		<Modal
+			{...props}
+			onExited={() => setData(defaultData)}
+		>
 			<Modal.Header closeButton>
 				<Modal.Title as='h5'>{title}</Modal.Title>
 			</Modal.Header>
@@ -66,4 +72,4 @@ function BaseVariableModal({ loading, initialData, title, children, ...props }: 
 	);
 }
 
-export default BaseVariableModal;
+export default VariableModal;
