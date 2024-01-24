@@ -3,7 +3,6 @@ import { Link, json, useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
 
 import TelegramBotCard from 'components/TelegramBotCard';
 
@@ -42,14 +41,12 @@ function PersonalCabinet(): ReactElement {
 						telegramBots.map(telegramBot => (
 							<TelegramBotCard key={telegramBot.id} telegramBot={telegramBot}>
 								{() => (
-									<Card.Footer className='border-0 p-0'>
-										<Link
-											to={`/telegram-bot-menu/${telegramBot.id}/`}
-											className='btn btn-light border border-top-0 rounded-top-0 w-100 px-3 py-2'
-										>
-											{gettext('Меню Telegram бота')}
-										</Link>
-									</Card.Footer>
+									<Link
+										to={`/telegram-bot-menu/${telegramBot.id}/`}
+										className='card-footer btn btn-light border border-top-0'
+									>
+										{gettext('Меню Telegram бота')}
+									</Link>
 								)}
 							</TelegramBotCard>
 						))
