@@ -16,6 +16,7 @@ import useToast from 'services/hooks/useToast';
 import { LoaderData as RootLoaderData } from 'routes/Root';
 
 import { UserAPI } from 'services/api/users/main';
+import { LanguagesAPI } from 'services/api/languages/main';
 
 export interface HeaderLinkProps extends LinkProps {
 	children: ReactNode;
@@ -27,12 +28,12 @@ const headerLinks: HeaderLinkProps[] = [
 	{ to: '/updates/', children: gettext('Обновления') },
 	{ to: '/instruction/', children: gettext('Инструкция') },
 	{ to: '/donation/', children: gettext('Пожертвование') },
-]
+];
 
 function Header(): ReactElement {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const { user } = useRouteLoaderData('root') as RootLoaderData;
+	const { user, languages } = useRouteLoaderData('root') as RootLoaderData;
 
 	const { createMessageToast } = useToast();
 
@@ -53,6 +54,16 @@ function Header(): ReactElement {
 		setLoadingLogoutModal(false);
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}, []);
+
+	async function handleSetLanguage(langCode: string): Promise<void> {
+		const response = await LanguagesAPI.set({ lang_code: langCode });
+
+		if (response.ok) {
+			window.location.href = location.pathname;
+		} else {
+			createMessageToast({ message: response.json.message, level: response.json.level });
+		}
+	}
 
 	return (
 		<>
@@ -94,6 +105,24 @@ function Header(): ReactElement {
 						</Nav>
 						<hr className='d-xxl-none text-white-50 mt-0 mb-2'></hr>
 						<div className='d-flex flex-wrap gap-2'>
+							<Dropdown>
+								<Dropdown.Toggle
+									bsPrefix=' '
+									variant='primary'
+								>
+									{languages.current.toUpperCase()}
+								</Dropdown.Toggle>
+								<Dropdown.Menu className='text-center'>
+									{Object.entries(languages.available).map((language, index) => (
+										<Dropdown.Item
+											key={index}
+											onClick={() => handleSetLanguage(language[0])}
+										>
+											{language[1]}
+										</Dropdown.Item>
+									))}
+								</Dropdown.Menu>
+							</Dropdown>
 							{user ? (
 								<Dropdown>
 									<Dropdown.Toggle
