@@ -42,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			self.confirm_code = generate_random_string(length=25, chars=string.ascii_letters + string.digits)
 			self.save()
 
-		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/'
+		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/' # type: ignore [misc]
 
 	def update_first_name(self, save: bool = False) -> None:
 		user_info: Chat | None = get_user_info(self.telegram_id)
