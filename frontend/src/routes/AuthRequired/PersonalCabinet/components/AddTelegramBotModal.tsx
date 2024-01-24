@@ -21,11 +21,13 @@ export interface AddTelegramBotModalProps {
 	onHide: () => void;
 }
 
-function AddTelegramBotModal({ onHide, ...props }: AddTelegramBotModalProps): ReactElement<AddTelegramBotModalProps> {
+const defaultData: Data = { api_token: '', is_private: false };
+
+function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactElement<AddTelegramBotModalProps> {
 	const { createMessageToast } = useToast();
 	const [telegramBots, setTelegramBots] = useTelegramBots();
 
-	const [data, setData] = useState<Data>({ api_token: '', is_private: false });
+	const [data, setData] = useState<Data>(defaultData);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	async function handleAddTelegramBotButtonClick(): Promise<void> {
@@ -44,9 +46,9 @@ function AddTelegramBotModal({ onHide, ...props }: AddTelegramBotModalProps): Re
 
 	return (
 		<Modal
-			{...props}
+			show={show}
 			onHide={onHide}
-			onExited={() => setData({ api_token: '', is_private: false })}
+			onExited={() => setData(defaultData)}
 		>
 			<Modal.Header closeButton>
 				<Modal.Title as='h5'>
