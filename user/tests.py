@@ -56,31 +56,28 @@ class UserLoginAPIViewTests(CustomTestCase):
 	def test_post_method(self) -> None:
 		response: HttpResponse = self.client.post(
 			self.url,
-			data={
+			{
 				'user_id': 0,
 				'confirm_code': self.user.confirm_code,
 			},
-			format='json',
 		)
 		self.assertEqual(response.status_code, 404)
 
 		response: HttpResponse = self.client.post( # type: ignore [no-redef]
 			self.url,
-			data={
+			{
 				'user_id': self.user.id,
 				'confirm_code': 'Yes, I love Python <3',
 			},
-			format='json',
 		)
 		self.assertEqual(response.status_code, 401)
 
 		response: HttpResponse = self.client.post( # type: ignore [no-redef]
 			self.url,
-			data={
+			{
 				'user_id': self.user.id,
 				'confirm_code': self.user.confirm_code,
 			},
-			format='json',
 		)
 		self.assertEqual(response.status_code, 200)
 
