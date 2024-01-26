@@ -153,8 +153,8 @@ function APIRequest({ initialData, onChange, ...props }: APIRequestProps): React
 	}
 
 	return (
-		<Card {...props} className={classNames('border', props.className)}>
-			<Card.Header as='h6' className='border-bottom text-center'>
+		<Card {...props}>
+			<Card.Header as='h6' className='text-center'>
 				{gettext('API-запрос')}
 			</Card.Header>
 			<Card.Body className='p-2'>

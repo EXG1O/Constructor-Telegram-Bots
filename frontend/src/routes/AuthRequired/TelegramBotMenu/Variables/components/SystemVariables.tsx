@@ -41,8 +41,8 @@ function SystemVariables(): ReactElement {
 	const [variablesType, setVariablesType] = useState<VariablesTypes>('personal');
 
 	return (
-		<Card className='border'>
-			<Card.Header as='h5' className='border-bottom text-center'>
+		<Card>
+			<Card.Header as='h5' className='text-center'>
 				{gettext('Системные переменные')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2'>

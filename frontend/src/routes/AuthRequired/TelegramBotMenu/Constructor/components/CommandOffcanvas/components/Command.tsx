@@ -1,5 +1,4 @@
 import React, { ReactElement, memo, useEffect, useState } from 'react';
-import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
@@ -33,8 +32,8 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 	}
 
 	return (
-		<Card {...props} className={classNames('border', props.className)}>
-			<Card.Header as='h6' className='border-bottom text-center'>
+		<Card {...props}>
+			<Card.Header as='h6' className='text-center'>
 				{gettext('Команда')}
 			</Card.Header>
 			<Card.Body className='p-2'>

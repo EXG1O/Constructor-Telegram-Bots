@@ -1,5 +1,4 @@
 import React, { ReactElement, memo, useEffect, useState } from 'react';
-import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
@@ -7,7 +6,6 @@ import ToggleButton, { ToggleButtonProps } from 'react-bootstrap/ToggleButton';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
@@ -74,8 +72,8 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 	}
 
 	return (
-		<Card {...props} className={classNames('border', props.className)}>
-			<Card.Header as='h6' className='border-bottom text-center'>
+		<Card {...props}>
+			<Card.Header as='h6' className='text-center'>
 				{gettext('Клавиатура')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2 p-2'>

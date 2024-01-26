@@ -1,5 +1,4 @@
 import React, { ReactElement, memo, useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
 import monaco from 'monaco-editor';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -38,8 +37,8 @@ function DatabaseRecord({ initialValue, onChange, ...props }: DatabaseRecordProp
 	}
 
 	return (
-		<Card {...props} className={classNames('border', props.className)}>
-			<Card.Header as='h6' className='border-bottom text-center'>
+		<Card {...props}>
+			<Card.Header as='h6' className='text-center'>
 				{gettext('Запись в базу данных')}
 			</Card.Header>
 			<Card.Body className='p-2'>

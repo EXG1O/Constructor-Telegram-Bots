@@ -77,8 +77,8 @@ function Users(): ReactElement {
 
 	return (
 		<>
-			<Card className='border'>
-				<Card.Header as='h5' className='border-bottom text-center'>
+			<Card>
+				<Card.Header as='h5' className='text-center'>
 					{gettext('Список пользователей')}
 				</Card.Header>
 				<Card.Body className='vstack gap-2'>

@@ -1,5 +1,4 @@
 import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo, useEffect, useState } from 'react';
-import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
@@ -136,8 +135,8 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 	}
 
 	return (
-		<Card {...props} className={classNames('border', props.className)}>
-			<Card.Header as='h6' className='border-bottom text-center'>
+		<Card {...props}>
+			<Card.Header as='h6' className='text-center'>
 				{gettext('Изображение')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2 p-2'>

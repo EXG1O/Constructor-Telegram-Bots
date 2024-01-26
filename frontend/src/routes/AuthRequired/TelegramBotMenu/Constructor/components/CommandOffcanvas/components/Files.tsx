@@ -1,5 +1,4 @@
 import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo, useEffect, useState } from 'react';
-import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -91,8 +90,8 @@ function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<Fi
 	}
 
 	return (
-		<Card {...props} className={classNames('border', props.className)}>
-			<Card.Header as='h6' className='border-bottom text-center'>
+		<Card {...props}>
+			<Card.Header as='h6' className='text-center'>
 				{gettext('Файлы')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2 p-2'>
