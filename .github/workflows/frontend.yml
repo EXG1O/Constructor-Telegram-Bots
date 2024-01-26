@@ -1,0 +1,23 @@
+name: Frontend CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y npm
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Run build
+        run: npm run build
