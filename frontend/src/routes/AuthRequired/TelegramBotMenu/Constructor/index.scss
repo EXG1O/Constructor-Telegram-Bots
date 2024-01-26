@@ -1,3 +1,8 @@
+.react-flow__attribution {
+	background: none;
+	padding: 0 15px;
+}
+
 .react-flow__controls {
 	overflow: hidden;
 	box-shadow: none;
@@ -19,11 +24,6 @@
 	}
 }
 
-.react-flow__attribution {
-	background: none;
-	padding: 0 15px;
-}
-
 .react-flow__handle {
 	width: 12px;
 	height: 12px;
@@ -36,4 +36,8 @@ $positions: 'top', 'bottom', 'left', 'right';
 	.react-flow__handle-#{$position} {
 		#{$position}: -6px;
 	}
+}
+
+.message-text-block p {
+	margin-bottom: 0;
 }

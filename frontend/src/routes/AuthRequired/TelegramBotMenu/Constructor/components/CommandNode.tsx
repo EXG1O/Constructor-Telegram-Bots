@@ -91,7 +91,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 					/>
 				</div>
 				<div
-					className='bg-light border rounded text-break px-3 py-2'
+					className='message-text-block bg-light border rounded text-break px-3 py-2'
 					dangerouslySetInnerHTML={{ __html: data.message_text.text }}
 				/>
 				{data.keyboard?.buttons && (
