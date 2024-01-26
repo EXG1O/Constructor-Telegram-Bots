@@ -245,13 +245,18 @@ function Constructor(): ReactElement {
 				onAdded={updateNodes}
 				onHide={useCallback(() => setAddShowCommandOffcanvas(false), [])}
 			/>
-			<div className='border rounded' style={{ height: '80vh' }}>
+			<div className='border rounded' style={{ height: '100%' }}>
 				<ReactFlow
 					fitView
 					nodes={nodes}
 					edges={edges}
 					nodeTypes={nodeTypes}
-					defaultEdgeOptions={{ markerEnd: { type: MarkerType.Arrow, strokeWidth: 1.8 } }}
+					defaultEdgeOptions={{
+						markerEnd: {
+							type: MarkerType.Arrow,
+							strokeWidth: 1.8,
+						},
+					}}
 					deleteKeyCode={null}
 					onNodesChange={onNodesChange}
 					onEdgesChange={onEdgesChange}
@@ -273,8 +278,11 @@ function Constructor(): ReactElement {
 							</Button>
 						</div>
 					</Panel>
-					<Controls />
-					<MiniMap />
+					<Controls
+						showInteractive={false}
+						className='border rounded-1'
+					/>
+					<MiniMap className='border rounded-1' />
 					<Background
 						variant={BackgroundVariant.Dots}
 						size={1}
