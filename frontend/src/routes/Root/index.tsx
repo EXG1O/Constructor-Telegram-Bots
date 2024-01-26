@@ -62,7 +62,7 @@ function Root(): ReactElement {
 		<ToastProvider>
 			<Header />
 			{navigation.state === 'loading' ? (
-				<Loading size='xl' className='m-auto' />
+				<Loading size='lg' className='m-auto' />
 			) : (
 				<Outlet />
 			)}

@@ -55,7 +55,7 @@ function Header(): ReactElement {
 		createMessageToast({ message: response.json.message, level: response.json.level });
 	}, []);
 
-	async function handleSetLanguage(langCode: string): Promise<void> {
+	async function setLanguage(langCode: string): Promise<void> {
 		const response = await LanguagesAPI.set({ lang_code: langCode });
 
 		if (response.ok) {
@@ -116,7 +116,7 @@ function Header(): ReactElement {
 									{Object.entries(languages.available).map((language, index) => (
 										<Dropdown.Item
 											key={index}
-											onClick={() => handleSetLanguage(language[0])}
+											onClick={() => setLanguage(language[0])}
 										>
 											{language[1]}
 										</Dropdown.Item>

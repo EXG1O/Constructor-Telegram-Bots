@@ -139,7 +139,7 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 										</div>
 									) : (
 										<i
-											className='bi bi-pencil-square text-secondary'
+											className='d-flex bi bi-pencil-square text-secondary'
 											style={{ cursor: 'pointer', fontSize: '19px' }}
 											onClick={toggleAPITokenState}
 										/>

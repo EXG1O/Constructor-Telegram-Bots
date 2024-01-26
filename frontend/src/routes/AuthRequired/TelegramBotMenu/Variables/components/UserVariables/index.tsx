@@ -105,7 +105,7 @@ function UserVariables(): ReactElement {
 							</div>
 						) : (
 							<div className='border rounded text-center px-3 py-2'>
-								{gettext('Вы ещё не добавили переменные своему Telegram боту.')}
+								{gettext('Вы ещё не добавили переменные своему Telegram боту')}
 							</div>
 						)
 					) : (

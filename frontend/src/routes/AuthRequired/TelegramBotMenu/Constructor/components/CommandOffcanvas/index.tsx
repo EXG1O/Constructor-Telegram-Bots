@@ -163,7 +163,7 @@ function CommandOffcanvasBody({ initialData, children }: CommandOffcanvasBodyPro
 				/>
 				<Collapse in={showAddonButtons} unmountOnExit>
 					<div id='command-offcanvas-addons'>
-						<Stack className='border border-top-0 rounded rounded-top-0 p-1' gap={1}>
+						<Stack className='border border-top-0 rounded-1 rounded-top-0 p-1' gap={1}>
 							{addonButtons.map(({ name, ...props }, index) => (
 								<Button
 									{...props}
