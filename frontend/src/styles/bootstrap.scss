@@ -9,6 +9,9 @@
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/utilities";
 
+$dropdown-link-active-color: $dropdown-link-color;
+$dropdown-link-active-bg: $gray-200;
+
 $card-border-color: $border-color;
 
 $pagination-color: $dark;
@@ -56,9 +59,13 @@ $offcanvas-horizontal-width: 420px;
 @import "~bootstrap/scss/offcanvas";
 // @import "~bootstrap/scss/placeholders";
 
+.dropdown-item {
+	transition: $btn-transition;
+}
+
 .nav-pills .nav-link {
 	color: $dark;
-	transition: color .15s ease-in-out, background-color .15s ease-in-out;
+	transition: $btn-transition;
 
 	&.active, &:hover {
 		color: $light;
@@ -69,7 +76,7 @@ $offcanvas-horizontal-width: 420px;
 .pagination {
 	margin-bottom: unset;
 
-	& .page-item.active > .page-link {
+	.page-item.active > .page-link {
 		cursor: default;
 	}
 }

@@ -2,8 +2,20 @@
 	overflow: hidden;
 	box-shadow: none;
 
-	&-button:last-child {
-		border-bottom: 0;
+	&-button {
+		transition: background-color 0.15s ease-in-out;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		&:hover {
+			background-color: #f8f9fa;
+		}
+
+		&:active {
+			background-color: #e9ecef;
+		}
 	}
 }
 
