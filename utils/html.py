@@ -1,7 +1,7 @@
 from django.utils.html import format_html
 
 
-def format_html_url(url: str, text: str | None = None) -> str:
+def format_html_link(url: str, text: str | None = None) -> str:
 	if text is None:
 		text = url
 

@@ -29,8 +29,12 @@ export namespace TelegramBotAPI {
 	) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PATCH', undefined, data);
 	export const _delete = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE');
 
-	export const start = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=start', 'POST');
-	export const stop = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID) + '?action=stop', 'POST');
+	export const start = (telegramBotID: TelegramBot['id']) => (
+		makeRequest<APIResponse.TelegramBotAPI.Start>(url(telegramBotID) + '?action=start', 'POST')
+	);
+	export const stop = (telegramBotID: TelegramBot['id']) => (
+		makeRequest<APIResponse.TelegramBotAPI.Stop>(url(telegramBotID) + '?action=stop', 'POST')
+	);
 }
 
 export namespace TelegramBotCommandsAPI {
@@ -129,7 +133,7 @@ export namespace TelegramBotCommandDiagramAPI {
 		telegramBotID: TelegramBot['id'],
 		telegramBotCommandID: TelegramBotCommand['id'],
 		data: Data.TelegramBotCommandDiagramAPI.UpdatePosition,
-	) => makeRequest(url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, data);
+	) => makeRequest<APIResponse.TelegramBotCommandDiagramAPI.Get>(url(telegramBotID, telegramBotCommandID), 'PATCH', undefined, data);
 }
 
 export namespace TelegramBotVariablesAPI {

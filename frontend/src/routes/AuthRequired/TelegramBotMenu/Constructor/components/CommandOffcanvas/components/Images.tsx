@@ -86,7 +86,7 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 								{ name: file.name },
 								true,
 							),
-							level: 'danger',
+							level: 'error',
 						});
 					}
 				} else {
@@ -96,7 +96,7 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 							{ name: file.name },
 							true,
 						),
-						level: 'danger',
+						level: 'error',
 					});
 				}
 			}

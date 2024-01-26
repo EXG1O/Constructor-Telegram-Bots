@@ -1,12 +1,13 @@
+from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from aiogram.types import Chat
 
-from utils.other import generate_random_string
+from utils.shortcuts import generate_random_string
+
 from .utils import get_user_info
 
 from typing import Any

@@ -9,13 +9,13 @@ export namespace APIResponse {
 
 	export interface Success {
 		message: string;
-		level: 'success' | 'primary';
+		level: 'success' | 'info';
 	}
 	export interface Error {
 		code: string;
 		name: string | null;
 		message: string;
-		level: 'danger';
+		level: 'error';
 	}
 }
 

@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from modeltranslation.admin import TranslationAdmin
 from tinymce.widgets import TinyMCE
 
-from utils.admin import format_html_url
+from utils.html import format_html_link
 
 from .models import Donation, DonationSection, DonationButton
 
@@ -23,7 +23,7 @@ class DonationAdmin(admin.ModelAdmin):
 
 	@admin.display(description=_('Telegram'), ordering='telegram_url')
 	def telegram_url_display(self, donation: Donation) -> str:
-		return format_html_url(donation.telegram_url)
+		return format_html_link(donation.telegram_url)
 
 @admin.register(DonationSection)
 class DonationSectionAdmin(TranslationAdmin):
@@ -40,4 +40,4 @@ class DonationButtonAdmin(TranslationAdmin):
 
 	@admin.display(description=_('Ссылка'), ordering='url')
 	def url_display(self, donation_button: DonationButton) -> str:
-		return format_html_url(donation_button.url)
+		return format_html_link(donation_button.url)

@@ -58,7 +58,7 @@ function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<Fi
 								{ name: file.name },
 								true,
 							),
-							level: 'danger',
+							level: 'error',
 						});
 					}
 				} else {
@@ -68,7 +68,7 @@ function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<Fi
 							{ name: file.name },
 							true,
 						),
-						level: 'danger',
+						level: 'error',
 					});
 				}
 			}

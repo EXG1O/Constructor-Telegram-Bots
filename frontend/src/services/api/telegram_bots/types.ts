@@ -190,6 +190,9 @@ export namespace APIResponse {
 			telegram_bot: TelegramBot;
 		}
 		export type Update = Create;
+
+		export type Start = {};
+		export type Stop = Start;
 	}
 
 	export namespace TelegramBotCommandsAPI {
@@ -202,6 +205,10 @@ export namespace APIResponse {
 
 	export namespace TelegramBotCommandsDiagramAPI {
 		export type Get = TelegramBotCommandDiagram[];
+	}
+
+	export namespace TelegramBotCommandDiagramAPI {
+		export type Get = {};
 	}
 
 	export namespace TelegramBotVariablesAPI {

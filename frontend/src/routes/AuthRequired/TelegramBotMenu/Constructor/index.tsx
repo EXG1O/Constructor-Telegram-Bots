@@ -112,7 +112,7 @@ function Constructor(): ReactElement {
 		} else {
 			createMessageToast({
 				message: gettext('Не удалось получить данные с сервера!'),
-				level: 'danger',
+				level: 'error',
 			});
 		}
 	}, []);

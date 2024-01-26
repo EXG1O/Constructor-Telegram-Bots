@@ -73,7 +73,7 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 		} else {
 			createMessageToast({
 				message: gettext('Не удалось получить данные с сервера!'),
-				level: 'danger',
+				level: 'error',
 			});
 		}
 	}

@@ -54,7 +54,10 @@ class UserLoginAPIViewTests(CustomTestCase):
 		self.user.save()
 
 	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(
+		response: HttpResponse = self.client.post(self.url)
+		self.assertEqual(response.status_code, 400)
+
+		response: HttpResponse = self.client.post( # type: ignore [no-redef]
 			self.url,
 			{
 				'user_id': 0,

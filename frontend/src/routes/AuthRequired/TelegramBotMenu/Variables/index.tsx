@@ -51,7 +51,7 @@ function Variables(): ReactElement {
 		}));
 		clipboard.on('error', () => createMessageToast({
 			message: gettext('При попытки скопировать переменную в буфер обмена, непредвиденная ошибка!'),
-			level: 'danger',
+			level: 'error',
 		}));
 	}, []);
 

@@ -113,14 +113,14 @@ function APIRequest({ initialData, onChange, ...props }: APIRequestProps): React
 
 	async function handleMakeTestAPIRequestButtonClick(): Promise<void> {
 		if (!data.url) {
-			createMessageToast({ message: gettext('Введите URL-адрес!'), level: 'danger' });
+			createMessageToast({ message: gettext('Введите URL-адрес!'), level: 'error' });
 			return;
 		}
 
 		try {
 			new URL(data.url);
 		} catch {
-			createMessageToast({ message: gettext('Введите правильный URL-адрес!'), level: 'danger' });
+			createMessageToast({ message: gettext('Введите правильный URL-адрес!'), level: 'error' });
 			return;
 		}
 
@@ -148,7 +148,7 @@ function APIRequest({ initialData, onChange, ...props }: APIRequestProps): React
 				json: responseJSON,
 			});
 		} catch {
-			createMessageToast({ message: gettext('Произошла ошибка во время отпрвки API-запроса!'), level: 'danger' });
+			createMessageToast({ message: gettext('Произошла ошибка во время отпрвки API-запроса!'), level: 'error' });
 		}
 	}
 

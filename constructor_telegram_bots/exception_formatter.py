@@ -18,5 +18,5 @@ class CustomExceptionFormatter(ExceptionFormatter):
 			'code': error.code,
 			'name': error.attr,
 			'message': error.detail,
-			'level': 'danger',
+			'level': 'error',
 		}

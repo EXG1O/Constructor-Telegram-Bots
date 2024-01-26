@@ -3,16 +3,23 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import Toast from 'react-bootstrap/Toast';
 import CloseButton from 'react-bootstrap/CloseButton';
 
+type Levels = 'success' | 'info' | 'error';
+
 export interface MessageToastProps {
 	message: string;
-	level: keyof typeof icons;
+	level: Levels;
 	onExited: () => void;
 }
 
-const icons = {
+const colors: Record<Levels, string> = {
+	success: 'success',
+	info: 'primary',
+	error: 'danger',
+}
+const icons: Record<Levels, string> = {
 	success: 'check-circle-fill',
-	primary: 'info-circle-fill',
-	danger: 'exclamation-triangle-fill',
+	info: 'info-circle-fill',
+	error: 'exclamation-triangle-fill',
 }
 
 function MessageToast({ message, level, onExited }: MessageToastProps): ReactElement<MessageToastProps> {
@@ -25,13 +32,13 @@ function MessageToast({ message, level, onExited }: MessageToastProps): ReactEle
 			autohide
 			show={show}
 			delay={6000}
-			className={`text-bg-${level} mb-0`}
-			onExited={onExited}
+			className={`text-bg-${colors[level]} mb-0`}
 			onClose={() => setShow(false)}
+			onExited={onExited}
 		>
 			<Toast.Body className='d-flex align-items-center gap-2'>
 				<i className={`bi bi-${icons[level]}`} />
-				<strong className='text-break flex-fill'>{message}</strong>
+				<strong className='flex-fill text-break'>{message}</strong>
 				<CloseButton onClick={() => setShow(false)} />
 			</Toast.Body>
 		</Toast>

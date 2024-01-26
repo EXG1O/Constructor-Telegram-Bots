@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 from django.db.models import QuerySet
 
-from utils.admin import format_html_url
+from utils.html import format_html_link
 
 from .models import TelegramBot, TelegramBotUser
 from .tasks import start_telegram_bot
@@ -23,7 +23,7 @@ class TelegramBotAdmin(admin.ModelAdmin):
 
 	@admin.display(description='@username', ordering='username')
 	def username_(self, telegram_bot: TelegramBot) -> str:
-		return format_html_url(f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}')
+		return format_html_link(f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}')
 
 	@admin.display(description=_('Команд'))
 	def commands_count(self, telegram_bot: TelegramBot) -> int:
