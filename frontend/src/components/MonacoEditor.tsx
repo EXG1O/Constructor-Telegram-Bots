@@ -6,6 +6,8 @@ import './MonacoEditor.scss';
 
 import _MonacoEditor, { Monaco, EditorProps as _MonacoEditorProps } from '@monaco-editor/react';
 
+import Loading from './Loading';
+
 import { updateEditorLayout } from 'utils/monaco_editor';
 
 export interface MonacoEditorProps extends _MonacoEditorProps {
@@ -42,6 +44,7 @@ function MonacoEditor({ disablePadding, disableFocusEffect, onMount, onChange, .
 
 	return (
 		<_MonacoEditor
+			loading={<Loading size='sm' />}
 			{...props}
 			options={{
 				minimap: { enabled: false },
