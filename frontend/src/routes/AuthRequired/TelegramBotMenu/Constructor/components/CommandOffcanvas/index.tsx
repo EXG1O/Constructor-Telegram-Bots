@@ -15,7 +15,7 @@ import MessageText from './components/MessageText';
 import Keyboard, { Data as KeyboardData } from './components/Keyboard';
 import Files, { Data as FilesData } from './components/Files';
 import APIRequest, { Data as APIRequestData } from './components/APIRequest';
-import DatabaseRecord from './components/DatabaseRecord';
+import DatabaseRecord, { Value as DatabaseRecordValue } from './components/DatabaseRecord';
 
 export interface Data {
 	name?: string;
@@ -26,7 +26,7 @@ export interface Data {
 	messageText?: string;
 	keyboard?: KeyboardData;
 	apiRequest?: APIRequestData;
-	databaseRecord?: string;
+	databaseRecord?: DatabaseRecordValue;
 }
 
 export interface CommandOffcanvasProps extends OffcanvasProps {
