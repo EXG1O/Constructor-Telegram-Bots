@@ -15,21 +15,11 @@ export interface CommandProps extends Omit<CardProps, 'onChange' | 'children'> {
 	onChange: (data: Data) => void;
 }
 
-type AddonNames = 'description';
-
 function Command({ initialData, onChange, ...props }: CommandProps): ReactElement<CommandProps> {
 	const [data, setData] = useState<Data>(initialData ?? { text: '' });
-	const [showAddons, setShowAddons] = useState<Record<AddonNames, boolean>>({ description: Boolean(initialData?.description) });
+	const [showDescription, setShowDescription] = useState<boolean>(Boolean(initialData?.description));
 
 	useEffect(() => onChange(data), [data]);
-
-	function toggleAddon(name: AddonNames): void {
-		setShowAddons({ ...showAddons, [name]: !showAddons[name] });
-
-		if (showAddons[name]) {
-			setData({ ...data, [name]: undefined });
-		}
-	}
 
 	return (
 		<Card {...props}>
@@ -46,7 +36,7 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 				<Button
 					size='sm'
 					{...(
-						showAddons.description ? {
+						showDescription ? {
 							variant: 'secondary',
 							className: 'w-100 border-bottom-0 rounded-bottom-0',
 							children: gettext('Убрать из меню'),
@@ -57,14 +47,18 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 						}
 					)}
 					aria-controls='command-offcanvas-command-description-addon'
-					aria-expanded={showAddons.description}
-					onClick={() => toggleAddon('description')}
+					aria-expanded={showDescription}
+					onClick={() => setShowDescription(!showDescription)}
 				/>
-				<Collapse in={showAddons.description}>
+				<Collapse
+					in={showDescription}
+					unmountOnExit
+					onExited={() => setData({ ...data, description: undefined })}
+				>
 					<div id='command-offcanvas-command-description-addon'>
 						<Form.Control
 							value={data.description ?? ''}
-							className='border-top-0 rounded-top-0'
+							className='border-top-0 rounded-1 rounded-top-0'
 							placeholder={gettext('Введите описание команды')}
 							onChange={e => setData({ ...data, description: e.target.value })}
 						/>
