@@ -4,13 +4,15 @@ import Card, { CardProps } from 'react-bootstrap/Card';
 
 import TinymceEditor from 'components/TinymceEditor';
 
+export type Value = string;
+
 export interface MessageTextProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: string;
-	onChange: (value: string) => void;
+	initialValue?: Value;
+	onChange: (value: Value) => void;
 }
 
 function MessageText({ initialValue, onChange, ...props }: MessageTextProps): ReactElement<MessageTextProps> {
-	const [value, setValue] = useState<string>(initialValue ?? '');
+	const [value, setValue] = useState<Value>(initialValue ?? '');
 
 	useEffect(() => onChange(value), [value]);
 

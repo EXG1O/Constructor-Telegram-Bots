@@ -11,7 +11,7 @@ import CommandName, { Value as CommandNameValue } from './components/CommandName
 import Settings, { Data as SettingsData } from './components/Settings';
 import Command, { Data as CommandData } from './components/Command';
 import Images, { Data as ImagesData } from './components/Images';
-import MessageText from './components/MessageText';
+import MessageText, { Value as MessageTextValue } from './components/MessageText';
 import Keyboard, { Data as KeyboardData } from './components/Keyboard';
 import Files, { Data as FilesData } from './components/Files';
 import APIRequest, { Data as APIRequestData } from './components/APIRequest';
@@ -23,7 +23,7 @@ export interface Data {
 	command?: CommandData;
 	images?: ImagesData;
 	files?: FilesData,
-	messageText?: string;
+	messageText?: MessageTextValue;
 	keyboard?: KeyboardData;
 	apiRequest?: APIRequestData;
 	databaseRecord?: DatabaseRecordValue;
