@@ -3,13 +3,15 @@ import React, { ReactElement, memo, useEffect, useState } from 'react';
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
+export type Value = string;
+
 export interface CommandNameProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: string;
-	onChange: (value: string) => void;
+	initialValue?: Value;
+	onChange: (value: Value) => void;
 }
 
 function CommandName({ initialValue, onChange, ...props }: CommandNameProps): ReactElement<CommandNameProps> {
-	const [value, setValue] = useState<string>(initialValue ?? '');
+	const [value, setValue] = useState<Value>(initialValue ?? '');
 
 	useEffect(() => onChange(value), [value]);
 

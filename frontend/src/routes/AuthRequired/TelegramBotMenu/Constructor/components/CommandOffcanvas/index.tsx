@@ -7,7 +7,7 @@ import Collapse from 'react-bootstrap/Collapse';
 
 import Loading from 'components/Loading';
 
-import CommandName from './components/CommandName';
+import CommandName, { Value as CommandNameValue } from './components/CommandName';
 import Settings, { Data as SettingsData } from './components/Settings';
 import Command, { Data as CommandData } from './components/Command';
 import Images, { Data as ImagesData } from './components/Images';
@@ -18,7 +18,7 @@ import APIRequest, { Data as APIRequestData } from './components/APIRequest';
 import DatabaseRecord, { Value as DatabaseRecordValue } from './components/DatabaseRecord';
 
 export interface Data {
-	name?: string;
+	name?: CommandNameValue;
 	settings?: SettingsData;
 	command?: CommandData;
 	images?: ImagesData;
