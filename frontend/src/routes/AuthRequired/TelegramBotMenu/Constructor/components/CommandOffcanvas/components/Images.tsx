@@ -10,11 +10,10 @@ import Loading from 'components/Loading';
 
 import useToast from 'services/hooks/useToast';
 
-interface ImageData {
+interface ImageData extends Pick<File, 'name' | 'size'> {
 	id?: number;
+	key: string;
 	file?: File;
-	name: File['name'];
-	size: File['size'];
 	url: string;
 }
 
@@ -25,8 +24,7 @@ export interface ImagesProps extends Omit<CardProps, 'onChange' | 'children'> {
 	onChange: (data: Data) => void;
 }
 
-interface FileResult {
-	file: File;
+interface ProcessedFile extends File {
 	url?: string;
 }
 
@@ -34,60 +32,38 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 	const { createMessageToast } = useToast();
 
 	const [data, setData] = useState<Data>(initialData ?? []);
-	const [loadingImages, setLoadingImages] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(false);
 
 	useEffect(() => onChange(data), [data]);
 
 	function handleImagesChange(event: ReactChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
-			setLoadingImages(true);
+			setLoading(true);
 
 			const files: File[] = [...event.target.files];
-			const filesResult: Record<number, FileResult> = {};
-			let index = 0;
 
 			event.target.value = '';
 
-			for (const file of files) {
+			const processedFiles: ProcessedFile[] = files.filter(file => {
 				if (file.size < 3145728) {
-					let isFinded = false;
-
-					for (const file_ of data) {
+					for (const _file of data) {
 						if (
-							file_.name === file.name &&
-							file_.size === file.size
+							_file.name === file.name &&
+							_file.size === file.size
 						) {
-							isFinded = true;
-							break;
+							createMessageToast({
+								message: interpolate(
+									gettext('Изображение %(name)s уже добавлено!'),
+									{ name: file.name },
+									true,
+								),
+								level: 'error',
+							});
+							return false;
 						}
 					}
 
-					if (!isFinded) {
-						const index_ = index;
-
-						filesResult[index_] = { file, url: undefined };
-
-						const fileRender = new FileReader();
-						fileRender.readAsDataURL(file);
-						fileRender.addEventListener('loadend', e => {
-							if (e.target?.result) {
-								filesResult[index_].url = e.target.result as string;
-							} else {
-								delete filesResult[index_];
-							}
-						});
-
-						index += 1;
-					} else {
-						createMessageToast({
-							message: interpolate(
-								gettext('Изображение %(name)s уже добавлено!'),
-								{ name: file.name },
-								true,
-							),
-							level: 'error',
-						});
-					}
+					return true;
 				} else {
 					createMessageToast({
 						message: interpolate(
@@ -98,11 +74,23 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 						level: 'error',
 					});
 				}
-			}
+			}).map((file, index) => {
+				const fileRender = new FileReader();
+				fileRender.readAsDataURL(file);
+				fileRender.addEventListener('loadend', e => {
+					if (e.target?.result) {
+						processedFiles[index].url = e.target.result as string;
+					} else {
+						delete processedFiles[index];
+					}
+				});
 
-			const checkFilesResult = () => {
-				for (const key of Object.keys(filesResult)) {
-					if (!filesResult[parseInt(key)].url) {
+				return file;
+			});
+
+			const checkFilesResult = (): void => {
+				for (const file of processedFiles) {
+					if (!file.url) {
 						setTimeout(checkFilesResult, 500);
 						return;
 					}
@@ -110,18 +98,19 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 
 				setData([
 					...data,
-					...Object.keys(filesResult).map(key => {
-						const file: FileResult = filesResult[parseInt(key)];
+					...processedFiles.map(file => {
+						const { url, ..._file } = file;
 
 						return {
-							file: file.file,
-							name: file.file.name,
-							size: file.file.size,
-							url: file.url!,
+							key: crypto.randomUUID(),
+							file: _file,
+							name: _file.name,
+							size: _file.size,
+							url: url!,
 						}
-					}),
+					})
 				]);
-				setLoadingImages(false);
+				setLoading(false);
 			}
 
 			checkFilesResult();
@@ -130,7 +119,9 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 
 	function handleDeleteImageButtonClick(index: number): void {
 		const images = [...data];
+
 		images.splice(index, 1);
+
 		setData(images);
 	}
 
@@ -140,30 +131,31 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 				{gettext('Изображение')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2 p-2'>
-				{loadingImages ? (
-					<div className='d-flex border rounded' style={{ height: '200px' }}>
-						<Loading size='md' className='m-auto' />
-					</div>
-				) : (
-					data.length ? (
+				{!loading ? (
+					Boolean(data.length) && (
 						<>
-							<Carousel interval={null} variant='dark'>
-								{data.map((image, index) => (
+							<Carousel
+								interval={null}
+								controls={data.length > 1}
+								indicators={data.length > 1}
+								variant='dark'
+							>
+								{data.map(image => (
 									<Carousel.Item
-										key={index}
+										key={image.key}
 										className='overflow-hidden border rounded'
 									>
 										<Image
-											className='w-100 p-0'
 											src={image.url}
+											className='w-100 p-0'
 											style={{ objectFit: 'contain', height: '200px' }}
 										/>
 									</Carousel.Item>
 								))}
 							</Carousel>
-							<div className='d-flex flex-wrap border rounded gap-1 p-1'>
+							<div className='d-flex flex-wrap border rounded-1 gap-1 p-1'>
 								{data.map((image, index) => (
-									<ButtonGroup key={index}>
+									<ButtonGroup key={image.key}>
 										<small className='text-bg-dark rounded-1 rounded-end-0 px-2 py-1'>
 											{image.name}
 										</small>
@@ -179,7 +171,11 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 								))}
 							</div>
 						</>
-					) : undefined
+					)
+				) : (
+					<div className='d-flex justify-content-center border rounded' style={{ height: '200px' }}>
+						<Loading size='md' className='align-self-center' />
+					</div>
 				)}
 				<input
 					id='command-offcanvas-images-input-file'
