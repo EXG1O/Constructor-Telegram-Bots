@@ -1,28 +1,12 @@
-import React, { ElementType, HTMLAttributes, ReactElement, ReactNode, useEffect, useState } from 'react';
-import classNames from 'classnames';
+import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 
-import RBPagination, { PaginationProps as RBPaginationProps } from 'react-bootstrap/Pagination';
+import _Pagination, { PaginationProps as _PaginationProps } from 'react-bootstrap/Pagination';
 
-export interface PaginationProps extends Omit<RBPaginationProps, 'children'> {
+export interface PaginationProps extends Omit<_PaginationProps, 'children'> {
 	itemCount: number;
 	itemLimit: number;
 	itemOffset: number;
 	onPageChange: (newItemOffset: number) => void;
-}
-
-export interface PaginationItemProps<As extends ElementType = ElementType> extends HTMLAttributes<As> {
-	as?: As;
-	active?: boolean;
-}
-
-export function PaginationItem({ as: Component = 'button', active, children, ...props }: PaginationItemProps): ReactElement<PaginationItemProps> {
-	return (
-		<li className={classNames('page-item', active ? 'active' : undefined)}>
-			<Component {...props} className={classNames('page-link', props.className)}>
-				{children}
-			</Component>
-		</li>
-	);
 }
 
 function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }: PaginationProps): ReactElement<PaginationProps> {
@@ -45,8 +29,9 @@ function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }
 						num >= activePageNum - 1 && num <= activePageNum + 1
 					) {
 						return (
-							<PaginationItem
+							<_Pagination.Item
 								key={num}
+								as='span'
 								{...(
 									activePageNum === num ? {
 										active: true,
@@ -54,19 +39,20 @@ function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }
 										onClick: () => onPageChange((num - 1) * itemLimit),
 									}
 								)}
+								style={{ cursor: 'pointer' }}
 							>
 								{num}
-							</PaginationItem>
+							</_Pagination.Item>
 						);
 					} else if (num === 2 || num === pageCount - 2) {
 						return (
-							<PaginationItem
+							<_Pagination.Ellipsis
 								key={num}
-								as='span'
-								style={{ cursor: 'default' }}
-							>
-								...
-							</PaginationItem>
+								style={{
+									cursor: 'default',
+									pointerEvents: 'none',
+								}}
+							/>
 						);
 					}
 				})
@@ -76,11 +62,11 @@ function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }
 
 	return (
 		items.length ? (
-			<RBPagination {...props}>
+			<_Pagination {...props}>
 				{items}
-			</RBPagination>
+			</_Pagination>
 		) : <></>
 	);
 }
 
-export default Object.assign(Pagination, { Item: PaginationItem });
+export default Object.assign(Pagination, _Pagination);
