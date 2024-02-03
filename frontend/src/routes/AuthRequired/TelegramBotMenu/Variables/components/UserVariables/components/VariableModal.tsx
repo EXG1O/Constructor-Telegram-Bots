@@ -47,9 +47,9 @@ function VariableModal({ loading, initialData, title, children, ...props }: Vari
 							onChange={e => setData({ ...data, name: e.target.value })}
 						/>
 						<TelegramQuillEditor
+							height={220}
 							defaultValue={data.value}
 							placeholder={gettext('Введите значение переменной')}
-							style={{ height: 260 }}
 							onChange={value => setData({ ...data, value })}
 						/>
 						<Form.Control

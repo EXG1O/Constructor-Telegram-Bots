@@ -21,8 +21,7 @@ export interface TelegramQuillEditorProps extends Omit<QuillEditorProps, 'toolba
 function TelegramQuillEditor(props: TelegramQuillEditorProps): ReactElement<TelegramQuillEditorProps> {
 	return (
 		<QuillEditor
-			{...props}
-			toolbar={props.toolbar ?? {
+			toolbar={{
 				container: [
 					'bold',
 					'italic',
@@ -36,6 +35,7 @@ function TelegramQuillEditor(props: TelegramQuillEditorProps): ReactElement<Tele
 					'clean',
 				],
 			}}
+			{...props}
 		/>
 	);
 }

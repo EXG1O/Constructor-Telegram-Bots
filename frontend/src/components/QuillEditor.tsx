@@ -12,13 +12,14 @@ export interface QuillEditorToolbar {
 }
 
 export interface QuillEditorProps extends Omit<ReactQuillProps, 'modules' | 'onFocus' | 'onBlur' | 'children'> {
+	height?: number;
 	toolbar: QuillEditorToolbar;
 	onMount?: (quill: Quill, reactQuill: ReactQuill) => void;
 }
 
 export type DeltaStatic = Parameters<NonNullable<ReactQuillProps['onChange']>>[1];
 
-function QuillEditor({ toolbar, onMount, onChange, ...props }: QuillEditorProps): ReactElement<QuillEditorProps> {
+function QuillEditor({ height, toolbar, onMount, onChange, ...props }: QuillEditorProps): ReactElement<QuillEditorProps> {
 	const quillRef = useRef<Quill | undefined>(undefined);
     const reactQuillRef = useRef<ReactQuill | null>(null);
 	const [focus, setFocus] = useState<boolean>(false);
@@ -29,6 +30,10 @@ function QuillEditor({ toolbar, onMount, onChange, ...props }: QuillEditorProps)
 		}
 
 		quillRef.current = reactQuillRef.current.getEditor() as unknown as Quill;
+
+		if (height !== undefined) {
+			quillRef.current.root.style.height = `${height}px`;
+		}
 
 		onMount?.(quillRef.current, reactQuillRef.current);
 	}, []);

@@ -19,9 +19,9 @@ function MessageText({ initialValue, onChange, ...props }: MessageTextProps): Re
 			</Card.Header>
 			<Card.Body className='p-2'>
 				<TelegramQuillEditor
+					height={220}
 					defaultValue={initialValue}
 					placeholder={gettext('Введите текст сообщения')}
-					style={{ height: 260 }}
 					onChange={onChange}
 				/>
 			</Card.Body>
