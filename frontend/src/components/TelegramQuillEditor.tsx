@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import Quill from 'quill';
 
-import './TelegramTextEditor.scss';
+import './TelegramQuillEditor.scss';
 
 import QuillEditor, { QuillEditorProps } from './QuillEditor';
 
@@ -14,11 +14,11 @@ class SpoilerBlot extends Inline {
 
 Quill.register(SpoilerBlot);
 
-export interface TelegramTextEditorProps extends Omit<QuillEditorProps, 'toolbar'> {
+export interface TelegramQuillEditorProps extends Omit<QuillEditorProps, 'toolbar'> {
 	toolbar?: QuillEditorProps['toolbar'];
 }
 
-function TelegramTextEditor(props: TelegramTextEditorProps): ReactElement<TelegramTextEditorProps> {
+function TelegramQuillEditor(props: TelegramQuillEditorProps): ReactElement<TelegramQuillEditorProps> {
 	return (
 		<QuillEditor
 			{...props}
@@ -40,4 +40,4 @@ function TelegramTextEditor(props: TelegramTextEditorProps): ReactElement<Telegr
 	);
 }
 
-export default TelegramTextEditor;
+export default TelegramQuillEditor;
