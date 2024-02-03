@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 
 import Loading from 'components/Loading';
-import TinymceEditor from 'components/TinymceEditor';
+import TelegramQuillEditor from 'components/TelegramQuillEditor';
 
 export interface Data {
 	name: string;
@@ -46,10 +46,11 @@ function VariableModal({ loading, initialData, title, children, ...props }: Vari
 							placeholder={gettext('Придумайте название переменной')}
 							onChange={e => setData({ ...data, name: e.target.value })}
 						/>
-						<TinymceEditor
-							value={data.value}
-							init={{ placeholder: gettext('Введите значение переменной') }}
-							onEditorChange={value => setData({ ...data, value })}
+						<TelegramQuillEditor
+							defaultValue={data.value}
+							placeholder={gettext('Введите значение переменной')}
+							style={{ height: 260 }}
+							onChange={value => setData({ ...data, value })}
 						/>
 						<Form.Control
 							value={data.description}
