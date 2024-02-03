@@ -1,0 +1,39 @@
+.quill {
+	.ql-toolbar {
+		.ql-formats {
+			button {
+				$formats: (
+					'spoiler': '\F777',
+				);
+
+				@each $name, $icon in $formats {
+					&.ql-#{$name} {
+						&::before {
+							content: $icon;
+						}
+
+						&:hover, &.ql-active {
+							color: #3f8cfd;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.ql-container {
+		.ql-editor {
+			tg-spoiler {
+				color: var(--bs-dark);
+				background-color: var(--bs-dark);
+				border-radius: 4px;
+				padding: 2px 4px;
+				transition: color 0.15s ease-in-out;
+
+				&:hover {
+					color: var(--bs-light);
+				}
+			}
+		}
+	}
+}
