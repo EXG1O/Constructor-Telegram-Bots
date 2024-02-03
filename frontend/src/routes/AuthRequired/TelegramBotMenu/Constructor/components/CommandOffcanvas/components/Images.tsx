@@ -40,7 +40,7 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 		if (event.target.files) {
 			setLoading(true);
 
-			const files: File[] = [...event.target.files];
+			const files: File[] = Object.values(event.target.files);
 
 			event.target.value = '';
 
@@ -98,17 +98,13 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 
 				setData([
 					...data,
-					...processedFiles.map(file => {
-						const { url, ..._file } = file;
-
-						return {
-							key: crypto.randomUUID(),
-							file: _file,
-							name: _file.name,
-							size: _file.size,
-							url: url!,
-						}
-					})
+					...processedFiles.map(file => ({
+						key: crypto.randomUUID(),
+						file: file,
+						name: file.name,
+						size: file.size,
+						url: file.url!,
+					})),
 				]);
 				setLoading(false);
 			}

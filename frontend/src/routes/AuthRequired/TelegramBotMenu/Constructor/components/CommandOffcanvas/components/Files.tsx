@@ -28,7 +28,7 @@ function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<Fi
 
 	function handleFilesChange(event: ReactChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
-			const files: File[] = [...event.target.files];
+			const files: File[] = Object.values(event.target.files);
 
 			event.target.value = '';
 
