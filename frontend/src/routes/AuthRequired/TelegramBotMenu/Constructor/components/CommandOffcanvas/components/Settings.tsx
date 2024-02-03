@@ -31,19 +31,16 @@ function Settings({ initialData, onChange, ...props }: SettingsProps): ReactElem
 			<Card.Body className='vstack gap-2 p-2'>
 				<Form.Switch
 					checked={data.isReplyToUserMessage}
-					className='mb-0'
 					label={gettext('Ответить на сообщение пользователя')}
 					onChange={e => setData({ ...data, isReplyToUserMessage: e.target.checked })}
 				/>
 				<Form.Switch
 					checked={data.isDeleteUserMessage}
-					className='mb-0'
 					label={gettext('Удалить сообщение пользователя')}
 					onChange={e => setData({ ...data, isDeleteUserMessage: e.target.checked })}
 				/>
 				<Form.Switch
 					checked={data.isSendAsNewMessage}
-					className='mb-0'
 					label={gettext('Отправить сообщение как новое')}
 					onChange={e => setData({ ...data, isSendAsNewMessage: e.target.checked })}
 				/>

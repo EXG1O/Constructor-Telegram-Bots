@@ -151,7 +151,7 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 							<th scope='row'>{gettext('Приватный')}:</th>
 							<td>
 								<Form.Switch
-									defaultChecked={telegramBot.is_private}
+									checked={telegramBot.is_private}
 									onChange={handleIsPrivateSwitchChange}
 								/>
 							</td>

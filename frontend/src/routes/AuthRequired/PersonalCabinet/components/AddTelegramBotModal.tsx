@@ -66,7 +66,6 @@ function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactE
 						<Form.Switch
 							checked={data.is_private}
 							label={gettext('Сделать Telegram бота приватным')}
-							className='mb-0'
 							onChange={e => setData({ ...data, is_private: e.target.checked })}
 						/>
 					</Modal.Body>
