@@ -14,7 +14,9 @@ class SpoilerBlot extends Inline {
 
 Quill.register(SpoilerBlot);
 
-export type TelegramTextEditorProps = QuillEditorProps;
+export interface TelegramTextEditorProps extends Omit<QuillEditorProps, 'toolbar'> {
+	toolbar?: QuillEditorProps['toolbar'];
+}
 
 function TelegramTextEditor(props: TelegramTextEditorProps): ReactElement<TelegramTextEditorProps> {
 	return (
