@@ -3,6 +3,7 @@ import { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-serv
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
 
 interface Configuration extends WebpackConfiguration {
@@ -57,6 +58,7 @@ const config = (env: any, argv: any): Configuration => ({
 	},
 	plugins: [
 		new Dotenv(),
+		new ForkTsCheckerWebpackPlugin(),
 		new HtmlWebpackPlugin(
 			argv.mode === 'development' ? {
 				template: './src/dev.html',
