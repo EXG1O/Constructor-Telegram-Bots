@@ -1,4 +1,4 @@
-import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo, useEffect, useState } from 'react';
+import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo, useState } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
@@ -20,21 +20,20 @@ interface ImageData extends Pick<File, 'name' | 'size'> {
 export type Data = ImageData[];
 
 export interface ImagesProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	data?: Data;
 	onChange: (data: Data) => void;
 }
+
+export const defaultData: Data = [];
 
 interface ProcessedFile extends File {
 	url?: string;
 }
 
-function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
+function Images({ data = defaultData, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
 	const { createMessageToast } = useToast();
 
-	const [data, setData] = useState<Data>(initialData ?? []);
 	const [loading, setLoading] = useState<boolean>(false);
-
-	useEffect(() => onChange(data), [data]);
 
 	function handleImagesChange(event: ReactChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
@@ -96,7 +95,7 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 					}
 				}
 
-				setData([
+				onChange([
 					...data,
 					...processedFiles.map(file => ({
 						key: crypto.randomUUID(),
@@ -118,7 +117,7 @@ function Images({ initialData, onChange, ...props }: ImagesProps): ReactElement<
 
 		images.splice(index, 1);
 
-		setData(images);
+		onChange(images);
 	}
 
 	return (

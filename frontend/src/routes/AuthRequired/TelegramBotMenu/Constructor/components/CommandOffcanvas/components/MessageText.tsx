@@ -7,11 +7,13 @@ import TelegramQuillEditor from 'components/TelegramQuillEditor';
 export type Value = string;
 
 export interface MessageTextProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: Value;
+	value?: Value;
 	onChange: (value: Value) => void;
 }
 
-function MessageText({ initialValue, onChange, ...props }: MessageTextProps): ReactElement<MessageTextProps> {
+export const defaultValue: Value = '';
+
+function MessageText({ value = defaultValue, onChange, ...props }: MessageTextProps): ReactElement<MessageTextProps> {
 	return (
 		<Card {...props}>
 			<Card.Header as='h6' className='text-center'>
@@ -20,7 +22,7 @@ function MessageText({ initialValue, onChange, ...props }: MessageTextProps): Re
 			<Card.Body className='p-2'>
 				<TelegramQuillEditor
 					height={220}
-					defaultValue={initialValue}
+					defaultValue={value}
 					placeholder={gettext('Введите текст сообщения')}
 					onChange={onChange}
 				/>

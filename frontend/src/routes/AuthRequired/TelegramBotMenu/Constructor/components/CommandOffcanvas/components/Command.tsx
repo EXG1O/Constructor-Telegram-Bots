@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useEffect, useState } from 'react';
+import React, { ReactElement, memo, useState } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
@@ -11,15 +11,14 @@ export interface Data {
 }
 
 export interface CommandProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	data?: Data;
 	onChange: (data: Data) => void;
 }
 
-function Command({ initialData, onChange, ...props }: CommandProps): ReactElement<CommandProps> {
-	const [data, setData] = useState<Data>(initialData ?? { text: '' });
-	const [showDescription, setShowDescription] = useState<boolean>(Boolean(initialData?.description));
+export const defaultData: Data = { text: '' };
 
-	useEffect(() => onChange(data), [data]);
+function Command({ data = defaultData, onChange, ...props }: CommandProps): ReactElement<CommandProps> {
+	const [showDescription, setShowDescription] = useState<boolean>(Boolean(data?.description));
 
 	return (
 		<Card {...props}>
@@ -31,7 +30,7 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 					className='mb-2'
 					value={data.text}
 					placeholder={gettext('Введите команду')}
-					onChange={e => setData({ ...data, text: e.target.value })}
+					onChange={e => onChange({ ...data, text: e.target.value })}
 				/>
 				<Button
 					size='sm'
@@ -53,14 +52,14 @@ function Command({ initialData, onChange, ...props }: CommandProps): ReactElemen
 				<Collapse
 					in={showDescription}
 					unmountOnExit
-					onExited={() => setData({ ...data, description: undefined })}
+					onExited={() => onChange({ ...data, description: undefined })}
 				>
 					<div id='command-offcanvas-command-description-addon'>
 						<Form.Control
 							value={data.description ?? ''}
 							className='border-top-0 rounded-1 rounded-top-0'
 							placeholder={gettext('Введите описание команды')}
-							onChange={e => setData({ ...data, description: e.target.value })}
+							onChange={e => onChange({ ...data, description: e.target.value })}
 						/>
 					</div>
 				</Collapse>

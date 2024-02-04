@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useEffect, useState } from 'react';
+import React, { ReactElement, memo } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
@@ -22,9 +22,11 @@ export interface Data {
 }
 
 export interface KeyboardProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	data?: Data;
 	onChange: (data: Data) => void;
 }
+
+export const defaultData: Data = { type: 'default', buttons: [] };
 
 interface KeyboardToggleButtonProps extends Omit<ToggleButtonProps, 'key' | 'id' | 'value' | 'size' | 'variant' | 'onChange'> {
 	value: Data['type'];
@@ -36,11 +38,7 @@ const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
 	{ value: 'payment', children: gettext('Платёжный') },
 ];
 
-function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElement<KeyboardProps> {
-	const [data, setData] = useState<Data>(initialData ?? { type: 'default', buttons: [] });
-
-	useEffect(() => onChange(data), [data]);
-
+function Keyboard({ data = defaultData, onChange, ...props }: KeyboardProps): ReactElement<KeyboardProps> {
 	function handleButtonChange(index: number, buttonData: Partial<ButtonData>): void {
 		const buttons = [...data.buttons];
 
@@ -49,7 +47,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 
 		buttons.splice(index, 0, button);
 
-		setData({ ...data, buttons });
+		onChange({ ...data, buttons });
 	}
 
 	function handleButtonDelete(index: number): void {
@@ -57,7 +55,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 
 		buttons.splice(index, 1);
 
-		setData({ ...data, buttons });
+		onChange({ ...data, buttons });
 	}
 
 	function handleButtonDragEnd(result: DropResult): void {
@@ -67,7 +65,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 			const [movedButton] = buttons.splice(result.source.index, 1);
 			buttons.splice(result.destination.index, 0, movedButton);
 
-			setData({ ...data, buttons });
+			onChange({ ...data, buttons });
 		}
 	}
 
@@ -85,7 +83,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 							id={`keyboard-type-${props.value}`}
 							size='sm'
 							variant='outline-dark'
-							onChange={() => setData({ ...data, type: props.value })}
+							onChange={() => onChange({ ...data, type: props.value })}
 						/>
 					))}
 				</ToggleButtonGroup>
@@ -164,7 +162,7 @@ function Keyboard({ initialData, onChange, ...props }: KeyboardProps): ReactElem
 						size='sm'
 						variant='dark'
 						className='w-100'
-						onClick={() => setData({ ...data, buttons: [...data.buttons, { text: '' }] })}
+						onClick={() => onChange({ ...data, buttons: [...data.buttons, { text: '' }] })}
 					>
 						{gettext('Добавить кнопку')}
 					</Button>

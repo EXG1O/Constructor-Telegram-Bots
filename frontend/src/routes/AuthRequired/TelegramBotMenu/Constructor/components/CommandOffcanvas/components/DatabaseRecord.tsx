@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useEffect, useState } from 'react';
+import React, { ReactElement, memo } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 
@@ -7,17 +7,13 @@ import MonacoEditor from 'components/MonacoEditor';
 export type Value = string;
 
 export interface DatabaseRecordProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: Value;
+	value?: Value;
 	onChange: (value: Value) => void;
 }
 
-const defaultValue = JSON.stringify({ key: 'value' }, undefined, 4);
+export const defaultValue = JSON.stringify({ key: 'value' }, undefined, 4);
 
-function DatabaseRecord({ initialValue, onChange, ...props }: DatabaseRecordProps): ReactElement<DatabaseRecordProps> {
-	const [value, setValue] = useState<Value>(initialValue ?? defaultValue);
-
-	useEffect(() => onChange(value), [value]);
-
+function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRecordProps): ReactElement<DatabaseRecordProps> {
 	return (
 		<Card {...props}>
 			<Card.Header as='h6' className='text-center'>
@@ -34,7 +30,7 @@ function DatabaseRecord({ initialValue, onChange, ...props }: DatabaseRecordProp
 						lineDecorationsWidth: 0,
 						lineNumbersMinChars: 0,
 					}}
-					onChange={value => setValue(value ?? defaultValue)}
+					onChange={value => onChange(value ?? defaultValue)}
 				/>
 			</Card.Body>
 		</Card>

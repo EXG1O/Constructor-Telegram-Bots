@@ -1,20 +1,18 @@
-import React, { ReactElement, memo, useEffect, useState } from 'react';
+import React, { ReactElement, memo } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
 export type Value = string;
 
-export interface CommandNameProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialValue?: Value;
+export interface NameProps extends Omit<CardProps, 'onChange' | 'children'> {
+	value?: Value;
 	onChange: (value: Value) => void;
 }
 
-function CommandName({ initialValue, onChange, ...props }: CommandNameProps): ReactElement<CommandNameProps> {
-	const [value, setValue] = useState<Value>(initialValue ?? '');
+export const defaultValue: Value = '';
 
-	useEffect(() => onChange(value), [value]);
-
+function Name({ value = defaultValue, onChange, ...props }: NameProps): ReactElement<NameProps> {
 	return (
 		<Card {...props}>
 			<Card.Header as='h6' className='text-center'>
@@ -24,11 +22,11 @@ function CommandName({ initialValue, onChange, ...props }: CommandNameProps): Re
 				<Form.Control
 					value={value}
 					placeholder={gettext('Введите название команды')}
-					onChange={e => setValue(e.target.value)}
+					onChange={e => onChange(e.target.value)}
 				/>
 			</Card.Body>
 		</Card>
 	);
 }
 
-export default memo(CommandName);
+export default memo(Name);

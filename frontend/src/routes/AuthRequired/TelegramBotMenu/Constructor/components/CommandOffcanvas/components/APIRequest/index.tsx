@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, memo, useMemo, useCallback, useState } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
@@ -16,20 +16,15 @@ export interface Data {
 }
 
 export interface APIRequestProps extends Omit<CardProps, 'onChange' | 'children'>  {
-	initialData?: Data;
+	data?: Data;
 	onChange: (data: Data) => void;
 }
 
-function APIRequest({ initialData, onChange, ...props }: APIRequestProps): ReactElement<APIRequestProps> {
-	const [url, setURL] = useState<Data['url']>(initialData?.url ?? '');
-	const [method, setMethod] = useState<MethodValue>(initialData?.method ?? 'get');
-	const [headers, setHeaders] = useState<HeadersData | undefined>(initialData?.headers);
-	const [body, setBody] = useState<BodyData | undefined>(initialData?.body);
+export const defaultData: Data = { url: '', method: 'get' };
 
-	const [showHeaders, setShowHeaders] = useState<boolean>(Boolean(initialData?.headers));
-	const [showBody, setShowBody] = useState<boolean>(Boolean(initialData?.body));
-
-	useEffect(() => onChange({ url, method, headers, body }), [url, method, headers, body]);
+function APIRequest({ data = defaultData, onChange, ...props }: APIRequestProps): ReactElement<APIRequestProps> {
+	const [showHeaders, setShowHeaders] = useState<boolean>(Boolean(data.headers));
+	const [showBody, setShowBody] = useState<boolean>(Boolean(data.body));
 
 	return (
 		<Card {...props}>
@@ -38,35 +33,35 @@ function APIRequest({ initialData, onChange, ...props }: APIRequestProps): React
 			</Card.Header>
 			<Card.Body className='vstack gap-2 p-2'>
 				<Form.Control
-					value={url}
+					value={data.url}
 					placeholder={gettext('Введите URL-адрес')}
-					onChange={e => setURL(e.target.value)}
+					onChange={e => onChange({ ...data, url: e.target.value })}
 				/>
 				<MethodToggle
-					value={method}
-					onChange={useCallback((value: MethodValue) => setMethod(value), [])}
+					value={data.method}
+					onChange={useCallback((method: MethodValue) => onChange({ ...data, method }), [])}
 				/>
 				<Headers
 					show={showHeaders}
-					data={headers}
+					data={data.headers}
 					onShow={useCallback(() => setShowHeaders(true), [])}
 					onHide={useCallback(() => setShowHeaders(false), [])}
-					onChange={useCallback(data => setHeaders(data), [])}
+					onChange={useCallback(headers => onChange({ ...data, headers }), [])}
 				/>
 				<Body
 					show={showBody}
-					value={body}
+					value={data.body}
 					onShow={useCallback(() => setShowBody(true), [])}
 					onHide={useCallback(() => setShowBody(false), [])}
-					onChange={useCallback(value => setBody(value), [])}
+					onChange={useCallback(body => onChange({ ...data, body }), [])}
 				/>
 				<Test
-					url={url}
+					url={data.url}
 					data={useMemo(() => ({
-						method,
-						headers: headers?.map(header => [header.key, header.value]),
-						body,
-					}), [url, method, headers, body])}
+						method: data.method,
+						headers: data.headers?.map(header => [header.key, header.value]),
+						body: data.body,
+					}), [data])}
 				/>
 			</Card.Body>
 		</Card>

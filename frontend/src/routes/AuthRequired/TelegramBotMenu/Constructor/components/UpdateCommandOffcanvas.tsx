@@ -43,8 +43,8 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 					isDeleteUserMessage: settings.is_delete_user_message,
 					isSendAsNewMessage: settings.is_send_as_new_message,
 				},
-				images: images.length ? images : undefined,
-				files: files.length ? files : undefined,
+				images: images.length ? images.map(image => ({ ...image, key: crypto.randomUUID() })) : undefined,
+				files: files.length ? files.map(file => ({ ...file, key: crypto.randomUUID() })) : undefined,
 				command: command ? {
 					text: command.text,
 					description: command.description ?? undefined,

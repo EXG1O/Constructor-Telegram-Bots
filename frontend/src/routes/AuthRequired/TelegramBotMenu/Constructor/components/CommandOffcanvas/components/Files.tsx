@@ -1,4 +1,4 @@
-import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo, useEffect, useState } from 'react';
+import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -15,16 +15,14 @@ interface FileData extends Pick<File, 'name' | 'size'> {
 export type Data = FileData[];
 
 export interface FilesProps extends Omit<CardProps, 'onChange' | 'children'> {
-	initialData?: Data;
+	data?: Data;
 	onChange: (data: Data) => void;
 }
 
-function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<FilesProps> {
+export const defaultData: Data = [];
+
+function Files({ data = defaultData, onChange, ...props }: FilesProps): ReactElement<FilesProps> {
 	const { createMessageToast } = useToast();
-
-	const [data, setData] = useState<Data>(initialData ?? []);
-
-	useEffect(() => onChange(data), [data]);
 
 	function handleFilesChange(event: ReactChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
@@ -32,7 +30,7 @@ function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<Fi
 
 			event.target.value = '';
 
-			setData([
+			onChange([
 				...data,
 				...files.filter(file => {
 					if (file.size < 3145728) {
@@ -79,7 +77,7 @@ function Files({ initialData, onChange, ...props }: FilesProps): ReactElement<Fi
 
 		files.splice(index, 1);
 
-		setData(files);
+		onChange(files);
 	}
 
 	return (

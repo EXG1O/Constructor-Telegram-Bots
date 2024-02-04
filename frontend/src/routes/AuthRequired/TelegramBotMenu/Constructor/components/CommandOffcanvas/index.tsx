@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, memo, useCallback, useRef, useState } from 'react';
+import React, { ReactElement, ReactNode, memo, useEffect, useState } from 'react';
 
 import Offcanvas, { OffcanvasProps } from 'react-bootstrap/Offcanvas';
 import Button, { ButtonProps } from 'react-bootstrap/Button';
@@ -7,7 +7,7 @@ import Collapse from 'react-bootstrap/Collapse';
 
 import Loading from 'components/Loading';
 
-import CommandName, { Value as CommandNameValue } from './components/CommandName';
+import Name, { Value as NameValue } from './components/Name';
 import Settings, { Data as SettingsData } from './components/Settings';
 import Command, { Data as CommandData } from './components/Command';
 import Images, { Data as ImagesData } from './components/Images';
@@ -18,7 +18,7 @@ import APIRequest, { Data as APIRequestData } from './components/APIRequest';
 import DatabaseRecord, { Value as DatabaseRecordValue } from './components/DatabaseRecord';
 
 export interface Data {
-	name?: CommandNameValue;
+	name?: NameValue;
 	settings?: SettingsData;
 	command?: CommandData;
 	images?: ImagesData;
@@ -36,8 +36,6 @@ export interface CommandOffcanvasProps extends OffcanvasProps {
 	children?: (data: Data) => ReactNode;
 }
 
-type CommandOffcanvasBodyProps = Omit<CommandOffcanvasProps, 'loading' | 'title'>;
-
 type AddonNames = 'command' | 'images' | 'files' | 'keyboard' | 'apiRequest' | 'databaseRecord';
 
 interface AddonButtonsProps extends Omit<ButtonProps, 'key' | 'size' | 'variant' | 'onClick'> {
@@ -53,8 +51,16 @@ const addonButtons: AddonButtonsProps[] = [
 	{ name: 'databaseRecord', children: gettext('Запись в базу данных') },
 ];
 
-function CommandOffcanvasBody({ initialData, children }: CommandOffcanvasBodyProps): ReactElement<CommandOffcanvasBodyProps> {
-	const data = useRef<Data>(initialData ?? {});
+function CommandOffcanvas({ loading, title, initialData, children, ...props }: CommandOffcanvasProps): ReactElement<CommandOffcanvasProps> {
+	const [name, setName] = useState<NameValue | undefined>(initialData?.name);
+	const [settings, setSettings] = useState<SettingsData | undefined>(initialData?.settings);
+	const [command, setCommand] = useState<CommandData | undefined>(initialData?.command);
+	const [images, setImages] = useState<ImagesData | undefined>(initialData?.images);
+	const [files, setFiles] = useState<FilesData | undefined>(initialData?.files);
+	const [messageText, setMessageText] = useState<MessageTextValue | undefined>(initialData?.messageText);
+	const [keyboard, setKeyboard] = useState<KeyboardData | undefined>(initialData?.keyboard);
+	const [apiRequest, setAPIRequest] = useState<APIRequestData | undefined>(initialData?.apiRequest);
+	const [databaseRecord, setDatabaseRecord] = useState<DatabaseRecordValue | undefined>(initialData?.databaseRecord);
 
 	const [showAddons, setShowAddons] = useState<Record<AddonNames, boolean>>({
 		command: Boolean(initialData?.command),
@@ -66,137 +72,172 @@ function CommandOffcanvasBody({ initialData, children }: CommandOffcanvasBodyPro
 	});
 	const [showAddonButtons, setShowAddonButtons] = useState<boolean>(true);
 
-	function toggleAddon(name: AddonNames): void {
-		setShowAddons({ ...showAddons, [name]: !showAddons[name] });
+	useEffect(() => {
+		setName(initialData?.name);
+		setSettings(initialData?.settings);
+		setCommand(initialData?.command);
+		setImages(initialData?.images);
+		setFiles(initialData?.files);
+		setMessageText(initialData?.messageText);
+		setKeyboard(initialData?.keyboard);
+		setAPIRequest(initialData?.apiRequest);
+		setDatabaseRecord(initialData?.databaseRecord);
+		setShowAddons({
+			command: Boolean(initialData?.command),
+			images: Boolean(initialData?.images),
+			files: Boolean(initialData?.files),
+			keyboard: Boolean(initialData?.keyboard),
+			apiRequest: Boolean(initialData?.apiRequest),
+			databaseRecord: Boolean(initialData?.databaseRecord),
+		});
+	}, [initialData]);
 
-		if (showAddons[name]) {
-			data.current[name] = undefined;
-		}
-	}
-
-	return (
-		<>
-			<Offcanvas.Body>
-				<CommandName
-					className='mb-3'
-					initialValue={initialData?.name}
-					onChange={useCallback(commandName => { data.current.name = commandName }, [])}
-				/>
-				<Settings
-					className='mb-3'
-					initialData={initialData?.settings}
-					onChange={useCallback(settings => { data.current.settings = settings }, [])}
-				/>
-				<Collapse in={showAddons.command} unmountOnExit>
-					<div id='command-offcanvas-command-addon'>
-						<Command
-							className='mb-3'
-							initialData={initialData?.command}
-							onChange={useCallback(command => { data.current.command = command }, [])}
-						/>
-					</div>
-				</Collapse>
-				<Collapse in={showAddons.images} unmountOnExit>
-					<div id='command-offcanvas-image-addon'>
-						<Images
-							className='mb-3'
-							initialData={initialData?.images}
-							onChange={useCallback(images => { data.current.images = images }, [])}
-						/>
-					</div>
-				</Collapse>
-				<Collapse in={showAddons.files} unmountOnExit>
-					<div id='command-offcanvas-files-addon'>
-						<Files
-							className='mb-3'
-							initialData={initialData?.files}
-							onChange={useCallback(files => { data.current.files = files }, [])}
-						/>
-					</div>
-				</Collapse>
-				<MessageText
-					className='mb-3'
-					initialValue={initialData?.messageText}
-					onChange={useCallback(messageText => { data.current.messageText = messageText }, [])}
-				/>
-				<Collapse in={showAddons.keyboard} unmountOnExit>
-					<div id='command-offcanvas-keyboard-addon'>
-						<Keyboard
-							className='mb-3'
-							initialData={initialData?.keyboard}
-							onChange={useCallback(keyboard => { data.current.keyboard = keyboard }, [])}
-						/>
-					</div>
-				</Collapse>
-				<Collapse in={showAddons.apiRequest} unmountOnExit>
-					<div id='command-offcanvas-apiRequest-addon'>
-						<APIRequest
-							className='mb-3'
-							initialData={initialData?.apiRequest}
-							onChange={useCallback(apiRequest => { data.current.apiRequest = apiRequest }, [])}
-						/>
-					</div>
-				</Collapse>
-				<Collapse in={showAddons.databaseRecord} unmountOnExit>
-					<div id='command-offcanvas-databaseRecord-addon'>
-						<DatabaseRecord
-							className='mb-3'
-							initialValue={initialData?.databaseRecord}
-							onChange={useCallback(databaseRecord => { data.current.databaseRecord = databaseRecord }, [])}
-						/>
-					</div>
-				</Collapse>
-				<Button
-					size='sm'
-					{...(
-						showAddonButtons ? {
-							variant: 'secondary',
-							className: 'w-100 border-bottom-0 rounded-bottom-0',
-							children: gettext('Скрыть дополнения'),
-						} : {
-							variant: 'dark',
-							className: 'w-100',
-							children: gettext('Показать дополнения'),
-						}
-					)}
-					onClick={() => setShowAddonButtons(!showAddonButtons)}
-				/>
-				<Collapse in={showAddonButtons} unmountOnExit>
-					<div id='command-offcanvas-addons'>
-						<Stack className='border border-top-0 rounded-1 rounded-top-0 p-1' gap={1}>
-							{addonButtons.map(({ name, ...props }, index) => (
-								<Button
-									{...props}
-									key={index}
-									size='sm'
-									variant={showAddons[name] ? 'secondary' : 'dark'}
-									aria-controls={`command-offcanvas-${name}-addon`}
-									aria-expanded={showAddons[name]}
-									onClick={() => toggleAddon(name)}
-								/>
-							))}
-						</Stack>
-					</div>
-				</Collapse>
-			</Offcanvas.Body>
-			<Offcanvas.Header className='border-top'>
-				{children?.(data.current)}
-			</Offcanvas.Header>
-		</>
-	);
-}
-
-function CommandOffcanvas({ loading, title, initialData, children, ...props }: CommandOffcanvasProps): ReactElement<CommandOffcanvasProps> {
 	return (
 		<Offcanvas {...props}>
 			<Offcanvas.Header className='border-bottom' closeButton>
 				<Offcanvas.Title as='h5'>{title}</Offcanvas.Title>
 			</Offcanvas.Header>
 			{!loading ? (
-				<CommandOffcanvasBody
-					initialData={initialData}
-					children={children}
-				/>
+				<>
+					<Offcanvas.Body>
+						<Name
+							value={name}
+							className='mb-3'
+							onChange={setName}
+						/>
+						<Settings
+							data={settings}
+							className='mb-3'
+							onChange={setSettings}
+						/>
+						<Collapse
+							in={showAddons.command}
+							unmountOnExit
+							onExited={() => setCommand(undefined)}
+						>
+							<div id='command-offcanvas-command-addon'>
+								<Command
+									data={command}
+									className='mb-3'
+									onChange={setCommand}
+								/>
+							</div>
+						</Collapse>
+						<Collapse
+							in={showAddons.images}
+							unmountOnExit
+							onExited={() => setImages(undefined)}
+						>
+							<div id='command-offcanvas-image-addon'>
+								<Images
+									data={images}
+									className='mb-3'
+									onChange={setImages}
+								/>
+							</div>
+						</Collapse>
+						<Collapse
+							in={showAddons.files}
+							unmountOnExit
+							onExited={() => setFiles(undefined)}
+						>
+							<div id='command-offcanvas-files-addon'>
+								<Files
+									data={files}
+									className='mb-3'
+									onChange={setFiles}
+								/>
+							</div>
+						</Collapse>
+						<MessageText value={messageText} onChange={setMessageText} />
+						<Collapse
+							in={showAddons.keyboard}
+							unmountOnExit
+							onExited={() => setKeyboard(undefined)}
+						>
+							<div id='command-offcanvas-keyboard-addon'>
+								<Keyboard
+									data={keyboard}
+									className='mb-3'
+									onChange={setKeyboard}
+								/>
+							</div>
+						</Collapse>
+						<Collapse
+							in={showAddons.apiRequest}
+							unmountOnExit
+							onExited={() => setAPIRequest(undefined)}
+						>
+							<div id='command-offcanvas-apiRequest-addon'>
+								<APIRequest
+									data={apiRequest}
+									className='mb-3'
+									onChange={setAPIRequest}
+								/>
+							</div>
+						</Collapse>
+						<Collapse
+							in={showAddons.databaseRecord}
+							unmountOnExit
+							onExited={() => setDatabaseRecord(undefined)}
+						>
+							<div id='command-offcanvas-databaseRecord-addon'>
+								<DatabaseRecord
+									value={databaseRecord}
+									className='mb-3'
+									onChange={setDatabaseRecord}
+								/>
+							</div>
+						</Collapse>
+						<Button
+							size='sm'
+							{...(
+								showAddonButtons ? {
+									variant: 'secondary',
+									className: 'w-100 border-bottom-0 rounded-bottom-0',
+									children: gettext('Скрыть дополнения'),
+								} : {
+									variant: 'dark',
+									className: 'w-100',
+									children: gettext('Показать дополнения'),
+								}
+							)}
+							onClick={() => setShowAddonButtons(!showAddonButtons)}
+						/>
+						<Collapse in={showAddonButtons} unmountOnExit>
+							<div id='command-offcanvas-addons'>
+								<Stack className='border border-top-0 rounded-1 rounded-top-0 p-1' gap={1}>
+									{addonButtons.map(({ name, ...props }, index) => (
+										<Button
+											{...props}
+											key={index}
+											size='sm'
+											variant={showAddons[name] ? 'secondary' : 'dark'}
+											aria-controls={`command-offcanvas-${name}-addon`}
+											aria-expanded={showAddons[name]}
+											onClick={() => setShowAddons({ ...showAddons, [name]: !showAddons[name] })}
+										/>
+									))}
+								</Stack>
+							</div>
+						</Collapse>
+					</Offcanvas.Body>
+					{children && (
+						<Offcanvas.Header className='border-top'>
+							{children({
+								name,
+								settings,
+								command,
+								images,
+								files,
+								messageText,
+								keyboard,
+								apiRequest,
+								databaseRecord,
+							})}
+						</Offcanvas.Header>
+					)}
+				</>
 			) : (
 				<Offcanvas.Body className='d-flex'>
 					<Loading size='md' className='m-auto' />
