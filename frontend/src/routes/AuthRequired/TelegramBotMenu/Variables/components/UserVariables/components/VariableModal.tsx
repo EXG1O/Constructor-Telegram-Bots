@@ -48,7 +48,7 @@ function VariableModal({ loading, initialData, title, children, ...props }: Vari
 						/>
 						<TelegramQuillEditor
 							height={220}
-							defaultValue={data.value}
+							value={data.value}
 							placeholder={gettext('Введите значение переменной')}
 							onChange={value => setData({ ...data, value })}
 						/>

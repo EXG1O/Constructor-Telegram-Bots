@@ -22,7 +22,7 @@ function MessageText({ value = defaultValue, onChange, ...props }: MessageTextPr
 			<Card.Body className='p-2'>
 				<TelegramQuillEditor
 					height={220}
-					defaultValue={value}
+					value={value}
 					placeholder={gettext('Введите текст сообщения')}
 					onChange={onChange}
 				/>

@@ -4,22 +4,22 @@ import classNames from 'classnames';
 import './QuillEditor.scss';
 
 import Quill, { Sources } from 'quill';
-import ReactQuill, { ReactQuillProps, UnprivilegedEditor } from 'react-quill';
+import ReactQuill, { ReactQuillProps, UnprivilegedEditor, Range } from 'react-quill';
+
+export type QuillEditor = Quill & ReactQuill;
 
 export interface QuillEditorToolbar {
 	container: string[];
 	handlers?: Record<string, (value: any) => void>;
 }
 
-export interface QuillEditorProps extends Omit<ReactQuillProps, 'modules' | 'onFocus' | 'onBlur' | 'children'> {
+export interface QuillEditorProps extends Omit<ReactQuillProps, 'modules' | 'children'> {
 	height?: number;
 	toolbar: QuillEditorToolbar;
-	onMount?: (quill: Quill, reactQuill: ReactQuill) => void;
+	onMount?: (quillEditor: QuillEditor) => void;
 }
 
-export type DeltaStatic = Parameters<NonNullable<ReactQuillProps['onChange']>>[1];
-
-function QuillEditor({ height, toolbar, onMount, onChange, ...props }: QuillEditorProps): ReactElement<QuillEditorProps> {
+function QuillEditor({ height, toolbar, onFocus, onBlur, onMount, ...props }: QuillEditorProps): ReactElement<QuillEditorProps> {
 	const quillRef = useRef<Quill | undefined>(undefined);
     const reactQuillRef = useRef<ReactQuill | null>(null);
 	const [focus, setFocus] = useState<boolean>(false);
@@ -35,38 +35,17 @@ function QuillEditor({ height, toolbar, onMount, onChange, ...props }: QuillEdit
 			quillRef.current.root.style.height = `${height}px`;
 		}
 
-		onMount?.(quillRef.current, reactQuillRef.current);
+		onMount?.(Object.assign(quillRef.current, reactQuillRef.current));
 	}, []);
 
-	function handleChange(value: string, delta: DeltaStatic, source: Sources, editor: UnprivilegedEditor): void {
-		if (quillRef.current && onChange) {
-			onChange(
-				Object.values(quillRef.current.root.children).reduce<string[]>((lines, children) => {
-					let html: string | undefined;
+	function handleFocus(selection: Range, source: Sources, editor: UnprivilegedEditor): void {
+		setFocus(true);
+		onFocus?.(selection, source, editor);
+	}
 
-					if (children.tagName === 'P') {
-						html = children.innerHTML;
-
-						if (html === '<br>') {
-							html = '';
-						}
-					} else if (children.tagName === 'PRE') {
-						html = children.outerHTML.replace(' class="ql-syntax" spellcheck="false"', '');
-					} else if (children.tagName === 'BLOCKQUOTE') {
-						html = children.outerHTML;
-					}
-
-					if (html !== undefined) {
-						lines.push(html.replaceAll(/&nbsp;|\s*rel="noopener noreferrer"\s+target="_blank"\s*|\<span\s+class="ql.*"\s*\>.*\<\/span\>/gi, ''));
-					}
-
-					return lines;
-				}, []).join('<br>'),
-				delta,
-				source,
-				editor,
-			);
-		}
+	function handleBlur(selection: Range, source: Sources, editor: UnprivilegedEditor): void {
+		setFocus(false);
+		onBlur?.(selection, source, editor);
 	}
 
 	return (
@@ -81,9 +60,8 @@ function QuillEditor({ height, toolbar, onMount, onChange, ...props }: QuillEdit
 					props.className,
 				)
 			}
-			onFocus={() => setFocus(true)}
-			onBlur={() => setFocus(false)}
-			onChange={handleChange}
+			onFocus={handleFocus}
+			onBlur={handleBlur}
 		/>
 	);
 }
