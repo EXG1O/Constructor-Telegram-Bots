@@ -1,3 +1,5 @@
+@import 'styles/variables';
+
 .quill {
 	.ql-toolbar {
 		.ql-formats {
@@ -24,14 +26,14 @@
 	.ql-container {
 		.ql-editor {
 			tg-spoiler {
-				color: var(--bs-dark);
-				background-color: var(--bs-dark);
+				color: $dark;
+				background-color: $dark;
 				border-radius: 4px;
 				padding: 2px 4px;
 				transition: color 0.15s ease-in-out;
 
 				&:hover {
-					color: var(--bs-light);
+					color: $light;
 				}
 			}
 		}
