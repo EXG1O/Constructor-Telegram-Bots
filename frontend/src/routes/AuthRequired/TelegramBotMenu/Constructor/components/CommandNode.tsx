@@ -1,7 +1,8 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import { useRouteLoaderData } from 'react-router';
 import { NodeProps, Handle, Position, useReactFlow } from 'reactflow';
-import _ from 'lodash';
+
+import './CommandNode.scss';
 
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
@@ -77,7 +78,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 						onClick={() => setShowUpdateOffcanvas(true)}
 					/>
 				</div>
-				<div className='bg-light border rounded text-break text-center px-3 py-2' style={{ position: 'relative' }}>
+				<div className='bg-light border rounded text-center text-break px-3 py-2' style={{ position: 'relative' }}>
 					<Handle
 						id={`${data.id}:left:0`}
 						type='target'
@@ -91,7 +92,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 					/>
 				</div>
 				<div
-					className='message-text-block bg-light border rounded text-break px-3 py-2'
+					className='message-text-block bg-light border rounded px-3 py-2'
 					dangerouslySetInnerHTML={{ __html: data.message_text.text }}
 				/>
 				{data.keyboard?.buttons && (
@@ -99,7 +100,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 						{data.keyboard.buttons.map(button => (
 							<div
 								key={button.id}
-								className='text-bg-dark rounded text-break text-center px-3 py-2'
+								className='text-bg-dark rounded text-center text-break px-3 py-2'
 								style={{ position: 'relative' }}
 							>
 								<Handle

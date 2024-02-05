@@ -28,16 +28,12 @@
 	width: 12px;
 	height: 12px;
 	border-width: 1.5px;
-}
 
-$positions: 'top', 'bottom', 'left', 'right';
+	$positions: 'top', 'bottom', 'left', 'right';
 
-@each $position in $positions {
-	.react-flow__handle-#{$position} {
-		#{$position}: -6px;
+	@each $position in $positions {
+		&-#{$position} {
+			#{$position}: -6px;
+		}
 	}
-}
-
-.message-text-block p {
-	margin-bottom: 0;
 }
