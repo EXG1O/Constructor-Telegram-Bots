@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { json } from 'react-router-dom';
 
-import './index.css';
+import './index.scss';
 
 import Container from 'react-bootstrap/Container';
 

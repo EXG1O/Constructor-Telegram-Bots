@@ -1,3 +1,6 @@
+@import 'styles/variables';
+@import '~bootstrap/scss/mixins/breakpoints';
+
 .btn-new-update {
 	font-size: 14px;
 	background-color: #ffdb59;
@@ -8,13 +11,11 @@
 	background-color: #f5d256;
 }
 
-.header,
-.stats,
-.donations {
+.header, .stats, .donations {
 	width: 100%;
 }
 
-@media (min-width: 992px) {
+@include media-breakpoint-up(lg) {
 	.header {
 		width: 60%;
 	}
