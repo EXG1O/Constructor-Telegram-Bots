@@ -1,23 +1,25 @@
+@import 'styles/variables';
+
 .quill {
-	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	transition: $input-transition;
 
 	&.focus {
-		border-color: #86b7fe!important;
-		box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+		border-color: $input-focus-border-color!important;
+		box-shadow: $input-focus-box-shadow;
 	}
 
 	.ql-toolbar {
 		font-family: 'bootstrap-icons';
 		font-size: 17px;
 		padding: 6px 12px;
-		border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
+		border-bottom: $border-width $border-style $border-color;
 
 		.ql-formats {
 			display: flex;
 			gap: 6px;
 
 			button {
-				color: var(--bs-dark);
+				color: $dark;
 				background: none;
 				border: none;
 				padding: 0;
@@ -59,12 +61,12 @@
 
 		.ql-editor {
 			overflow: auto;
-			padding: 6px 12px;
+			padding: $input-padding-y $input-padding-x;
 			outline: 0;
 
 			&.ql-blank::before {
 				position: absolute;
-				color: var(--bs-secondary);
+				color: $secondary;
 				content: attr(data-placeholder);
 			}
 
@@ -85,14 +87,14 @@
 			}
 
 			code {
-				color: var(--bs-dark);
+				color: $dark;
 				background-color: #eeeff0;
 				border-radius: 4px;
 			}
 
 			pre {
-				color: var(--bs-light);
-				background-color: var(--bs-dark);
+				color: $light;
+				background-color: $dark;
 				border-radius: 4px;
 			}
 
@@ -111,10 +113,10 @@
 			display: flex;
 			align-items: center;
 			padding: 4px 12px;
-			background-color: var(--bs-light);
-			border-radius: var(--bs-border-radius-sm);
-			border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
-			box-shadow: 0 0 10px 1px var(--bs-secondary);
+			background-color: $light;
+			border-radius: $border-radius-sm;
+			border: $border-width $border-style $border-color;
+			box-shadow: 0 0 10px 1px $secondary;
 
 			&.ql-hidden, input, .ql-remove {
 				display: none;
@@ -125,7 +127,7 @@
 			}
 
 			.ql-action {
-				color: var(--bs-secondary);
+				color: $secondary;
 				font-family: 'bootstrap-icons';
 				text-decoration-line: none;
 				cursor: pointer;
@@ -142,29 +144,27 @@
 
 				input {
 					display: unset;
-					min-height: calc(24px + 8px + calc(var(--bs-border-width) * 2));
-					font-size: 14px;
-					font-weight: 400;
-					line-height: 1.5;
-					padding: 4px 8px;
+					min-height: calc(24px + 8px + calc($border-width * 2));
+					font-size: $input-font-size-sm;
+					font-weight: $input-font-weight;
+					line-height: $input-line-height;
+					padding: $input-padding-y-sm $input-padding-x-sm;
 					margin-right: 11px;
-					color: var(--bs-body-color);
-					background-color: var(--bs-body-bg);
-					border-radius: var(--bs-border-radius-sm);
-					border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
-					transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+					color: $body-color;
+					background-color: $body-bg;
+					border-radius: $border-radius-sm;
+					border: $border-width $border-style $border-color;
+					transition: $input-transition;
 
 					&:focus {
-						color: var(--bs-body-color);
-						background-color: var(--bs-body-bg);
-						border-color: #86b7fe;
+						border-color: $input-focus-border-color!important;
+						box-shadow: 0 0 $focus-ring-blur 2px $focus-ring-color;
 						outline: 0;
-						box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
 					}
 				}
 
 				.ql-action {
-					color: var(--bs-success);
+					color: $success;
 					font-size: 18px;
 					-webkit-text-stroke: 0.6px;
 
