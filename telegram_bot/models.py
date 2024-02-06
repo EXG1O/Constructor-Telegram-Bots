@@ -15,6 +15,7 @@ class TelegramBot(models.Model):
 	owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'))
 	username = models.CharField('@username', max_length=32)
 	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=(validate_api_token,))
+	memory_limit = models.BigIntegerField(_('Лимит памяти'), default=41943040)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_running = models.BooleanField(_('Включён'), default=False)
 	is_stopped = models.BooleanField(_('Выключен'), default=True)
@@ -25,6 +26,20 @@ class TelegramBot(models.Model):
 
 		verbose_name = _('Telegram бота')
 		verbose_name_plural = _('Telegram боты')
+
+	@property
+	def used_memory(self) -> int:
+		total_used_memory: int = 0
+
+		for command in self.commands.all():
+			total_used_memory += sum(file.file.size for file in command.files.all())
+			total_used_memory += sum(image.image.size for image in command.images.all())
+
+		return total_used_memory
+
+	@property
+	def remaining_memory(self) -> int:
+		return self.memory_limit - self.used_memory
 
 	# TODO: Надо реализовать метод start для запуска Telegram бота, но проблема в том, что происходит циклический импорт.
 

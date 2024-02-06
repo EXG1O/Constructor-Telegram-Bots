@@ -185,7 +185,11 @@ export namespace APIResponse {
 	}
 
 	export namespace TelegramBotAPI {
-		export type Get = TelegramBot;
+		export interface Get extends TelegramBot {
+			memory_limit: number;
+			used_memory: number;
+			remaining_memory: number;
+		}
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot: TelegramBot;
 		}

@@ -37,8 +37,26 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = TelegramBot
-		fields = ('id', 'username', 'api_token', 'is_private', 'is_running', 'is_stopped')
-		read_only_fields = ('id', 'username', 'is_running', 'is_stopped')
+		fields = (
+			'id',
+			'username',
+			'api_token',
+			'memory_limit',
+			'used_memory',
+			'remaining_memory',
+			'is_private',
+			'is_running',
+			'is_stopped',
+		)
+		read_only_fields = (
+			'id',
+			'username',
+			'memory_limit',
+			'used_memory',
+			'remaining_memory',
+			'is_running',
+			'is_stopped',
+		)
 
 	@property
 	def user(self) -> User:
@@ -174,6 +192,14 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
 			raise TypeError('You not passed a TelegramBot instance to the serializer context!')
 
 		return telegram_bot
+
+	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+		total_size: int = sum(image.size for image in data['images']) + sum(file.size for file in data['files'])
+
+		if self.telegram_bot.remaining_memory - total_size < 0:
+			raise serializers.ValidationError(_('Вы превысили лимит памяти!'))
+
+		return data
 
 	def create(self, validated_data: dict[str, Any]) -> TelegramBotCommand:
 		settings: dict[str, Any] = validated_data.pop('settings')
