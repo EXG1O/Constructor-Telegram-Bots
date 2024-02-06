@@ -4,6 +4,9 @@ export interface TelegramBot {
 	id: number;
 	username: string | null;
 	api_token: string;
+	memory_limit: number;
+	used_memory: number;
+	remaining_memory: number;
 	is_private: boolean;
 	is_running: boolean;
 	is_stopped: boolean;
@@ -185,11 +188,7 @@ export namespace APIResponse {
 	}
 
 	export namespace TelegramBotAPI {
-		export interface Get extends TelegramBot {
-			memory_limit: number;
-			used_memory: number;
-			remaining_memory: number;
-		}
+		export type Get = TelegramBot;
 		export interface Create extends BaseApiResponse.Success {
 			telegram_bot: TelegramBot;
 		}
