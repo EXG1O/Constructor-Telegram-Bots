@@ -17,13 +17,50 @@ class TelegramBotAdmin(admin.ModelAdmin):
 	date_hierarchy = 'added_date'
 	list_filter = ('is_running', 'added_date')
 	actions = ('start_telegram_bot_action', 'stop_telegram_bot_action')
-	list_display = ('id', 'owner', 'username_', 'is_private', 'is_running', 'commands_count', 'users_count', 'added_date')
+	list_display = (
+		'id',
+		'owner',
+		'_username',
+		'_memory_limit',
+		'_used_memory',
+		'_remaining_memory',
+		'is_private',
+		'is_running',
+		'commands_count',
+		'users_count',
+		'added_date',
+	)
 
-	fields = ('id', 'owner', 'username_', 'api_token', 'is_private', 'is_running', 'commands_count', 'users_count', 'added_date')
+	fields = (
+		'id',
+		'owner',
+		'_username',
+		'api_token',
+		'_memory_limit',
+		'_used_memory',
+		'_remaining_memory',
+		'is_private',
+		'is_running',
+		'commands_count',
+		'users_count',
+		'added_date',
+	)
 
 	@admin.display(description='@username', ordering='username')
-	def username_(self, telegram_bot: TelegramBot) -> str:
+	def _username(self, telegram_bot: TelegramBot) -> str:
 		return format_html_link(f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}')
+
+	@admin.display(description=_('Лимит памяти'))
+	def _memory_limit(self, telegram_bot: TelegramBot) -> str:
+		return f'{round(telegram_bot.memory_limit / 1024 ** 2, 2)}MB'
+
+	@admin.display(description=_('Использовано памяти'))
+	def _used_memory(self, telegram_bot: TelegramBot) -> str:
+		return f'{round(telegram_bot.used_memory / 1024 ** 2, 2)}MB'
+
+	@admin.display(description=_('Осталось памяти'))
+	def _remaining_memory(self, telegram_bot: TelegramBot) -> str:
+		return f'{round(telegram_bot.remaining_memory / 1024 ** 2, 2)}MB'
 
 	@admin.display(description=_('Команд'))
 	def commands_count(self, telegram_bot: TelegramBot) -> int:
