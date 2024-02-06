@@ -21,6 +21,7 @@ export type Data = ImageData[];
 
 export interface ImagesProps extends Omit<CardProps, 'onChange' | 'children'> {
 	data?: Data;
+	remainingMemory: number;
 	onChange: (data: Data) => void;
 }
 
@@ -30,7 +31,7 @@ interface ProcessedFile extends File {
 	url?: string;
 }
 
-function Images({ data = defaultData, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
+function Images({ data = defaultData, remainingMemory, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
 	const { createMessageToast } = useToast();
 
 	const [loading, setLoading] = useState<boolean>(false);
@@ -40,39 +41,38 @@ function Images({ data = defaultData, onChange, ...props }: ImagesProps): ReactE
 			setLoading(true);
 
 			const files: File[] = Object.values(event.target.files);
+			let availableMemory: number = remainingMemory;
 
 			event.target.value = '';
 
 			const processedFiles: ProcessedFile[] = files.filter(file => {
-				if (file.size < 3145728) {
-					for (const _file of data) {
-						if (
-							_file.name === file.name &&
-							_file.size === file.size
-						) {
-							createMessageToast({
-								message: interpolate(
-									gettext('Изображение %(name)s уже добавлено!'),
-									{ name: file.name },
-									true,
-								),
-								level: 'error',
-							});
-							return false;
-						}
-					}
-
-					return true;
-				} else {
+				if (file.size > 2621440) {
 					createMessageToast({
 						message: interpolate(
-							gettext('Изображение %(name)s весит больше 3МБ!'),
+							gettext('Изображение %(name)s весит больше 2.5МБ!'),
 							{ name: file.name },
 							true,
 						),
 						level: 'error',
 					});
+					return false;
 				}
+
+				if (availableMemory - file.size < 0) {
+					createMessageToast({
+						message: interpolate(
+							gettext('Невозможно добавить изображение %(name)s, потому-что не хватает памяти!'),
+							{ name: file.name },
+							true,
+						),
+						level: 'error',
+					});
+					return false;
+				}
+
+				availableMemory -= file.size;
+
+				return true;
 			}).map((file, index) => {
 				const fileRender = new FileReader();
 				fileRender.readAsDataURL(file);

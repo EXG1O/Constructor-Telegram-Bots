@@ -1,4 +1,5 @@
-import React, { ReactElement, ReactNode, memo, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, memo, useEffect, useMemo, useState } from 'react';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import Offcanvas, { OffcanvasProps } from 'react-bootstrap/Offcanvas';
 import Button, { ButtonProps } from 'react-bootstrap/Button';
@@ -6,6 +7,7 @@ import Stack from 'react-bootstrap/Stack';
 import Collapse from 'react-bootstrap/Collapse';
 
 import Loading from 'components/Loading';
+import TelegramBotMemoryProgressBar from 'components/TelegramBotMemoryProgressBar';
 
 import Name, { Value as NameValue } from './components/Name';
 import Settings, { Data as SettingsData } from './components/Settings';
@@ -16,6 +18,8 @@ import Keyboard, { Data as KeyboardData } from './components/Keyboard';
 import Files, { Data as FilesData } from './components/Files';
 import APIRequest, { Data as APIRequestData } from './components/APIRequest';
 import DatabaseRecord, { Value as DatabaseRecordValue } from './components/DatabaseRecord';
+
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 export interface Data {
 	name?: NameValue;
@@ -52,6 +56,8 @@ const addonButtons: AddonButtonsProps[] = [
 ];
 
 function CommandOffcanvas({ loading, title, initialData, children, ...props }: CommandOffcanvasProps): ReactElement<CommandOffcanvasProps> {
+	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
+
 	const [name, setName] = useState<NameValue | undefined>(initialData?.name);
 	const [settings, setSettings] = useState<SettingsData | undefined>(initialData?.settings);
 	const [command, setCommand] = useState<CommandData | undefined>(initialData?.command);
@@ -62,7 +68,7 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 	const [apiRequest, setAPIRequest] = useState<APIRequestData | undefined>(initialData?.apiRequest);
 	const [databaseRecord, setDatabaseRecord] = useState<DatabaseRecordValue | undefined>(initialData?.databaseRecord);
 
-	const [showAddons, setShowAddons] = useState<Record<AddonNames, boolean>>({
+	const getAddonsState = (): Record<AddonNames, boolean> => ({
 		command: Boolean(initialData?.command),
 		images: Boolean(initialData?.images),
 		files: Boolean(initialData?.files),
@@ -70,7 +76,19 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 		apiRequest: Boolean(initialData?.apiRequest),
 		databaseRecord: Boolean(initialData?.databaseRecord),
 	});
-	const [showAddonButtons, setShowAddonButtons] = useState<boolean>(true);
+
+	const [showAddons, setShowAddons] = useState<Record<AddonNames, boolean>>(getAddonsState());
+	const [showAddonButtons, setShowAddonButtons] = useState<boolean>(false);
+
+	const usedMemory: number = useMemo(() => {
+		let totalUsedMemory: number = telegramBot.used_memory;
+
+		totalUsedMemory += images?.reduce((totalSize, image) => totalSize + image.size, 0) ?? 0;
+		totalUsedMemory += files?.reduce((totalSize, file) => totalSize + file.size, 0) ?? 0;
+
+		return totalUsedMemory;
+	}, [images, files]);
+	const remainingMemory: number = useMemo(() => telegramBot.memory_limit - usedMemory, [usedMemory]);
 
 	useEffect(() => {
 		setName(initialData?.name);
@@ -82,19 +100,12 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 		setKeyboard(initialData?.keyboard);
 		setAPIRequest(initialData?.apiRequest);
 		setDatabaseRecord(initialData?.databaseRecord);
-		setShowAddons({
-			command: Boolean(initialData?.command),
-			images: Boolean(initialData?.images),
-			files: Boolean(initialData?.files),
-			keyboard: Boolean(initialData?.keyboard),
-			apiRequest: Boolean(initialData?.apiRequest),
-			databaseRecord: Boolean(initialData?.databaseRecord),
-		});
+		setShowAddons(getAddonsState());
 	}, [initialData]);
 
 	return (
 		<Offcanvas {...props}>
-			<Offcanvas.Header className='border-bottom' closeButton>
+			<Offcanvas.Header closeButton>
 				<Offcanvas.Title as='h5'>{title}</Offcanvas.Title>
 			</Offcanvas.Header>
 			{!loading ? (
@@ -131,6 +142,7 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 							<div id='command-offcanvas-image-addon'>
 								<Images
 									data={images}
+									remainingMemory={remainingMemory}
 									className='mb-3'
 									onChange={setImages}
 								/>
@@ -144,6 +156,7 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 							<div id='command-offcanvas-files-addon'>
 								<Files
 									data={files}
+									remainingMemory={remainingMemory}
 									className='mb-3'
 									onChange={setFiles}
 								/>
@@ -189,41 +202,49 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 								/>
 							</div>
 						</Collapse>
-						<Button
-							size='sm'
-							{...(
-								showAddonButtons ? {
-									variant: 'secondary',
-									className: 'w-100 border-bottom-0 rounded-bottom-0',
-									children: gettext('Скрыть дополнения'),
-								} : {
-									variant: 'dark',
-									className: 'w-100',
-									children: gettext('Показать дополнения'),
-								}
-							)}
-							onClick={() => setShowAddonButtons(!showAddonButtons)}
-						/>
-						<Collapse in={showAddonButtons} unmountOnExit>
-							<div id='command-offcanvas-addons'>
-								<Stack className='border border-top-0 rounded-1 rounded-top-0 p-1' gap={1}>
-									{addonButtons.map(({ name, ...props }, index) => (
-										<Button
-											{...props}
-											key={index}
-											size='sm'
-											variant={showAddons[name] ? 'secondary' : 'dark'}
-											aria-controls={`command-offcanvas-${name}-addon`}
-											aria-expanded={showAddons[name]}
-											onClick={() => setShowAddons({ ...showAddons, [name]: !showAddons[name] })}
-										/>
-									))}
-								</Stack>
-							</div>
-						</Collapse>
 					</Offcanvas.Body>
+					<div className='offcanvas-footer gap-2'>
+						<TelegramBotMemoryProgressBar
+							telegramBot={telegramBot}
+							usedMemory={usedMemory}
+						/>
+						<div>
+							<Button
+								size='sm'
+								{...(
+									showAddonButtons ? {
+										variant: 'secondary',
+										className: 'w-100 border-bottom-0 rounded-bottom-0',
+										children: gettext('Скрыть дополнения'),
+									} : {
+										variant: 'dark',
+										className: 'w-100',
+										children: gettext('Показать дополнения'),
+									}
+								)}
+								onClick={() => setShowAddonButtons(!showAddonButtons)}
+							/>
+							<Collapse in={showAddonButtons} unmountOnExit>
+								<div id='command-offcanvas-addons'>
+									<Stack className='border border-top-0 rounded-1 rounded-top-0 p-1' gap={1}>
+										{addonButtons.map(({ name, ...props }, index) => (
+											<Button
+												{...props}
+												key={index}
+												size='sm'
+												variant={showAddons[name] ? 'secondary' : 'dark'}
+												aria-controls={`command-offcanvas-${name}-addon`}
+												aria-expanded={showAddons[name]}
+												onClick={() => setShowAddons({ ...showAddons, [name]: !showAddons[name] })}
+											/>
+										))}
+									</Stack>
+								</div>
+							</Collapse>
+						</div>
+					</div>
 					{children && (
-						<Offcanvas.Header className='border-top'>
+						<div className='offcanvas-footer'>
 							{children({
 								name,
 								settings,
@@ -235,12 +256,12 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 								apiRequest,
 								databaseRecord,
 							})}
-						</Offcanvas.Header>
+						</div>
 					)}
 				</>
 			) : (
-				<Offcanvas.Body className='d-flex'>
-					<Loading size='md' className='m-auto' />
+				<Offcanvas.Body className='d-flex justify-content-center'>
+					<Loading size='md' className='align-self-center' />
 				</Offcanvas.Body>
 			)}
 		</Offcanvas>

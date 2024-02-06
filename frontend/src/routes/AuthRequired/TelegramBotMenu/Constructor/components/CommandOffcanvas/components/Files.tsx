@@ -16,52 +16,52 @@ export type Data = FileData[];
 
 export interface FilesProps extends Omit<CardProps, 'onChange' | 'children'> {
 	data?: Data;
+	remainingMemory: number;
 	onChange: (data: Data) => void;
 }
 
 export const defaultData: Data = [];
 
-function Files({ data = defaultData, onChange, ...props }: FilesProps): ReactElement<FilesProps> {
+function Files({ data = defaultData, remainingMemory, onChange, ...props }: FilesProps): ReactElement<FilesProps> {
 	const { createMessageToast } = useToast();
 
 	function handleFilesChange(event: ReactChangeEvent<HTMLInputElement>): void {
 		if (event.target.files) {
 			const files: File[] = Object.values(event.target.files);
+			let availableMemory: number = remainingMemory;
 
 			event.target.value = '';
 
 			onChange([
 				...data,
 				...files.filter(file => {
-					if (file.size < 3145728) {
-						for (const _file of data) {
-							if (
-								_file.name === file.name &&
-								_file.size === file.size
-							) {
-								createMessageToast({
-									message: interpolate(
-										gettext('Файл %(name)s уже добавлен!'),
-										{ name: file.name },
-										true,
-									),
-									level: 'error',
-								});
-								return false;
-							}
-						}
-
-						return true;
-					} else {
+					if (file.size > 2621440) {
 						createMessageToast({
 							message: interpolate(
-								gettext('Файл %(name)s весит больше 3МБ!'),
+								gettext('Файл %(name)s весит больше 2.5MB!'),
 								{ name: file.name },
 								true,
 							),
 							level: 'error',
 						});
+						return false;
 					}
+
+					if (availableMemory - file.size < 0) {
+						createMessageToast({
+							message: interpolate(
+								gettext('Невозможно добавить файл %(name)s, потому-что не хватает памяти!'),
+								{ name: file.name },
+								true,
+							),
+							level: 'error',
+						});
+						return false;
+					}
+
+					availableMemory -= file.size;
+
+					return true;
 				}).map(file => ({
 					key: crypto.randomUUID(),
 					file,
