@@ -177,7 +177,11 @@ class TelegramBotCommandAPIView(APIView):
 		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
 		data.update(sorted_files)
 
-		serializer = UpdateTelegramBotCommandSerializer(telegram_bot_command, data)
+		serializer = UpdateTelegramBotCommandSerializer(
+			telegram_bot_command,
+			data,
+			context={'telegram_bot': telegram_bot},
+		)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
