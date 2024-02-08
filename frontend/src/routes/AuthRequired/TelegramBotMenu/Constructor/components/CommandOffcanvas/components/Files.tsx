@@ -1,5 +1,6 @@
 import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo } from 'react';
 
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
@@ -72,6 +73,17 @@ function Files({ data = defaultData, remainingMemory, onChange, ...props }: File
 		}
 	}
 
+	function handleFileDragEnd(result: DropResult): void {
+		if (result.destination) {
+			const files = [...data];
+
+			const [movedFile] = files.splice(result.source.index, 1);
+			files.splice(result.destination.index, 0, movedFile);
+
+			onChange(files);
+		}
+	}
+
 	function handleDeleteFileButtonClick(index: number): void {
 		const files = [...data];
 
@@ -88,21 +100,49 @@ function Files({ data = defaultData, remainingMemory, onChange, ...props }: File
 			<Card.Body className='vstack gap-2 p-2'>
 				{Boolean(data.length) && (
 					<div className='d-flex flex-wrap border rounded-1 gap-1 p-1'>
-						{data.map((file, index) => (
-							<ButtonGroup key={file.key}>
-								<small className='text-bg-dark rounded-1 rounded-end-0 px-2 py-1'>
-									{file.name}
-								</small>
-								<Button
-									as='i'
-									size='sm'
-									variant='danger'
-									className='bi bi-trash d-flex justify-content-center align-items-center p-0'
-									style={{ width: '31px', fontSize: '16px' }}
-									onClick={() => handleDeleteFileButtonClick(index)}
-								/>
-							</ButtonGroup>
-						))}
+						<DragDropContext onDragEnd={handleFileDragEnd}>
+							<Droppable droppableId='command-offcanvas-files'>
+								{provided => (
+									<div
+										ref={provided.innerRef}
+										{...provided.droppableProps}
+										className='row row-cols-auto g-1'
+									>
+										{data.map((file, index) => (
+											<Draggable
+												key={file.key}
+												index={index}
+												draggableId={`command-offcanvas-file-${file.key}`}
+											>
+												{provided => (
+													<ButtonGroup
+														ref={provided.innerRef}
+														{...provided.draggableProps}
+														{...provided.dragHandleProps}
+													>
+														<small
+															className='text-bg-dark rounded-1 rounded-end-0 px-2 py-1'
+															style={{ cursor: 'pointer' }}
+														>
+															{file.name}
+														</small>
+														<Button
+															as='i'
+															size='sm'
+															variant='danger'
+															className='bi bi-trash d-flex justify-content-center align-items-center p-0'
+															style={{ width: '29px', fontSize: '18px' }}
+															onClick={() => handleDeleteFileButtonClick(index)}
+														/>
+													</ButtonGroup>
+												)}
+											</Draggable>
+										))}
+										{provided.placeholder}
+									</div>
+								)}
+							</Droppable>
+						</DragDropContext>
 					</div>
 				)}
 				<input
