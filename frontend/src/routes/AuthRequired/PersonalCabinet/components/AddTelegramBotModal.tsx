@@ -72,7 +72,6 @@ function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactE
 					<Modal.Footer>
 						<Button
 							variant='success'
-							className='w-100'
 							onClick={handleAddTelegramBotButtonClick}
 						>
 							{gettext('Добавить Telegram бота')}

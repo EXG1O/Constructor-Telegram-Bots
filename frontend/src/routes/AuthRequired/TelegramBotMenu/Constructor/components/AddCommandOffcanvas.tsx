@@ -67,7 +67,6 @@ function AddCommandOffcanvas({ onAdded, onHide, ...props }: AddCommandOffcanvasP
 			{useCallback((data: CommandOffcanvasData) => (
 				<Button
 					variant='success'
-					className='w-100'
 					onClick={() => handleAddCommandButtonClick(data)}
 				>
 					{gettext('Добавить команду')}

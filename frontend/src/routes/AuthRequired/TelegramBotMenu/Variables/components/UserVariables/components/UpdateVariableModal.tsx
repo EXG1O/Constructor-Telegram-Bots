@@ -49,7 +49,6 @@ function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVa
 			{data => (
 				<Button
 					variant='success'
-					className='w-100'
 					onClick={() => handleSaveButtonClick(data)}
 				>
 					{gettext('Сохранить')}

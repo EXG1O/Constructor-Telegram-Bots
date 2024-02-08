@@ -46,7 +46,6 @@ function AddVariableModal({ onCreated, onHide, ...props }: AddVariableModalProps
 			{data => (
 				<Button
 					variant='success'
-					className='w-100'
 					onClick={() => handleCreateButtonClick(data)}
 				>
 					{gettext('Добавить')}

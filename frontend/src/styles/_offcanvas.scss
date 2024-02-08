@@ -9,4 +9,8 @@
 	flex-direction: column;
 	padding: $offcanvas-padding-y $offcanvas-padding-x;
 	border-top: $border-width $border-style $border-color;
+
+	& > * {
+		width: 100%;
+	}
 }

@@ -122,7 +122,6 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 			{useCallback((commandOffcanvasData: CommandOffcanvasData) => (
 				<Button
 					variant='success'
-					className='w-100'
 					onClick={() => handleSaveCommandButtonClick(commandOffcanvasData)}
 				>
 					{gettext('Сохранить команду')}

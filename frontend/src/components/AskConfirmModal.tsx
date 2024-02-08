@@ -22,7 +22,7 @@ function AskConfirmModal({ loading, title, children, onConfirm, onCancel, onHide
 			{!loading ? (
 				<>
 					<Modal.Body>{children}</Modal.Body>
-					<Modal.Footer className='gap-2'>
+					<Modal.Footer className='gap-3'>
 						<Button
 							variant='success'
 							className='flex-fill'
