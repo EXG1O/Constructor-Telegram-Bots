@@ -32,7 +32,7 @@ function MonacoEditor({ disablePadding, disableFocusEffect, onMount, onChange, .
 				onMount?.(editor, monaco);
 				updateEditorLayout(monacoEditor.current);
 			}
-		}, 250);
+		}, 500);
 	}
 
 	function handleMonacoEditorChange(value: string | undefined, event: monaco.editor.IModelContentChangedEvent): void {
