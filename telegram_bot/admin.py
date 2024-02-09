@@ -21,9 +21,9 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		'id',
 		'owner',
 		'_username',
-		'_memory_limit',
-		'_used_memory',
-		'_remaining_memory',
+		'_storage_size',
+		'_used_storage_size',
+		'_remaining_storage_size',
 		'is_private',
 		'is_running',
 		'commands_count',
@@ -36,9 +36,9 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		'owner',
 		'_username',
 		'api_token',
-		'_memory_limit',
-		'_used_memory',
-		'_remaining_memory',
+		'_storage_size',
+		'_used_storage_size',
+		'_remaining_storage_size',
 		'is_private',
 		'is_running',
 		'commands_count',
@@ -50,17 +50,17 @@ class TelegramBotAdmin(admin.ModelAdmin):
 	def _username(self, telegram_bot: TelegramBot) -> str:
 		return format_html_link(f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}')
 
-	@admin.display(description=_('Лимит памяти'))
-	def _memory_limit(self, telegram_bot: TelegramBot) -> str:
-		return f'{round(telegram_bot.memory_limit / 1024 ** 2, 2)}MB'
+	@admin.display(description=_('Размер хранилища'))
+	def _storage_size(self, telegram_bot: TelegramBot) -> str:
+		return f'{round(telegram_bot.storage_size / 1024 ** 2, 2)}MB'
 
-	@admin.display(description=_('Использовано памяти'))
-	def _used_memory(self, telegram_bot: TelegramBot) -> str:
-		return f'{round(telegram_bot.used_memory / 1024 ** 2, 2)}MB'
+	@admin.display(description=_('Используемый размер хранилища'))
+	def _used_storage_size(self, telegram_bot: TelegramBot) -> str:
+		return f'{round(telegram_bot.used_storage_size / 1024 ** 2, 2)}MB'
 
-	@admin.display(description=_('Осталось памяти'))
-	def _remaining_memory(self, telegram_bot: TelegramBot) -> str:
-		return f'{round(telegram_bot.remaining_memory / 1024 ** 2, 2)}MB'
+	@admin.display(description=_('Оставшийся размер хранилища'))
+	def _remaining_storage_size(self, telegram_bot: TelegramBot) -> str:
+		return f'{round(telegram_bot.remaining_storage_size / 1024 ** 2, 2)}MB'
 
 	@admin.display(description=_('Команд'))
 	def commands_count(self, telegram_bot: TelegramBot) -> int:

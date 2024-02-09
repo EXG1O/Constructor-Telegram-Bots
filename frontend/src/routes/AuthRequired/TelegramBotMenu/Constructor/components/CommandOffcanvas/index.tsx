@@ -7,7 +7,7 @@ import Stack from 'react-bootstrap/Stack';
 import Collapse from 'react-bootstrap/Collapse';
 
 import Loading from 'components/Loading';
-import TelegramBotMemoryProgressBar from 'components/TelegramBotMemoryProgressBar';
+import TelegramBotStorage from 'components/TelegramBotStorage';
 
 import Name, { Value as NameValue } from './components/Name';
 import Settings, { Data as SettingsData } from './components/Settings';
@@ -80,15 +80,15 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 	const [showAddons, setShowAddons] = useState<Record<AddonNames, boolean>>(getAddonsState());
 	const [showAddonButtons, setShowAddonButtons] = useState<boolean>(false);
 
-	const usedMemory: number = useMemo(() => {
-		let totalUsedMemory: number = telegramBot.used_memory;
+	const usedStorageSize: number = useMemo(() => {
+		let size: number = telegramBot.used_storage_size;
 
-		totalUsedMemory += images?.reduce((totalSize, image) => totalSize + image.size, 0) ?? 0;
-		totalUsedMemory += files?.reduce((totalSize, file) => totalSize + file.size, 0) ?? 0;
+		size += images?.reduce((totalSize, image) => totalSize + image.size, 0) ?? 0;
+		size += files?.reduce((totalSize, file) => totalSize + file.size, 0) ?? 0;
 
-		return totalUsedMemory;
+		return size;
 	}, [images, files]);
-	const remainingMemory: number = useMemo(() => telegramBot.memory_limit - usedMemory, [usedMemory]);
+	const remainingStorageSize: number = useMemo(() => telegramBot.storage_size - usedStorageSize, [usedStorageSize]);
 
 	useEffect(() => {
 		setName(initialData?.name);
@@ -142,7 +142,7 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 							<div id='command-offcanvas-image-addon'>
 								<Images
 									data={images}
-									remainingMemory={remainingMemory}
+									remainingStorageSize={remainingStorageSize}
 									className='mb-3'
 									onChange={setImages}
 								/>
@@ -156,7 +156,7 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 							<div id='command-offcanvas-files-addon'>
 								<Files
 									data={files}
-									remainingMemory={remainingMemory}
+									remainingStorageSize={remainingStorageSize}
 									className='mb-3'
 									onChange={setFiles}
 								/>
@@ -204,9 +204,9 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 						</Collapse>
 					</Offcanvas.Body>
 					<div className='offcanvas-footer gap-2'>
-						<TelegramBotMemoryProgressBar
+						<TelegramBotStorage
 							telegramBot={telegramBot}
-							usedMemory={usedMemory}
+							usedStorageSize={usedStorageSize}
 						/>
 						<div>
 							<Button

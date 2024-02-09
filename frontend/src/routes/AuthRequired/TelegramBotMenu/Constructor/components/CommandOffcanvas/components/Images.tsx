@@ -21,7 +21,7 @@ export type Data = ImageData[];
 
 export interface ImagesProps extends Omit<CardProps, 'onChange' | 'children'> {
 	data?: Data;
-	remainingMemory: number;
+	remainingStorageSize: number;
 	onChange: (data: Data) => void;
 }
 
@@ -31,7 +31,7 @@ interface ProcessedFile extends File {
 	url?: string;
 }
 
-function Images({ data = defaultData, remainingMemory, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
+function Images({ data = defaultData, remainingStorageSize, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
 	const { createMessageToast } = useToast();
 
 	const [loading, setLoading] = useState<boolean>(false);
@@ -41,7 +41,7 @@ function Images({ data = defaultData, remainingMemory, onChange, ...props }: Ima
 			setLoading(true);
 
 			const files: File[] = Object.values(event.target.files);
-			let availableMemory: number = remainingMemory;
+			let availableStorageSize: number = remainingStorageSize;
 
 			event.target.value = '';
 
@@ -58,10 +58,10 @@ function Images({ data = defaultData, remainingMemory, onChange, ...props }: Ima
 					return false;
 				}
 
-				if (availableMemory - file.size < 0) {
+				if (availableStorageSize - file.size < 0) {
 					createMessageToast({
 						message: interpolate(
-							gettext('Невозможно добавить изображение %(name)s, потому-что не хватает памяти!'),
+							gettext('Невозможно добавить изображение %(name)s, потому-что не хватает места в хранилище!'),
 							{ name: file.name },
 							true,
 						),
@@ -70,7 +70,7 @@ function Images({ data = defaultData, remainingMemory, onChange, ...props }: Ima
 					return false;
 				}
 
-				availableMemory -= file.size;
+				availableStorageSize -= file.size;
 
 				return true;
 			}).map((file, index) => {

@@ -41,9 +41,9 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 			'id',
 			'username',
 			'api_token',
-			'memory_limit',
-			'used_memory',
-			'remaining_memory',
+			'storage_size',
+			'used_storage_size',
+			'remaining_storage_size',
 			'is_private',
 			'is_running',
 			'is_stopped',
@@ -51,9 +51,9 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 		read_only_fields = (
 			'id',
 			'username',
-			'memory_limit',
-			'used_memory',
-			'remaining_memory',
+			'storage_size',
+			'used_storage_size',
+			'remaining_storage_size',
 			'is_running',
 			'is_stopped',
 		)
@@ -194,9 +194,9 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
 		return telegram_bot
 
 	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-		total_size: int = sum(image.size for image in data['images']) + sum(file.size for file in data['files'])
+		size: int = sum(image.size for image in data['images']) + sum(file.size for file in data['files'])
 
-		if self.telegram_bot.remaining_memory - total_size < 0:
+		if self.telegram_bot.remaining_storage_size - size < 0:
 			raise serializers.ValidationError(_('Вы превысили лимит памяти!'))
 
 		return data

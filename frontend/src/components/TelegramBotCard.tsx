@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 
 import Loading from './Loading';
-import TelegramBotMemoryProgressBar from './TelegramBotMemoryProgressBar';
+import TelegramBotStorage from './TelegramBotStorage';
 
 import useToast from 'services/hooks/useToast';
 
@@ -149,8 +149,8 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 							</td>
 						</tr>
 						<tr>
-							<th scope='row'>{gettext('Память')}:</th>
-							<td><TelegramBotMemoryProgressBar telegramBot={telegramBot} /></td>
+							<th scope='row'>{gettext('Хранилище')}:</th>
+							<td><TelegramBotStorage telegramBot={telegramBot} /></td>
 						</tr>
 						<tr>
 							<th scope='row'>{gettext('Приватный')}:</th>

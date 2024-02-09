@@ -4,9 +4,9 @@ export interface TelegramBot {
 	id: number;
 	username: string | null;
 	api_token: string;
-	memory_limit: number;
-	used_memory: number;
-	remaining_memory: number;
+	storage_size: number;
+	used_storage_size: number;
+	remaining_storage_size: number;
 	is_private: boolean;
 	is_running: boolean;
 	is_stopped: boolean;
