@@ -4,7 +4,10 @@
 	padding: $modal-inner-padding;
 
 	& > * {
-		width: 100%;
 		margin: unset;
+
+		&:not(.flex-fill) {
+			width: 100%;
+		}
 	}
 }
