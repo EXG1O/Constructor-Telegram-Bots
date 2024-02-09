@@ -162,7 +162,11 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 								/>
 							</div>
 						</Collapse>
-						<MessageText value={messageText} onChange={setMessageText} />
+						<MessageText
+							value={messageText}
+							className='mb-3'
+							onChange={setMessageText}
+						/>
 						<Collapse
 							in={showAddons.keyboard}
 							unmountOnExit
