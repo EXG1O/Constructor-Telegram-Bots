@@ -22,6 +22,8 @@ import './index.scss';
 
 import Button from 'react-bootstrap/Button';
 
+import Title from 'components/Title';
+
 import CommandNode from './components/CommandNode';
 import AddCommandOffcanvas from './components/AddCommandOffcanvas';
 
@@ -239,7 +241,7 @@ function Constructor(): ReactElement {
 	}, [edges]);
 
 	return (
-		<>
+		<Title title={gettext('Конструктор')}>
 			<AddCommandOffcanvas
 				show={showAddCommandOffcanvas}
 				onAdded={updateNodes}
@@ -290,7 +292,7 @@ function Constructor(): ReactElement {
 					/>
 				</ReactFlow>
 			</div>
-		</>
+		</Title>
 	);
 }
 

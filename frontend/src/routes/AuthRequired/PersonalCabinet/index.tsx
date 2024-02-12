@@ -12,6 +12,7 @@ import TelegramBotsContext from './services/contexts/TelegramBotsContext';
 
 import { TelegramBotsAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot, APIResponse } from 'services/api/telegram_bots/types';
+import Title from 'components/Title';
 
 export interface LoaderData {
 	telegramBots: APIResponse.TelegramBotsAPI.Get;
@@ -33,31 +34,33 @@ function PersonalCabinet(): ReactElement {
 	const [telegramBots, setTelegramBots] = useState<TelegramBot[]>(initialTelegramBots);
 
 	return (
-		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
-			<TelegramBotsContext.Provider value={[telegramBots, setTelegramBots]}>
-				<Header />
-				<Row xs={1} md={2} xl={3} className='g-3'>
-					{telegramBots.length ? (
-						telegramBots.map(telegramBot => (
-							<TelegramBotCard key={telegramBot.id} telegramBot={telegramBot}>
-								{() => (
-									<Link
-										to={`/telegram-bot-menu/${telegramBot.id}/`}
-										className='card-footer btn btn-light border border-top-0'
-									>
-										{gettext('Меню Telegram бота')}
-									</Link>
-								)}
-							</TelegramBotCard>
-						))
-					) : (
-						<div className='border rounded text-center px-3 py-2'>
-							{gettext('Вы ещё не добавили Telegram бота')}
-						</div>
-					)}
-				</Row>
-			</TelegramBotsContext.Provider>
-		</Container>
+		<Title title={gettext('Личный кабинет')}>
+			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
+				<TelegramBotsContext.Provider value={[telegramBots, setTelegramBots]}>
+					<Header />
+					<Row xs={1} md={2} xl={3} className='g-3'>
+						{telegramBots.length ? (
+							telegramBots.map(telegramBot => (
+								<TelegramBotCard key={telegramBot.id} telegramBot={telegramBot}>
+									{() => (
+										<Link
+											to={`/telegram-bot-menu/${telegramBot.id}/`}
+											className='card-footer btn btn-light border border-top-0'
+										>
+											{gettext('Меню Telegram бота')}
+										</Link>
+									)}
+								</TelegramBotCard>
+							))
+						) : (
+							<div className='border rounded text-center px-3 py-2'>
+								{gettext('Вы ещё не добавили Telegram бота')}
+							</div>
+						)}
+					</Row>
+				</TelegramBotsContext.Provider>
+			</Container>
+		</Title>
 	);
 }
 

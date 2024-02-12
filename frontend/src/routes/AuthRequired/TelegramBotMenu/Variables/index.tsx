@@ -2,6 +2,8 @@ import React, { ReactElement, useEffect } from 'react';
 import { Params, json } from 'react-router-dom';
 import ClipboardJS from 'clipboard';
 
+import Title from 'components/Title';
+
 import SystemVariables from './components/SystemVariables';
 import UserVariables from './components/UserVariables';
 
@@ -56,10 +58,10 @@ function Variables(): ReactElement {
 	}, []);
 
 	return (
-		<>
+		<Title title={gettext('Переменные')}>
 			<SystemVariables />
 			<UserVariables />
-		</>
+		</Title>
 	);
 }
 

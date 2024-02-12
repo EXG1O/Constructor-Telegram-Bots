@@ -4,6 +4,7 @@ import { Params, json, useRouteLoaderData } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 
+import Title from 'components/Title';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
 
@@ -76,7 +77,7 @@ function Users(): ReactElement {
 	}
 
 	return (
-		<>
+		<Title title={gettext('Пользователи')}>
 			<Card>
 				<Card.Header as='h5' className='text-center'>
 					{gettext('Список пользователей')}
@@ -122,7 +123,7 @@ function Users(): ReactElement {
 					)}
 				</Card.Body>
 			</Card>
-		</>
+		</Title>
 	);
 }
 
