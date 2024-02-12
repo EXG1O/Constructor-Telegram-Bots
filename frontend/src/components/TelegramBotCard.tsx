@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, Dispatch, SetStateAction, memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -173,4 +173,4 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 	);
 }
 
-export default TelegramBotCard;
+export default memo(TelegramBotCard);

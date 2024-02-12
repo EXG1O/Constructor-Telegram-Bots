@@ -1,10 +1,12 @@
 import React, { ReactElement } from 'react';
 import { json, useRouteLoaderData } from 'react-router-dom';
 
-import './index.scss';
-
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
+
+import Title from 'components/Title';
+
+import Member from './components/Member';
 
 import { TeamMembersAPI } from 'services/api/team/main';
 import { APIResponse } from 'services/api/team/types';
@@ -23,28 +25,24 @@ export async function loader(): Promise<LoaderData> {
 	return { members: response.json };
 }
 
+const title: string = gettext('Команда');
+
 function Team(): ReactElement {
 	const { members } = useRouteLoaderData('team') as LoaderData;
 
 	return (
-		<main className='my-auto'>
-			<Container className='text-center my-3 my-lg-4'>
-				<Row xs={1} lg={5} className='justify-content-center g-3 g-lg-4'>
-					{members.map(member => (
-						<div key={member.id} className='team-member d-flex flex-column align-items-center'>
-							<img src={member.image} className='mb-1' />
-							<a
-								className='h5 link-dark link-underline-opacity-0 fw-semibold mb-0'
-								href={`tg://resolve?domain=${member.username}`}
-							>
-								{member.username}
-							</a>
-							<span>{member.speciality}</span>
-						</div>
-					))}
-				</Row>
-			</Container>
-		</main>
+		<Title title={title}>
+			<main className='my-auto'>
+				<Container className='vstack text-center gap-3 gap-lg-4'>
+					<h1 className='fw-semibold mb-0'>{title}</h1>
+					<Row xs={1} lg={6} className='justify-content-center g-3 g-lg-4'>
+						{members.map(member => (
+							<Member key={member.id} member={member} />
+						))}
+					</Row>
+				</Container>
+			</main>
+		</Title>
 	);
 }
 

@@ -1,12 +1,13 @@
 import React, { ReactElement, useState } from 'react';
 import { json, useRouteLoaderData } from 'react-router-dom';
 
-import './index.scss';
-
 import Container from 'react-bootstrap/Container';
 
+import Title from 'components/Title';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
+
+import Update from './components/Update';
 
 import useToast from 'services/hooks/useToast';
 
@@ -23,7 +24,7 @@ export interface LoaderData {
 }
 
 export async function loader(): Promise<LoaderData> {
-	const [limit, offset] = [3, 0]
+	const [limit, offset] = [3, 0];
 
 	const response = await UpdatesAPI.get(limit, offset);
 
@@ -40,6 +41,8 @@ export async function loader(): Promise<LoaderData> {
 		}
 	}
 }
+
+const title: string = gettext('Обновления');
 
 function Updates(): ReactElement {
 	const { updatesPaginationData: initialPaginationData } = useRouteLoaderData('updates') as LoaderData;
@@ -71,26 +74,25 @@ function Updates(): ReactElement {
 	}
 
 	return (
-		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
-			{!loading ? (
-				paginationData.results.map(update => (
-					<div
-						key={update.id}
-						className='update-block border rounded p-3'
-						dangerouslySetInnerHTML={{ __html: update.description }}
-					/>
-				))
-			) : (
-				<Loading size='lg' className='m-auto' />
-			)}
-			<Pagination
-				itemCount={paginationData.count}
-				itemLimit={paginationData.limit}
-				itemOffset={paginationData.offset}
-				className='align-self-center'
-				onPageChange={newItemOffset => updateUpdates(undefined, newItemOffset)}
-			/>
-		</Container>
+		<Title title={title}>
+			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
+				<h1 className='fw-semibold text-center mb-0'>{title}</h1>
+				{!loading ? (
+					paginationData.results.map(update => (
+						<Update key={update.id} update={update} />
+					))
+				) : (
+					<Loading size='lg' className='m-auto' />
+				)}
+				<Pagination
+					itemCount={paginationData.count}
+					itemLimit={paginationData.limit}
+					itemOffset={paginationData.offset}
+					className='align-self-center'
+					onPageChange={newItemOffset => updateUpdates(undefined, newItemOffset)}
+				/>
+			</Container>
+		</Title>
 	);
 }
 

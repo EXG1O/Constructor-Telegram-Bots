@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, memo, useEffect, useState } from 'react';
 
 import _Pagination, { PaginationProps as _PaginationProps } from 'react-bootstrap/Pagination';
 
@@ -69,4 +69,4 @@ function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }
 	);
 }
 
-export default Object.assign(Pagination, _Pagination);
+export default memo(Pagination);

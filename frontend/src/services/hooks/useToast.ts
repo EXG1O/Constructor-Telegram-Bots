@@ -3,13 +3,13 @@ import { useContext } from 'react';
 import ToastContext, { ToastContextProps } from 'services/contexts/ToastContext';
 
 function useToast(): ToastContextProps {
-	const toastContext = useContext<ToastContextProps | undefined>(ToastContext);
+	const context = useContext<ToastContextProps | undefined>(ToastContext);
 
-	if (toastContext === undefined) {
+	if (context === undefined) {
 		throw new Error('useToast must be used with a ToastProvider!');
 	}
 
-	return toastContext;
+	return context;
 }
 
 export default useToast;

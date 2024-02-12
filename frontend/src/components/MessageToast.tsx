@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, memo, useEffect, useState } from 'react';
 
 import Toast from 'react-bootstrap/Toast';
 import CloseButton from 'react-bootstrap/CloseButton';
@@ -33,8 +33,8 @@ function MessageToast({ message, level, onExited }: MessageToastProps): ReactEle
 			show={show}
 			delay={6000}
 			className={`text-bg-${colors[level]} mb-0`}
-			onClose={() => setShow(false)}
 			onExited={onExited}
+			onClose={() => setShow(false)}
 		>
 			<Toast.Body className='d-flex align-items-center gap-2'>
 				<i className={`bi bi-${icons[level]}`} />
@@ -45,4 +45,4 @@ function MessageToast({ message, level, onExited }: MessageToastProps): ReactEle
 	);
 }
 
-export default MessageToast;
+export default memo(MessageToast);

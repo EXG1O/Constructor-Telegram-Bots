@@ -11,20 +11,12 @@
 	background-color: #f5d256;
 }
 
-.header, .stats, .donations {
+.header {
 	width: 100%;
 }
 
 @include media-breakpoint-up(lg) {
 	.header {
 		width: 60%;
-	}
-
-	.stats {
-		width: 35%;
-	}
-
-	.donations {
-		width: 40%;
 	}
 }

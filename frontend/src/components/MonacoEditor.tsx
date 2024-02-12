@@ -1,8 +1,8 @@
-import React, { ReactElement, useRef, useState } from 'react'
+import React, { ReactElement, memo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import monaco from 'monaco-editor';
 
-import './MonacoEditor.scss';
+import('./MonacoEditor.scss');
 
 import _MonacoEditor, { Monaco, EditorProps as _MonacoEditorProps } from '@monaco-editor/react';
 
@@ -29,16 +29,16 @@ function MonacoEditor({ disablePadding, disableFocusEffect, onMount, onChange, .
 
 		setTimeout(() => {
 			if (monacoEditor.current) {
-				onMount?.(editor, monaco);
 				updateEditorLayout(monacoEditor.current);
+				onMount?.(editor, monaco);
 			}
 		}, 500);
 	}
 
 	function handleMonacoEditorChange(value: string | undefined, event: monaco.editor.IModelContentChangedEvent): void {
 		if (monacoEditor.current && value !== undefined) {
-			onChange?.(value, event);
 			updateEditorLayout(monacoEditor.current);
+			onChange?.(value, event);
 		}
 	}
 
@@ -70,4 +70,4 @@ function MonacoEditor({ disablePadding, disableFocusEffect, onMount, onChange, .
 	);
 }
 
-export default MonacoEditor;
+export default memo(MonacoEditor);

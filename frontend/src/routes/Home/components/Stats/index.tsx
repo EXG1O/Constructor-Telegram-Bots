@@ -1,8 +1,10 @@
 import React, { ReactElement } from 'react';
 
+import './index.scss';
+
 import Stack from 'react-bootstrap/Stack';
 
-import InfoArea from 'components/InfoArea';
+import InfoArea from './components/InfoArea';
 
 function Stats(): ReactElement {
 	return (

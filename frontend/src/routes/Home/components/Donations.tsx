@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 import { Link, useRouteLoaderData } from 'react-router-dom';
 
+import './Donations.scss';
+
 import Stack from 'react-bootstrap/Stack';
 import Table from 'react-bootstrap/Table';
 

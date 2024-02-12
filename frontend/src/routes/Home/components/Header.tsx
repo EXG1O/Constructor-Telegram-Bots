@@ -1,5 +1,7 @@
 import React, { ReactElement } from 'react';
 
+import './Header.scss';
+
 function Header(): ReactElement {
 	return (
 		<div className='header'>

@@ -2,9 +2,10 @@ import React, { ReactElement } from 'react';
 import { Outlet, json, useNavigation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
-import Header from 'components/Header';
-import Footer from 'components/Footer';
 import Loading from 'components/Loading';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 import ToastProvider from 'services/providers/ToastProvider';
 
@@ -29,15 +30,13 @@ export async function loader(): Promise<LoaderData> {
 	let user: LoaderData['user'] = null;
 
 	if (authToken !== undefined) {
-		try {
-			const response = await UserAPI.get();
+		const response = await UserAPI.get();
 
-			if (response.ok) {
-				user = response.json;
-			} else {
-				Cookies.remove('auth-token');
-			}
-		} catch {};
+		if (response.ok) {
+			user = response.json;
+		} else {
+			Cookies.remove('auth-token');
+		}
 	}
 
 	const response = await LanguagesAPI.get();
@@ -61,10 +60,10 @@ function Root(): ReactElement {
 	return (
 		<ToastProvider>
 			<Header />
-			{navigation.state === 'loading' ? (
-				<Loading size='lg' className='m-auto' />
-			) : (
+			{navigation.state === 'idle' ? (
 				<Outlet />
+			) : (
+				<Loading size='lg' className='m-auto' />
 			)}
 			<Footer />
 		</ToastProvider>

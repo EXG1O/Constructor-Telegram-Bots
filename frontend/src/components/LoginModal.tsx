@@ -12,7 +12,10 @@ function LoginModal(props: LoginModalProps): ReactElement<LoginModalProps> {
 			<Modal.Body className='text-center pt-0 pb-4'>
 				<div className='d-flex justify-content-center mb-3'>
 					<div className='border border-3 rounded-3 p-3'>
-						<QRCodeCanvas value='' size={256} />
+						<QRCodeCanvas
+							size={256}
+							value={`tg://resolve?domain=${process.env.TELEGRAM_BOT_USERNAME}&start=login`}
+						/>
 					</div>
 				</div>
 				<h3 className='fw-semibold mb-1'>

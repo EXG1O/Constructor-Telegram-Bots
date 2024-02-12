@@ -1,7 +1,7 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, memo, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
-import './QuillEditor.scss';
+import('./QuillEditor.scss');
 
 import Quill, { Sources } from 'quill';
 import ReactQuill, { ReactQuillProps, UnprivilegedEditor, Range } from 'react-quill';
@@ -66,4 +66,4 @@ function QuillEditor({ height, toolbar, onFocus, onBlur, onMount, ...props }: Qu
 	);
 }
 
-export default QuillEditor;
+export default memo(QuillEditor);

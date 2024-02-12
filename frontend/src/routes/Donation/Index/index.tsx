@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 import { json, useRouteLoaderData } from 'react-router-dom';
 
-import './index.scss';
-
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+
+import Section from './components/Section';
+import Title from 'components/Title';
 
 import { DonationSectionsAPI, DonationButtonsAPI } from 'services/api/donations/main';
 import { APIResponse } from 'services/api/donations/types';
@@ -32,32 +33,34 @@ export async function loader(): Promise<LoaderData> {
 	}
 }
 
+const title: string = gettext('Пожертвование');
+
 function Index(): ReactElement {
 	const { sections, buttons } = useRouteLoaderData('donation-index') as LoaderData;
 
 	return (
-		<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
-			{sections.map(section => (
-				<div key={section.id} className='donation-section'>
-					<h3 className='mb-1'>{section.title}</h3>
-					<div dangerouslySetInnerHTML={{ __html: section.text }} />
-				</div>
-			))}
-			<div className='d-flex gap-2 mt-auto'>
-				{buttons.map(button => (
-					<Button
-						key={button.id}
-						as='a'
-						href={button.url}
-						target='_blank'
-						variant='dark'
-						className='flex-fill'
-					>
-						{button.text}
-					</Button>
+		<Title title={title}>
+			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
+				<h1 className='fw-semibold text-center mb-0'>{title}</h1>
+				{sections.map(section => (
+					<Section key={section.id} section={section} />
 				))}
-			</div>
-		</Container>
+				<div className='d-flex gap-2 mt-auto'>
+					{buttons.map(button => (
+						<Button
+							key={button.id}
+							as='a'
+							href={button.url}
+							target='_blank'
+							variant='dark'
+							className='flex-fill'
+						>
+							{button.text}
+						</Button>
+					))}
+				</div>
+			</Container>
+		</Title>
 	);
 }
 

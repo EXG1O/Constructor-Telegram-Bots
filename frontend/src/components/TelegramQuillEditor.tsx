@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, memo } from 'react';
 import Quill from 'quill';
 
-import './TelegramQuillEditor.scss';
+import('./TelegramQuillEditor.scss');
 
 import QuillEditor, { QuillEditorProps } from './QuillEditor';
 
@@ -40,4 +40,4 @@ function TelegramQuillEditor(props: TelegramQuillEditorProps): ReactElement<Tele
 	);
 }
 
-export default TelegramQuillEditor;
+export default memo(TelegramQuillEditor);
