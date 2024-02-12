@@ -1,32 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider, Params, redirect } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import 'styles/bootstrap.scss';
 import 'bootstrap-icons/font/bootstrap-icons.scss';
 
-import { UserAPI } from 'services/api/users/main';
-
 const router = createBrowserRouter([
-	{
-		path: '/login/:userID/:confirmCode/',
-		loader: async ({ params }: { params: Params<'userID' | 'confirmCode'> }): Promise<Response> => {
-			const { userID, confirmCode } = params;
-
-			if (userID !== undefined && confirmCode !== undefined) {
-				const response = await UserAPI.login({
-					user_id: Number.parseInt(userID),
-					confirm_code: confirmCode,
-				});
-
-				if (response.ok) {
-					return redirect('/personal-cabinet/');
-				}
-			}
-
-			return redirect('/');
-		},
-	},
 	{
 		id: 'root',
 		path: '/',
@@ -40,6 +19,18 @@ const router = createBrowserRouter([
 		},
 		shouldRevalidate: () => true,
 		children: [
+			{
+				id: 'login',
+				path: 'login/:userID/:confirmCode/',
+				async lazy() {
+					const module = await import('./routes/Login');
+
+					return {
+						Component: module.default,
+						loader: module.loader,
+					}
+				},
+			},
 			{
 				id: 'home',
 				index: true,
