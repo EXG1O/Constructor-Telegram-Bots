@@ -15,7 +15,7 @@ from typing import Any
 class TelegramBotAdmin(admin.ModelAdmin):
 	search_fields = ('username',)
 	date_hierarchy = 'added_date'
-	list_filter = ('is_running', 'added_date')
+	list_filter = ('is_enabled', 'added_date')
 	actions = ('start_telegram_bot_action', 'stop_telegram_bot_action')
 	list_display = (
 		'id',
@@ -25,7 +25,7 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		'_used_storage_size',
 		'_remaining_storage_size',
 		'is_private',
-		'is_running',
+		'is_enabled',
 		'commands_count',
 		'users_count',
 		'added_date',
@@ -40,7 +40,7 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		'_used_storage_size',
 		'_remaining_storage_size',
 		'is_private',
-		'is_running',
+		'is_enabled',
 		'commands_count',
 		'users_count',
 		'added_date',

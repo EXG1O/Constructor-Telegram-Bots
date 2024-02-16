@@ -17,8 +17,8 @@ class TelegramBot(models.Model):
 	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=(validate_api_token,))
 	storage_size = models.BigIntegerField(_('Размер хранилища'), default=41943040)
 	is_private = models.BooleanField(_('Приватный'), default=False)
-	is_running = models.BooleanField(_('Включён'), default=False)
-	is_stopped = models.BooleanField(_('Выключен'), default=True)
+	is_enabled = models.BooleanField(_('Включён'), default=False)
+	is_loading = models.BooleanField(_('Загружаеться'), default=False)
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
 	class Meta:

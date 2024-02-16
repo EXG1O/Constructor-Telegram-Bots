@@ -8,8 +8,8 @@ export interface TelegramBot {
 	used_storage_size: number;
 	remaining_storage_size: number;
 	is_private: boolean;
-	is_running: boolean;
-	is_stopped: boolean;
+	is_enabled: boolean;
+	is_loading: boolean;
 	added_date: string;
 }
 

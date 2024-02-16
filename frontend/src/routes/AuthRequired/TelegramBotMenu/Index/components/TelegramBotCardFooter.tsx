@@ -9,8 +9,6 @@ import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
 
-import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
-
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot } from 'services/api/telegram_bots/types';
 
@@ -42,13 +40,7 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 		const response = await TelegramBotAPI[action](telegramBot.id);
 
 		if (response.ok) {
-			const isStartAction = action === 'start';
-
-			setTelegramBot({
-				...telegramBot,
-				is_running: isStartAction,
-				is_stopped: isStartAction,
-			});
+			setTelegramBot({ ...telegramBot, is_loading: true });
 		}
 	}
 
@@ -63,7 +55,7 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 				{gettext('Вы точно хотите удалить Telegram бота?')}
 			</AskConfirmModal>
 			<Card.Footer className='d-flex flex-wrap border border-top-0 p-3 gap-3'>
-				{telegramBotIsStartingOrStopping(telegramBot) ? (
+				{telegramBot.is_loading ? (
 					<Button
 						disabled
 						variant='secondary'
@@ -71,21 +63,21 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 					>
 						<Loading size='xs' />
 					</Button>
-				) : !telegramBot.is_running && telegramBot.is_stopped ? (
-					<Button
-						variant='success'
-						className='flex-fill'
-						onClick={() => handleStartOrStopTelegramBotButtonClick('start')}
-					>
-						{gettext('Включить Telegram бота')}
-					</Button>
-				) : (
+				) : telegramBot.is_enabled ? (
 					<Button
 						variant='danger'
 						className='flex-fill'
 						onClick={() => handleStartOrStopTelegramBotButtonClick('stop')}
 					>
 						{gettext('Выключить Telegram бота')}
+					</Button>
+				) : (
+					<Button
+						variant='success'
+						className='flex-fill'
+						onClick={() => handleStartOrStopTelegramBotButtonClick('start')}
+					>
+						{gettext('Включить Telegram бота')}
 					</Button>
 				)}
 				<Button

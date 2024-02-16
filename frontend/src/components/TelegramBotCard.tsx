@@ -10,8 +10,6 @@ import TelegramBotStorage from './TelegramBotStorage';
 
 import useToast from 'services/hooks/useToast';
 
-import { telegramBotIsStartingOrStopping } from 'utils/telegram_bot';
-
 import { TelegramBotAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot } from 'services/api/telegram_bots/types';
 
@@ -36,7 +34,7 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 		const response = await TelegramBotAPI.get(telegramBot.id);
 
 		if (response.ok) {
-			if (telegramBotIsStartingOrStopping(response.json)) {
+			if (telegramBot.is_loading) {
 				setTimeout(checkTelegramBotStatus, 3000);
 			} else {
 				setTelegramBot(response.json);
@@ -45,10 +43,10 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 	}
 
 	useEffect(() => {
-		if (telegramBotIsStartingOrStopping(telegramBot)) {
+		if (telegramBot.is_loading) {
 			checkTelegramBotStatus();
 		}
-	}, [telegramBot.is_running, telegramBot.is_stopped]);
+	}, [telegramBot.is_loading]);
 
 	function toggleAPITokenState(): void {
 		if (!apiTokenIsEditing) {
@@ -82,15 +80,15 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 	return (
 		<Card {...props} className={classNames('border-0', props.className)}>
 			<Card.Header as='h5' {...(
-				telegramBotIsStartingOrStopping(telegramBot) ? {
+				telegramBot.is_loading ? {
 					className: 'd-flex justify-content-center juitext-bg-secondary text-bg-secondary border-secondary text-center',
 					children: <Loading size='xs' />,
-				} : !telegramBot.is_running && telegramBot.is_stopped ? {
-					className: 'text-bg-danger border-danger fw-semibold text-center',
-					children: gettext('Telegram бот выключен'),
-				} : {
+				} : telegramBot.is_enabled ? {
 					className: 'text-bg-success border-success fw-semibold text-center',
 					children: gettext('Telegram бот включен'),
+				} : {
+					className: 'text-bg-danger border-danger fw-semibold text-center',
+					children: gettext('Telegram бот выключен'),
 				}
 			)} />
 			<Card.Body className='border p-2'>

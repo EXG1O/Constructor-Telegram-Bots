@@ -45,8 +45,8 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 			'used_storage_size',
 			'remaining_storage_size',
 			'is_private',
-			'is_running',
-			'is_stopped',
+			'is_enabled',
+			'is_loading',
 		)
 		read_only_fields = (
 			'id',
@@ -54,8 +54,8 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 			'storage_size',
 			'used_storage_size',
 			'remaining_storage_size',
-			'is_running',
-			'is_stopped',
+			'is_enabled',
+			'is_loading',
 		)
 
 	@property
@@ -76,7 +76,8 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 
 		if api_token:
 			instance.api_token = api_token
-			instance.is_running = False
+			instance.is_enabled = False
+			instance.is_loading = False
 			instance.update_username(save=False)
 
 		if is_private is not None:
