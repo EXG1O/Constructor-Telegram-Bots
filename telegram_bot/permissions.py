@@ -14,6 +14,9 @@ from .models import (
 
 class TelegramBotIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
+		if not request.user and not request.user.is_authenticated:
+			raise PermissionError('The permission can use only after IsAuthenticated permission!')
+
 		telegram_bot_id: int = view.kwargs.pop('telegram_bot_id', 0)
 
 		try:
