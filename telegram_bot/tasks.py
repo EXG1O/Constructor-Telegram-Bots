@@ -1,55 +1,64 @@
+from django.apps import apps
+
 from celery import shared_task
 
-from django.conf import settings
-
-from aiogram.exceptions import (
-	TelegramNetworkError,
-	TelegramUnauthorizedError,
-	TelegramServerError,
-	RestartingTelegram,
-)
-
-from .models import TelegramBot
-from .services.constructor_telegram_bot.telegram_bot import ConstructorTelegramBot
-from .services.user_telegram_bot.telegram_bot import UserTelegramBot
-
-from threading import Thread
-
-
-def _start_telegram_bot(aiogram_telegram_bot: ConstructorTelegramBot | UserTelegramBot) -> None:
-	try:
-		aiogram_telegram_bot.loop.run_until_complete(aiogram_telegram_bot.start())
-	except (TelegramNetworkError, TelegramServerError, RestartingTelegram):
-		_start_telegram_bot(aiogram_telegram_bot)
-	except TelegramUnauthorizedError:
-		if isinstance(aiogram_telegram_bot, UserTelegramBot):
-			aiogram_telegram_bot.django_telegram_bot.delete()
 
 @shared_task
 def start_telegram_bot(telegram_bot_id: int) -> None:
-	django_telegram_bot: TelegramBot = TelegramBot.objects.get(id=telegram_bot_id)
-	django_telegram_bot.is_running = True
-	django_telegram_bot.is_stopped = False
-	django_telegram_bot.save()
+	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
-	Thread(
-		target=_start_telegram_bot,
-		args=(UserTelegramBot(django_telegram_bot),),
-		daemon=True,
-	).start()
+	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
+	telegram_bot.is_loading = True
+	telegram_bot.save()
+
+	telegram_bots_hub = TelegramBotsHub.objects.get_free()
+	telegram_bots_hub.start_telegram_bot(telegram_bot)
 
 @shared_task
-def start_all_telegram_bots() -> None:
-	Thread(
-		target=_start_telegram_bot,
-		args=(ConstructorTelegramBot(settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN),), # type: ignore [arg-type]
-		daemon=True,
-	).start()
+def restart_telegram_bot(telegram_bot_id: int) -> None:
+	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
-	for django_telegram_bot in TelegramBot.objects.all():
-		if django_telegram_bot.is_running:
-			Thread(
-				target=_start_telegram_bot,
-				args=(UserTelegramBot(django_telegram_bot),),
-				daemon=True,
-			).start()
+	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
+	telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
+
+	if telegram_bots_hub:
+		telegram_bot.is_loading = True
+		telegram_bot.save()
+
+		telegram_bots_hub.restart_telegram_bot(telegram_bot)
+	else:
+		telegram_bot.is_enabled = False
+		telegram_bot.is_loading = False
+		telegram_bot.save()
+
+@shared_task
+def stop_telegram_bot(telegram_bot_id: int) -> None:
+	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
+
+	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
+	telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
+
+	if telegram_bots_hub:
+		telegram_bot.is_loading = True
+		telegram_bot.save()
+
+		telegram_bots_hub.stop_telegram_bot(telegram_bot)
+	else:
+		telegram_bot.is_enabled = False
+		telegram_bot.is_loading = False
+		telegram_bot.save()
+
+@shared_task
+def start_telegram_bots() -> None:
+	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
+
+	for telegram_bot in TelegramBot.objects.all():
+		if telegram_bot.is_enabled:
+			telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
+
+			if not telegram_bots_hub:
+				telegram_bot.start()

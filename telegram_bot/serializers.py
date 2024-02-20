@@ -71,20 +71,9 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 		return TelegramBot.objects.create(owner=self.user, **validated_data)
 
 	def update(self, instance: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
-		api_token: str | None = validated_data.get('api_token')
-		is_private: bool | None = validated_data.get('is_private')
-
-		if api_token:
-			instance.api_token = api_token
-			instance.is_enabled = False
-			instance.is_loading = False
-			instance.update_username(save=False)
-
-		if is_private is not None:
-			instance.is_private = is_private
-
-		if api_token and is_private is not None:
-			instance.save()
+		instance.api_token = validated_data.get('api_token', instance.api_token)
+		instance.is_private = validated_data.get('is_private', instance.is_private)
+		instance.save()
 
 		return instance
 

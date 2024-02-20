@@ -2,11 +2,15 @@ from django.utils.translation import gettext_lazy as _
 
 from utils.shortcuts import generate_random_string
 
+import django_stubs_ext
 from dotenv import load_dotenv
 from pathlib import Path
 import string
 import sys
 import os
+
+
+django_stubs_ext.monkeypatch()
 
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
@@ -21,6 +25,8 @@ match sys.argv:
 		TEST = True
 	case __:
 		TEST = False
+
+TELEGRAM_BOTS_HUB_PATH: str | None = os.getenv('TELEGRAM_BOTS_HUB_PATH')
 
 CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN: str | None = os.getenv('TELEGRAM_BOT_TOKEN')
 CONSTRUCTOR_TELEGRAM_BOT_USERNAME: str | None = os.getenv('TELEGRAM_BOT_USERNAME')
@@ -68,6 +74,7 @@ INSTALLED_APPS = [
 	'languages',
 	'user',
 	'telegram_bot',
+	'telegram_bot.hub',
 	'team',
 	'updates',
 	'instruction',
@@ -221,22 +228,6 @@ LOGGING = {
 			'backupCount': 10,
 			'formatter': 'verbose',
 		},
-		'telegram_bots_info_file': {
-			'level': 'INFO',
-			'class': 'logging.handlers.RotatingFileHandler',
-			'filename': BASE_DIR / 'logs/telegram_bots_info.log',
-			'maxBytes': 10485760,
-			'backupCount': 10,
-			'formatter': 'verbose',
-		},
-		'telegram_bots_error_file': {
-			'level': 'WARNING',
-			'class': 'logging.handlers.RotatingFileHandler',
-			'filename': BASE_DIR / 'logs/telegram_bots_error.log',
-			'maxBytes': 10485760,
-			'backupCount': 10,
-			'formatter': 'verbose',
-		},
 	},
 	'loggers': {
 		'django': {
@@ -244,13 +235,6 @@ LOGGING = {
 				'console',
 				'django_info_file',
 				'django_error_file',
-			],
-			'propagate': True,
-		},
-		'aiogram': {
-			'handlers': [
-				'telegram_bots_info_file',
-				'telegram_bots_error_file',
 			],
 			'propagate': True,
 		},

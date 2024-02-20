@@ -1,12 +1,9 @@
-from django.contrib import admin, messages
-from django.http import HttpRequest
+from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from django.db.models import QuerySet
 
 from utils.html import format_html_link
 
 from .models import TelegramBot, TelegramBotUser
-from .tasks import start_telegram_bot
 
 from typing import Any
 
@@ -16,7 +13,6 @@ class TelegramBotAdmin(admin.ModelAdmin):
 	search_fields = ('username',)
 	date_hierarchy = 'added_date'
 	list_filter = ('is_enabled', 'added_date')
-	actions = ('start_telegram_bot_action', 'stop_telegram_bot_action')
 	list_display = (
 		'id',
 		'owner',
@@ -69,26 +65,6 @@ class TelegramBotAdmin(admin.ModelAdmin):
 	@admin.display(description=_('Активаций'))
 	def users_count(self, telegram_bot: TelegramBot) -> int:
 		return telegram_bot.users.count()
-
-	@admin.action(description=_('Включить Telegram бота'))
-	def start_telegram_bot_action(self, request: HttpRequest, telegram_bots: 'QuerySet[TelegramBot]') -> None:
-		for telegram_bot in telegram_bots:
-			if not telegram_bot.is_running and telegram_bot.is_stopped:
-				start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
-
-				messages.success(request, f"@{telegram_bot.username} {_('Telegram бот успешно включен.')}")
-			else:
-				messages.error(request, f"@{telegram_bot.username} {_('Telegram бот уже включен!')}")
-
-	@admin.action(description=_('Выключить Telegram бота'))
-	def stop_telegram_bot_action(self, request: HttpRequest, telegram_bots: 'QuerySet[TelegramBot]') -> None:
-		for telegram_bot in telegram_bots:
-			if telegram_bot.is_running and not telegram_bot.is_stopped:
-				telegram_bot.stop()
-
-				messages.success(request, f"@{telegram_bot.username} {_('Telegram бот успешно выключен.')}")
-			else:
-				messages.error(request, f"@{telegram_bot.username} {_('Telegram бот уже выключен!')}")
 
 	def has_add_permission(self, *args: Any, **kwargs: Any) -> bool:
 		return False

@@ -37,7 +37,6 @@ from .serializers import (
 	DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer,
 	UpdateTelegramBotCommandDiagramPositionSerializer,
 )
-from .tasks import start_telegram_bot
 
 from typing import Any
 import json
@@ -76,14 +75,16 @@ class TelegramBotAPIView(APIView):
 	def post(self, request: Request, telegram_bot: TelegramBot) -> Response | MessageResponse:
 		action: str | None = request.query_params.get('action')
 
-		if action == 'start':
-			if not settings.TEST:
-				start_telegram_bot.delay(telegram_bot_id=telegram_bot.id)
-		elif action == 'stop':
-			if not settings.TEST:
-				telegram_bot.stop()
-		else:
+		if action not in ('start', 'stop'):
 			return MessageResponse(_('Укажите действие в параметрах запроса!'), status=400)
+
+		if not settings.TEST:
+			if action == 'start':
+				telegram_bot.start()
+			elif action == 'restart':
+				telegram_bot.restart()
+			else:
+				telegram_bot.stop()
 
 		return Response()
 

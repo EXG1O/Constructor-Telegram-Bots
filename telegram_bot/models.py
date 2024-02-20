@@ -3,8 +3,12 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
+from . import tasks
+
 import requests
 from requests import Response
+
+from typing import Iterable
 
 
 def validate_api_token(api_token: str) -> None:
@@ -41,23 +45,49 @@ class TelegramBot(models.Model):
 	def remaining_storage_size(self) -> int:
 		return self.storage_size - self.used_storage_size
 
-	# TODO: Надо реализовать метод start для запуска Telegram бота, но проблема в том, что происходит циклический импорт.
+	def start(self) -> None:
+		tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
+
+	def restart(self) -> None:
+		tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def stop(self) -> None:
-		self.is_running = False
-		self.save()
+		tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
 
-	def update_username(self, save: bool = True) -> None:
+	def update_username(self) -> None:
 		if settings.TEST:
 			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
 		else:
 			responce: Response = requests.get(f'https://api.telegram.org/bot{self.api_token}/getMe')
 
-			if responce.status_code == 200:
+			if responce.ok:
 				self.username = responce.json()['result']['username']
 
-		if save:
-			self.save()
+	def save(
+		self,
+		force_insert: bool = False,
+		force_update: bool = False,
+		using: str | None = None,
+		update_fields: Iterable[str] | None = None,
+	) -> None:
+		if not self._state.adding:
+			instance: TelegramBot = TelegramBot.objects.get(id=self.id)
+
+			if self.api_token != instance.api_token:
+				self.update_username()
+
+				if self.is_enabled and instance.is_enabled:
+					self.restart()
+		else:
+			self.update_username()
+
+		return super().save(force_insert, force_update, using, update_fields)
+
+	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+		if self.is_enabled:
+			self.stop()
+
+		return super().delete(using, keep_parents)
 
 	def __str__(self) -> str:
 		return f'@{self.username}'
@@ -108,12 +138,20 @@ class TelegramBotCommandImage(models.Model):
 	class Meta:
 		db_table = 'telegram_bot_command_image'
 
+	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+		self.image.delete(save=False)
+		return super().delete(using, keep_parents)
+
 class TelegramBotCommandFile(models.Model):
 	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.CASCADE, related_name='files')
 	file = models.ImageField(_('Файл'), upload_to=upload_telegram_bot_command_file_path)
 
 	class Meta:
 		db_table = 'telegram_bot_command_file'
+
+	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+		self.file.delete(save=False)
+		return super().delete(using, keep_parents)
 
 class TelegramBotCommandMessageText(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='message_text')
