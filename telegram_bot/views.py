@@ -27,15 +27,15 @@ from .permissions import (
 )
 from .serializers import (
 	TelegramBotSerializer,
-	TelegramBotCommandModelSerializer,
-	TelegramBotCommandDiagramSerializer,
-	TelegramBotVariableSerializer,
-	TelegramBotUserSerializer,
+	TelegramBotCommandSerializer,
 	CreateTelegramBotCommandSerializer,
 	UpdateTelegramBotCommandSerializer,
+	TelegramBotCommandDiagramSerializer,
 	ConnectTelegramBotCommandDiagramKeyboardButtonSerializer,
 	DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer,
 	UpdateTelegramBotCommandDiagramPositionSerializer,
+	TelegramBotVariableSerializer,
+	TelegramBotUserSerializer,
 )
 
 from typing import Any
@@ -120,7 +120,7 @@ class TelegramBotCommandsAPIView(APIView):
 
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(
-			TelegramBotCommandModelSerializer(
+			TelegramBotCommandSerializer(
 				telegram_bot.commands.all(),
 				many=True,
 			).data
@@ -156,7 +156,7 @@ class TelegramBotCommandAPIView(APIView):
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & TelegramBotCommandIsFound]
 
 	def get(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> Response:
-		return Response(TelegramBotCommandModelSerializer(telegram_bot_command).data)
+		return Response(TelegramBotCommandSerializer(telegram_bot_command).data)
 
 	def patch(self, request: Request, telegram_bot: TelegramBot, telegram_bot_command: TelegramBotCommand) -> MessageResponse:
 		sorted_files: dict[str, list[InMemoryUploadedFile | int]] = {

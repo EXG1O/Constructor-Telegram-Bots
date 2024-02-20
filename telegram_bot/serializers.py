@@ -156,7 +156,7 @@ class TelegramBotCommandDatabaseRecordSerializer(serializers.ModelSerializer):
 		model = TelegramBotCommandDatabaseRecord
 		fields = ('data',)
 
-class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
+class TelegramBotCommandSerializer(serializers.ModelSerializer):
 	settings = TelegramBotCommandSettingsSerializer()
 	command = TelegramBotCommandCommandSerializer(default=None)
 	images = TelegramBotCommandImageSerializer(many=True)
@@ -170,7 +170,7 @@ class TelegramBotCommandModelSerializer(serializers.ModelSerializer):
 		model = TelegramBotCommand
 		fields = ('id', 'name', 'settings', 'command', 'images', 'files', 'message_text', 'keyboard', 'api_request', 'database_record')
 
-class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
+class CreateTelegramBotCommandSerializer(TelegramBotCommandSerializer):
 	images = serializers.ListField(child=serializers.ImageField(), default=[]) # type: ignore [assignment]
 	files = serializers.ListField(child=serializers.FileField(), default=[]) # type: ignore [assignment]
 
@@ -235,7 +235,7 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandModelSerializer):
 		return telegram_bot_command
 
 	def to_representation(self, instance: TelegramBotCommand) -> dict[str, Any]:
-		return TelegramBotCommandModelSerializer(instance).data
+		return TelegramBotCommandSerializer(instance).data
 
 class UpdateTelegramBotCommandSerializer(CreateTelegramBotCommandSerializer):
 	images_id = serializers.ListField(child=serializers.IntegerField(), default=[])
