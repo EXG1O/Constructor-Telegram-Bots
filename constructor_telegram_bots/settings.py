@@ -47,8 +47,8 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
-	'update_users_first_name_and_last_name_schedule' : {
-		'task': 'user.tasks.update_users_first_name_and_last_name',
+	'update_users_first_and_last_name_schedule' : {
+		'task': 'user.tasks.update_users_first_and_last_name',
 		'schedule': 86400, # 24 ч.
 	},
 }
