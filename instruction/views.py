@@ -4,7 +4,7 @@ from .models import InstructionSection
 from .serializers import InstructionSectionSerializer
 
 
-class InstructionSectionsAPIView(ListAPIView):
+class InstructionSectionsAPIView(ListAPIView[InstructionSection]):
 	authentication_classes = []
 	permission_classes = []
 

@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
+from django_stubs_ext.db.models import TypedModelMeta
+
 from aiogram.types import Chat
 
 from utils.shortcuts import generate_random_string
@@ -31,7 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	objects = UserManager()
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'user'
 
 		verbose_name = _('Пользователя')

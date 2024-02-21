@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from django_stubs_ext.db.models import TypedModelMeta
+
 
 def privacy_policy_section_position_default() -> int:
 	try:
@@ -13,7 +15,7 @@ class PrivacyPolicySection(models.Model): # type: ignore [django-manager-missing
 	text = models.TextField(_('Текст'))
 	position = models.IntegerField(_('Позиция'), blank=True, default=privacy_policy_section_position_default)
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'privacy_policy_section'
 		ordering = ('position',)
 

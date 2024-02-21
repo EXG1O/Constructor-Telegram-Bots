@@ -8,7 +8,7 @@ from .models import PrivacyPolicySection
 
 
 @admin.register(PrivacyPolicySection)
-class PrivacyPolicySectionAdmin(TranslationAdmin):
+class PrivacyPolicySectionAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	list_display = ('title', 'position')
 
 	fields = ('title', 'text', 'position')

@@ -3,6 +3,8 @@ from django.db.models.query import QuerySet
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
+from django_stubs_ext.db.models import TypedModelMeta
+
 from utils.shortcuts import generate_random_string
 
 from ..models import TelegramBot
@@ -51,7 +53,7 @@ class TelegramBotsHub(models.Model):
 
 	objects = TelegramBotsHubManager()
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'telegram_bots_hub'
 
 	@property

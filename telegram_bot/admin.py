@@ -9,7 +9,7 @@ from typing import Any
 
 
 @admin.register(TelegramBot)
-class TelegramBotAdmin(admin.ModelAdmin):
+class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	search_fields = ('username',)
 	date_hierarchy = 'added_date'
 	list_filter = ('is_enabled', 'added_date')
@@ -73,7 +73,7 @@ class TelegramBotAdmin(admin.ModelAdmin):
 		return False
 
 @admin.register(TelegramBotUser)
-class TelegramBotUserAdmin(admin.ModelAdmin):
+class TelegramBotUserAdmin(admin.ModelAdmin[TelegramBotUser]):
 	search_fields = ('telegram_id', 'full_name')
 	date_hierarchy = 'activated_date'
 	list_filter = ('is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')

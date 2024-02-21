@@ -8,7 +8,7 @@ from .models import InstructionSection
 
 
 @admin.register(InstructionSection)
-class InstructionSectionAdmin(TranslationAdmin):
+class InstructionSectionAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	list_display = ('title', 'position')
 
 	fields = ('title', 'text', 'position')

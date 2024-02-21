@@ -23,7 +23,7 @@ class PaginationMixin:
 
 		return self._paginator
 
-	def paginate_queryset(self, request: Request, queryset: Union[list[T], 'QuerySet[T]']) -> list[T] | None:
+	def paginate_queryset(self, request: Request, queryset: Union[list[T], QuerySet[T]]) -> list[T] | None:
 		return self.paginator.paginate_queryset(queryset, request, view=self) # type: ignore [arg-type]
 
 	def get_paginated_response(self, data: dict[str, Any]) -> Response:

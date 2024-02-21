@@ -6,7 +6,7 @@ from typing import Literal, Any
 
 
 @admin.register(TelegramBotsHub)
-class TelegramBotsHubAdmin(admin.ModelAdmin):
+class TelegramBotsHubAdmin(admin.ModelAdmin[TelegramBotsHub]):
 	search_fields = ('pid', 'port', 'token')
 	list_display = ('pid', 'port', 'token')
 	fields = ('pid', 'port', 'token')

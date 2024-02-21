@@ -5,7 +5,7 @@ from .models import Update
 from .serializers import UpdateSerializer
 
 
-class UpdatesAPIView(ListAPIView):
+class UpdatesAPIView(ListAPIView[Update]):
 	authentication_classes = []
 	permission_classes = []
 

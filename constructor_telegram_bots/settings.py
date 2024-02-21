@@ -1,5 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
+from rest_framework.generics import GenericAPIView
+
 from utils.shortcuts import generate_random_string
 
 import django_stubs_ext
@@ -10,12 +12,11 @@ import sys
 import os
 
 
-django_stubs_ext.monkeypatch()
+django_stubs_ext.monkeypatch(extra_classes=(GenericAPIView,))
+load_dotenv()
 
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
-
-load_dotenv()
 
 SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(length=50, chars=string.ascii_letters + string.digits)}')
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'

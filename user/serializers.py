@@ -7,7 +7,7 @@ from .models import User
 from typing import Any
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer[User]):
 	class Meta:
 		model = User
 		fields = ('id', 'telegram_id', 'first_name', 'last_name', 'is_staff', 'joined_date')

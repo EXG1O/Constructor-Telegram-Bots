@@ -7,7 +7,7 @@ from .models import TeamMember
 from typing import Any
 
 
-class TeamMemberSerializer(serializers.ModelSerializer):
+class TeamMemberSerializer(serializers.ModelSerializer[TeamMember]):
 	class Meta:
 		model = TeamMember
 		fields = ('id', 'image', 'username', 'speciality', 'joined_date')

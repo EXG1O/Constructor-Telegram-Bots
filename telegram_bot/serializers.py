@@ -26,7 +26,7 @@ from .models import (
 from typing import Any
 
 
-class TelegramBotSerializer(serializers.ModelSerializer):
+class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 	def __init__(self, *args: Any, **kwargs: Any) -> None:
 		super().__init__(*args, **kwargs)
 
@@ -81,17 +81,17 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class TelegramBotCommandSettingsSerializer(serializers.ModelSerializer):
+class TelegramBotCommandSettingsSerializer(serializers.ModelSerializer[TelegramBotCommandSettings]):
 	class Meta:
 		model = TelegramBotCommandSettings
 		fields = ('is_reply_to_user_message', 'is_delete_user_message', 'is_send_as_new_message')
 
-class TelegramBotCommandCommandSerializer(serializers.ModelSerializer):
+class TelegramBotCommandCommandSerializer(serializers.ModelSerializer[TelegramBotCommandCommand]):
 	class Meta:
 		model = TelegramBotCommandCommand
 		fields = ('text', 'description')
 
-class TelegramBotCommandImageSerializer(serializers.ModelSerializer):
+class TelegramBotCommandImageSerializer(serializers.ModelSerializer[TelegramBotCommandImage]):
 	name = serializers.CharField(source='image.name')
 	size = serializers.IntegerField(source='image.size')
 	url = serializers.CharField(source='image.url')
@@ -106,7 +106,7 @@ class TelegramBotCommandImageSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class TelegramBotCommandFileSerializer(serializers.ModelSerializer):
+class TelegramBotCommandFileSerializer(serializers.ModelSerializer[TelegramBotCommandFile]):
 	name = serializers.CharField(source='file.name')
 	size = serializers.IntegerField(source='file.size')
 	url = serializers.CharField(source='file.url')
@@ -121,7 +121,7 @@ class TelegramBotCommandFileSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer):
+class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer[TelegramBotCommandMessageText]):
 	class Meta:
 		model = TelegramBotCommandMessageText
 		fields = ('text',)
@@ -132,37 +132,37 @@ class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer):
 
 		return representation
 
-class TelegramBotCommandKeyboardButtonSerializer(serializers.ModelSerializer):
+class TelegramBotCommandKeyboardButtonSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboardButton]):
 	class Meta:
 		model = TelegramBotCommandKeyboardButton
 		fields = ('id', 'row', 'text', 'url')
 
-class TelegramBotCommandKeyboardSerializer(serializers.ModelSerializer):
+class TelegramBotCommandKeyboardSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboard]):
 	buttons = TelegramBotCommandKeyboardButtonSerializer(many=True)
 
 	class Meta:
 		model = TelegramBotCommandKeyboard
 		fields = ('type', 'buttons')
 
-class TelegramBotCommandApiRequestSerializer(serializers.ModelSerializer):
+class TelegramBotCommandApiRequestSerializer(serializers.ModelSerializer[TelegramBotCommandApiRequest]):
 	class Meta:
 		model = TelegramBotCommandApiRequest
 		fields = ('url', 'method', 'headers', 'body')
 
-class TelegramBotCommandDatabaseRecordSerializer(serializers.ModelSerializer):
+class TelegramBotCommandDatabaseRecordSerializer(serializers.ModelSerializer[TelegramBotCommandDatabaseRecord]):
 	class Meta:
 		model = TelegramBotCommandDatabaseRecord
 		fields = ('data',)
 
 class TelegramBotCommandSerializer(serializers.ModelSerializer):
 	settings = TelegramBotCommandSettingsSerializer()
-	command = TelegramBotCommandCommandSerializer(default=None)
+	command = TelegramBotCommandCommandSerializer(default=None) # type: ignore [arg-type]
 	images = TelegramBotCommandImageSerializer(many=True)
 	files = TelegramBotCommandFileSerializer(many=True)
 	message_text = TelegramBotCommandMessageTextSerializer()
-	keyboard = TelegramBotCommandKeyboardSerializer(default=None)
-	api_request = TelegramBotCommandApiRequestSerializer(default=None)
-	database_record = TelegramBotCommandDatabaseRecordSerializer(default=None)
+	keyboard = TelegramBotCommandKeyboardSerializer(default=None) # type: ignore [arg-type]
+	api_request = TelegramBotCommandApiRequestSerializer(default=None) # type: ignore [arg-type]
+	database_record = TelegramBotCommandDatabaseRecordSerializer(default=None) # type: ignore [arg-type]
 
 	class Meta:
 		model = TelegramBotCommand
@@ -363,21 +363,21 @@ class UpdateTelegramBotCommandSerializer(CreateTelegramBotCommandSerializer):
 
 		return instance
 
-class TelegramBotCommandKeyboardButtonDiagramSerializer(serializers.ModelSerializer):
+class TelegramBotCommandKeyboardButtonDiagramSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboardButton]):
 	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id', allow_null=True)
 
 	class Meta:
 		model = TelegramBotCommandKeyboardButton
 		fields = ('id', 'row', 'text', 'url', 'telegram_bot_command_id', 'start_diagram_connector', 'end_diagram_connector')
 
-class TelegramBotCommandKeyboardDiagramSerializer(serializers.ModelSerializer):
+class TelegramBotCommandKeyboardDiagramSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboard]):
 	buttons = TelegramBotCommandKeyboardButtonDiagramSerializer(many=True)
 
 	class Meta:
 		model = TelegramBotCommandKeyboard
 		fields = ('type', 'buttons')
 
-class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer):
+class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer[TelegramBotCommand]):
 	images = TelegramBotCommandImageSerializer(many=True)
 	files = TelegramBotCommandFileSerializer(many=True)
 	message_text = TelegramBotCommandMessageTextSerializer()
@@ -452,7 +452,7 @@ class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Se
 
 		return instance
 
-class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.ModelSerializer):
+class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.ModelSerializer[TelegramBotCommand]):
 	class Meta:
 		model = TelegramBotCommand
 		fields = ('x', 'y')
@@ -468,7 +468,7 @@ class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.ModelSeriali
 
 		return instance
 
-class TelegramBotVariableSerializer(serializers.ModelSerializer):
+class TelegramBotVariableSerializer(serializers.ModelSerializer[TelegramBotVariable]):
 	class Meta:
 		model = TelegramBotVariable
 		fields = ('id', 'name', 'value', 'description')
@@ -493,7 +493,7 @@ class TelegramBotVariableSerializer(serializers.ModelSerializer):
 
 		return instance
 
-class TelegramBotUserSerializer(serializers.ModelSerializer):
+class TelegramBotUserSerializer(serializers.ModelSerializer[TelegramBotUser]):
 	class Meta:
 		model = TelegramBotUser
 		fields = ('id', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked')

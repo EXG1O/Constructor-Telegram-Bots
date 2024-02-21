@@ -1,13 +1,15 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from django_stubs_ext.db.models import TypedModelMeta
+
 
 class Donation(models.Model):
 	sum = models.FloatField(_('Сумма'))
 	telegram_url = models.CharField(_('Ссылка на Telegram'), max_length=255)
 	date = models.DateTimeField(_('Дата'))
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'donation'
 		ordering = ('-sum',)
 
@@ -28,7 +30,7 @@ class DonationSection(models.Model): # type: ignore [django-manager-missing]
 	text = models.TextField(_('Текст'))
 	position = models.IntegerField(_('Позиция'), blank=True, default=donation_section_position_default)
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'donation_section'
 		ordering = ('position',)
 
@@ -49,7 +51,7 @@ class DonationButton(models.Model): # type: ignore [django-manager-missing]
 	url = models.URLField(_('Ссылка'))
 	position = models.IntegerField(_('Позиция'), blank=True, default=donation_button_position_default)
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'donation_button'
 		ordering = ('position',)
 

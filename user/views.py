@@ -21,7 +21,7 @@ class UserAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
-		return Response(UserSerializer(request.user).data)
+		return Response(UserSerializer(request.user).data) # type: ignore [arg-type]
 
 	def delete(self, request: Request) -> MessageResponse:
 		request.user.delete()

@@ -4,7 +4,7 @@ from .models import PrivacyPolicySection
 from .serializers import PrivacyPolicySectionSerializer
 
 
-class PrivacyPolicySectionsAPIView(ListAPIView):
+class PrivacyPolicySectionsAPIView(ListAPIView[PrivacyPolicySection]):
 	authentication_classes = []
 	permission_classes = []
 

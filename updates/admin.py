@@ -8,7 +8,7 @@ from .models import Update
 
 
 @admin.register(Update)
-class UpdateAdmin(TranslationAdmin):
+class UpdateAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	date_hierarchy = 'added_date'
 	list_display = ('version', 'added_date')
 

@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from django_stubs_ext.db.models import TypedModelMeta
+
 
 class TeamMember(models.Model): # type: ignore [django-manager-missing]
 	image = models.ImageField(_('Изображение'), upload_to='team/')
@@ -8,7 +10,7 @@ class TeamMember(models.Model): # type: ignore [django-manager-missing]
 	speciality = models.CharField(_('Специальность'), max_length=255)
 	joined_date = models.DateTimeField(_('Присоединился'))
 
-	class Meta:
+	class Meta(TypedModelMeta):
 		db_table = 'team_member'
 		ordering = ('joined_date',)
 
