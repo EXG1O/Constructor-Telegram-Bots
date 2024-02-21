@@ -10,7 +10,7 @@ from . import tasks
 import requests
 from requests import Response
 
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 
 def validate_api_token(api_token: str) -> None:
@@ -26,6 +26,11 @@ class TelegramBot(models.Model):
 	is_enabled = models.BooleanField(_('Включён'), default=False)
 	is_loading = models.BooleanField(_('Загружаеться'), default=False)
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
+
+	if TYPE_CHECKING:
+		commands: models.Manager['TelegramBotCommand']
+		variables: models.Manager['TelegramBotVariable']
+		users: models.Manager['TelegramBotUser']
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot'
@@ -93,21 +98,6 @@ class TelegramBot(models.Model):
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class TelegramBotCommand(models.Model):
-	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
-	name = models.CharField(_('Название'), max_length=128)
-
-	x =	models.FloatField(_('Координата X'), default=0)
-	y = models.FloatField(_('Координата Y'), default=0)
-
-	class Meta(TypedModelMeta):
-		db_table = 'telegram_bot_command'
-		verbose_name = _('Команда')
-		verbose_name_plural = _('Команды')
-
-	def __str__(self) -> str:
-		return self.name
-
 class TelegramBotCommandSettings(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='settings')
 	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
@@ -160,19 +150,8 @@ class TelegramBotCommandMessageText(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_message_text'
 
-class TelegramBotCommandKeyboard(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='keyboard')
-	type = models.CharField(_('Режим'), max_length=7, choices=(
-		('default', _('Обычный')),
-		('inline', _('Встроенный')),
-		('payment', _('Платёжный')),
-	), default='default')
-
-	class Meta(TypedModelMeta):
-		db_table = 'telegram_bot_command_keyboard'
-
 class TelegramBotCommandKeyboardButton(models.Model):
-	telegram_bot_command_keyboard = models.ForeignKey(TelegramBotCommandKeyboard, on_delete=models.CASCADE, related_name='buttons')
+	telegram_bot_command_keyboard = models.ForeignKey('TelegramBotCommandKeyboard', on_delete=models.CASCADE, related_name='buttons')
 	row = models.IntegerField(_('Ряд'), blank=True, null=True)
 	text = models.TextField(_('Текст'), max_length=4096)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
@@ -184,6 +163,20 @@ class TelegramBotCommandKeyboardButton(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button'
 		ordering = ['id']
+
+class TelegramBotCommandKeyboard(models.Model):
+	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='keyboard')
+	type = models.CharField(_('Режим'), max_length=7, choices=(
+		('default', _('Обычный')),
+		('inline', _('Встроенный')),
+		('payment', _('Платёжный')),
+	), default='default')
+
+	if TYPE_CHECKING:
+		buttons: models.Manager[TelegramBotCommandKeyboardButton]
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_command_keyboard'
 
 class TelegramBotCommandApiRequest(models.Model):
 	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='api_request')
@@ -207,6 +200,31 @@ class TelegramBotCommandDatabaseRecord(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_database_record'
+
+class TelegramBotCommand(models.Model):
+	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
+	name = models.CharField(_('Название'), max_length=128)
+
+	x =	models.FloatField(_('Координата X'), default=0)
+	y = models.FloatField(_('Координата Y'), default=0)
+
+	if TYPE_CHECKING:
+		settings: TelegramBotCommandSettings
+		command: TelegramBotCommandCommand
+		images: models.Manager[TelegramBotCommandImage]
+		files: models.Manager[TelegramBotCommandFile]
+		message_text: TelegramBotCommandMessageText
+		keyboard: TelegramBotCommandKeyboard
+		api_request: TelegramBotCommandApiRequest
+		database_record: TelegramBotCommandDatabaseRecord
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_command'
+		verbose_name = _('Команда')
+		verbose_name_plural = _('Команды')
+
+	def __str__(self) -> str:
+		return self.name
 
 class TelegramBotVariable(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='variables', verbose_name=_('Telegram бот'))
