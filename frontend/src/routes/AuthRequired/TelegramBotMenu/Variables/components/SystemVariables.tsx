@@ -28,8 +28,10 @@ const variables: Record<VariablesTypes, Variables[]> = {
 		{ variable: 'USER_FIRST_NAME', description: gettext('Имя пользователя') },
 		{ variable: 'USER_LAST_NAME', description: gettext('Фамилия пользователя') },
 		{ variable: 'USER_FULL_NAME', description: gettext('Имя и фамилия пользователя') },
+		{ variable: 'USER_LANGUAGE_CODE', description: gettext('Языковой тег пользователя') },
 		{ variable: 'USER_MESSAGE_ID', description: gettext('ID сообщения пользователя') },
 		{ variable: 'USER_MESSAGE_TEXT', description: gettext('Текст сообщения пользователя') },
+		{ variable: 'USER_MESSAGE_DATE', description: gettext('Дата отправки сообщения пользователя') },
 	],
 	global: [
 		{ variable: 'BOT_NAME', description: gettext('Название бота') },
