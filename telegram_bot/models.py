@@ -29,7 +29,6 @@ class TelegramBot(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot'
-
 		verbose_name = _('Telegram бота')
 		verbose_name_plural = _('Telegram боты')
 
@@ -103,7 +102,6 @@ class TelegramBotCommand(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command'
-
 		verbose_name = _('Команда')
 		verbose_name_plural = _('Команды')
 
@@ -227,7 +225,6 @@ class TelegramBotUser(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_user'
-
 		verbose_name = _('Пользователя')
 		verbose_name_plural = _('Пользователи')
 

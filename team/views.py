@@ -7,6 +7,5 @@ from .serializers import TeamMemberSerializer
 class TeamMembersAPIView(ListAPIView[TeamMember]):
 	authentication_classes = []
 	permission_classes = []
-
 	queryset = TeamMember.objects.all()
 	serializer_class = TeamMemberSerializer

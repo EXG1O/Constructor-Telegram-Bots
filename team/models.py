@@ -13,7 +13,6 @@ class TeamMember(models.Model): # type: ignore [django-manager-missing]
 	class Meta(TypedModelMeta):
 		db_table = 'team_member'
 		ordering = ('joined_date',)
-
 		verbose_name = _('Члена')
 		verbose_name_plural = _('Члены')
 

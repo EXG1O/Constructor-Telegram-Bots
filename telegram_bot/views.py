@@ -240,7 +240,6 @@ class TelegramBotCommandDiagramAPIView(APIView):
 class TelegramBotVariablesAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-
 	pagination_class = LimitOffsetPagination
 
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
@@ -295,7 +294,6 @@ class TelegramBotVariableAPIView(APIView):
 class TelegramBotUsersAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-
 	pagination_class = LimitOffsetPagination
 
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:

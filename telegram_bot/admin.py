@@ -5,7 +5,7 @@ from utils.html import format_html_link
 
 from .models import TelegramBot, TelegramBotUser
 
-from typing import Any
+from typing import Literal, Any
 
 
 @admin.register(TelegramBot)
@@ -26,7 +26,6 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'users_count',
 		'added_date',
 	)
-
 	fields = (
 		'id',
 		'owner',
@@ -66,10 +65,10 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	def users_count(self, telegram_bot: TelegramBot) -> int:
 		return telegram_bot.users.count()
 
-	def has_add_permission(self, *args: Any, **kwargs: Any) -> bool:
+	def has_add_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False
 
-	def has_change_permission(self, *args: Any, **kwargs: Any) -> bool:
+	def has_change_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False
 
 @admin.register(TelegramBotUser)
@@ -78,11 +77,10 @@ class TelegramBotUserAdmin(admin.ModelAdmin[TelegramBotUser]):
 	date_hierarchy = 'activated_date'
 	list_filter = ('is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
 	list_display = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
-
 	fields = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
 
-	def has_add_permission(self, *args: Any, **kwargs: Any) -> bool:
+	def has_add_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False
 
-	def has_change_permission(self, *args: Any, **kwargs: Any) -> bool:
+	def has_change_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False

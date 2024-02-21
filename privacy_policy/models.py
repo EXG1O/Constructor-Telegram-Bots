@@ -18,7 +18,6 @@ class PrivacyPolicySection(models.Model): # type: ignore [django-manager-missing
 	class Meta(TypedModelMeta):
 		db_table = 'privacy_policy_section'
 		ordering = ('position',)
-
 		verbose_name = _('Раздел')
 		verbose_name_plural = _('Разделы')
 

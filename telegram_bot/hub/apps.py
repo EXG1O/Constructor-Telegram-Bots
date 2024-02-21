@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 class TelegramBotsHubConfig(AppConfig):
 	default_auto_field = 'django.db.models.BigAutoField'
-
 	name = 'telegram_bot.hub'
 	label = 'telegram_bots_hub'
 	verbose_name = _('Центр Telegram ботов')

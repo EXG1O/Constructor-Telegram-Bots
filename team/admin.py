@@ -10,7 +10,6 @@ class TeamMemberAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	search_fields = ('username',)
 	date_hierarchy = 'joined_date'
 	list_filter = ('speciality', 'joined_date')
-
 	list_display = ('username_display', 'speciality', 'joined_date')
 	fields = ('image', 'username', 'speciality', 'joined_date')
 

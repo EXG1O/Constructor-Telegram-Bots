@@ -14,7 +14,6 @@ from .models import Donation, DonationSection, DonationButton
 class DonationAdmin(admin.ModelAdmin[Donation]):
 	date_hierarchy = 'date'
 	list_display = ('sum_display', 'telegram_url_display', 'date')
-
 	fields = ('sum', 'telegram_url', 'date')
 
 	@admin.display(description=_('Сумма'), ordering='sum')
@@ -28,14 +27,12 @@ class DonationAdmin(admin.ModelAdmin[Donation]):
 @admin.register(DonationSection)
 class DonationSectionAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	list_display = ('title', 'position')
-
 	fields = ('title', 'text', 'position')
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}
 
 @admin.register(DonationButton)
 class DonationButtonAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	list_display = ('text', 'url_display', 'position')
-
 	fields = ('text', 'url', 'position')
 
 	@admin.display(description=_('Ссылка'), ordering='url')

@@ -12,7 +12,6 @@ class Donation(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'donation'
 		ordering = ('-sum',)
-
 		verbose_name = _('Пожертвование')
 		verbose_name_plural = _('Пожертвования')
 
@@ -33,7 +32,6 @@ class DonationSection(models.Model): # type: ignore [django-manager-missing]
 	class Meta(TypedModelMeta):
 		db_table = 'donation_section'
 		ordering = ('position',)
-
 		verbose_name = _('Раздел')
 		verbose_name_plural = _('Разделы')
 
@@ -54,7 +52,6 @@ class DonationButton(models.Model): # type: ignore [django-manager-missing]
 	class Meta(TypedModelMeta):
 		db_table = 'donation_button'
 		ordering = ('position',)
-
 		verbose_name = _('Кнопку')
 		verbose_name_plural = _('Кнопки')
 
