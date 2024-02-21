@@ -17,5 +17,9 @@ class TeamMember(models.Model): # type: ignore [django-manager-missing]
 		verbose_name = _('Члена')
 		verbose_name_plural = _('Члены')
 
+	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+		self.image.delete(save=False)
+		return super().delete(using, keep_parents)
+
 	def __str__(self) -> str:
 		return f'@{self.username}'
