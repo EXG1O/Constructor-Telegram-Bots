@@ -31,9 +31,7 @@ class TelegramBotSerializer(serializers.ModelSerializer):
 		super().__init__(*args, **kwargs)
 
 		if self.instance:
-			for field in ('api_token', 'is_private'):
-				self.fields[field].required = False
-				self.fields[field].default = None
+			self.fields['api_token'].required = False
 
 	class Meta:
 		model = TelegramBot
