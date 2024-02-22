@@ -21,7 +21,7 @@ class TelegramBot(models.Model):
 	owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'))
 	username = models.CharField('@username', max_length=32)
 	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=(validate_api_token,))
-	storage_size = models.BigIntegerField(_('Размер хранилища'), default=41943040)
+	storage_size = models.PositiveBigIntegerField(_('Размер хранилища'), default=41943040)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_enabled = models.BooleanField(_('Включён'), default=False)
 	is_loading = models.BooleanField(_('Загружаеться'), default=False)
@@ -152,8 +152,8 @@ class TelegramBotCommandMessageText(models.Model):
 
 class TelegramBotCommandKeyboardButton(models.Model):
 	telegram_bot_command_keyboard = models.ForeignKey('TelegramBotCommandKeyboard', on_delete=models.CASCADE, related_name='buttons')
-	row = models.IntegerField(_('Ряд'), blank=True, null=True)
-	text = models.TextField(_('Текст'), max_length=4096)
+	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
+	text = models.TextField(_('Текст'), max_length=1024)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
 
 	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.SET_NULL, blank=True, null=True)
@@ -234,7 +234,7 @@ class TelegramBotVariable(models.Model):
 
 class TelegramBotUser(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
-	telegram_id = models.BigIntegerField('Telegram ID')
+	telegram_id = models.PositiveBigIntegerField('Telegram ID')
 	full_name = models.CharField(_('Имя и фамилия'), max_length=129)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
 	is_blocked = models.BooleanField(_('Заблокирован'), default=False)
