@@ -232,6 +232,11 @@ class TelegramBotVariable(models.Model):
 	value = models.TextField(_('Значение'), max_length=2048)
 	description = models.CharField(_('Описание'), max_length=255)
 
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_variable'
+		verbose_name = _('Переменная')
+		verbose_name_plural = _('Переменные')
+
 class TelegramBotUser(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
 	telegram_id = models.PositiveBigIntegerField('Telegram ID')
