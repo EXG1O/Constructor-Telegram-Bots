@@ -157,7 +157,7 @@ class TelegramBotsHub(models.Model):
 		if not self._state.adding:
 			raise Exception('The model cannot be update after its creation!')
 
-		self.token = generate_random_string(length=25, chars=string.ascii_letters + string.digits)
+		self.token = generate_random_string(string.ascii_letters + string.digits, 25)
 
 		for port in range(8000, 65536):
 			if self.is_port_available(port):

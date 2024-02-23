@@ -41,7 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	@property
 	def login_url(self) -> str:
 		if not self.confirm_code:
-			self.confirm_code = generate_random_string(length=25, chars=string.ascii_letters + string.digits)
+			self.confirm_code = generate_random_string(string.ascii_letters + string.digits, 25)
 			self.save()
 
 		return settings.SITE_DOMAIN + f'/login/{self.id}/{self.confirm_code}/' # type: ignore [misc]
