@@ -48,8 +48,12 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
 	'update_users_first_and_last_name_schedule' : {
-		'task': 'user.tasks.update_users_first_and_last_name',
+		'task': 'users.tasks.update_users_first_and_last_name',
 		'schedule': 86400, # 24 ч.
+	},
+	'check_confirm_code_generation_date_schedule': {
+		'task': 'users.tasks.check_confirm_code_generation_date',
+		'schedule': 3600, # 1 ч.
 	},
 }
 
@@ -73,7 +77,7 @@ INSTALLED_APPS = [
 	'django.contrib.staticfiles',
 
 	'languages',
-	'user',
+	'users',
 	'telegram_bot',
 	'telegram_bot.hub',
 	'team',
@@ -144,7 +148,7 @@ TEMPLATES = [
 ]
 
 
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = 'users.User'
 ROOT_URLCONF = 'constructor_telegram_bots.urls'
 WSGI_APPLICATION = 'constructor_telegram_bots.wsgi.application'
 

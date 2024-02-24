@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
-from user.models import User
+from .models import User
 
 
 class CustomTestCase(TestCase):
@@ -18,7 +18,7 @@ class CustomTestCase(TestCase):
 		self.token: Token = Token.objects.create(user=self.user)
 
 class UserAPIViewTests(CustomTestCase):
-	url: str = reverse('api:user:index')
+	url: str = reverse('api:users:detail:index')
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
@@ -45,7 +45,7 @@ class UserAPIViewTests(CustomTestCase):
 			pass
 
 class UserLoginAPIViewTests(CustomTestCase):
-	url: str = reverse('api:user:login')
+	url: str = reverse('api:users:detail:login')
 
 	def setUp(self) -> None:
 		super().setUp()
@@ -89,7 +89,7 @@ class UserLoginAPIViewTests(CustomTestCase):
 		self.assertTrue(self.user.last_login)
 
 class UserLogoutAPIViewTests(CustomTestCase):
-	url: str = reverse('api:user:logout')
+	url: str = reverse('api:users:detail:logout')
 
 	def test_post_method(self) -> None:
 		response: HttpResponse = self.client.post(self.url)

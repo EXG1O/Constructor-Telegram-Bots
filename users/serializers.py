@@ -10,7 +10,7 @@ from typing import Any
 class UserSerializer(serializers.ModelSerializer[User]):
 	class Meta:
 		model = User
-		fields = ('id', 'telegram_id', 'first_name', 'last_name', 'is_staff', 'joined_date')
+		fields = ('id', 'telegram_id', 'first_name', 'last_name', 'full_name', 'is_staff')
 
 	def to_representation(self, instance: User) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)

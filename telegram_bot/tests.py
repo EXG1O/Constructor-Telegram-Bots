@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
-from user.models import User
+from users.models import User
 
 from .models import (
 	TelegramBot,
