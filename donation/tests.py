@@ -16,14 +16,14 @@ class DonationsAPIViewTests(CustomTestCase):
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
-class DonationSectionsAPIViewTests(CustomTestCase):
+class SectionsAPIViewTests(CustomTestCase):
 	url: str = reverse('api:donation:sections')
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
-class DonationButtonsAPIViewTests(CustomTestCase):
+class ButtonsAPIViewTests(CustomTestCase):
 	url: str = reverse('api:donation:buttons')
 
 	def test_get_method(self) -> None:

@@ -1,7 +1,7 @@
 export interface Donation {
 	id: number;
 	sum: number;
-	telegram_url: string;
+	contact_link: string;
 	date: string;
 }
 

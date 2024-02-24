@@ -36,10 +36,10 @@ function Donations(): ReactElement {
 									<td>
 										<a
 											className='link-dark link-underline-opacity-0'
-											href={donation.telegram_url}
+											href={donation.contact_link}
 											target='_blank'
 										>
-											{donation.telegram_url}
+											{donation.contact_link}
 										</a>
 									</td>
 									<td>{donation.date}</td>

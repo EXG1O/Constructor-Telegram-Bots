@@ -1,12 +1,12 @@
 from modeltranslation.translator import register, TranslationOptions
 
-from .models import DonationSection, DonationButton
+from .models import Section, Button
 
 
-@register(DonationSection)
-class DonationSectionTranslationOptions(TranslationOptions):
+@register(Section)
+class SectionTranslationOptions(TranslationOptions):
 	fields = ('title', 'text')
 
-@register(DonationButton)
-class DonationButtonTranslationOptions(TranslationOptions):
+@register(Button)
+class ButtonTranslationOptions(TranslationOptions):
 	fields = ('text',)

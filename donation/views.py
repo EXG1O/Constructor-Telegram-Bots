@@ -1,11 +1,11 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import LimitOffsetPagination
 
-from .models import Donation, DonationSection, DonationButton
+from .models import Donation, Section, Button
 from .serializers import (
 	DonationSerializer,
-	DonationSectionSerializer,
-	DonationButtonSerializer,
+	SectionSerializer,
+	ButtonSerializer,
 )
 
 
@@ -16,14 +16,14 @@ class DonationsAPIView(ListAPIView[Donation]):
 	serializer_class = DonationSerializer
 	pagination_class = LimitOffsetPagination
 
-class DonationSectionsAPIView(ListAPIView[DonationSection]):
+class SectionsAPIView(ListAPIView[Section]):
 	authentication_classes = []
 	permission_classes = []
-	queryset = DonationSection.objects.all()
-	serializer_class = DonationSectionSerializer
+	queryset = Section.objects.all()
+	serializer_class = SectionSerializer
 
-class DonationButtonsAPIView(ListAPIView[DonationButton]):
+class ButtonsAPIView(ListAPIView[Button]):
 	authentication_classes = []
 	permission_classes = []
-	queryset = DonationButton.objects.all()
-	serializer_class = DonationButtonSerializer
+	queryset = Button.objects.all()
+	serializer_class = ButtonSerializer
