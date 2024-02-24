@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class PrivacyPolicySectionsAPIViewTests(TestCase):
+class SectionsAPIViewTests(TestCase):
 	url: str = reverse('api:privacy-policy:sections')
 
 	def setUp(self) -> None:

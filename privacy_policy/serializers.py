@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from .models import PrivacyPolicySection
+from .models import Section
 
 
-class PrivacyPolicySectionSerializer(serializers.ModelSerializer[PrivacyPolicySection]):
+class SectionSerializer(serializers.ModelSerializer[Section]):
 	class Meta:
-		model = PrivacyPolicySection
+		model = Section
 		fields = ('id', 'title', 'text')

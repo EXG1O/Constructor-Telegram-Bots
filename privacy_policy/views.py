@@ -1,11 +1,11 @@
 from rest_framework.generics import ListAPIView
 
-from .models import PrivacyPolicySection
-from .serializers import PrivacyPolicySectionSerializer
+from .models import Section
+from .serializers import SectionSerializer
 
 
-class PrivacyPolicySectionsAPIView(ListAPIView[PrivacyPolicySection]):
+class SectionsAPIView(ListAPIView[Section]):
 	authentication_classes = []
 	permission_classes = []
-	queryset = PrivacyPolicySection.objects.all()
-	serializer_class = PrivacyPolicySectionSerializer
+	queryset = Section.objects.all()
+	serializer_class = SectionSerializer

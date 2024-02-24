@@ -1,8 +1,8 @@
 from modeltranslation.translator import register, TranslationOptions
 
-from .models import PrivacyPolicySection
+from .models import Section
 
 
-@register(PrivacyPolicySection)
-class PrivacyPolicySectionTranslationOptions(TranslationOptions):
+@register(Section)
+class SectionTranslationOptions(TranslationOptions):
     fields = ('title', 'text')

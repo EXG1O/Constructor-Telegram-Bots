@@ -1,9 +1,9 @@
 from django.urls import path
 
-from .views import PrivacyPolicySectionsAPIView
+from .views import SectionsAPIView
 
 
 app_name = 'privacy-policy'
 urlpatterns = [
-	path('sections/', PrivacyPolicySectionsAPIView.as_view(), name='sections'),
+	path('sections/', SectionsAPIView.as_view(), name='sections'),
 ]
