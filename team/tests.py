@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class TeamMembersAPIViewTests(TestCase):
+class MembersAPIViewTests(TestCase):
 	url: str = reverse('api:team:members')
 
 	def setUp(self) -> None:

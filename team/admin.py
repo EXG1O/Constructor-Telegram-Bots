@@ -2,11 +2,11 @@ from django.contrib import admin
 
 from modeltranslation.admin import TranslationAdmin
 
-from .models import TeamMember
+from .models import Member
 
 
-@admin.register(TeamMember)
-class TeamMemberAdmin(TranslationAdmin): # FIXME: Need to add generics support
+@admin.register(Member)
+class MemberAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	search_fields = ('username',)
 	date_hierarchy = 'joined_date'
 	list_filter = ('speciality', 'joined_date')
@@ -14,5 +14,5 @@ class TeamMemberAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	fields = ('image', 'username', 'speciality', 'joined_date')
 
 	@admin.display(description='@username', ordering='username')
-	def username_display(self, team_member: TeamMember) -> str:
-		return f'@{team_member.username}'
+	def username_display(self, member: Member) -> str:
+		return f'@{member.username}'

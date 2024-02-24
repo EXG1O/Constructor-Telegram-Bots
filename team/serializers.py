@@ -2,17 +2,17 @@ from rest_framework import serializers
 
 from utils import filters
 
-from .models import TeamMember
+from .models import Member
 
 from typing import Any
 
 
-class TeamMemberSerializer(serializers.ModelSerializer[TeamMember]):
+class MemberSerializer(serializers.ModelSerializer[Member]):
 	class Meta:
-		model = TeamMember
-		fields = ('id', 'image', 'username', 'speciality', 'joined_date')
+		model = Member
+		fields = ('id', 'image', 'username', 'speciality')
 
-	def to_representation(self, instance: TeamMember) -> dict[str, Any]:
+	def to_representation(self, instance: Member) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
 		representation['joined_date'] = filters.datetime(instance.joined_date)
 
