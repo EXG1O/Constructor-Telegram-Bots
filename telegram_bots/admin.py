@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.db.models import Count
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from utils.html import format_html_link
@@ -20,10 +23,10 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'_storage_size',
 		'_used_storage_size',
 		'_remaining_storage_size',
-		'is_private',
-		'is_enabled',
 		'commands_count',
 		'users_count',
+		'is_private',
+		'is_enabled',
 		'added_date',
 	)
 	fields = (
@@ -34,12 +37,18 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'_storage_size',
 		'_used_storage_size',
 		'_remaining_storage_size',
-		'is_private',
-		'is_enabled',
 		'commands_count',
 		'users_count',
+		'is_private',
+		'is_enabled',
 		'added_date',
 	)
+
+	def get_queryset(self, request: HttpRequest) -> QuerySet:
+		return super().get_queryset(request).annotate(
+			commands_count=Count('commands'),
+			users_count=Count('users'),
+		)
 
 	@admin.display(description='@username', ordering='username')
 	def _username(self, telegram_bot: TelegramBot) -> str:
@@ -57,11 +66,11 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	def _remaining_storage_size(self, telegram_bot: TelegramBot) -> str:
 		return f'{round(telegram_bot.remaining_storage_size / 1024 ** 2, 2)}MB'
 
-	@admin.display(description=_('Команд'))
+	@admin.display(description=_('Команд'), ordering='commands_count')
 	def commands_count(self, telegram_bot: TelegramBot) -> int:
 		return telegram_bot.commands.count()
 
-	@admin.display(description=_('Активаций'))
+	@admin.display(description=_('Пользователей'), ordering='users_count')
 	def users_count(self, telegram_bot: TelegramBot) -> int:
 		return telegram_bot.users.count()
 
@@ -76,8 +85,26 @@ class TelegramBotUserAdmin(admin.ModelAdmin[TelegramBotUser]):
 	search_fields = ('telegram_id', 'full_name')
 	date_hierarchy = 'activated_date'
 	list_filter = ('is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
-	list_display = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
-	fields = ('id', 'telegram_bot', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
+	list_display = (
+		'id',
+		'telegram_bot',
+		'telegram_id',
+		'full_name',
+		'is_allowed',
+		'is_blocked',
+		'last_activity_date',
+		'activated_date',
+	)
+	fields = (
+		'id',
+		'telegram_bot',
+		'telegram_id',
+		'full_name',
+		'is_allowed',
+		'is_blocked',
+		'last_activity_date',
+		'activated_date',
+	)
 
 	def has_add_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False
