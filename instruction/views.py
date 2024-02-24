@@ -1,11 +1,11 @@
 from rest_framework.generics import ListAPIView
 
-from .models import InstructionSection
-from .serializers import InstructionSectionSerializer
+from .models import Section
+from .serializers import SectionSerializer
 
 
-class InstructionSectionsAPIView(ListAPIView[InstructionSection]):
+class SectionsAPIView(ListAPIView[Section]):
 	authentication_classes = []
 	permission_classes = []
-	queryset = InstructionSection.objects.all()
-	serializer_class = InstructionSectionSerializer
+	queryset = Section.objects.all()
+	serializer_class = SectionSerializer

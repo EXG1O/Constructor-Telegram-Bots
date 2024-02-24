@@ -1,8 +1,8 @@
 from modeltranslation.translator import register, TranslationOptions
 
-from .models import InstructionSection
+from .models import Section
 
 
-@register(InstructionSection)
-class InstructionSectionTranslationOptions(TranslationOptions):
+@register(Section)
+class SectionTranslationOptions(TranslationOptions):
     fields = ('title', 'text')

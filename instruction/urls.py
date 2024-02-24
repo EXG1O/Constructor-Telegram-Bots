@@ -1,9 +1,9 @@
 from django.urls import path
 
-from .views import InstructionSectionsAPIView
+from .views import SectionsAPIView
 
 
 app_name = 'instruction'
 urlpatterns = [
-	path('sections/', InstructionSectionsAPIView.as_view(), name='sections'),
+	path('sections/', SectionsAPIView.as_view(), name='sections'),
 ]

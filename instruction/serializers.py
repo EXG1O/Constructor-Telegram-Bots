@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from .models import InstructionSection
+from .models import Section
 
 
-class InstructionSectionSerializer(serializers.ModelSerializer[InstructionSection]):
+class SectionSerializer(serializers.ModelSerializer[Section]):
 	class Meta:
-		model = InstructionSection
+		model = Section
 		fields = ('id', 'title', 'text')
