@@ -17,7 +17,7 @@ from .views import (
 app_name = 'telegram-bots'
 urlpatterns = [
 	path('', TelegramBotsAPIView.as_view(), name='index'),
-	path('hub/<int:telegram_bot_id>/', include('telegram_bot.hub.urls')),
+	path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
 	path('<int:telegram_bot_id>/', include(([
 		path('', TelegramBotAPIView.as_view(), name='index'),
 

@@ -5,7 +5,7 @@ from celery import shared_task
 
 @shared_task
 def start_telegram_bot(telegram_bot_id: int) -> None:
-	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
 	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
 	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
@@ -17,7 +17,7 @@ def start_telegram_bot(telegram_bot_id: int) -> None:
 
 @shared_task
 def restart_telegram_bot(telegram_bot_id: int) -> None:
-	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
 	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
 	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
@@ -35,7 +35,7 @@ def restart_telegram_bot(telegram_bot_id: int) -> None:
 
 @shared_task
 def stop_telegram_bot(telegram_bot_id: int) -> None:
-	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
 	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
 	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
@@ -53,7 +53,7 @@ def stop_telegram_bot(telegram_bot_id: int) -> None:
 
 @shared_task
 def start_telegram_bots() -> None:
-	TelegramBot = apps.get_model('telegram_bot.TelegramBot')
+	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
 	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
 	for telegram_bot in TelegramBot.objects.all():

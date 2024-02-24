@@ -14,7 +14,7 @@ urlpatterns = [
 	path('api/', include(([
 		path('languages/', include('languages.urls')),
 		path('users/', include('users.urls')),
-		path('telegram-bots/', include('telegram_bot.urls')),
+		path('telegram-bots/', include('telegram_bots.urls')),
 		path('team/', include('team.urls')),
 		path('updates/', include('updates.urls')),
 		path('donations/', include('donation.urls')),

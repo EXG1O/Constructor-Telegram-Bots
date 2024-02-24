@@ -78,8 +78,8 @@ INSTALLED_APPS = [
 
 	'languages',
 	'users',
-	'telegram_bot',
-	'telegram_bot.hub',
+	'telegram_bots',
+	'telegram_bots.hub',
 	'team',
 	'updates',
 	'instruction',

@@ -7,7 +7,7 @@ from django.conf import settings
 
 from django_stubs_ext.db.models import TypedModelMeta
 
-from telegram_bot.models import TelegramBot
+from telegram_bots.models import TelegramBot
 
 from utils.shortcuts import generate_random_string
 
