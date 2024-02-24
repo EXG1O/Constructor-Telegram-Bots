@@ -25,13 +25,13 @@ class DonationAdmin(admin.ModelAdmin[Donation]):
 		return format_html_link(donation.contact_link)
 
 @admin.register(Section)
-class DonationSectionAdmin(TranslationAdmin): # FIXME: Need to add generics support
+class SectionAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	list_display = ('title', 'position')
 	fields = ('title', 'text', 'position')
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}
 
 @admin.register(Button)
-class DonationButtonAdmin(TranslationAdmin): # FIXME: Need to add generics support
+class ButtonAdmin(TranslationAdmin): # FIXME: Need to add generics support
 	list_display = ('text', 'url_display', 'position')
 	fields = ('text', 'url', 'position')
 
