@@ -300,10 +300,10 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 			except CommandTrigger.DoesNotExist:
 				pass
 
-		for image in images: # type: ignore [assignment]
+		for image in images:
 			CommandImage.objects.create(command=command, image=image)
 
-		for file in files: # type: ignore [assignment]
+		for file in files:
 			CommandFile.objects.create(command=command, file=file)
 
 		command.images.exclude(id__in=images_id).delete()
