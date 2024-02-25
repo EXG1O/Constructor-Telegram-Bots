@@ -28,9 +28,9 @@ class TelegramBot(models.Model):
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
 	if TYPE_CHECKING:
-		commands: models.Manager['TelegramBotCommand']
-		variables: models.Manager['TelegramBotVariable']
-		users: models.Manager['TelegramBotUser']
+		commands: models.Manager['Command']
+		variables: models.Manager['Variable']
+		users: models.Manager['User']
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot'
@@ -87,19 +87,31 @@ class TelegramBot(models.Model):
 		else:
 			self.update_username()
 
-		return super().save(force_insert, force_update, using, update_fields)
+		super().save(force_insert, force_update, using, update_fields)
 
 	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
-		if self.is_enabled:
-			self.stop()
+		try:
+			instance: TelegramBot = TelegramBot.objects.get(id=self.id)
+
+			if self.is_enabled and instance.is_enabled:
+				self.stop()
+		except self.DoesNotExist:
+			pass
 
 		return super().delete(using, keep_parents)
 
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class TelegramBotCommandSettings(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='settings')
+class DiagramBlock(models.Model):
+	x =	models.FloatField(_('Координата X'), default=0)
+	y = models.FloatField(_('Координата Y'), default=0)
+
+	class Meta(TypedModelMeta):
+		abstract = True
+
+class CommandSettings(models.Model):
+	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='settings')
 	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
 	is_delete_user_message = models.BooleanField(_('Удалить сообщение пользователя'), default=False)
 	is_send_as_new_message = models.BooleanField(_('Отправить сообщение как новое'), default=False)
@@ -107,23 +119,23 @@ class TelegramBotCommandSettings(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_settings'
 
-class TelegramBotCommandCommand(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='command')
+class CommandTrigger(models.Model):
+	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='trigger')
 	text = models.CharField(_('Команда'), max_length=255)
 	description = models.CharField(_('Описание'), max_length=255, blank=True, null=True)
 
 	class Meta(TypedModelMeta):
-		db_table = 'telegram_bot_command_command'
+		db_table = 'telegram_bot_command_trigger'
 
-def upload_telegram_bot_command_image_path(instance: 'TelegramBotCommandImage', file_name: str) -> str:
-	return f'telegram_bots/{instance.telegram_bot_command.telegram_bot.id}/commands/{instance.telegram_bot_command.id}/images/{file_name}'
+def upload_command_image_path(instance: 'CommandImage', file_name: str) -> str:
+	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/images/{file_name}'
 
-def upload_telegram_bot_command_file_path(instance: 'TelegramBotCommandFile', file_name: str) -> str:
-	return f'telegram_bots/{instance.telegram_bot_command.telegram_bot.id}/commands/{instance.telegram_bot_command.id}/files/{file_name}'
+def upload_command_file_path(instance: 'CommandFile', file_name: str) -> str:
+	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/files/{file_name}'
 
-class TelegramBotCommandImage(models.Model):
-	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.CASCADE, related_name='images')
-	image = models.ImageField(_('Изображение'), upload_to=upload_telegram_bot_command_image_path)
+class CommandImage(models.Model):
+	command = models.ForeignKey('Command', on_delete=models.CASCADE, related_name='images')
+	image = models.ImageField(_('Изображение'), upload_to=upload_command_image_path)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_image'
@@ -132,9 +144,9 @@ class TelegramBotCommandImage(models.Model):
 		self.image.delete(save=False)
 		return super().delete(using, keep_parents)
 
-class TelegramBotCommandFile(models.Model):
-	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.CASCADE, related_name='files')
-	file = models.ImageField(_('Файл'), upload_to=upload_telegram_bot_command_file_path)
+class CommandFile(models.Model):
+	command = models.ForeignKey('Command', on_delete=models.CASCADE, related_name='files')
+	file = models.ImageField(_('Файл'), upload_to=upload_command_file_path)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_file'
@@ -143,80 +155,80 @@ class TelegramBotCommandFile(models.Model):
 		self.file.delete(save=False)
 		return super().delete(using, keep_parents)
 
-class TelegramBotCommandMessageText(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='message_text')
+class CommandMessage(models.Model):
+	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='message')
 	text = models.TextField(_('Текст'), max_length=4096)
 
 	class Meta(TypedModelMeta):
-		db_table = 'telegram_bot_command_message_text'
+		db_table = 'telegram_bot_command_message'
 
-class TelegramBotCommandKeyboardButton(models.Model):
-	telegram_bot_command_keyboard = models.ForeignKey('TelegramBotCommandKeyboard', on_delete=models.CASCADE, related_name='buttons')
+class CommandKeyboardButton(models.Model):
+	keyboard = models.ForeignKey('CommandKeyboard', on_delete=models.CASCADE, related_name='buttons')
 	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
 	text = models.TextField(_('Текст'), max_length=1024)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
 
-	telegram_bot_command = models.ForeignKey('TelegramBotCommand', on_delete=models.SET_NULL, blank=True, null=True)
+	telegram_bot_command = models.ForeignKey('Command', on_delete=models.SET_NULL, blank=True, null=True)
 	start_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
 	end_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button'
-		ordering = ['id']
 
-class TelegramBotCommandKeyboard(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='keyboard')
-	type = models.CharField(_('Режим'), max_length=7, choices=(
+class CommandKeyboard(models.Model):
+	TYPE_CHOICES = (
 		('default', _('Обычный')),
 		('inline', _('Встроенный')),
 		('payment', _('Платёжный')),
-	), default='default')
+	)
+
+	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='keyboard')
+	type = models.CharField(_('Режим'), max_length=7, choices=TYPE_CHOICES, default='default')
 
 	if TYPE_CHECKING:
-		buttons: models.Manager[TelegramBotCommandKeyboardButton]
+		buttons: models.Manager[CommandKeyboardButton]
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard'
 
-class TelegramBotCommandApiRequest(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='api_request')
-	url = models.URLField(_('URL-адрес'))
-	method = models.CharField(_('Метод'), max_length=6, choices=(
+class CommandAPIRequest(models.Model):
+	METHOD_CHOICES = (
 		('get', 'GET'),
 		('post', 'POST'),
 		('put', 'PUT'),
 		('patch', 'PATCH'),
 		('delete', 'DELETE'),
-	), default='get')
+	)
+
+	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='api_request')
+	url = models.URLField(_('URL-адрес'))
+	method = models.CharField(_('Метод'), max_length=6, choices=METHOD_CHOICES, default='get')
 	headers = models.JSONField(_('Заголовки'), blank=True, null=True)
 	body = models.JSONField(_('Данные'), blank=True, null=True)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_api_request'
 
-class TelegramBotCommandDatabaseRecord(models.Model):
-	telegram_bot_command = models.OneToOneField('TelegramBotCommand', on_delete=models.CASCADE, related_name='database_record')
+class CommandDatabaseRecord(models.Model):
+	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='database_record')
 	data = models.JSONField(_('Данные'))
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_database_record'
 
-class TelegramBotCommand(models.Model):
+class Command(DiagramBlock):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=128)
 
-	x =	models.FloatField(_('Координата X'), default=0)
-	y = models.FloatField(_('Координата Y'), default=0)
-
 	if TYPE_CHECKING:
-		settings: TelegramBotCommandSettings
-		command: TelegramBotCommandCommand
-		images: models.Manager[TelegramBotCommandImage]
-		files: models.Manager[TelegramBotCommandFile]
-		message_text: TelegramBotCommandMessageText
-		keyboard: TelegramBotCommandKeyboard
-		api_request: TelegramBotCommandApiRequest
-		database_record: TelegramBotCommandDatabaseRecord
+		settings: CommandSettings
+		trigger: CommandTrigger
+		images: models.Manager[CommandImage]
+		files: models.Manager[CommandFile]
+		message: CommandMessage
+		keyboard: CommandKeyboard
+		api_request: CommandAPIRequest
+		database_record: CommandDatabaseRecord
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command'
@@ -226,7 +238,7 @@ class TelegramBotCommand(models.Model):
 	def __str__(self) -> str:
 		return self.name
 
-class TelegramBotVariable(models.Model):
+class Variable(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='variables', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=64)
 	value = models.TextField(_('Значение'), max_length=2048)
@@ -237,13 +249,13 @@ class TelegramBotVariable(models.Model):
 		verbose_name = _('Переменная')
 		verbose_name_plural = _('Переменные')
 
-class TelegramBotUser(models.Model):
+class User(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
 	telegram_id = models.PositiveBigIntegerField('Telegram ID')
 	full_name = models.CharField(_('Имя и фамилия'), max_length=129)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
 	is_blocked = models.BooleanField(_('Заблокирован'), default=False)
-	last_activity_date = models.DateTimeField(_('Дата последней активности'), auto_now_add=True, null=True)
+	last_activity_date = models.DateTimeField(_('Дата последней активности'), auto_now_add=True)
 	activated_date = models.DateTimeField(_('Дата активации'), auto_now_add=True)
 
 	class Meta(TypedModelMeta):

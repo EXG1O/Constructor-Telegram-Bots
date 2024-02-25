@@ -11,11 +11,7 @@ from ..models import TelegramBot
 
 import requests
 from requests import Response
-from requests.exceptions import (
-	ConnectionError,
-	HTTPError,
-	Timeout,
-)
+from requests.exceptions import ConnectionError, HTTPError, Timeout
 
 from typing import Literal, Iterable, Optional, Any
 import subprocess

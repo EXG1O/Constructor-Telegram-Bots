@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from utils.html import format_html_link
 
-from .models import TelegramBot, TelegramBotUser
+from .models import TelegramBot, User
 
 from typing import Literal, Any
 
@@ -80,11 +80,16 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	def has_change_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False
 
-@admin.register(TelegramBotUser)
-class TelegramBotUserAdmin(admin.ModelAdmin[TelegramBotUser]):
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin[User]):
 	search_fields = ('telegram_id', 'full_name')
 	date_hierarchy = 'activated_date'
-	list_filter = ('is_allowed', 'is_blocked', 'last_activity_date', 'activated_date')
+	list_filter = (
+		'is_allowed',
+		'is_blocked',
+		'last_activity_date',
+		'activated_date',
+	)
 	list_display = (
 		'id',
 		'telegram_bot',

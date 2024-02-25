@@ -5,22 +5,22 @@ from rest_framework import serializers
 
 from utils import filters
 
-from users.models import User
+from users.models import User as SiteUser
 
 from .models import (
 	TelegramBot,
-	TelegramBotCommand,
-	TelegramBotCommandSettings,
-	TelegramBotCommandCommand,
-	TelegramBotCommandImage,
-	TelegramBotCommandFile,
-	TelegramBotCommandMessageText,
-	TelegramBotCommandKeyboard,
-	TelegramBotCommandKeyboardButton,
-	TelegramBotCommandApiRequest,
-	TelegramBotCommandDatabaseRecord,
-	TelegramBotVariable,
-	TelegramBotUser,
+	CommandSettings,
+	CommandTrigger,
+	CommandImage,
+	CommandFile,
+	CommandMessage,
+	CommandKeyboard,
+	CommandKeyboardButton,
+	CommandAPIRequest,
+	CommandDatabaseRecord,
+	Command,
+	Variable,
+	User,
 )
 
 from typing import Any
@@ -57,16 +57,16 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 		)
 
 	@property
-	def user(self) -> User:
-		user: User | None = self.context.get('user')
+	def site_user(self) -> SiteUser:
+		site_user: SiteUser | None = self.context.get('site_user')
 
-		if not isinstance(user, User):
-			raise TypeError('You not passed a User instance to the serializer context!')
+		if not isinstance(site_user, SiteUser):
+			raise TypeError('You not passed a users.models.User instance as site_user to the serializer context!')
 
-		return user
+		return site_user
 
 	def create(self, validated_data: dict[str, Any]) -> TelegramBot:
-		return TelegramBot.objects.create(owner=self.user, **validated_data)
+		return TelegramBot.objects.create(owner=self.site_user, **validated_data)
 
 	def update(self, instance: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
 		instance.api_token = validated_data.get('api_token', instance.api_token)
@@ -81,88 +81,106 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 		return representation
 
-class TelegramBotCommandSettingsSerializer(serializers.ModelSerializer[TelegramBotCommandSettings]):
-	class Meta:
-		model = TelegramBotCommandSettings
-		fields = ('is_reply_to_user_message', 'is_delete_user_message', 'is_send_as_new_message')
+class TelegramBotActionSerializer(serializers.Serializer):
+	action = serializers.ChoiceField(choices=('start', 'restart', 'stop'))
 
-class TelegramBotCommandCommandSerializer(serializers.ModelSerializer[TelegramBotCommandCommand]):
+class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 	class Meta:
-		model = TelegramBotCommandCommand
+		model = CommandSettings
+		fields = (
+			'is_reply_to_user_message',
+			'is_delete_user_message',
+			'is_send_as_new_message',
+		)
+
+class CommandCommandSerializer(serializers.ModelSerializer[CommandTrigger]):
+	class Meta:
+		model = CommandTrigger
 		fields = ('text', 'description')
 
-class TelegramBotCommandImageSerializer(serializers.ModelSerializer[TelegramBotCommandImage]):
+class CommandImageSerializer(serializers.ModelSerializer[CommandImage]):
 	name = serializers.CharField(source='image.name')
 	size = serializers.IntegerField(source='image.size')
 	url = serializers.CharField(source='image.url')
 
 	class Meta:
-		model = TelegramBotCommandImage
+		model = CommandImage
 		fields = ('id', 'name', 'size', 'url')
 
-	def to_representation(self, instance: TelegramBotCommandImage) -> dict[str, Any]:
+	def to_representation(self, instance: CommandImage) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
 		representation['name'] = representation['name'].split('images/')[-1]
 
 		return representation
 
-class TelegramBotCommandFileSerializer(serializers.ModelSerializer[TelegramBotCommandFile]):
+class CommandFileSerializer(serializers.ModelSerializer[CommandFile]):
 	name = serializers.CharField(source='file.name')
 	size = serializers.IntegerField(source='file.size')
 	url = serializers.CharField(source='file.url')
 
 	class Meta:
-		model = TelegramBotCommandFile
+		model = CommandFile
 		fields = ('id', 'name', 'size', 'url')
 
-	def to_representation(self, instance: TelegramBotCommandImage) -> dict[str, Any]:
+	def to_representation(self, instance: CommandImage) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
 		representation['name'] = representation['name'].split('files/')[-1]
 
 		return representation
 
-class TelegramBotCommandMessageTextSerializer(serializers.ModelSerializer[TelegramBotCommandMessageText]):
+class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
 	class Meta:
-		model = TelegramBotCommandMessageText
+		model = CommandMessage
 		fields = ('text',)
 
-class TelegramBotCommandKeyboardButtonSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboardButton]):
+class CommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
 	class Meta:
-		model = TelegramBotCommandKeyboardButton
+		model = CommandKeyboardButton
 		fields = ('id', 'row', 'text', 'url')
 
-class TelegramBotCommandKeyboardSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboard]):
-	buttons = TelegramBotCommandKeyboardButtonSerializer(many=True)
+class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
+	buttons = CommandKeyboardButtonSerializer(many=True)
 
 	class Meta:
-		model = TelegramBotCommandKeyboard
+		model = CommandKeyboard
 		fields = ('type', 'buttons')
 
-class TelegramBotCommandApiRequestSerializer(serializers.ModelSerializer[TelegramBotCommandApiRequest]):
+class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]):
 	class Meta:
-		model = TelegramBotCommandApiRequest
+		model = CommandAPIRequest
 		fields = ('url', 'method', 'headers', 'body')
 
-class TelegramBotCommandDatabaseRecordSerializer(serializers.ModelSerializer[TelegramBotCommandDatabaseRecord]):
+class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabaseRecord]):
 	class Meta:
-		model = TelegramBotCommandDatabaseRecord
+		model = CommandDatabaseRecord
 		fields = ('data',)
 
-class TelegramBotCommandSerializer(serializers.ModelSerializer):
-	settings = TelegramBotCommandSettingsSerializer()
-	command = TelegramBotCommandCommandSerializer(default=None) # type: ignore [arg-type]
-	images = TelegramBotCommandImageSerializer(many=True)
-	files = TelegramBotCommandFileSerializer(many=True)
-	message_text = TelegramBotCommandMessageTextSerializer()
-	keyboard = TelegramBotCommandKeyboardSerializer(default=None) # type: ignore [arg-type]
-	api_request = TelegramBotCommandApiRequestSerializer(default=None) # type: ignore [arg-type]
-	database_record = TelegramBotCommandDatabaseRecordSerializer(default=None) # type: ignore [arg-type]
+class CommandSerializer(serializers.ModelSerializer):
+	settings = CommandSettingsSerializer()
+	trigger = CommandCommandSerializer(required=False)
+	images = CommandImageSerializer(many=True)
+	files = CommandFileSerializer(many=True)
+	message = CommandMessageSerializer()
+	keyboard = CommandKeyboardSerializer(required=False)
+	api_request = CommandAPIRequestSerializer(required=False)
+	database_record = CommandDatabaseRecordSerializer(required=False)
 
 	class Meta:
-		model = TelegramBotCommand
-		fields = ('id', 'name', 'settings', 'command', 'images', 'files', 'message_text', 'keyboard', 'api_request', 'database_record')
+		model = Command
+		fields = (
+			'id',
+			'name',
+			'settings',
+			'trigger',
+			'images',
+			'files',
+			'message',
+			'keyboard',
+			'api_request',
+			'database_record',
+		)
 
-class CreateTelegramBotCommandSerializer(TelegramBotCommandSerializer):
+class CreateCommandSerializer(CommandSerializer):
 	images = serializers.ListField(child=serializers.ImageField(), default=[]) # type: ignore [assignment]
 	files = serializers.ListField(child=serializers.FileField(), default=[]) # type: ignore [assignment]
 
@@ -179,209 +197,210 @@ class CreateTelegramBotCommandSerializer(TelegramBotCommandSerializer):
 		size: int = sum(image.size for image in data['images']) + sum(file.size for file in data['files'])
 
 		if self.telegram_bot.remaining_storage_size - size < 0:
-			raise serializers.ValidationError(_('Вы превысили лимит памяти!'))
+			raise serializers.ValidationError(_('Вы превысили лимит хранилища!'))
 
 		return data
 
-	def create(self, validated_data: dict[str, Any]) -> TelegramBotCommand:
+	def create(self, validated_data: dict[str, Any]) -> Command:
 		settings: dict[str, Any] = validated_data.pop('settings')
-		command: dict[str, Any] | None = validated_data.pop('command')
+		trigger: dict[str, Any] | None = validated_data.pop('trigger', None)
 		images: list[InMemoryUploadedFile] = validated_data.pop('images')
 		files: list[InMemoryUploadedFile] = validated_data.pop('files')
-		message_text: dict[str, Any] = validated_data.pop('message_text')
-		keyboard: dict[str, Any] | None = validated_data.pop('keyboard')
-		api_request: dict[str, Any] | None = validated_data.pop('api_request')
-		database_record: dict[str, Any] | None = validated_data.pop('database_record')
+		message: dict[str, Any] = validated_data.pop('message')
+		keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
+		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
+		database_record: dict[str, Any] | None = validated_data.pop('database_record', None)
 
-		telegram_bot_command: TelegramBotCommand = TelegramBotCommand.objects.create(telegram_bot=self.telegram_bot, **validated_data)
+		command: Command = Command.objects.create(telegram_bot=self.telegram_bot, **validated_data)
 
-		kwargs: dict[str, TelegramBotCommand] = {'telegram_bot_command': telegram_bot_command}
+		kwargs: dict[str, Command] = {'command': command}
 
-		TelegramBotCommandSettings.objects.create(**kwargs, **settings)
+		CommandSettings.objects.create(**kwargs, **settings)
 
-		if command:
-			TelegramBotCommandCommand.objects.create(**kwargs, **command)
+		if trigger:
+			CommandTrigger.objects.create(**kwargs, **trigger)
 
 		for image in images:
-			TelegramBotCommandImage.objects.create(**kwargs, image=image)
+			CommandImage.objects.create(**kwargs, image=image)
 
 		for file in files:
-			TelegramBotCommandFile.objects.create(**kwargs, file=file)
+			CommandFile.objects.create(**kwargs, file=file)
 
-		TelegramBotCommandMessageText.objects.create(**kwargs, **message_text)
+		CommandMessage.objects.create(**kwargs, **message)
 
 		if keyboard:
-			buttons: list[dict[str, Any]] = keyboard.pop('buttons')
+			buttons: list[dict[str, Any]] = keyboard.pop('buttons', [])
 
-			_keyboard: TelegramBotCommandKeyboard = TelegramBotCommandKeyboard.objects.create(**kwargs, **keyboard)
+			if buttons:
+				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(**kwargs, **keyboard)
 
-			for button in buttons:
-				TelegramBotCommandKeyboardButton.objects.create(telegram_bot_command_keyboard=_keyboard, **button)
+				for button in buttons:
+					CommandKeyboardButton.objects.create(keyboard=_keyboard, **button)
 
 		if api_request:
-			TelegramBotCommandApiRequest.objects.create(**kwargs, **api_request)
+			CommandAPIRequest.objects.create(**kwargs, **api_request)
 
 		if database_record:
-			TelegramBotCommandDatabaseRecord.objects.create(**kwargs, **database_record)
+			CommandDatabaseRecord.objects.create(**kwargs, **database_record)
 
-		return telegram_bot_command
+		return command
 
-	def to_representation(self, instance: TelegramBotCommand) -> dict[str, Any]:
-		return TelegramBotCommandSerializer(instance).data
+	def to_representation(self, instance: Command) -> dict[str, Any]:
+		return CommandSerializer(instance).data
 
-class UpdateTelegramBotCommandSerializer(CreateTelegramBotCommandSerializer):
+class UpdateCommandSerializer(CreateCommandSerializer):
 	images_id = serializers.ListField(child=serializers.IntegerField(), default=[])
 	files_id = serializers.ListField(child=serializers.IntegerField(), default=[])
 
-	class Meta(CreateTelegramBotCommandSerializer.Meta):
-		fields = (*CreateTelegramBotCommandSerializer.Meta.fields, 'images_id', 'files_id') # type: ignore [assignment]
+	class Meta(CreateCommandSerializer.Meta):
+		fields = (*CreateCommandSerializer.Meta.fields, 'images_id', 'files_id') # type: ignore [assignment]
 
-	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
-		settings: dict[str, Any] | None = validated_data.get('settings')
-		command: dict[str, Any] | None = validated_data['command']
+	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
+		settings: dict[str, Any] = validated_data['settings']
+		trigger: dict[str, Any] | None = validated_data.get('trigger')
 		images: list[InMemoryUploadedFile] = validated_data['images']
 		images_id: list[int] = validated_data['images_id']
 		files: list[InMemoryUploadedFile] = validated_data['files']
 		files_id: list[int] = validated_data['files_id']
-		message_text: dict[str, Any] | None = validated_data.get('message_text')
-		keyboard: dict[str, Any] | None = validated_data['keyboard']
-		api_request: dict[str, Any] | None = validated_data['api_request']
-		database_record: dict[str, Any] | None = validated_data['database_record']
+		message: dict[str, Any] = validated_data['message']
+		keyboard: dict[str, Any] | None = validated_data.get('keyboard')
+		api_request: dict[str, Any] | None = validated_data.get('api_request')
+		database_record: dict[str, Any] | None = validated_data.get('database_record')
 
-		instance.name = validated_data.get('name', instance.name)
-		instance.save()
+		command.name = validated_data.get('name', command.name)
+		command.save()
 
-		if settings:
+		try:
+			command.settings.is_reply_to_user_message = settings.get(
+				'is_reply_to_user_message',
+				command.settings.is_reply_to_user_message,
+			)
+			command.settings.is_delete_user_message = settings.get(
+				'is_delete_user_message',
+				command.settings.is_delete_user_message,
+			)
+			command.settings.is_send_as_new_message = settings.get(
+				'is_send_as_new_message',
+				command.settings.is_send_as_new_message,
+			)
+			command.settings.save()
+		except CommandSettings.DoesNotExist:
+			CommandSettings.objects.create(command=command, **settings)
+
+		if trigger:
 			try:
-				instance.settings.is_reply_to_user_message = settings.get('is_reply_to_user_message', instance.settings.is_reply_to_user_message)
-				instance.settings.is_delete_user_message = settings.get('is_delete_user_message', instance.settings.is_delete_user_message)
-				instance.settings.is_send_as_new_message = settings.get('is_send_as_new_message', instance.settings.is_send_as_new_message)
-				instance.settings.save()
-			except TelegramBotCommandSettings.DoesNotExist:
-				TelegramBotCommandSettings.objects.create(telegram_bot_command=instance, **settings)
-
-		if command:
-			try:
-				instance.command.text = command.get('text', instance.command.text)
-				instance.command.description = command.get('description', instance.command.description)
-				instance.command.save()
-			except TelegramBotCommandCommand.DoesNotExist:
-				TelegramBotCommandCommand.objects.create(telegram_bot_command=instance, **command)
+				command.trigger.text = trigger.get('text', command.trigger.text)
+				command.trigger.description = trigger.get('description')
+				command.trigger.save()
+			except CommandTrigger.DoesNotExist:
+				CommandTrigger.objects.create(command=command, **trigger)
 		else:
 			try:
-				instance.command.delete()
-			except TelegramBotCommandCommand.DoesNotExist:
+				command.trigger.delete()
+			except CommandTrigger.DoesNotExist:
 				pass
 
-		for image in instance.images.all():
-			if image.id not in images_id:
-				image.delete()
-
 		for image in images: # type: ignore [assignment]
-			TelegramBotCommandImage.objects.create(telegram_bot_command=instance, image=image)
-
-		for file in instance.files.all():
-			if file.id not in files_id:
-				file.delete()
+			CommandImage.objects.create(command=command, image=image)
 
 		for file in files: # type: ignore [assignment]
-			TelegramBotCommandFile.objects.create(telegram_bot_command=instance, file=file)
+			CommandFile.objects.create(command=command, file=file)
 
-		if message_text:
-			instance.message_text.text = message_text.get('text', instance.message_text.text)
-			instance.message_text.save()
+		command.images.exclude(id__in=images_id).delete()
+		command.files.exclude(id__in=files_id).delete()
+
+		command.message.text = message.get('text', command.message.text)
+		command.message.save()
 
 		if keyboard:
 			try:
-				instance.keyboard.type = keyboard.get('type', instance.keyboard.type)
-				instance.keyboard.save()
+				command.keyboard.type = keyboard.get('type', command.keyboard.type)
+				command.keyboard.save()
 
 				buttons_id: list[int] = []
 
-				for button in keyboard['buttons']:
+				for button in keyboard.get('buttons', []):
 					try:
-						button_: TelegramBotCommandKeyboardButton = instance.keyboard.buttons.get(id=button.get('id', 0))
-						button_.row = button.get('row')
-						button_.text = button.get('text', button_.text)
-						button_.url = button.get('url')
-						button_.save()
-					except TelegramBotCommandKeyboardButton.DoesNotExist:
-						button_: TelegramBotCommandKeyboardButton = TelegramBotCommandKeyboardButton.objects.create( # type: ignore [no-redef]
-							telegram_bot_command_keyboard=instance.keyboard,
-							**button
+						_button: CommandKeyboardButton = command.keyboard.buttons.get(id=button.get('id', 0))
+						_button.row = button.get('row')
+						_button.text = button.get('text', _button.text)
+						_button.url = button.get('url')
+						_button.save()
+					except CommandKeyboardButton.DoesNotExist:
+						_button: CommandKeyboardButton = CommandKeyboardButton.objects.create( # type: ignore [no-redef]
+							keyboard=command.keyboard,
+							**button,
 						)
 
-					buttons_id.append(button_.id)
+					buttons_id.append(_button.id)
 
-				for button in instance.keyboard.buttons.all():
-					if button.id not in buttons_id:
-						button.delete()
-			except TelegramBotCommandKeyboard.DoesNotExist:
+				command.keyboard.buttons.exclude(id__in=buttons_id).delete()
+			except CommandKeyboard.DoesNotExist:
 				buttons: list[dict[str, Any]] = keyboard.pop('buttons')
 
-				_keyboard: TelegramBotCommandKeyboard = TelegramBotCommandKeyboard.objects.create(telegram_bot_command=instance, **keyboard)
+				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(command=command, **keyboard)
 
 				for button in buttons:
-					TelegramBotCommandKeyboardButton.objects.create(telegram_bot_command_keyboard=_keyboard, **button)
+					CommandKeyboardButton.objects.create(keyboard=_keyboard, **button)
 		else:
 			try:
-				instance.keyboard.delete()
-			except TelegramBotCommandKeyboard.DoesNotExist:
+				command.keyboard.delete()
+			except CommandKeyboard.DoesNotExist:
 				pass
 
 		if api_request:
 			try:
-				instance.api_request.url = api_request.get('url', instance.api_request.url)
-				instance.api_request.method = api_request.get('method', instance.api_request.method)
-				instance.api_request.headers = api_request.get('headers')
-				instance.api_request.body = api_request.get('body')
-				instance.api_request.save()
-			except TelegramBotCommandApiRequest.DoesNotExist:
-				TelegramBotCommandApiRequest.objects.create(telegram_bot_command=instance, **api_request)
+				command.api_request.url = api_request.get('url', command.api_request.url)
+				command.api_request.method = api_request.get('method', command.api_request.method)
+				command.api_request.headers = api_request.get('headers')
+				command.api_request.body = api_request.get('body')
+				command.api_request.save()
+			except CommandAPIRequest.DoesNotExist:
+				CommandAPIRequest.objects.create(command=command, **api_request)
 		else:
 			try:
-				instance.api_request.delete()
-			except TelegramBotCommandApiRequest.DoesNotExist:
+				command.api_request.delete()
+			except CommandAPIRequest.DoesNotExist:
 				pass
 
 		if database_record:
 			try:
-				instance.database_record.data = database_record.get('data', instance.database_record.data)
-			except TelegramBotCommandDatabaseRecord.DoesNotExist:
-				TelegramBotCommandDatabaseRecord.objects.create(telegram_bot_command=instance, **database_record)
+				command.database_record.data = database_record.get('data', command.database_record.data)
+			except CommandDatabaseRecord.DoesNotExist:
+				CommandDatabaseRecord.objects.create(command=command, **database_record)
 		else:
 			try:
-				instance.database_record.delete()
-			except TelegramBotCommandDatabaseRecord.DoesNotExist:
+				command.database_record.delete()
+			except CommandDatabaseRecord.DoesNotExist:
 				pass
 
-		return instance
+		return command
 
-class TelegramBotCommandKeyboardButtonDiagramSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboardButton]):
+class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
 	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id', allow_null=True)
 
 	class Meta:
-		model = TelegramBotCommandKeyboardButton
+		model = CommandKeyboardButton
 		fields = ('id', 'row', 'text', 'url', 'telegram_bot_command_id', 'start_diagram_connector', 'end_diagram_connector')
 
-class TelegramBotCommandKeyboardDiagramSerializer(serializers.ModelSerializer[TelegramBotCommandKeyboard]):
-	buttons = TelegramBotCommandKeyboardButtonDiagramSerializer(many=True)
+class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
+	buttons = DiagramCommandKeyboardButtonSerializer(many=True)
 
 	class Meta:
-		model = TelegramBotCommandKeyboard
+		model = CommandKeyboard
 		fields = ('type', 'buttons')
 
-class TelegramBotCommandDiagramSerializer(serializers.ModelSerializer[TelegramBotCommand]):
-	images = TelegramBotCommandImageSerializer(many=True)
-	files = TelegramBotCommandFileSerializer(many=True)
-	message_text = TelegramBotCommandMessageTextSerializer()
-	keyboard = TelegramBotCommandKeyboardDiagramSerializer(allow_null=True)
+class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
+	images = CommandImageSerializer(many=True)
+	files = CommandFileSerializer(many=True)
+	message_text = CommandMessageSerializer()
+	keyboard = DiagramCommandKeyboardSerializer(allow_null=True)
 
 	class Meta:
-		model = TelegramBotCommand
+		model = Command
 		fields = ('id', 'name', 'images', 'files', 'message_text', 'keyboard', 'x', 'y')
 
-class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
+class ConnectCommandKeyboardButtonSerializer(serializers.Serializer):
 	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
 	telegram_bot_command_id = serializers.IntegerField()
 	start_diagram_connector = serializers.CharField()
@@ -408,15 +427,15 @@ class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Seria
 	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
 		try:
 			self.instance.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id) # type: ignore [union-attr]
-		except TelegramBotCommandKeyboard.DoesNotExist:
+		except CommandKeyboard.DoesNotExist:
 			raise serializers.ValidationError(_('У команды Telegram бота нет клавиатуры!'))
-		except TelegramBotCommandKeyboardButton.DoesNotExist:
+		except CommandKeyboardButton.DoesNotExist:
 			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
 
 		return telegram_bot_command_keyboard_button_id
 
-	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
-		keyboard_button: TelegramBotCommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
+	def update(self, instance: Command, validated_data: dict[str, Any]) -> Command:
+		keyboard_button: CommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
 		keyboard_button.telegram_bot_command = self.telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
 		keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
 		keyboard_button.end_diagram_connector = validated_data['end_diagram_connector']
@@ -424,21 +443,21 @@ class ConnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Seria
 
 		return instance
 
-class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Serializer):
+class DisconnectCommandKeyboardButtonSerializer(serializers.Serializer):
 	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
 
 	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
 		try:
 			self.instance.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id) # type: ignore [union-attr]
-		except TelegramBotCommandKeyboard.DoesNotExist:
+		except CommandKeyboard.DoesNotExist:
 			raise serializers.ValidationError(_('У команды Telegram бота нет клавиатуры!'))
-		except TelegramBotCommandKeyboardButton.DoesNotExist:
+		except CommandKeyboardButton.DoesNotExist:
 			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
 
 		return telegram_bot_command_keyboard_button_id
 
-	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
-		keyboard_button: TelegramBotCommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
+	def update(self, instance: Command, validated_data: dict[str, Any]) -> Command:
+		keyboard_button: CommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
 		keyboard_button.telegram_bot_command = None
 		keyboard_button.start_diagram_connector = None
 		keyboard_button.end_diagram_connector = None
@@ -446,25 +465,25 @@ class DisconnectTelegramBotCommandDiagramKeyboardButtonSerializer(serializers.Se
 
 		return instance
 
-class UpdateTelegramBotCommandDiagramPositionSerializer(serializers.ModelSerializer[TelegramBotCommand]):
+class UpdateCommandPositionSerializer(serializers.ModelSerializer[Command]):
 	class Meta:
-		model = TelegramBotCommand
+		model = Command
 		fields = ('x', 'y')
 		extra_kwargs = {
 			'x': {'required': True},
 			'y': {'required': True},
 		}
 
-	def update(self, instance: TelegramBotCommand, validated_data: dict[str, Any]) -> TelegramBotCommand:
+	def update(self, instance: Command, validated_data: dict[str, Any]) -> Command:
 		instance.x = validated_data['x']
 		instance.y = validated_data['y']
 		instance.save()
 
 		return instance
 
-class TelegramBotVariableSerializer(serializers.ModelSerializer[TelegramBotVariable]):
+class VariableSerializer(serializers.ModelSerializer[Variable]):
 	class Meta:
-		model = TelegramBotVariable
+		model = Variable
 		fields = ('id', 'name', 'value', 'description')
 
 	@property
@@ -476,10 +495,10 @@ class TelegramBotVariableSerializer(serializers.ModelSerializer[TelegramBotVaria
 
 		return telegram_bot
 
-	def create(self, validated_data: dict[str, Any]) -> TelegramBotVariable:
-		return TelegramBotVariable.objects.create(telegram_bot=self.telegram_bot, **validated_data)
+	def create(self, validated_data: dict[str, Any]) -> Variable:
+		return Variable.objects.create(telegram_bot=self.telegram_bot, **validated_data)
 
-	def update(self, instance: TelegramBotVariable, validated_data: dict[str, Any]) -> TelegramBotVariable:
+	def update(self, instance: Variable, validated_data: dict[str, Any]) -> Variable:
 		instance.name = validated_data['name']
 		instance.value = validated_data['value']
 		instance.description = validated_data['description']
@@ -487,13 +506,16 @@ class TelegramBotVariableSerializer(serializers.ModelSerializer[TelegramBotVaria
 
 		return instance
 
-class TelegramBotUserSerializer(serializers.ModelSerializer[TelegramBotUser]):
+class UserSerializer(serializers.ModelSerializer[User]):
 	class Meta:
-		model = TelegramBotUser
+		model = User
 		fields = ('id', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked')
 
-	def to_representation(self, instance: TelegramBotUser) -> dict[str, Any]:
+	def to_representation(self, instance: User) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
 		representation['activated_date'] = filters.datetime(instance.activated_date)
 
 		return representation
+
+class UserActionSerializer(serializers.Serializer):
+	action = serializers.ChoiceField(choices=('allow', 'unallow', 'block', 'unblock'))

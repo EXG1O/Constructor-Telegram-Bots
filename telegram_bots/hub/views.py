@@ -9,21 +9,13 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 
 from .authentication import TokenAuthentication
-from ..permissions import (
-	TelegramBotIsFound,
-	TelegramBotCommandIsFound,
-)
-from ..models import (
-	TelegramBot,
-	TelegramBotCommand,
-	TelegramBotVariable,
-	TelegramBotUser,
-)
+from ..permissions import TelegramBotIsFound, CommandIsFound
+from ..models import TelegramBot, Command, Variable, User
 from .serializers import (
 	TelegramBotSerializer,
-	TelegramBotCommandSerializer,
-	TelegramBotVariableSerializer,
-	TelegramBotUserSerializer,
+	CommandSerializer,
+	VariableSerializer,
+	UserSerializer,
 )
 
 from typing import Any
@@ -37,34 +29,34 @@ class TelegramBotAPIView(RetrieveUpdateAPIView[TelegramBot]):
 	def get_object(self) -> TelegramBot:
 		return self.kwargs['telegram_bot']
 
-class TelegramBotCommandsAPIView(ListAPIView[TelegramBotCommand]):
+class CommandsAPIView(ListAPIView[Command]):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-	serializer_class = TelegramBotCommandSerializer
+	serializer_class = CommandSerializer
 
-	def get_queryset(self) -> QuerySet[TelegramBotCommand]:
+	def get_queryset(self) -> QuerySet[Command]:
 		return self.kwargs['telegram_bot'].commands.all()
 
-class TelegramBotCommandAPIView(RetrieveAPIView[TelegramBotCommand]):
+class CommandAPIView(RetrieveAPIView[Command]):
 	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & TelegramBotCommandIsFound]
-	serializer_class = TelegramBotCommandSerializer
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandIsFound]
+	serializer_class = CommandSerializer
 
-	def get_object(self) -> TelegramBotCommand:
+	def get_object(self) -> Command:
 		return self.kwargs['telegram_bot_command']
 
-class TelegramBotVariablesAPIView(ListAPIView[TelegramBotVariable]):
+class VariablesAPIView(ListAPIView[Variable]):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-	serializer_class = TelegramBotVariableSerializer
+	serializer_class = VariableSerializer
 
-	def get_queryset(self) -> QuerySet[TelegramBotVariable]:
+	def get_queryset(self) -> QuerySet[Variable]:
 		return self.kwargs['telegram_bot'].variables.all()
 
-class TelegramBotUsersAPIView(CreateAPIView[TelegramBotUser]):
+class UsersAPIView(CreateAPIView[User]):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-	serializer_class = TelegramBotUserSerializer
+	serializer_class = UserSerializer
 
 	def get_serializer_context(self) -> dict[str, Any]:
 		context: dict[str, Any] = super().get_serializer_context()

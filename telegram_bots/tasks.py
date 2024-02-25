@@ -56,9 +56,8 @@ def start_telegram_bots() -> None:
 	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
 	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')
 
-	for telegram_bot in TelegramBot.objects.all():
-		if telegram_bot.is_enabled:
-			telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
+	for telegram_bot in TelegramBot.objects.filter(is_enabled=True):
+		telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
 
-			if not telegram_bots_hub:
-				telegram_bot.start()
+		if not telegram_bots_hub:
+			telegram_bot.start()
