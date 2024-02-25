@@ -103,7 +103,7 @@ class TelegramBot(models.Model):
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
-class DiagramBlock(models.Model):
+class AbstractBlock(models.Model):
 	x =	models.FloatField(_('Координата X'), default=0)
 	y = models.FloatField(_('Координата Y'), default=0)
 
@@ -216,7 +216,7 @@ class CommandDatabaseRecord(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_database_record'
 
-class Command(DiagramBlock):
+class Command(AbstractBlock):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
 	name = models.CharField(_('Название'), max_length=128)
 
