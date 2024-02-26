@@ -187,9 +187,6 @@ class CommandKeyboardButton(models.Model):
 	text = models.TextField(_('Текст'), max_length=1024)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
 
-	telegram_bot_command = models.ForeignKey('Command', on_delete=models.SET_NULL, blank=True, null=True)
-	start_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
-	end_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
 	if TYPE_CHECKING:
 		connected_commands: models.Manager[CommandKeyboardButtonConnection]
 
