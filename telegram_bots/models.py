@@ -30,6 +30,7 @@ class TelegramBot(models.Model):
 	if TYPE_CHECKING:
 		commands: models.Manager['Command']
 		conditions: models.Manager['Condition']
+		background_tasks: models.Manager['BackgroundTask']
 		variables: models.Manager['Variable']
 		users: models.Manager['User']
 
@@ -124,6 +125,23 @@ class AbstractConnection(models.Model):
 	class Meta(TypedModelMeta):
 		abstract = True
 
+class AbstractAPIRequest(models.Model):
+	METHOD_CHOICES = (
+		('get', 'GET'),
+		('post', 'POST'),
+		('put', 'PUT'),
+		('patch', 'PATCH'),
+		('delete', 'DELETE'),
+	)
+
+	url = models.URLField(_('URL-адрес'))
+	method = models.CharField(_('Метод'), max_length=6, choices=METHOD_CHOICES, default='get')
+	headers = models.JSONField(_('Заголовки'), blank=True, null=True)
+	body = models.JSONField(_('Данные'), blank=True, null=True)
+
+	class Meta(TypedModelMeta):
+		abstract = True
+
 class CommandSettings(models.Model):
 	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='settings')
 	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
@@ -211,20 +229,8 @@ class CommandKeyboard(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard'
 
-class CommandAPIRequest(models.Model):
-	METHOD_CHOICES = (
-		('get', 'GET'),
-		('post', 'POST'),
-		('put', 'PUT'),
-		('patch', 'PATCH'),
-		('delete', 'DELETE'),
-	)
-
+class CommandAPIRequest(AbstractAPIRequest):
 	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='api_request')
-	url = models.URLField(_('URL-адрес'))
-	method = models.CharField(_('Метод'), max_length=6, choices=METHOD_CHOICES, default='get')
-	headers = models.JSONField(_('Заголовки'), blank=True, null=True)
-	body = models.JSONField(_('Данные'), blank=True, null=True)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_api_request'
@@ -314,6 +320,50 @@ class Condition(AbstractBlock):
 		db_table = 'telegram_bot_condition'
 		verbose_name = _('Условие')
 		verbose_name_plural = _('Условия')
+
+class BackgroundTaskAPIRequest(AbstractAPIRequest):
+	background_task = models.OneToOneField(
+		'BackgroundTask',
+		on_delete=models.CASCADE,
+		related_name='api_request',
+		verbose_name=_('Фоновая задача'),
+	)
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_background_task_api_request'
+		verbose_name = _('API-запрос')
+		verbose_name_plural = _('API-запросы')
+
+	def __str__(self) -> str:
+		return self.url
+
+class BackgroundTask(AbstractBlock):
+	INTERVAL_CHOICES = (
+		(1, _('1 день')),
+		(3, _('3 дня')),
+		(7, _('7 дней')),
+		(14, _('14 дней')),
+		(28, _('28 дней')),
+	)
+
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='background_tasks',
+		verbose_name=_('Telegram бот'),
+	)
+	interval = models.PositiveSmallIntegerField(_('Интервал'), choices=INTERVAL_CHOICES)
+
+	if TYPE_CHECKING:
+		api_request: BackgroundTaskAPIRequest
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_background_task'
+		verbose_name = _('Фоновая задача')
+		verbose_name_plural = _('Фоновые задачи')
+
+	def __str__(self) -> str:
+		return self.name
 
 class Variable(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='variables', verbose_name=_('Telegram бот'))
