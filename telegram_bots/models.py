@@ -29,6 +29,7 @@ class TelegramBot(models.Model):
 
 	if TYPE_CHECKING:
 		commands: models.Manager['Command']
+		conditions: models.Manager['Condition']
 		variables: models.Manager['Variable']
 		users: models.Manager['User']
 
@@ -104,6 +105,7 @@ class TelegramBot(models.Model):
 		return f'@{self.username}'
 
 class AbstractBlock(models.Model):
+	name = models.CharField(_('Название'), max_length=128)
 	x =	models.FloatField(_('Координата X'), default=0)
 	y = models.FloatField(_('Координата Y'), default=0)
 
@@ -236,7 +238,6 @@ class CommandDatabaseRecord(models.Model):
 
 class Command(AbstractBlock):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
-	name = models.CharField(_('Название'), max_length=128)
 
 	if TYPE_CHECKING:
 		settings: CommandSettings
@@ -256,6 +257,63 @@ class Command(AbstractBlock):
 
 	def __str__(self) -> str:
 		return self.name
+
+class ConditionPart(models.Model):
+	TYPE_CHOICES = (
+		('+', _('Положительный')),
+		('-', _('Отрицательный')),
+	)
+	OPERATOR_CHOICES = (
+		('==', _('Равно')),
+		('!=', _('Не равно')),
+		('>', _('Больше')),
+		('>=', _('Больше или равно')),
+		('<', _('Меньше')),
+		('<=', _('Меньше или равно')),
+	)
+	NEXT_PART_OPERATOR_CHOICES = (
+		('&&', _('И')),
+		('||', _('ИЛИ')),
+	)
+
+	condition = models.ForeignKey(
+		'Condition',
+		on_delete=models.CASCADE,
+		related_name='parts',
+		verbose_name=_('Условие'),
+	)
+	type = models.CharField(_('Тип'), max_length=1, choices=TYPE_CHOICES)
+	first_value = models.CharField(_('Первое значение'), max_length=255)
+	operator = models.CharField(_('Оператор'), max_length=2, choices=OPERATOR_CHOICES)
+	second_value = models.CharField(_('Второе значение'), max_length=255)
+	next_part_operator = models.CharField(
+		_('Оператор для следующей части'),
+		max_length=2,
+		choices=NEXT_PART_OPERATOR_CHOICES,
+		blank=True,
+		null=True,
+	)
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_condition_part'
+		verbose_name = _('Часть условия')
+		verbose_name_plural = _('Части условий')
+
+class Condition(AbstractBlock):
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='conditions',
+		verbose_name=_('Telegram бот'),
+	)
+
+	if TYPE_CHECKING:
+		parts = models.Manager[ConditionPart]
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_condition'
+		verbose_name = _('Условие')
+		verbose_name_plural = _('Условия')
 
 class Variable(models.Model):
 	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='variables', verbose_name=_('Telegram бот'))
