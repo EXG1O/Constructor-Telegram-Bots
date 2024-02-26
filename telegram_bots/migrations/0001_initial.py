@@ -104,6 +104,19 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='CommandKeyboardButtonConnection',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('source_handle_position', models.CharField(choices=[('left', 'Слева'), ('right', 'Справа')], default='left', max_length=5)),
+                ('target_handle_position', models.CharField(choices=[('left', 'Слева'), ('right', 'Справа')], default='right', max_length=5)),
+                ('button', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='connected_commands', to='telegram_bots.commandkeyboardbutton')),
+                ('command', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='connected_keyboard_buttons', to='telegram_bots.command')),
+            ],
+            options={
+                'db_table': 'telegram_bot_command_keyboard_button_connection',
+            },
+        ),
+        migrations.CreateModel(
             name='CommandMessage',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

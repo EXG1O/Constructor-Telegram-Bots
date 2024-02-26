@@ -110,6 +110,18 @@ class AbstractBlock(models.Model):
 	class Meta(TypedModelMeta):
 		abstract = True
 
+class AbstractConnection(models.Model):
+	HANDLE_POSITION_CHOICES = (
+		('left', _('Слева')),
+		('right', _('Справа')),
+	)
+
+	source_handle_position = models.CharField(max_length=5, choices=HANDLE_POSITION_CHOICES, default='left')
+	target_handle_position = models.CharField(max_length=5, choices=HANDLE_POSITION_CHOICES, default='right')
+
+	class Meta(TypedModelMeta):
+		abstract = True
+
 class CommandSettings(models.Model):
 	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='settings')
 	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
@@ -162,6 +174,13 @@ class CommandMessage(models.Model):
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_message'
 
+class CommandKeyboardButtonConnection(AbstractConnection):
+	command = models.ForeignKey('Command', on_delete=models.CASCADE, related_name='connected_keyboard_buttons')
+	button = models.ForeignKey('CommandKeyboardButton', on_delete=models.CASCADE, related_name='connected_commands')
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_command_keyboard_button_connection'
+
 class CommandKeyboardButton(models.Model):
 	keyboard = models.ForeignKey('CommandKeyboard', on_delete=models.CASCADE, related_name='buttons')
 	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
@@ -171,6 +190,8 @@ class CommandKeyboardButton(models.Model):
 	telegram_bot_command = models.ForeignKey('Command', on_delete=models.SET_NULL, blank=True, null=True)
 	start_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
 	end_diagram_connector = models.TextField(max_length=1024, blank=True, null=True)
+	if TYPE_CHECKING:
+		connected_commands: models.Manager[CommandKeyboardButtonConnection]
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button'
@@ -229,6 +250,7 @@ class Command(AbstractBlock):
 		keyboard: CommandKeyboard
 		api_request: CommandAPIRequest
 		database_record: CommandDatabaseRecord
+		connected_keyboard_buttons: models.Manager[CommandKeyboardButtonConnection]
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command'
