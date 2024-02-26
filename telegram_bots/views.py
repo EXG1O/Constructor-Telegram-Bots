@@ -13,9 +13,16 @@ from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from constructor_telegram_bots.responses import MessageResponse
 from constructor_telegram_bots.mixins import PaginationMixin
 
-from .models import TelegramBot, Command, Variable, User
+from .models import (
+	TelegramBot,
+	CommandKeyboardButtonConnection,
+	Command,
+	Variable,
+	User,
+)
 from .permissions import (
 	TelegramBotIsFound,
+	CommandKeyboardButtonConnectionIsFound,
 	CommandIsFound,
 	VariableIsFound,
 	UserIsFound,
@@ -26,10 +33,8 @@ from .serializers import (
 	CommandSerializer,
 	CreateCommandSerializer,
 	UpdateCommandSerializer,
+	DiagramCommandKeyboardButtonConnectionSerializer,
 	DiagramCommandSerializer,
-	ConnectCommandKeyboardButtonSerializer,
-	DisconnectCommandKeyboardButtonSerializer,
-	UpdateCommandPositionSerializer,
 	VariableSerializer,
 	UserSerializer,
 	UserActionSerializer,
@@ -205,26 +210,40 @@ class DiagramCommandAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandIsFound]
 
-	def post(self, request: Request, telegram_bot: TelegramBot, command: Command) -> MessageResponse:
-		serializer = ConnectCommandKeyboardButtonSerializer(command, request.data, context={'telegram_bot': telegram_bot})
-		serializer.is_valid(raise_exception=True)
-		serializer.save()
-
-		return MessageResponse(_('Вы успешно подключили кнопку клавиатуры к другой команде'))
-
 	def patch(self, request: Request, telegram_bot: TelegramBot, command: Command) -> Response:
-		serializer = UpdateCommandPositionSerializer(command, request.data)
+		serializer = DiagramCommandSerializer(command, request.data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
 		return Response()
 
-	def delete(self, request: Request, telegram_bot: TelegramBot, command: Command) -> MessageResponse:
-		serializer = DisconnectCommandKeyboardButtonSerializer(command, request.data)
+class DiagramCommandKeyboardButtonConnectionsAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+		serializer = DiagramCommandKeyboardButtonConnectionSerializer(
+			data=request.data,
+			context={'telegram_bot': telegram_bot},
+		)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(_('Вы успешно отсоединили кнопку клавиатуры от другой команды'))
+		return MessageResponse(_('Вы успешно подключили кнопку клавиатуры к команде'))
+
+class DiagramCommandKeyboardButtonConnectionAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandKeyboardButtonConnectionIsFound]
+
+	def delete(
+		self,
+		request: Request,
+		telegram_bot: TelegramBot,
+		connection: CommandKeyboardButtonConnection,
+	) -> MessageResponse:
+		connection.delete()
+
+		return MessageResponse(_('Вы успешно отсоединили кнопку клавиатуры от команды'))
 
 class VariablesAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]

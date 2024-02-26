@@ -9,10 +9,11 @@ from users.models import User as SiteUser
 
 from .models import (
 	TelegramBot,
-	Command,
 	CommandMessage,
-	CommandKeyboard,
+	CommandKeyboardButtonConnection,
 	CommandKeyboardButton,
+	CommandKeyboard,
+	Command,
 	Variable,
 	User,
 )
@@ -318,46 +319,23 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.command_1: Command = Command.objects.create(
+		self.command: Command = Command.objects.create(
 			telegram_bot=self.telegram_bot,
-			name='Test name 1',
-		)
-		CommandMessage.objects.create(
-			command=self.command_1,
-			text='...',
-		)
-		self.command_1_keyboard: CommandKeyboard = CommandKeyboard.objects.create(command=self.command_1)
-		self.command_1_keyboard_button: CommandKeyboardButton = CommandKeyboardButton.objects.create(
-			keyboard=self.command_1_keyboard,
-			text='Button',
-		)
-
-		self.command_2: Command = Command.objects.create(
-			telegram_bot=self.telegram_bot,
-			name='Test name 2',
-		)
-		CommandMessage.objects.create(
-			command=self.command_2,
-			text='...',
-		)
-		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(command=self.command_2)
-		self.command_2_keyboard_button: CommandKeyboardButton = CommandKeyboardButton.objects.create(
-			keyboard=self.command_2_keyboard,
-			text='Button',
+			name='Test name',
 		)
 
 		self.true_url: str = reverse(
 			'api:telegram-bots:detail:diagram:command',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
-				'command_id': self.command_1.id,
+				'command_id': self.command.id,
 			},
 		)
 		self.false_url_1: str = reverse(
 			'api:telegram-bots:detail:diagram:command',
 			kwargs={
 				'telegram_bot_id': 0,
-				'command_id': self.command_1.id,
+				'command_id': self.command.id,
 			}
 		)
 		self.false_url_2: str = reverse(
@@ -367,27 +345,6 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 				'command_id': 0,
 			}
 		)
-
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.true_url)
-		self.assertEqual(response.status_code, 401)
-
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-
-		for url in (self.false_url_1, self.false_url_2):
-			response = self.client.post(url)
-			self.assertEqual(response.status_code, 403)
-
-		response = self.client.post(self.true_url)
-		self.assertEqual(response.status_code, 400)
-
-		response = self.client.post(self.true_url, {
-			'telegram_bot_command_keyboard_button_id': self.command_1_keyboard_button.id,
-			'telegram_bot_command_id': self.command_2.id,
-			'start_diagram_connector': 'start',
-			'end_diagram_connector': 'end',
-		})
-		self.assertEqual(response.status_code, 200)
 
 	def test_patch_method(self) -> None:
 		response: HttpResponse = self.client.patch(self.true_url)
@@ -400,10 +357,108 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 			self.assertEqual(response.status_code, 403)
 
 		response = self.client.patch(self.true_url)
-		self.assertEqual(response.status_code, 400)
+		self.assertEqual(response.status_code, 200)
 
 		response = self.client.patch(self.true_url, {'x': 150, 'y': 300})
 		self.assertEqual(response.status_code, 200)
+
+class DiagramCommandKeyboardButtonConnectionsAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.command_1: Command = Command.objects.create(
+			telegram_bot=self.telegram_bot,
+			name='Test name 1',
+		)
+		self.command_2: Command = Command.objects.create(
+			telegram_bot=self.telegram_bot,
+			name='Test name 1',
+		)
+		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
+			command=self.command_2,
+			type='default',
+		)
+		self.command_2_keyboard_button: CommandKeyboardButton = CommandKeyboardButton.objects.create(
+			keyboard=self.command_2_keyboard,
+			text='Button',
+		)
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:diagram:command-keyboard-button-connections',
+			kwargs={'telegram_bot_id': self.telegram_bot.id},
+		)
+		self.false_url: str = reverse(
+			'api:telegram-bots:detail:diagram:command-keyboard-button-connections',
+			kwargs={'telegram_bot_id': 0}
+		)
+
+	def test_post_method(self) -> None:
+		response: HttpResponse = self.client.post(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.post(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.post(self.true_url, {
+			'command_id': self.command_1.id,
+			'button_id': self.command_2_keyboard_button.id,
+		})
+		self.assertEqual(response.status_code, 200)
+
+		response = self.client.post(self.true_url, {
+			'command_id': self.command_1.id,
+			'button_id': self.command_2_keyboard_button.id,
+		})
+		self.assertEqual(response.status_code, 400)
+
+class DiagramCommandKeyboardButtonConnectionAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.command_1: Command = Command.objects.create(
+			telegram_bot=self.telegram_bot,
+			name='Test name 1',
+		)
+		self.command_2: Command = Command.objects.create(
+			telegram_bot=self.telegram_bot,
+			name='Test name 1',
+		)
+		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
+			command=self.command_2,
+			type='default',
+		)
+		self.command_2_keyboard_button: CommandKeyboardButton = CommandKeyboardButton.objects.create(
+			keyboard=self.command_2_keyboard,
+			text='Button',
+		)
+		self.connection: CommandKeyboardButtonConnection = CommandKeyboardButtonConnection.objects.create(
+			command=self.command_1,
+			button=self.command_2_keyboard_button,
+		)
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:diagram:command-keyboard-button-connection',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'connection_id': self.connection.id,
+			},
+		)
+		self.false_url_1: str = reverse(
+			'api:telegram-bots:detail:diagram:command-keyboard-button-connection',
+			kwargs={
+				'telegram_bot_id': 0,
+				'connection_id': self.connection.id,
+			}
+		)
+		self.false_url_2: str = reverse(
+			'api:telegram-bots:detail:diagram:command-keyboard-button-connection',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'connection_id': 0,
+			}
+		)
 
 	def test_delete_method(self) -> None:
 		response: HttpResponse = self.client.delete(self.true_url)
@@ -416,12 +471,6 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 			self.assertEqual(response.status_code, 403)
 
 		response = self.client.delete(self.true_url)
-		self.assertEqual(response.status_code, 400)
-
-		response = self.client.delete(
-			self.true_url,
-			{'telegram_bot_command_keyboard_button_id': self.command_1_keyboard_button.id},
-		)
 		self.assertEqual(response.status_code, 200)
 
 class VariablesAPIViewTests(CustomTestCase):

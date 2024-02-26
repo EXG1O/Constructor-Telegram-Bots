@@ -4,7 +4,13 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from .models import TelegramBot, Command, Variable, User
+from .models import (
+	TelegramBot,
+	CommandKeyboardButtonConnection,
+	Command,
+	Variable,
+	User,
+)
 
 from typing import Any
 
@@ -39,6 +45,21 @@ class CommandIsFound(BasePermission):
 		try:
 			view.kwargs['command'] = telegram_bot.commands.get(id=command_id)
 		except Command.DoesNotExist:
+			return False
+
+		return True
+
+class CommandKeyboardButtonConnectionIsFound(BasePermission):
+	def has_permission(self, request: Request, view: APIView) -> bool:
+		telegram_bot: TelegramBot = get_telegram_bot(view)
+		connection_id: int = view.kwargs.pop('connection_id', 0)
+
+		try:
+			view.kwargs['connection'] = CommandKeyboardButtonConnection.objects.get(
+				command__telegram_bot=telegram_bot,
+				id=connection_id,
+			)
+		except CommandKeyboardButtonConnection.DoesNotExist:
 			return False
 
 		return True

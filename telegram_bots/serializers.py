@@ -14,8 +14,9 @@ from .models import (
 	CommandImage,
 	CommandFile,
 	CommandMessage,
-	CommandKeyboard,
+	CommandKeyboardButtonConnection,
 	CommandKeyboardButton,
+	CommandKeyboard,
 	CommandAPIRequest,
 	CommandDatabaseRecord,
 	Command,
@@ -376,38 +377,19 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 
 		return command
 
-class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
-	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id', allow_null=True)
+class DiagramCommandKeyboardButtonConnectionSerializer(serializers.ModelSerializer[CommandKeyboardButtonConnection]):
+	command_id = serializers.IntegerField(source='command.id')
+	button_id = serializers.IntegerField(source='button.id')
 
 	class Meta:
-		model = CommandKeyboardButton
-		fields = ('id', 'row', 'text', 'url', 'telegram_bot_command_id', 'start_diagram_connector', 'end_diagram_connector')
-
-class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
-	buttons = DiagramCommandKeyboardButtonSerializer(many=True)
-
-	class Meta:
-		model = CommandKeyboard
-		fields = ('type', 'buttons')
-
-class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
-	images = CommandImageSerializer(many=True)
-	files = CommandFileSerializer(many=True)
-	message_text = CommandMessageSerializer()
-	keyboard = DiagramCommandKeyboardSerializer(allow_null=True)
-
-	class Meta:
-		model = Command
-		fields = ('id', 'name', 'images', 'files', 'message_text', 'keyboard', 'x', 'y')
-
-class ConnectCommandKeyboardButtonSerializer(serializers.Serializer):
-	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
-	telegram_bot_command_id = serializers.IntegerField()
-	start_diagram_connector = serializers.CharField()
-	end_diagram_connector = serializers.CharField()
-
-	class Meta:
-		fields = ('telegram_bot_command_keyboard_button_id', 'telegram_bot_command_id', 'start_diagram_connector', 'end_diagram_connector')
+		model = CommandKeyboardButtonConnection
+		fields = (
+			'id',
+			'command_id',
+			'button_id',
+			'source_handle_position',
+			'target_handle_position',
+		)
 
 	@property
 	def telegram_bot(self) -> TelegramBot:
@@ -418,65 +400,80 @@ class ConnectCommandKeyboardButtonSerializer(serializers.Serializer):
 
 		return telegram_bot
 
-	def validate_telegram_bot_command_id(self, telegram_bot_command_id: int) -> int:
-		if not self.telegram_bot.commands.filter(id=telegram_bot_command_id).exists():
+	def validate_command_id(self, command_id: int) -> int:
+		try:
+			self.command = self.telegram_bot.commands.get(id=command_id)
+		except Command.DoesNotExist:
 			raise serializers.ValidationError(_('Команда Telegram бота не найдена!'))
 
-		return telegram_bot_command_id
+		return command_id
 
-	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
+	def validate_button_id(self, button_id: int) -> int:
 		try:
-			self.instance.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id) # type: ignore [union-attr]
-		except CommandKeyboard.DoesNotExist:
-			raise serializers.ValidationError(_('У команды Telegram бота нет клавиатуры!'))
-		except CommandKeyboardButton.DoesNotExist:
+			self.button = CommandKeyboardButton.objects.get(
+				keyboard__command__telegram_bot=self.telegram_bot,
+				id=button_id,
+			)
+		except Command.DoesNotExist:
 			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
 
-		return telegram_bot_command_keyboard_button_id
+		return button_id
 
-	def update(self, instance: Command, validated_data: dict[str, Any]) -> Command:
-		keyboard_button: CommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
-		keyboard_button.telegram_bot_command = self.telegram_bot.commands.get(id=validated_data['telegram_bot_command_id'])
-		keyboard_button.start_diagram_connector = validated_data['start_diagram_connector']
-		keyboard_button.end_diagram_connector = validated_data['end_diagram_connector']
-		keyboard_button.save()
-
-		return instance
-
-class DisconnectCommandKeyboardButtonSerializer(serializers.Serializer):
-	telegram_bot_command_keyboard_button_id = serializers.IntegerField()
-
-	def validate_telegram_bot_command_keyboard_button_id(self, telegram_bot_command_keyboard_button_id: int) -> int:
+	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
 		try:
-			self.instance.keyboard.buttons.get(id=telegram_bot_command_keyboard_button_id) # type: ignore [union-attr]
-		except CommandKeyboard.DoesNotExist:
-			raise serializers.ValidationError(_('У команды Telegram бота нет клавиатуры!'))
-		except CommandKeyboardButton.DoesNotExist:
-			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота не найдена!'))
+			self.command.connected_keyboard_buttons.get(button=self.button)
+			raise serializers.ValidationError(_('Кнопка клавиатуры команды Telegram бота уже подключена к команде!'))
+		except CommandKeyboardButtonConnection.DoesNotExist:
+			pass
 
-		return telegram_bot_command_keyboard_button_id
+		return data
 
-	def update(self, instance: Command, validated_data: dict[str, Any]) -> Command:
-		keyboard_button: CommandKeyboardButton = instance.keyboard.buttons.get(id=validated_data['telegram_bot_command_keyboard_button_id'])
-		keyboard_button.telegram_bot_command = None
-		keyboard_button.start_diagram_connector = None
-		keyboard_button.end_diagram_connector = None
-		keyboard_button.save()
+	def create(self, validated_data: dict[str, Any]) -> CommandKeyboardButtonConnection:
+		return CommandKeyboardButtonConnection.objects.create(
+			command=self.command,
+			button=self.button,
+			**validated_data,
+		)
 
-		return instance
+class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
+	connected_commands = DiagramCommandKeyboardButtonConnectionSerializer(many=True)
 
-class UpdateCommandPositionSerializer(serializers.ModelSerializer[Command]):
+	class Meta:
+		model = CommandKeyboardButton
+		fields = ('id', 'row', 'text', 'url', 'connected_commands')
+
+class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
+	buttons = DiagramCommandKeyboardButtonSerializer(many=True)
+
+	class Meta:
+		model = CommandKeyboard
+		fields = ('type', 'buttons')
+
+class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
+	images = CommandImageSerializer(many=True, read_only=True)
+	files = CommandFileSerializer(many=True, read_only=True)
+	message = CommandMessageSerializer(read_only=True)
+	keyboard = DiagramCommandKeyboardSerializer(read_only=True, allow_null=True)
+	connected_keyboard_buttons = DiagramCommandKeyboardButtonConnectionSerializer(many=True, read_only=True)
+
 	class Meta:
 		model = Command
-		fields = ('x', 'y')
-		extra_kwargs = {
-			'x': {'required': True},
-			'y': {'required': True},
-		}
+		fields = (
+			'id',
+			'name',
+			'images',
+			'files',
+			'message',
+			'keyboard',
+			'x',
+			'y',
+			'connected_keyboard_buttons',
+		)
+		read_only_fields = ('name',)
 
 	def update(self, instance: Command, validated_data: dict[str, Any]) -> Command:
-		instance.x = validated_data['x']
-		instance.y = validated_data['y']
+		instance.x = validated_data.get('x', instance.x)
+		instance.y = validated_data.get('y', instance.y)
 		instance.save()
 
 		return instance
