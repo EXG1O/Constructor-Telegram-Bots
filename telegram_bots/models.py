@@ -14,11 +14,16 @@ from typing import TYPE_CHECKING, Iterable
 
 
 def validate_api_token(api_token: str) -> None:
-	if not settings.TEST and requests.get(f'https://api.telegram.org/bot{api_token}/getMe').status_code != 200:
+	if not settings.TEST and requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok:
 		raise ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
 
 class TelegramBot(models.Model):
-	owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='telegram_bots', verbose_name=_('Владелец'))
+	owner = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='telegram_bots',
+		verbose_name=_('Владелец'),
+	)
 	username = models.CharField('@username', max_length=32)
 	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=(validate_api_token,))
 	storage_size = models.PositiveBigIntegerField(_('Размер хранилища'), default=41943040)
@@ -79,12 +84,12 @@ class TelegramBot(models.Model):
 		update_fields: Iterable[str] | None = None,
 	) -> None:
 		if not self._state.adding:
-			instance: TelegramBot = TelegramBot.objects.get(id=self.id)
+			telegram_bot: TelegramBot = TelegramBot.objects.get(id=self.id)
 
-			if self.api_token != instance.api_token:
+			if self.api_token != telegram_bot.api_token:
 				self.update_username()
 
-				if self.is_enabled and instance.is_enabled:
+				if self.is_enabled and telegram_bot.is_enabled:
 					self.restart()
 		else:
 			self.update_username()
@@ -92,13 +97,11 @@ class TelegramBot(models.Model):
 		super().save(force_insert, force_update, using, update_fields)
 
 	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
-		try:
-			instance: TelegramBot = TelegramBot.objects.get(id=self.id)
+		if not self._state.adding:
+			telegram_bot: TelegramBot = TelegramBot.objects.get(id=self.id)
 
-			if self.is_enabled and instance.is_enabled:
+			if self.is_enabled and telegram_bot.is_enabled:
 				self.stop()
-		except self.DoesNotExist:
-			pass
 
 		return super().delete(using, keep_parents)
 
@@ -113,14 +116,27 @@ class AbstractBlock(models.Model):
 	class Meta(TypedModelMeta):
 		abstract = True
 
+	def __str__(self) -> str:
+		return self.name
+
 class AbstractConnection(models.Model):
 	HANDLE_POSITION_CHOICES = (
 		('left', _('Слева')),
 		('right', _('Справа')),
 	)
 
-	source_handle_position = models.CharField(max_length=5, choices=HANDLE_POSITION_CHOICES, default='left')
-	target_handle_position = models.CharField(max_length=5, choices=HANDLE_POSITION_CHOICES, default='right')
+	source_handle_position = models.CharField(
+		_('Стартовая позиция коннектора'),
+		max_length=5,
+		choices=HANDLE_POSITION_CHOICES,
+		default='left',
+	)
+	target_handle_position = models.CharField(
+		_('Окончательная позиция коннектора'),
+		max_length=5,
+		choices=HANDLE_POSITION_CHOICES,
+		default='right',
+	)
 
 	class Meta(TypedModelMeta):
 		abstract = True
@@ -142,22 +158,45 @@ class AbstractAPIRequest(models.Model):
 	class Meta(TypedModelMeta):
 		abstract = True
 
+	def __str__(self) -> str:
+		return self.url
+
 class CommandSettings(models.Model):
-	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='settings')
+	command = models.OneToOneField(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='settings',
+		verbose_name=_('Команда'),
+	)
 	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
 	is_delete_user_message = models.BooleanField(_('Удалить сообщение пользователя'), default=False)
 	is_send_as_new_message = models.BooleanField(_('Отправить сообщение как новое'), default=False)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_settings'
+		verbose_name = _('Настройки команды')
+		verbose_name_plural = _('Настройки команд')
+
+	def __str__(self) -> str:
+		return self.command.name
 
 class CommandTrigger(models.Model):
-	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='trigger')
-	text = models.CharField(_('Команда'), max_length=255)
+	command = models.OneToOneField(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='trigger',
+		verbose_name=_('Команда'),
+	)
+	text = models.CharField(_('Текст'), max_length=255)
 	description = models.CharField(_('Описание'), max_length=255, blank=True, null=True)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_trigger'
+		verbose_name = _('Триггер команды')
+		verbose_name_plural = _('Триггеры команд')
+
+	def __str__(self) -> str:
+		return self.command.name
 
 def upload_command_image_path(instance: 'CommandImage', file_name: str) -> str:
 	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/images/{file_name}'
@@ -166,45 +205,95 @@ def upload_command_file_path(instance: 'CommandFile', file_name: str) -> str:
 	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/files/{file_name}'
 
 class CommandImage(models.Model):
-	command = models.ForeignKey('Command', on_delete=models.CASCADE, related_name='images')
+	command = models.ForeignKey(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='images',
+		verbose_name=_('Команда'),
+	)
 	image = models.ImageField(_('Изображение'), upload_to=upload_command_image_path)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_image'
+		verbose_name = _('Изображение команды')
+		verbose_name_plural = _('Изображения команд')
 
 	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
 		self.image.delete(save=False)
 		return super().delete(using, keep_parents)
 
+	def __str__(self) -> str:
+		return self.command.name
+
 class CommandFile(models.Model):
-	command = models.ForeignKey('Command', on_delete=models.CASCADE, related_name='files')
+	command = models.ForeignKey(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='files',
+		verbose_name=_('Команда'),
+	)
 	file = models.ImageField(_('Файл'), upload_to=upload_command_file_path)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_file'
+		verbose_name = _('Файл команды')
+		verbose_name_plural = _('Файлы команд')
 
 	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
 		self.file.delete(save=False)
 		return super().delete(using, keep_parents)
 
+	def __str__(self) -> str:
+		return self.command.name
+
 class CommandMessage(models.Model):
-	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='message')
+	command = models.OneToOneField(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='message',
+		verbose_name=_('Команда'),
+	)
 	text = models.TextField(_('Текст'), max_length=4096)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_message'
+		verbose_name = _('Сообщение команды')
+		verbose_name_plural = _('Сообщения команд')
+
+	def __str__(self) -> str:
+		return self.command.name
 
 class CommandKeyboardButtonConnection(AbstractConnection):
-	command = models.ForeignKey('Command', on_delete=models.CASCADE, related_name='connected_keyboard_buttons')
-	button = models.ForeignKey('CommandKeyboardButton', on_delete=models.CASCADE, related_name='connected_commands')
+	command = models.ForeignKey(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='connected_keyboard_buttons',
+		verbose_name=_('Команда'),
+	)
+	button = models.ForeignKey(
+		'CommandKeyboardButton',
+		on_delete=models.CASCADE,
+		related_name='connected_commands',
+		verbose_name=_('Кнопка'),
+	)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button_connection'
+		verbose_name = _('Соединение между кнопкой и командой')
+		verbose_name_plural = _('Соединения между кнопкой и командой')
+
+	def __str__(self) -> str:
+		return f'{self.button.id} -> {self.command.id}'
 
 class CommandKeyboardButton(models.Model):
-	keyboard = models.ForeignKey('CommandKeyboard', on_delete=models.CASCADE, related_name='buttons')
+	keyboard = models.ForeignKey(
+		'CommandKeyboard',
+		on_delete=models.CASCADE,
+		related_name='buttons',
+		verbose_name=_('Клавиатура'),
+	)
 	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
-	text = models.TextField(_('Текст'), max_length=1024)
+	text = models.TextField(_('Текст'), max_length=512)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
 
 	if TYPE_CHECKING:
@@ -212,6 +301,11 @@ class CommandKeyboardButton(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button'
+		verbose_name = _('Кнопка клавиатуры команды')
+		verbose_name_plural = _('Кнопки клавиатур команд')
+
+	def __str__(self) -> str:
+		return self.keyboard.command.name
 
 class CommandKeyboard(models.Model):
 	TYPE_CHOICES = (
@@ -220,30 +314,70 @@ class CommandKeyboard(models.Model):
 		('payment', _('Платёжный')),
 	)
 
-	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='keyboard')
-	type = models.CharField(_('Режим'), max_length=7, choices=TYPE_CHOICES, default='default')
+	command = models.OneToOneField(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='keyboard',
+		verbose_name=_('Команда'),
+	)
+	type = models.CharField(
+		_('Режим'),
+		max_length=7,
+		choices=TYPE_CHOICES,
+		default='default',
+	)
 
 	if TYPE_CHECKING:
 		buttons: models.Manager[CommandKeyboardButton]
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard'
+		verbose_name = _('Клавиатура команды')
+		verbose_name_plural = _('Клавиатуры команд')
+
+	def __str__(self) -> str:
+		return self.command.name
 
 class CommandAPIRequest(AbstractAPIRequest):
-	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='api_request')
+	command = models.OneToOneField(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='api_request',
+		verbose_name=_('Команда'),
+	)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_api_request'
+		verbose_name = _('API-запрос команды')
+		verbose_name_plural = _('API-запросы команд')
+
+	def __str__(self) -> str:
+		return self.command.name
 
 class CommandDatabaseRecord(models.Model):
-	command = models.OneToOneField('Command', on_delete=models.CASCADE, related_name='database_record')
+	command = models.OneToOneField(
+		'Command',
+		on_delete=models.CASCADE,
+		related_name='database_record',
+		verbose_name=_('Команда'),
+	)
 	data = models.JSONField(_('Данные'))
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_database_record'
+		verbose_name = _('Запись в БД команды')
+		verbose_name_plural = _('Записи в БД команд')
+
+	def __str__(self) -> str:
+		return self.command.name
 
 class Command(AbstractBlock):
-	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='commands', verbose_name=_('Telegram бот'))
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='commands',
+		verbose_name=_('Telegram бот'),
+	)
 
 	if TYPE_CHECKING:
 		settings: CommandSettings
@@ -305,6 +439,9 @@ class ConditionPart(models.Model):
 		verbose_name = _('Часть условия')
 		verbose_name_plural = _('Части условий')
 
+	def __str__(self) -> str:
+		return self.condition.name
+
 class Condition(AbstractBlock):
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
@@ -321,6 +458,9 @@ class Condition(AbstractBlock):
 		verbose_name = _('Условие')
 		verbose_name_plural = _('Условия')
 
+	def __str__(self) -> str:
+		return self.name
+
 class BackgroundTaskAPIRequest(AbstractAPIRequest):
 	background_task = models.OneToOneField(
 		'BackgroundTask',
@@ -331,8 +471,8 @@ class BackgroundTaskAPIRequest(AbstractAPIRequest):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_background_task_api_request'
-		verbose_name = _('API-запрос')
-		verbose_name_plural = _('API-запросы')
+		verbose_name = _('API-запрос фоновой задачи')
+		verbose_name_plural = _('API-запросы фоновых задач')
 
 	def __str__(self) -> str:
 		return self.url
@@ -366,7 +506,12 @@ class BackgroundTask(AbstractBlock):
 		return self.name
 
 class Variable(models.Model):
-	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='variables', verbose_name=_('Telegram бот'))
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='variables',
+		verbose_name=_('Telegram бот'),
+	)
 	name = models.CharField(_('Название'), max_length=64)
 	value = models.TextField(_('Значение'), max_length=2048)
 	description = models.CharField(_('Описание'), max_length=255)
@@ -376,8 +521,16 @@ class Variable(models.Model):
 		verbose_name = _('Переменная')
 		verbose_name_plural = _('Переменные')
 
+	def __str__(self) -> str:
+		return self.name
+
 class User(models.Model):
-	telegram_bot = models.ForeignKey(TelegramBot, on_delete=models.CASCADE, related_name='users', verbose_name=_('Telegram бот'))
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='users',
+		verbose_name=_('Telegram бот'),
+	)
 	telegram_id = models.PositiveBigIntegerField('Telegram ID')
 	full_name = models.CharField(_('Имя и фамилия'), max_length=129)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
