@@ -429,6 +429,9 @@ class DiagramCommandKeyboardButtonConnectionSerializer(serializers.ModelSerializ
 		return data
 
 	def create(self, validated_data: dict[str, Any]) -> CommandKeyboardButtonConnection:
+		del validated_data['command']
+		del validated_data['button']
+
 		return CommandKeyboardButtonConnection.objects.create(
 			command=self.command,
 			button=self.button,
