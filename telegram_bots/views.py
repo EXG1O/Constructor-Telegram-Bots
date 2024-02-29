@@ -8,6 +8,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from constructor_telegram_bots.responses import MessageResponse
@@ -40,8 +41,10 @@ from .serializers import (
 	UserActionSerializer,
 )
 
-from typing import Literal, Any
 import json
+from json import JSONDecodeError
+
+from typing import Literal, Any
 
 
 class TelegramBotsAPIView(APIView):
@@ -49,12 +52,7 @@ class TelegramBotsAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
-		return Response(
-			TelegramBotSerializer(
-				request.user.telegram_bots.all(), # type: ignore [union-attr]
-				many=True,
-			).data
-		)
+		return Response(TelegramBotSerializer(request.user.telegram_bots.all(), many=True).data) # type: ignore [union-attr]
 
 	def post(self, request: Request) -> MessageResponse:
 		serializer = TelegramBotSerializer(data=request.data, context={'site_user': request.user})
@@ -78,9 +76,9 @@ class TelegramBotAPIView(APIView):
 		serializer = TelegramBotActionSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
-		action: Literal['start', 'restart', 'stop'] = serializer.validated_data['action']
-
 		if not settings.TEST:
+			action: Literal['start', 'restart', 'stop'] = serializer.validated_data['action']
+
 			if action == 'start':
 				telegram_bot.start()
 			elif action == 'restart':
@@ -121,26 +119,25 @@ class CommandsAPIView(APIView):
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(
-			CommandSerializer(
-				telegram_bot.commands.all(),
-				many=True,
-			).data
-		)
+		return Response(CommandSerializer(telegram_bot.commands.all(), many=True).data)
 
 	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+		try:
+			data: dict[str, Any] = json.loads(request.data['data'])
+		except (KeyError, JSONDecodeError):
+			raise ParseError()
+
 		sorted_files: dict[str, list[InMemoryUploadedFile]] = {
 			'images': [],
 			'files': [],
 		}
 
 		for key, file in request.FILES.items():
-			_type: str = key.split(':')[0] + 's'
+			_type: str = f"{key.split(':')[0]}s"
 
 			if _type in sorted_files:
 				sorted_files[_type].append(file)
 
-		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
 		data.update(sorted_files)
 
 		serializer = CreateCommandSerializer(data=data, context={'telegram_bot': telegram_bot})
@@ -149,7 +146,7 @@ class CommandsAPIView(APIView):
 
 		return MessageResponse(
 			_('Вы успешно добавили команду Telegram боту.'),
-			data={'telegram_bot_command': serializer.data},
+			data={'command': serializer.data},
 			status=201,
 		)
 
@@ -161,6 +158,11 @@ class CommandAPIView(APIView):
 		return Response(CommandSerializer(command).data)
 
 	def patch(self, request: Request, telegram_bot: TelegramBot, command: Command) -> MessageResponse:
+		try:
+			data: dict[str, Any] = json.loads(request.data['data'])
+		except (KeyError, JSONDecodeError):
+			raise ParseError()
+
 		sorted_files: dict[str, list[InMemoryUploadedFile | int]] = {
 			'images': [],
 			'images_id': [],
@@ -177,7 +179,6 @@ class CommandAPIView(APIView):
 				elif isinstance(value, str) and value.isdigit():
 					sorted_files[name + '_id'].append(int(value))
 
-		data: dict[str, Any] = json.loads(request.data.get('data', '{}'))
 		data.update(sorted_files)
 
 		serializer = UpdateCommandSerializer(command, data, context={'telegram_bot': telegram_bot})
@@ -186,7 +187,7 @@ class CommandAPIView(APIView):
 
 		return MessageResponse(
 			_('Вы успешно изменили команду Telegram бота.'),
-			data={'telegram_bot_command': serializer.data},
+			data={'command': serializer.data},
 		)
 
 	def delete(self, request: Request, telegram_bot: TelegramBot, command: Command) -> MessageResponse:
@@ -199,12 +200,7 @@ class DiagramCommandsAPIView(APIView):
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		return Response(
-			DiagramCommandSerializer(
-				telegram_bot.commands.all(),
-				many=True,
-			).data
-		)
+		return Response(DiagramCommandSerializer(telegram_bot.commands.all(), many=True).data)
 
 class DiagramCommandAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -252,10 +248,7 @@ class VariablesAPIView(APIView, PaginationMixin):
 			return self.get_paginated_response(VariableSerializer(results, many=True).data)
 
 	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
-		serializer = VariableSerializer(
-			data=request.data,
-			context={'telegram_bot': telegram_bot},
-		)
+		serializer = VariableSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
