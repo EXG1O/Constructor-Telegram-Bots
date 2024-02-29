@@ -26,7 +26,7 @@ class UserAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response: HttpResponse = self.client.get(self.url) # type: ignore [no-redef]
+		response = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
 	def test_delete_method(self) -> None:
@@ -35,7 +35,7 @@ class UserAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response: HttpResponse = self.client.delete(self.url) # type: ignore [no-redef]
+		response = self.client.delete(self.url)
 		self.assertEqual(response.status_code, 200)
 
 		try:
@@ -57,31 +57,22 @@ class UserLoginAPIViewTests(CustomTestCase):
 		response: HttpResponse = self.client.post(self.url)
 		self.assertEqual(response.status_code, 400)
 
-		response: HttpResponse = self.client.post( # type: ignore [no-redef]
-			self.url,
-			{
-				'user_id': 0,
-				'confirm_code': self.user.confirm_code,
-			},
-		)
+		response = self.client.post(self.url, {
+			'user_id': 0,
+			'confirm_code': self.user.confirm_code,
+		})
 		self.assertEqual(response.status_code, 404)
 
-		response: HttpResponse = self.client.post( # type: ignore [no-redef]
-			self.url,
-			{
-				'user_id': self.user.id,
-				'confirm_code': 'Yes, I love Python <3',
-			},
-		)
+		response = self.client.post(self.url, {
+			'user_id': self.user.id,
+			'confirm_code': 'Yes, I love Python <3',
+		})
 		self.assertEqual(response.status_code, 401)
 
-		response: HttpResponse = self.client.post( # type: ignore [no-redef]
-			self.url,
-			{
-				'user_id': self.user.id,
-				'confirm_code': self.user.confirm_code,
-			},
-		)
+		response = self.client.post(self.url, {
+			'user_id': self.user.id,
+			'confirm_code': self.user.confirm_code,
+		})
 		self.assertEqual(response.status_code, 200)
 
 		self.user.refresh_from_db()
@@ -97,5 +88,5 @@ class UserLogoutAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response: HttpResponse = self.client.post(self.url) # type: ignore [no-redef]
+		response = self.client.post(self.url)
 		self.assertEqual(response.status_code, 200)

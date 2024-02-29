@@ -179,7 +179,8 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotC
 		del validated_data['target_object_type']
 		del validated_data['target_object_id']
 
-		return self.telegram_bot.connections.create(
+		return Connection.objects.create(
+			telegram_bot=self.telegram_bot,
 			source_object=self.source_object,
 			target_object=self.target_object,
 			**validated_data,
@@ -493,7 +494,7 @@ class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
 	images = CommandImageSerializer(many=True, read_only=True)
 	files = CommandFileSerializer(many=True, read_only=True)
 	message = CommandMessageSerializer(read_only=True)
-	keyboard = DiagramCommandKeyboardSerializer(read_only=True, allow_null=True)
+	keyboard = DiagramCommandKeyboardSerializer(allow_null=True, read_only=True)
 	source_connections = ConnectionSerializer(many=True, read_only=True)
 	target_connections = ConnectionSerializer(many=True, read_only=True)
 

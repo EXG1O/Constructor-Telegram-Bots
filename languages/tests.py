@@ -19,5 +19,5 @@ class LanguagesAPIViewTests(TestCase):
 		response: HttpResponse = self.client.post(self.url)
 		self.assertEqual(response.status_code, 400)
 
-		response: HttpResponse = self.client.post(self.url, {'lang_code': 'ru'}) # type: ignore [no-redef]
+		response = self.client.post(self.url, {'lang_code': 'ru'})
 		self.assertEqual(response.status_code, 200)

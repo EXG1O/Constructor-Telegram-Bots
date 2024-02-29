@@ -56,15 +56,15 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 
 	@admin.display(description=_('Размер хранилища'))
 	def _storage_size(self, telegram_bot: TelegramBot) -> str:
-		return f'{round(telegram_bot.storage_size / 1024 ** 2, 2)}MB'
+		return f'{(telegram_bot.storage_size / 1024 ** 2):.2f}MB'
 
 	@admin.display(description=_('Используемый размер хранилища'))
 	def _used_storage_size(self, telegram_bot: TelegramBot) -> str:
-		return f'{round(telegram_bot.used_storage_size / 1024 ** 2, 2)}MB'
+		return f'{(telegram_bot.used_storage_size / 1024 ** 2):.2f}MB'
 
 	@admin.display(description=_('Оставшийся размер хранилища'))
 	def _remaining_storage_size(self, telegram_bot: TelegramBot) -> str:
-		return f'{round(telegram_bot.remaining_storage_size / 1024 ** 2, 2)}MB'
+		return f'{(telegram_bot.remaining_storage_size / 1024 ** 2):.2f}MB'
 
 	@admin.display(description=_('Команд'), ordering='commands_count')
 	def commands_count(self, telegram_bot: TelegramBot) -> int:
