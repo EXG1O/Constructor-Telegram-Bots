@@ -23,7 +23,7 @@ django-stubs-ext==4.2.7
 django-tinymce==3.7.1
 djangorestframework==3.14.0
 djangorestframework-stubs==3.14.5
-drf-standardized-errors==0.12.6
+drf-standardized-errors==0.13.0
 frozenlist==1.4.1
 gunicorn==21.2.0
 idna==3.6
