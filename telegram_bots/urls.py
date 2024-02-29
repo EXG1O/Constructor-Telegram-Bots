@@ -7,8 +7,8 @@ from .views import (
 	CommandAPIView,
 	DiagramCommandsAPIView,
 	DiagramCommandAPIView,
-	DiagramCommandKeyboardButtonConnectionsAPIView,
-	DiagramCommandKeyboardButtonConnectionAPIView,
+	ConnectionsAPIView,
+	ConnectionAPIView,
 	VariablesAPIView,
 	VariableAPIView,
 	UsersAPIView,
@@ -30,16 +30,8 @@ urlpatterns = [
 			path('commands/', DiagramCommandsAPIView.as_view(), name='commands'),
 			path('commands/<int:command_id>/', DiagramCommandAPIView.as_view(), name='command'),
 
-			path(
-				'command-keyboard-button-connections/',
-				DiagramCommandKeyboardButtonConnectionsAPIView.as_view(),
-				name='command-keyboard-button-connections',
-			),
-			path(
-				'command-keyboard-button-connections/<int:connection_id>/',
-				DiagramCommandKeyboardButtonConnectionAPIView.as_view(),
-				name='command-keyboard-button-connection',
-			),
+			path('connections/', ConnectionsAPIView.as_view(), name='connections'),
+			path('connections/<int:connection_id>/', ConnectionAPIView.as_view(), name='connection'),
 		], 'diagram'))),
 
 		path('variables/', VariablesAPIView.as_view(), name='variables'),

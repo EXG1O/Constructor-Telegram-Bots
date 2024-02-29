@@ -15,14 +15,14 @@ from constructor_telegram_bots.mixins import PaginationMixin
 
 from .models import (
 	TelegramBot,
-	CommandKeyboardButtonConnection,
+	Connection,
 	Command,
 	Variable,
 	User,
 )
 from .permissions import (
 	TelegramBotIsFound,
-	CommandKeyboardButtonConnectionIsFound,
+	ConnectionIsFound,
 	CommandIsFound,
 	VariableIsFound,
 	UserIsFound,
@@ -30,10 +30,10 @@ from .permissions import (
 from .serializers import (
 	TelegramBotSerializer,
 	TelegramBotActionSerializer,
+	ConnectionSerializer,
 	CommandSerializer,
 	CreateCommandSerializer,
 	UpdateCommandSerializer,
-	DiagramCommandKeyboardButtonConnectionSerializer,
 	DiagramCommandSerializer,
 	VariableSerializer,
 	UserSerializer,
@@ -217,33 +217,25 @@ class DiagramCommandAPIView(APIView):
 
 		return Response()
 
-class DiagramCommandKeyboardButtonConnectionsAPIView(APIView):
+class ConnectionsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 
 	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
-		serializer = DiagramCommandKeyboardButtonConnectionSerializer(
-			data=request.data,
-			context={'telegram_bot': telegram_bot},
-		)
+		serializer = ConnectionSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(_('Вы успешно подключили кнопку клавиатуры к команде'))
+		return MessageResponse(_('Вы успешно подключили блок диаграммы к другому блоку'))
 
-class DiagramCommandKeyboardButtonConnectionAPIView(APIView):
+class ConnectionAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandKeyboardButtonConnectionIsFound]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConnectionIsFound]
 
-	def delete(
-		self,
-		request: Request,
-		telegram_bot: TelegramBot,
-		connection: CommandKeyboardButtonConnection,
-	) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, connection: Connection) -> MessageResponse:
 		connection.delete()
 
-		return MessageResponse(_('Вы успешно отсоединили кнопку клавиатуры от команды'))
+		return MessageResponse(_('Вы успешно отсоединили блок диаграммы от другого блока'))
 
 class VariablesAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]

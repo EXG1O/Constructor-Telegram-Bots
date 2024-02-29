@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -14,7 +16,7 @@ from typing import TYPE_CHECKING, Iterable
 
 
 def validate_api_token(api_token: str) -> None:
-	if not settings.TEST and requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok:
+	if not settings.TEST and not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok:
 		raise ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
 
 class TelegramBot(models.Model):
@@ -33,6 +35,7 @@ class TelegramBot(models.Model):
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
 	if TYPE_CHECKING:
+		connections: models.Manager['Connection']
 		commands: models.Manager['Command']
 		conditions: models.Manager['Condition']
 		background_tasks: models.Manager['BackgroundTask']
@@ -112,6 +115,8 @@ class AbstractBlock(models.Model):
 	name = models.CharField(_('Название'), max_length=128)
 	x =	models.FloatField(_('Координата X'), default=0)
 	y = models.FloatField(_('Координата Y'), default=0)
+	source_connections = GenericRelation('Connection', 'source_object_id', 'source_content_type')
+	target_connections = GenericRelation('Connection', 'target_object_id', 'target_content_type')
 
 	class Meta(TypedModelMeta):
 		abstract = True
@@ -119,18 +124,40 @@ class AbstractBlock(models.Model):
 	def __str__(self) -> str:
 		return self.name
 
-class AbstractConnection(models.Model):
+class Connection(models.Model):
 	HANDLE_POSITION_CHOICES = (
 		('left', _('Слева')),
 		('right', _('Справа')),
 	)
 
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='connections',
+		verbose_name=_('Telegram бот'),
+	)
+
+	source_content_type = models.ForeignKey(
+		ContentType,
+		on_delete=models.CASCADE,
+		related_name='source_connections',
+	)
+	source_object_id = models.PositiveBigIntegerField()
+	source_object = GenericForeignKey('source_content_type', 'source_object_id')
 	source_handle_position = models.CharField(
 		_('Стартовая позиция коннектора'),
 		max_length=5,
 		choices=HANDLE_POSITION_CHOICES,
 		default='left',
 	)
+
+	target_content_type = models.ForeignKey(
+		ContentType,
+		on_delete=models.CASCADE,
+		related_name='target_connections',
+	)
+	target_object_id = models.PositiveBigIntegerField()
+	target_object = GenericForeignKey('target_content_type', 'target_object_id')
 	target_handle_position = models.CharField(
 		_('Окончательная позиция коннектора'),
 		max_length=5,
@@ -139,7 +166,9 @@ class AbstractConnection(models.Model):
 	)
 
 	class Meta(TypedModelMeta):
-		abstract = True
+		db_table = 'telegram_bot_command_connection'
+		verbose_name = _('Подключение')
+		verbose_name_plural = _('Подключения')
 
 class AbstractAPIRequest(models.Model):
 	METHOD_CHOICES = (
@@ -263,28 +292,6 @@ class CommandMessage(models.Model):
 	def __str__(self) -> str:
 		return self.command.name
 
-class CommandKeyboardButtonConnection(AbstractConnection):
-	command = models.ForeignKey(
-		'Command',
-		on_delete=models.CASCADE,
-		related_name='connected_keyboard_buttons',
-		verbose_name=_('Команда'),
-	)
-	button = models.ForeignKey(
-		'CommandKeyboardButton',
-		on_delete=models.CASCADE,
-		related_name='connected_commands',
-		verbose_name=_('Кнопка'),
-	)
-
-	class Meta(TypedModelMeta):
-		db_table = 'telegram_bot_command_keyboard_button_connection'
-		verbose_name = _('Соединение между кнопкой и командой')
-		verbose_name_plural = _('Соединения между кнопкой и командой')
-
-	def __str__(self) -> str:
-		return f'{self.button.id} -> {self.command.id}'
-
 class CommandKeyboardButton(models.Model):
 	keyboard = models.ForeignKey(
 		'CommandKeyboard',
@@ -295,9 +302,7 @@ class CommandKeyboardButton(models.Model):
 	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
 	text = models.TextField(_('Текст'), max_length=512)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
-
-	if TYPE_CHECKING:
-		connected_commands: models.Manager[CommandKeyboardButtonConnection]
+	source_connections = GenericRelation('Connection', 'source_object_id', 'source_content_type')
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button'
@@ -388,7 +393,6 @@ class Command(AbstractBlock):
 		keyboard: CommandKeyboard
 		api_request: CommandAPIRequest
 		database_record: CommandDatabaseRecord
-		connected_keyboard_buttons: models.Manager[CommandKeyboardButtonConnection]
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command'
@@ -493,6 +497,7 @@ class BackgroundTask(AbstractBlock):
 		verbose_name=_('Telegram бот'),
 	)
 	interval = models.PositiveSmallIntegerField(_('Интервал'), choices=INTERVAL_CHOICES)
+	source_connections = None
 
 	if TYPE_CHECKING:
 		api_request: BackgroundTaskAPIRequest

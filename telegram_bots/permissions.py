@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from .models import (
 	TelegramBot,
-	CommandKeyboardButtonConnection,
+	Connection,
 	Command,
 	Variable,
 	User,
@@ -49,17 +49,14 @@ class CommandIsFound(BasePermission):
 
 		return True
 
-class CommandKeyboardButtonConnectionIsFound(BasePermission):
+class ConnectionIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot = get_telegram_bot(view)
 		connection_id: int = view.kwargs.pop('connection_id', 0)
 
 		try:
-			view.kwargs['connection'] = CommandKeyboardButtonConnection.objects.get(
-				command__telegram_bot=telegram_bot,
-				id=connection_id,
-			)
-		except CommandKeyboardButtonConnection.DoesNotExist:
+			view.kwargs['connection'] = telegram_bot.connections.get(id=connection_id)
+		except Connection.DoesNotExist:
 			return False
 
 		return True

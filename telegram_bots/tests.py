@@ -9,8 +9,8 @@ from users.models import User as SiteUser
 
 from .models import (
 	TelegramBot,
+	Connection,
 	CommandMessage,
-	CommandKeyboardButtonConnection,
 	CommandKeyboardButton,
 	CommandKeyboard,
 	Command,
@@ -362,7 +362,7 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 		response = self.client.patch(self.true_url, {'x': 150, 'y': 300})
 		self.assertEqual(response.status_code, 200)
 
-class DiagramCommandKeyboardButtonConnectionsAPIViewTests(CustomTestCase):
+class ConnectionsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
@@ -384,11 +384,11 @@ class DiagramCommandKeyboardButtonConnectionsAPIViewTests(CustomTestCase):
 		)
 
 		self.true_url: str = reverse(
-			'api:telegram-bots:detail:diagram:command-keyboard-button-connections',
+			'api:telegram-bots:detail:diagram:connections',
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
 		self.false_url: str = reverse(
-			'api:telegram-bots:detail:diagram:command-keyboard-button-connections',
+			'api:telegram-bots:detail:diagram:connections',
 			kwargs={'telegram_bot_id': 0}
 		)
 
@@ -402,18 +402,14 @@ class DiagramCommandKeyboardButtonConnectionsAPIViewTests(CustomTestCase):
 		self.assertEqual(response.status_code, 403)
 
 		response = self.client.post(self.true_url, {
-			'command_id': self.command_1.id,
-			'button_id': self.command_2_keyboard_button.id,
+			'source_object_type': 'command_keyboard_button',
+			'source_object_id': self.command_2_keyboard_button.id,
+			'target_object_type': 'command',
+			'target_object_id': self.command_1.id,
 		})
 		self.assertEqual(response.status_code, 200)
 
-		response = self.client.post(self.true_url, {
-			'command_id': self.command_1.id,
-			'button_id': self.command_2_keyboard_button.id,
-		})
-		self.assertEqual(response.status_code, 400)
-
-class DiagramCommandKeyboardButtonConnectionAPIViewTests(CustomTestCase):
+class ConnectionAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
@@ -433,27 +429,28 @@ class DiagramCommandKeyboardButtonConnectionAPIViewTests(CustomTestCase):
 			keyboard=self.command_2_keyboard,
 			text='Button',
 		)
-		self.connection: CommandKeyboardButtonConnection = CommandKeyboardButtonConnection.objects.create(
-			command=self.command_1,
-			button=self.command_2_keyboard_button,
+		self.connection: Connection = Connection.objects.create(
+			telegram_bot=self.telegram_bot,
+			source_object=self.command_2_keyboard_button,
+			target_object=self.command_1,
 		)
 
 		self.true_url: str = reverse(
-			'api:telegram-bots:detail:diagram:command-keyboard-button-connection',
+			'api:telegram-bots:detail:diagram:connection',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'connection_id': self.connection.id,
 			},
 		)
 		self.false_url_1: str = reverse(
-			'api:telegram-bots:detail:diagram:command-keyboard-button-connection',
+			'api:telegram-bots:detail:diagram:connection',
 			kwargs={
 				'telegram_bot_id': 0,
 				'connection_id': self.connection.id,
 			}
 		)
 		self.false_url_2: str = reverse(
-			'api:telegram-bots:detail:diagram:command-keyboard-button-connection',
+			'api:telegram-bots:detail:diagram:connection',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'connection_id': 0,
