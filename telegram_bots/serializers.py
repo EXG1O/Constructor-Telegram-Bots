@@ -560,6 +560,22 @@ class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
 
 		return instance
 
+class DiagramConditionSerializer(serializers.ModelSerializer[Condition]):
+	source_connections = ConnectionSerializer(many=True, read_only=True)
+	target_connections = ConnectionSerializer(many=True, read_only=True)
+
+	class Meta:
+		model = Condition
+		fields = ('id', 'name', 'x', 'y', 'source_connections', 'target_connections')
+		read_only_fields = ('name',)
+
+	def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
+		condition.x = validated_data.get('x', condition.x)
+		condition.y = validated_data.get('y', condition.y)
+		condition.save()
+
+		return condition
+
 class VariableSerializer(serializers.ModelSerializer[Variable], TelegramBotContextMixin):
 	class Meta:
 		model = Variable
