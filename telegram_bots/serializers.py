@@ -24,6 +24,7 @@ from .models import (
 	Command,
 	ConditionPart,
 	Condition,
+	BackgroundTaskAPIRequest,
 	BackgroundTask,
 	Variable,
 	User,
@@ -515,6 +516,58 @@ class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotCon
 			condition.parts.create(**part)
 
 		return condition
+
+class BackgroundTaskAPIRequestSerializer(serializers.ModelSerializer[BackgroundTaskAPIRequest]):
+	class Meta:
+		model = BackgroundTaskAPIRequest
+		fields = ('url', 'method', 'headers', 'body')
+
+class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask], TelegramBotContextMixin):
+	api_request = BackgroundTaskAPIRequestSerializer(required=False)
+
+	class Meta:
+		model = BackgroundTask
+		fields = ('id', 'name', 'interval', 'api_request')
+
+	def create(self, validated_data: dict[str, Any]) -> BackgroundTask:
+		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
+
+		background_task: BackgroundTask = self.telegram_bot.background_tasks.create(**validated_data)
+
+		if api_request:
+			BackgroundTaskAPIRequest.objects.create(
+				background_task=background_task,
+				**api_request,
+			)
+
+		return background_task
+
+	def update(self, background_task: BackgroundTask, validated_data: dict[str, Any]) -> BackgroundTask:
+		api_request: dict[str, Any] | None = validated_data.get('api_request')
+
+		background_task.name = validated_data.get('name', background_task.name)
+		background_task.interval = validated_data.get('interval', background_task.interval)
+		background_task.save()
+
+		if api_request:
+			try:
+				background_task.api_request.url = api_request.get('url', background_task.api_request.url)
+				background_task.api_request.method = api_request.get('method', background_task.api_request.method)
+				background_task.api_request.headers = api_request.get('headers')
+				background_task.api_request.body = api_request.get('body')
+				background_task.api_request.save()
+			except BackgroundTaskAPIRequest.DoesNotExist:
+				BackgroundTaskAPIRequest.objects.create(
+					background_task=background_task,
+					**api_request,
+				)
+		else:
+			try:
+				background_task.api_request.delete()
+			except BackgroundTaskAPIRequest.DoesNotExist:
+				pass
+
+		return background_task
 
 class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
 	source_connections = ConnectionSerializer(many=True)
