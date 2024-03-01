@@ -9,10 +9,14 @@ from .views import (
 	CommandAPIView,
 	ConditionsAPIView,
 	ConditionAPIView,
+	BackgroundTasksAPIView,
+	BackgroundTaskAPIView,
 	DiagramCommandsAPIView,
 	DiagramCommandAPIView,
 	DiagramConditionsAPIView,
 	DiagramConditionAPIView,
+	DiagramBackgroundTasksAPIView,
+	DiagramBackgroundTaskAPIView,
 	VariablesAPIView,
 	VariableAPIView,
 	UsersAPIView,
@@ -36,12 +40,18 @@ urlpatterns = [
 		path('conditions/', ConditionsAPIView.as_view(), name='conditions'),
 		path('conditions/<int:condition_id>/', ConditionAPIView.as_view(), name='condition'),
 
+		path('background-tasks/', BackgroundTasksAPIView.as_view(), name='background-tasks'),
+		path('background-tasks/<int:background_task_id>/', BackgroundTaskAPIView.as_view(), name='background-task'),
+
 		path('diagram/', include(([
 			path('commands/', DiagramCommandsAPIView.as_view(), name='commands'),
 			path('commands/<int:command_id>/', DiagramCommandAPIView.as_view(), name='command'),
 
 			path('conditions/', DiagramConditionsAPIView.as_view(), name='conditions'),
 			path('conditions/<int:condition_id>/', DiagramConditionAPIView.as_view(), name='condition'),
+
+			path('background-tasks/', DiagramBackgroundTasksAPIView.as_view(), name='background-tasks'),
+			path('background-tasks/<int:background_task_id>/', DiagramBackgroundTaskAPIView.as_view(), name='background-task'),
 		], 'diagram'))),
 
 		path('variables/', VariablesAPIView.as_view(), name='variables'),

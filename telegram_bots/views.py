@@ -19,6 +19,7 @@ from .models import (
 	Connection,
 	Command,
 	Condition,
+	BackgroundTask,
 	Variable,
 	User,
 )
@@ -27,6 +28,7 @@ from .permissions import (
 	ConnectionIsFound,
 	CommandIsFound,
 	ConditionIsIsFound,
+	BackgroundTaskIsIsFound,
 	VariableIsFound,
 	UserIsFound,
 )
@@ -38,8 +40,10 @@ from .serializers import (
 	CreateCommandSerializer,
 	UpdateCommandSerializer,
 	ConditionSerializer,
+	BackgroundTaskSerializer,
 	DiagramCommandSerializer,
 	DiagramConditionSerializer,
+	DiagramBackgroundTaskSerializer,
 	VariableSerializer,
 	UserSerializer,
 	UserActionSerializer,
@@ -259,6 +263,46 @@ class ConditionAPIView(APIView):
 
 		return MessageResponse(_('Вы успешно удалили условие.'))
 
+class BackgroundTasksAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
+		return Response(BackgroundTaskSerializer(telegram_bot.background_tasks, many=True).data)
+
+	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+		serializer = BackgroundTaskSerializer(data=request.data, context={'telegram_bot': telegram_bot})
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return MessageResponse(
+			_('Вы успешно добавили фоновую задачу.'),
+			data={'condition': serializer.data},
+			status=201,
+		)
+
+class BackgroundTaskAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & BackgroundTaskIsIsFound]
+
+	def get(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> Response:
+		return Response(BackgroundTaskSerializer(background_task).data)
+
+	def patch(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> MessageResponse:
+		serializer = BackgroundTaskSerializer(background_task, request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return MessageResponse(
+			_('Вы успешно обновили фоновую задачу.'),
+			data={'condition': serializer.data},
+		)
+
+	def delete(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> MessageResponse:
+		background_task.delete()
+
+		return MessageResponse(_('Вы успешно удалили фоновую задачу.'))
+
 class DiagramCommandsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -290,6 +334,24 @@ class DiagramConditionAPIView(APIView):
 
 	def patch(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> Response:
 		serializer = DiagramConditionSerializer(condition, request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return Response()
+
+class DiagramBackgroundTasksAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
+		return Response(DiagramBackgroundTaskSerializer(telegram_bot.background_tasks, many=True).data)
+
+class DiagramBackgroundTaskAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & BackgroundTaskIsIsFound]
+
+	def patch(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> Response:
+		serializer = DiagramBackgroundTaskSerializer(background_task, request.data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
