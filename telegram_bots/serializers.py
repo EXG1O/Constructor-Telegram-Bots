@@ -476,6 +476,45 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 
 		return command
 
+class ConditionPartSerializer(serializers.ModelSerializer[ConditionPart]):
+	class Meta:
+		model = ConditionPart
+		fields = ('id', 'type', 'first_value', 'operator', 'second_value', 'next_part_operator')
+
+class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotContextMixin):
+	parts = ConditionPartSerializer(many=True)
+
+	class Meta:
+		model = Condition
+		fields = ('id', 'name', 'parts')
+
+	def validate_parts(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+		if not len(parts):
+			raise serializers.ValidationError(_('Условие должно содержать хотя бы одну часть.'))
+
+		return parts
+
+	def create(self, validated_data: dict[str, Any]) -> Condition:
+		parts: list[dict[str, Any]] = validated_data.pop('parts')
+
+		condition = self.telegram_bot.conditions.create(**validated_data)
+
+		for part in parts:
+			condition.parts.create(**part)
+
+		return condition
+
+	def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
+		condition.name = validated_data.get('name', condition.name)
+		condition.save()
+
+		condition.parts.all().delete()
+
+		for part in validated_data.get('parts', []):
+			condition.parts.create(**part)
+
+		return condition
+
 class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
 	source_connections = ConnectionSerializer(many=True)
 
