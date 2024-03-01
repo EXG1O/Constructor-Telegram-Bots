@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		if not self.confirm_code:
 			self.generate_confirm_code()
 
-		return f'{settings.SITE_DOMAIN}/login/{self.id}/{self.confirm_code}/' # type: ignore [misc]
+		return f'{settings.SITE_DOMAIN}/login/{self.id}/{self.confirm_code}/'
 
 	def get_telegram_user(self) -> Chat | None:
 		response: Response = requests.get(
