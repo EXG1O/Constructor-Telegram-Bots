@@ -455,7 +455,7 @@ class Condition(AbstractBlock):
 	)
 
 	if TYPE_CHECKING:
-		parts = models.Manager[ConditionPart]
+		parts: models.Manager[ConditionPart]
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_condition'
