@@ -38,18 +38,6 @@ def get_telegram_bot(view: APIView) -> TelegramBot:
 
 	return telegram_bot
 
-class CommandIsFound(BasePermission):
-	def has_permission(self, request: Request, view: APIView) -> bool:
-		telegram_bot: TelegramBot = get_telegram_bot(view)
-		command_id: int = view.kwargs.pop('command_id', 0)
-
-		try:
-			view.kwargs['command'] = telegram_bot.commands.get(id=command_id)
-		except Command.DoesNotExist:
-			return False
-
-		return True
-
 class ConnectionIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot = get_telegram_bot(view)
@@ -58,6 +46,18 @@ class ConnectionIsFound(BasePermission):
 		try:
 			view.kwargs['connection'] = telegram_bot.connections.get(id=connection_id)
 		except Connection.DoesNotExist:
+			return False
+
+		return True
+
+class CommandIsFound(BasePermission):
+	def has_permission(self, request: Request, view: APIView) -> bool:
+		telegram_bot: TelegramBot = get_telegram_bot(view)
+		command_id: int = view.kwargs.pop('command_id', 0)
+
+		try:
+			view.kwargs['command'] = telegram_bot.commands.get(id=command_id)
+		except Command.DoesNotExist:
 			return False
 
 		return True

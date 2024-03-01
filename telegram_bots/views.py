@@ -118,6 +118,26 @@ class TelegramBotAPIView(APIView):
 
 		return MessageResponse(_('Вы успешно удалили Telegram бота.'))
 
+class ConnectionsAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+		serializer = ConnectionSerializer(data=request.data, context={'telegram_bot': telegram_bot})
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return MessageResponse(_('Вы успешно подключили блок диаграммы к другому блоку'))
+
+class ConnectionAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConnectionIsFound]
+
+	def delete(self, request: Request, telegram_bot: TelegramBot, connection: Connection) -> MessageResponse:
+		connection.delete()
+
+		return MessageResponse(_('Вы успешно отсоединили блок диаграммы от другого блока'))
+
 class CommandsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -274,26 +294,6 @@ class DiagramConditionAPIView(APIView):
 		serializer.save()
 
 		return Response()
-
-class ConnectionsAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-
-	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
-		serializer = ConnectionSerializer(data=request.data, context={'telegram_bot': telegram_bot})
-		serializer.is_valid(raise_exception=True)
-		serializer.save()
-
-		return MessageResponse(_('Вы успешно подключили блок диаграммы к другому блоку'))
-
-class ConnectionAPIView(APIView):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConnectionIsFound]
-
-	def delete(self, request: Request, telegram_bot: TelegramBot, connection: Connection) -> MessageResponse:
-		connection.delete()
-
-		return MessageResponse(_('Вы успешно отсоединили блок диаграммы от другого блока'))
 
 class VariablesAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]

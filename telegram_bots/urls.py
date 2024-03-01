@@ -3,6 +3,8 @@ from django.urls import path, include
 from .views import (
 	TelegramBotsAPIView,
 	TelegramBotAPIView,
+	ConnectionsAPIView,
+	ConnectionAPIView,
 	CommandsAPIView,
 	CommandAPIView,
 	ConditionsAPIView,
@@ -11,8 +13,6 @@ from .views import (
 	DiagramCommandAPIView,
 	DiagramConditionsAPIView,
 	DiagramConditionAPIView,
-	ConnectionsAPIView,
-	ConnectionAPIView,
 	VariablesAPIView,
 	VariableAPIView,
 	UsersAPIView,
@@ -27,6 +27,9 @@ urlpatterns = [
 	path('<int:telegram_bot_id>/', include(([
 		path('', TelegramBotAPIView.as_view(), name='index'),
 
+		path('connections/', ConnectionsAPIView.as_view(), name='connections'),
+		path('connections/<int:connection_id>/', ConnectionAPIView.as_view(), name='connection'),
+
 		path('commands/', CommandsAPIView.as_view(), name='commands'),
 		path('commands/<int:command_id>/', CommandAPIView.as_view(), name='command'),
 
@@ -39,9 +42,6 @@ urlpatterns = [
 
 			path('conditions/', DiagramConditionsAPIView.as_view(), name='conditions'),
 			path('conditions/<int:condition_id>/', DiagramConditionAPIView.as_view(), name='condition'),
-
-			path('connections/', ConnectionsAPIView.as_view(), name='connections'),
-			path('connections/<int:connection_id>/', ConnectionAPIView.as_view(), name='connection'),
 		], 'diagram'))),
 
 		path('variables/', VariablesAPIView.as_view(), name='variables'),
