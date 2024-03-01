@@ -15,6 +15,7 @@ from .models import (
 	CommandKeyboard,
 	Command,
 	Condition,
+	BackgroundTask,
 	Variable,
 	User,
 )
@@ -543,6 +544,125 @@ class ConditionAPIViewTests(CustomTestCase):
 		response = self.client.delete(self.true_url)
 		self.assertEqual(response.status_code, 200)
 
+class BackgroundTasksAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:background-tasks',
+			kwargs={'telegram_bot_id': self.telegram_bot.id},
+		)
+		self.false_url: str = reverse(
+			'api:telegram-bots:detail:background-tasks',
+			kwargs={'telegram_bot_id': 0},
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.get(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+	def test_post_method(self) -> None:
+		response: HttpResponse = self.client.post(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.post(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.post(self.true_url)
+		self.assertEqual(response.status_code, 400)
+
+		response = self.client.post(self.true_url, {
+			'name': 'Test name',
+			'interval': 1,
+		})
+		self.assertEqual(response.status_code, 201)
+
+class BackgroundTaskAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.background_task: BackgroundTask = self.telegram_bot.background_tasks.create(
+			name='Test name',
+			interval=1,
+		)
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:background-task',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'background_task_id': self.background_task.id,
+			},
+		)
+		self.false_url_1: str = reverse(
+			'api:telegram-bots:detail:background-task',
+			kwargs={
+				'telegram_bot_id': 0,
+				'background_task_id': self.background_task.id,
+			}
+		)
+		self.false_url_2: str = reverse(
+			'api:telegram-bots:detail:background-task',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'background_task_id': 0,
+			}
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.get(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+	def test_patch_method(self) -> None:
+		response: HttpResponse = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.patch(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 400)
+
+		response = self.client.patch(self.true_url, {
+			'name': 'Test name',
+			'interval': 1,
+		})
+		self.assertEqual(response.status_code, 200)
+
+	def test_delete_method(self) -> None:
+		response: HttpResponse = self.client.delete(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.delete(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.delete(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
 class DiagramCommandsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -671,6 +791,78 @@ class DiagramConditionAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'condition_id': 0,
+			}
+		)
+
+	def test_patch_method(self) -> None:
+		response: HttpResponse = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.patch(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+		response = self.client.patch(self.true_url, {'x': 150, 'y': 300})
+		self.assertEqual(response.status_code, 200)
+
+class DiagramBackgroundTasksAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:diagram:background-tasks',
+			kwargs={'telegram_bot_id': self.telegram_bot.id},
+		)
+		self.false_url: str = reverse(
+			'api:telegram-bots:detail:diagram:background-tasks',
+			kwargs={'telegram_bot_id': 0},
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.get(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+class DiagramBackgroundTaskAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.background_task: BackgroundTask = self.telegram_bot.background_tasks.create(
+			name='Test name',
+			interval=1,
+		)
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:diagram:background-task',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'background_task_id': self.background_task.id,
+			},
+		)
+		self.false_url_1: str = reverse(
+			'api:telegram-bots:detail:diagram:background-task',
+			kwargs={
+				'telegram_bot_id': 0,
+				'background_task_id': self.background_task.id,
+			}
+		)
+		self.false_url_2: str = reverse(
+			'api:telegram-bots:detail:diagram:background-task',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'background_task_id': 0,
 			}
 		)
 
