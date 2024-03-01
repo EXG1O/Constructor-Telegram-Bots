@@ -8,6 +8,7 @@ from .models import (
 	TelegramBot,
 	Connection,
 	Command,
+	Condition,
 	Variable,
 	User,
 )
@@ -57,6 +58,18 @@ class ConnectionIsFound(BasePermission):
 		try:
 			view.kwargs['connection'] = telegram_bot.connections.get(id=connection_id)
 		except Connection.DoesNotExist:
+			return False
+
+		return True
+
+class ConditionIsIsFound(BasePermission):
+	def has_permission(self, request: Request, view: APIView) -> bool:
+		telegram_bot: TelegramBot = get_telegram_bot(view)
+		condition_id: int = view.kwargs.pop('condition_id', 0)
+
+		try:
+			view.kwargs['condition'] = telegram_bot.conditions.get(id=condition_id)
+		except Condition.DoesNotExist:
 			return False
 
 		return True
