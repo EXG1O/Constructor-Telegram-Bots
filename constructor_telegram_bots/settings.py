@@ -1,7 +1,5 @@
 from django.utils.translation import gettext_lazy as _
 
-from rest_framework.generics import GenericAPIView
-
 from utils.shortcuts import generate_random_string
 
 import django_stubs_ext
@@ -12,7 +10,7 @@ import sys
 import os
 
 
-django_stubs_ext.monkeypatch(extra_classes=(GenericAPIView,))
+django_stubs_ext.monkeypatch()
 load_dotenv()
 
 

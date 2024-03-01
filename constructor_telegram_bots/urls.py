@@ -4,6 +4,13 @@ from django.views.i18n import JavaScriptCatalog
 from django.views.generic import TemplateView
 from django.conf import settings
 
+from rest_framework.generics import GenericAPIView
+
+import django_stubs_ext
+
+
+django_stubs_ext.monkeypatch(extra_classes=(GenericAPIView,))
+
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
