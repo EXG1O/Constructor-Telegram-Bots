@@ -630,6 +630,21 @@ class DiagramConditionSerializer(serializers.ModelSerializer[Condition]):
 
 		return condition
 
+class DiagramBackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask]):
+	target_connections = ConnectionSerializer(many=True, read_only=True)
+
+	class Meta:
+		model = BackgroundTask
+		fields = ('id', 'name', 'interval', 'x', 'y', 'target_connections')
+		read_only_fields = ('name', 'interval')
+
+	def update(self, background_task: BackgroundTask, validated_data: dict[str, Any]) -> BackgroundTask:
+		background_task.x = validated_data.get('x', background_task.x)
+		background_task.y = validated_data.get('y', background_task.y)
+		background_task.save()
+
+		return background_task
+
 class VariableSerializer(serializers.ModelSerializer[Variable], TelegramBotContextMixin):
 	class Meta:
 		model = Variable
