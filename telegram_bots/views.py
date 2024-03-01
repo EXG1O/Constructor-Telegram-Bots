@@ -18,6 +18,7 @@ from .models import (
 	TelegramBot,
 	Connection,
 	Command,
+	Condition,
 	Variable,
 	User,
 )
@@ -25,6 +26,7 @@ from .permissions import (
 	TelegramBotIsFound,
 	ConnectionIsFound,
 	CommandIsFound,
+	ConditionIsIsFound,
 	VariableIsFound,
 	UserIsFound,
 )
@@ -35,7 +37,9 @@ from .serializers import (
 	CommandSerializer,
 	CreateCommandSerializer,
 	UpdateCommandSerializer,
+	ConditionSerializer,
 	DiagramCommandSerializer,
+	DiagramConditionSerializer,
 	VariableSerializer,
 	UserSerializer,
 	UserActionSerializer,
@@ -195,6 +199,46 @@ class CommandAPIView(APIView):
 
 		return MessageResponse(_('Вы успешно удалили команду Telegram бота.'))
 
+class ConditionsAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
+		return Response(ConditionSerializer(telegram_bot.conditions, many=True).data)
+
+	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+		serializer = ConditionSerializer(data=request.data, context={'telegram_bot': telegram_bot})
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return MessageResponse(
+			_('Вы успешно добавили условие.'),
+			data={'condition': serializer.data},
+			status=201,
+		)
+
+class ConditionAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConditionIsIsFound]
+
+	def get(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> Response:
+		return Response(ConditionSerializer(condition).data)
+
+	def patch(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> MessageResponse:
+		serializer = ConditionSerializer(condition, request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return MessageResponse(
+			_('Вы успешно обновили условие.'),
+			data={'condition': serializer.data},
+		)
+
+	def delete(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> MessageResponse:
+		condition.delete()
+
+		return MessageResponse(_('Вы успешно удалили условие.'))
+
 class DiagramCommandsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -208,6 +252,24 @@ class DiagramCommandAPIView(APIView):
 
 	def patch(self, request: Request, telegram_bot: TelegramBot, command: Command) -> Response:
 		serializer = DiagramCommandSerializer(command, request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+
+		return Response()
+
+class DiagramConditionsAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+
+	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
+		return Response(DiagramConditionSerializer(telegram_bot.conditions, many=True).data)
+
+class DiagramConditionAPIView(APIView):
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConditionIsIsFound]
+
+	def patch(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> Response:
+		serializer = DiagramConditionSerializer(condition, request.data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 

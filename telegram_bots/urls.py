@@ -5,8 +5,12 @@ from .views import (
 	TelegramBotAPIView,
 	CommandsAPIView,
 	CommandAPIView,
+	ConditionsAPIView,
+	ConditionAPIView,
 	DiagramCommandsAPIView,
 	DiagramCommandAPIView,
+	DiagramConditionsAPIView,
+	DiagramConditionAPIView,
 	ConnectionsAPIView,
 	ConnectionAPIView,
 	VariablesAPIView,
@@ -26,9 +30,15 @@ urlpatterns = [
 		path('commands/', CommandsAPIView.as_view(), name='commands'),
 		path('commands/<int:command_id>/', CommandAPIView.as_view(), name='command'),
 
+		path('conditions/', ConditionsAPIView.as_view(), name='conditions'),
+		path('conditions/<int:condition_id>/', ConditionAPIView.as_view(), name='condition'),
+
 		path('diagram/', include(([
 			path('commands/', DiagramCommandsAPIView.as_view(), name='commands'),
 			path('commands/<int:command_id>/', DiagramCommandAPIView.as_view(), name='command'),
+
+			path('conditions/', DiagramConditionsAPIView.as_view(), name='conditions'),
+			path('conditions/<int:condition_id>/', DiagramConditionAPIView.as_view(), name='condition'),
 
 			path('connections/', ConnectionsAPIView.as_view(), name='connections'),
 			path('connections/<int:connection_id>/', ConnectionAPIView.as_view(), name='connection'),

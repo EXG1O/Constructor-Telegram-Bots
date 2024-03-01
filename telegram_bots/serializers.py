@@ -22,6 +22,7 @@ from .models import (
 	CommandAPIRequest,
 	CommandDatabaseRecord,
 	Command,
+	ConditionPart,
 	Condition,
 	BackgroundTask,
 	Variable,
