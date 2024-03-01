@@ -204,7 +204,7 @@ class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 			'is_send_as_new_message',
 		)
 
-class CommandCommandSerializer(serializers.ModelSerializer[CommandTrigger]):
+class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
 	class Meta:
 		model = CommandTrigger
 		fields = ('text', 'description')
@@ -268,7 +268,7 @@ class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabas
 
 class CommandSerializer(serializers.ModelSerializer):
 	settings = CommandSettingsSerializer()
-	trigger = CommandCommandSerializer(required=False)
+	trigger = CommandTriggerSerializer(required=False)
 	images = CommandImageSerializer(many=True)
 	files = CommandFileSerializer(many=True)
 	message = CommandMessageSerializer()
