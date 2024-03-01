@@ -14,6 +14,7 @@ from .models import (
 	CommandKeyboardButton,
 	CommandKeyboard,
 	Command,
+	Condition,
 	Variable,
 	User,
 )
@@ -290,6 +291,150 @@ class CommandAPIViewTests(CustomTestCase):
 		response = self.client.delete(self.true_url)
 		self.assertEqual(response.status_code, 200)
 
+class ConditionsAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:conditions',
+			kwargs={'telegram_bot_id': self.telegram_bot.id},
+		)
+		self.false_url: str = reverse(
+			'api:telegram-bots:detail:conditions',
+			kwargs={'telegram_bot_id': 0},
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.get(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+	def test_post_method(self) -> None:
+		response: HttpResponse = self.client.post(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.post(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.post(self.true_url)
+		self.assertEqual(response.status_code, 400)
+
+		response = self.client.post(self.true_url, {
+			'name': 'Test name',
+			'parts': [],
+		}, format='json')
+		self.assertEqual(response.status_code, 400)
+
+		response = self.client.post(self.true_url, {
+			'name': 'Test name',
+			'parts': [{
+				'type': '+',
+				'first_value': 'first_value',
+				'operator': '==',
+				'second_value': 'second_value',
+			}],
+		}, format='json')
+		self.assertEqual(response.status_code, 201)
+
+class ConditionAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.condition: Condition = self.telegram_bot.conditions.create(name='Test name')
+		self.condition.parts.create(
+			type='+',
+			first_value='first_value',
+			operator='==',
+			second_value='second_value',
+		)
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:condition',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'condition_id': self.condition.id,
+			},
+		)
+		self.false_url_1: str = reverse(
+			'api:telegram-bots:detail:condition',
+			kwargs={
+				'telegram_bot_id': 0,
+				'condition_id': self.condition.id,
+			}
+		)
+		self.false_url_2: str = reverse(
+			'api:telegram-bots:detail:condition',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'condition_id': 0,
+			}
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.get(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+	def test_patch_method(self) -> None:
+		response: HttpResponse = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.patch(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 400)
+
+		response = self.client.patch(self.true_url, {
+			'name': 'Test name',
+			'parts': [],
+		}, format='json')
+		self.assertEqual(response.status_code, 400)
+
+		response = self.client.patch(self.true_url, {
+			'name': 'Test name',
+			'parts': [{
+				'type': '+',
+				'first_value': 'first_value',
+				'operator': '==',
+				'second_value': 'second_value',
+			}],
+		}, format='json')
+		self.assertEqual(response.status_code, 200)
+
+	def test_delete_method(self) -> None:
+		response: HttpResponse = self.client.delete(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.delete(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.delete(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
 class DiagramCommandsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -343,6 +488,81 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'command_id': 0,
+			}
+		)
+
+	def test_patch_method(self) -> None:
+		response: HttpResponse = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.patch(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+		response = self.client.patch(self.true_url, {'x': 150, 'y': 300})
+		self.assertEqual(response.status_code, 200)
+
+class DiagramConditionsAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:diagram:conditions',
+			kwargs={'telegram_bot_id': self.telegram_bot.id},
+		)
+		self.false_url: str = reverse(
+			'api:telegram-bots:detail:diagram:conditions',
+			kwargs={'telegram_bot_id': 0},
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.get(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+class DiagramConditionAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.condition: Condition = self.telegram_bot.conditions.create(name='Test name')
+		self.condition.parts.create(
+			type='+',
+			first_value='first_value',
+			operator='==',
+			second_value='second_value',
+		)
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:diagram:condition',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'condition_id': self.condition.id,
+			},
+		)
+		self.false_url_1: str = reverse(
+			'api:telegram-bots:detail:diagram:condition',
+			kwargs={
+				'telegram_bot_id': 0,
+				'condition_id': self.condition.id,
+			}
+		)
+		self.false_url_2: str = reverse(
+			'api:telegram-bots:detail:diagram:condition',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'condition_id': 0,
 			}
 		)
 
