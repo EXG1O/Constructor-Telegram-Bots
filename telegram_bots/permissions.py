@@ -9,6 +9,7 @@ from .models import (
 	Connection,
 	Command,
 	Condition,
+	BackgroundTask,
 	Variable,
 	User,
 )
@@ -70,6 +71,18 @@ class ConditionIsIsFound(BasePermission):
 		try:
 			view.kwargs['condition'] = telegram_bot.conditions.get(id=condition_id)
 		except Condition.DoesNotExist:
+			return False
+
+		return True
+
+class BackgroundTaskIsIsFound(BasePermission):
+	def has_permission(self, request: Request, view: APIView) -> bool:
+		telegram_bot: TelegramBot = get_telegram_bot(view)
+		background_task_id: int = view.kwargs.pop('background_task_id', 0)
+
+		try:
+			view.kwargs['background_task'] = telegram_bot.background_tasks.get(id=background_task_id)
+		except BackgroundTask.DoesNotExist:
 			return False
 
 		return True
