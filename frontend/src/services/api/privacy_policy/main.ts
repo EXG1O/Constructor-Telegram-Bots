@@ -3,8 +3,8 @@ import { APIResponse } from './types';
 
 const rootUrl = '/api/privacy-policy/';
 
-export namespace PrivacyPolicySectionsAPI {
+export namespace SectionsAPI {
 	const url = rootUrl + 'sections/';
 
-	export const get = () => makeRequest<APIResponse.PrivacyPolicySectionsAPI.Get>(url, 'GET');
+	export const get = () => makeRequest<APIResponse.SectionsAPI.Get>(url, 'GET');
 }

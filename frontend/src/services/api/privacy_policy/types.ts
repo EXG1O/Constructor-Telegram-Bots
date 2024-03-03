@@ -1,11 +1,11 @@
-export interface PrivacyPolicySection {
+export interface Section {
 	id: number;
 	title: string;
 	text: string;
 }
 
 export namespace APIResponse {
-	export namespace PrivacyPolicySectionsAPI {
-		export type Get = PrivacyPolicySection[];
+	export namespace SectionsAPI {
+		export type Get = Section[];
 	}
 }

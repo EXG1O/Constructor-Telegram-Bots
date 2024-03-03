@@ -25,31 +25,25 @@ export async function makeRequest<
 >(
 	url: string,
 	method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
-	headers?: HeadersInit,
 	data?: Record<string, any> | FormData,
 ): Promise<
 	APIResponse.Base<true, SuccessAPIResponse> |
 	APIResponse.Base<false, ErrorAPIResponse>
 > {
-	let requestInit: RequestInit = { method };
+	let init: RequestInit = { method };
 
 	if (data !== undefined) {
 		if (data instanceof FormData) {
-			requestInit = Object.assign(requestInit, { body: data });
+			init = Object.assign(init, { body: data });
 		} else {
-			requestInit = Object.assign(requestInit, {
+			init = Object.assign(init, {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(data),
 			});
 		}
 	}
 
-	const response = await fetch(
-		url,
-		Object.assign(requestInit, {
-			headers: Object.assign(requestInit.headers || {}, headers || {}),
-		}),
-	);
+	const response = await fetch(url, init);
 
 	let json: any;
 

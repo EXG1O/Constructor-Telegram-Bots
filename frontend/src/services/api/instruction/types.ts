@@ -1,11 +1,11 @@
-export interface InstructionSection {
+export interface Section {
 	id: number;
 	title: string;
 	text: string;
 }
 
 export namespace APIResponse {
-	export namespace InstructionSectionsAPI {
-		export type Get = InstructionSection[];
+	export namespace SectionsAPI {
+		export type Get = Section[];
 	}
 }

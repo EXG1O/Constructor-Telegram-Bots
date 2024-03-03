@@ -13,91 +13,135 @@ export interface TelegramBot {
 	added_date: string;
 }
 
-export interface TelegramBotCommandSettings {
-	is_reply_to_user_message: boolean;
-	is_delete_user_message: boolean;
-	is_send_as_new_message: boolean;
-}
+type HandlePositions = 'left' | 'right';
 
-export interface TelegramBotCommandCommand {
-	text: string;
-	description: string | null;
-}
-
-export interface TelegramBotCommandImage {
+export interface Connection {
 	id: number;
-	name: string;
-	size: number;
-	url: string;
+	source_object_type: 'command' | 'command_keyboard_button' | 'condition' | 'background_task';
+	source_object_id: number;
+	source_handle_position: HandlePositions;
+	target_object_type: 'command' | 'condition';
+	target_object_id: number;
+	target_handle_position: HandlePositions;
 }
 
-export type TelegramBotCommandFile = Omit<TelegramBotCommandImage, 'url'>;
-
-export interface TelegramBotCommandMessageText {
-	text: string;
-}
-
-export interface TelegramBotCommandKeyboardButton {
-	id: number;
-	row: number | null;
-	text: string;
-	url: string | null;
-}
-
-export interface TelegramBotCommandKeyboard {
-	type: 'default' | 'inline' | 'payment';
-	buttons: TelegramBotCommandKeyboardButton[];
-}
-
-export interface TelegramBotCommandApiRequest {
+export interface APIRequest {
 	url: string;
 	method: 'get' | 'post' | 'put' | 'patch' | 'delete';
 	headers: Record<string, any> | null;
 	body: Record<string, any> | null;
 }
 
-export interface TelegramBotCommandDatabaseRecord {
+export interface CommandSettings {
+	is_reply_to_user_message: boolean;
+	is_delete_user_message: boolean;
+	is_send_as_new_message: boolean;
+}
+
+export interface CommandTrigger {
+	text: string;
+	description: string | null;
+}
+
+export interface CommandImage {
+	id: number;
+	name: string;
+	size: number;
+	url: string;
+}
+
+export type CommandFile = CommandImage;
+
+export interface CommandMessage {
+	text: string;
+}
+
+export interface CommandKeyboardButton {
+	id: number;
+	row: number | null;
+	text: string;
+	url: string | null;
+}
+
+export interface CommandKeyboard {
+	type: 'default' | 'inline' | 'payment';
+	buttons: CommandKeyboardButton[];
+}
+
+export type CommandAPIRequest = APIRequest;
+
+export interface CommandDatabaseRecord {
 	data: Record<string, any>;
 }
 
-export interface TelegramBotCommand {
+export interface Command {
 	id: number;
 	name: string;
-	settings: TelegramBotCommandSettings;
-	command: TelegramBotCommandCommand | null;
-	images: TelegramBotCommandImage[];
-	files: TelegramBotCommandFile[];
-	message_text: TelegramBotCommandMessageText;
-	keyboard: TelegramBotCommandKeyboard | null;
-	api_request: TelegramBotCommandApiRequest | null;
-	database_record: TelegramBotCommandDatabaseRecord | null;
+	settings: CommandSettings;
+	trigger: CommandTrigger | null;
+	images: CommandImage[];
+	files: CommandFile[];
+	message: CommandMessage;
+	keyboard: CommandKeyboard | null;
+	api_request: CommandAPIRequest | null;
+	database_record: CommandDatabaseRecord | null;
 }
 
-export interface TelegramBotCommandKeyboardButtonDiagram extends TelegramBotCommandKeyboardButton {
-	telegram_bot_command_id: number | null;
-	start_diagram_connector: string | null;
-	end_diagram_connector: string | null;
+export interface ConditionPart {
+	id: number;
+	type: '+' | '-';
+	first_value: string;
+	operator: '==' | '!=' | '>' | '>=' | '<' | '<=';
+	second_value: string;
+	next_part_operator: '&&' | '||' | null;
 }
 
-export interface TelegramBotCommandKeyboardDiagram extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
-	buttons: TelegramBotCommandKeyboardButtonDiagram[];
+export interface Condition {
+	id: number;
+	name: string;
+	parts: ConditionPart[];
 }
 
-export interface TelegramBotCommandDiagram extends Pick<TelegramBotCommand, 'id' | 'name' | 'images' | 'files' | 'message_text'> {
-	keyboard: TelegramBotCommandKeyboardDiagram | null;
+export type BackgroundTaskAPIRequest = APIRequest;
 
+export interface BackgroundTask {
+	id: number;
+	name: string;
+	interval: 1 | 3 | 7 | 14 | 28;
+	api_request: BackgroundTaskAPIRequest | null;
+}
+
+export interface Diagram {
 	x: number;
 	y: number;
+	source_connections: Connection[];
+	target_connections: Connection[];
 }
 
-export interface TelegramBotVariable {
+export interface DiagramCommandKeyboardButton extends CommandKeyboardButton {
+	source_connections: Connection[];
+}
+
+export interface DiagramCommandKeyboard extends Omit<CommandKeyboard, 'buttons'> {
+	buttons: DiagramCommandKeyboardButton[];
+}
+
+export interface DiagramCommand extends Pick<Command, 'id' | 'name' | 'images' | 'files' | 'message'>, Diagram {
+	keyboard: DiagramCommandKeyboard | null;
+}
+
+export type DiagramCondition = Omit<Condition, 'parts'> & Diagram;
+
+export type DiagramBackgroundTask = Omit<BackgroundTask, 'api_request'> & Omit<Diagram, 'source_connections'>;
+
+export interface Variable {
 	id: number;
 	name: string;
 	value: string;
 	description: string;
 }
 
-export interface TelegramBotUser {
+export interface User {
 	id: number;
 	telegram_id: number;
 	full_name: string;
@@ -107,77 +151,113 @@ export interface TelegramBotUser {
 }
 
 export namespace Data {
-	export namespace TelegramBotAPI {
-		export interface Create {
-			api_token: string;
-			is_private: boolean;
-		}
-		export type Update = Partial<Create>;
+	export namespace TelegramBotsAPI {
+		export type Create = Pick<TelegramBot, 'api_token' | 'is_private'>;
 	}
 
-	export namespace TelegramBotCommandAPI {
-		interface CreateTelegramBotCommandCommand extends Omit<TelegramBotCommandCommand, 'description'> {
-			description?: NonNullable<TelegramBotCommandCommand['description']>;
+	export namespace TelegramBotAPI {
+		export type Update = Partial<TelegramBotsAPI.Create>;
+	}
+
+	export namespace ConnectionsAPI {
+		export type Create = Omit<Connection, 'id'>;
+	}
+
+	export namespace CommandsAPI {
+		interface CreateCommandTrigger extends Omit<CommandTrigger, 'description'> {
+			description?: NonNullable<CommandTrigger['description']>;
 		}
 
-		interface CreateTelegramBotCommandKeyboardButton extends Omit<TelegramBotCommandKeyboardButton, 'id' | 'row' | 'url'> {
-			row?: NonNullable<TelegramBotCommandKeyboardButton['row']>;
-			url?: NonNullable<TelegramBotCommandKeyboardButton['url']>;
+		export interface CreateCommandKeyboardButton extends Omit<CommandKeyboardButton, 'id' | 'row' | 'url'> {
+			row?: NonNullable<CommandKeyboardButton['row']>;
+			url?: NonNullable<CommandKeyboardButton['url']>;
 		}
 
-		interface CreateTelegramBotCommandKeyboard extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
-			buttons: CreateTelegramBotCommandKeyboardButton[];
+		interface CreateCommandKeyboard extends Omit<CommandKeyboard, 'buttons'> {
+			buttons: CreateCommandKeyboardButton[];
 		}
 
-		interface CreateTelegramBotCommandApiRequest extends Omit<TelegramBotCommandApiRequest, 'headers' | 'body'> {
-			headers?: NonNullable<TelegramBotCommandApiRequest['headers']>;
-			body?: NonNullable<TelegramBotCommandApiRequest['body']>;
+		interface CreateCommandAPIRequest extends Omit<CommandAPIRequest, 'headers' | 'body'> {
+			headers?: NonNullable<CommandAPIRequest['headers']>;
+			body?: NonNullable<CommandAPIRequest['body']>;
 		}
 
 		export interface Create {
-			name: TelegramBotCommand['name'];
-			settings: TelegramBotCommand['settings'];
-			command?: CreateTelegramBotCommandCommand;
+			name: Command['name'];
+			settings: Command['settings'];
+			trigger?: CreateCommandTrigger;
 			images?: File[],
 			files?: File[],
-			message_text: TelegramBotCommand['message_text'];
-			keyboard?: CreateTelegramBotCommandKeyboard;
-			api_request?: CreateTelegramBotCommandApiRequest;
-			database_record?: NonNullable<TelegramBotCommand['database_record']>;
+			message: Command['message'];
+			keyboard?: CreateCommandKeyboard;
+			api_request?: CreateCommandAPIRequest;
+			database_record?: NonNullable<Command['database_record']>;
+		}
+	}
+
+	export namespace CommandAPI {
+		interface UpdateCommandKeyboardButton extends CommandsAPI.CreateCommandKeyboardButton {
+			id?: CommandKeyboardButton['id'];
 		}
 
-		interface UpdateTelegramBotCommandKeyboardButton extends CreateTelegramBotCommandKeyboardButton {
-			id?: TelegramBotCommandKeyboardButton['id'];
+		interface UpdateCommandKeyboard extends Omit<CommandKeyboard, 'buttons'> {
+			buttons: UpdateCommandKeyboardButton[];
 		}
 
-		interface UpdateTelegramBotCommandKeyboard extends Omit<TelegramBotCommandKeyboard, 'buttons'> {
-			buttons: UpdateTelegramBotCommandKeyboardButton[];
-		}
-
-		export interface Update extends Omit<Create, 'images' | 'files' | 'keyboard'> {
+		export interface Update extends Omit<CommandsAPI.Create, 'images' | 'files' | 'keyboard'> {
 			images?: (File | number)[];
 			files?: (File | number)[];
-			keyboard?: UpdateTelegramBotCommandKeyboard | null;
+			keyboard?: UpdateCommandKeyboard;
 		}
 	}
 
-	export namespace TelegramBotCommandDiagramAPI {
-		export interface Connect {
-			telegram_bot_command_keyboard_button_id: number;
-			telegram_bot_command_id: number;
-			start_diagram_connector: string;
-			end_diagram_connector: string;
-		}
-		export type Disconnect = Pick<Connect, 'telegram_bot_command_keyboard_button_id'>;
+	export namespace ConditionsAPI {
+		type CreateConditionPart = Omit<ConditionPart, 'id'>;
 
-		export interface UpdatePosition {
-			x: number;
-			y: number;
+		export interface Create extends Omit<Condition, 'id' | 'parts'> {
+			parts: CreateConditionPart[];
 		}
 	}
 
-	export namespace TelegramBotVariableAPI {
-		export type Create = Omit<TelegramBotVariable, 'id'>;
+	export namespace ConditionAPI {
+		export type Update = ConditionsAPI.Create;
+	}
+
+	export namespace BackgroundTasksAPI {
+		type CreateBackgroundTaskAPIRequest = Omit<BackgroundTaskAPIRequest, 'id'>;
+
+		export interface Create extends Omit<BackgroundTask, 'id' | 'api_request'> {
+			api_request: CreateBackgroundTaskAPIRequest[];
+		}
+	}
+
+	export namespace BackgroundTaskAPI {
+		export type Update = BackgroundTasksAPI.Create;
+	}
+
+	export namespace DiagramCommandAPI {
+		export interface Update {
+			x?: number;
+			y?: number;
+		}
+	}
+
+	export namespace DiagramConditionAPI {
+		export interface Update {
+			x?: number;
+			y?: number;
+		}
+	}
+
+	export namespace DiagramBackgroundTaskAPI {
+		export interface Update {
+			x?: number;
+			y?: number;
+		}
+	}
+
+	export namespace VariableAPI {
+		export type Create = Omit<Variable, 'id'>;
 		export type Update = Create;
 	}
 }
@@ -185,67 +265,112 @@ export namespace Data {
 export namespace APIResponse {
 	export namespace TelegramBotsAPI {
 		export type Get = TelegramBot[];
+		export interface Create extends BaseApiResponse.Success {
+			telegram_bot: TelegramBot;
+		}
 	}
 
 	export namespace TelegramBotAPI {
 		export type Get = TelegramBot;
-		export interface Create extends BaseApiResponse.Success {
-			telegram_bot: TelegramBot;
-		}
-		export type Update = Create;
+		export type Update = TelegramBotsAPI.Create;
 
 		export type Start = {};
+		export type Restart = Start;
 		export type Stop = Start;
 	}
 
-	export namespace TelegramBotCommandsAPI {
-		export type Get = TelegramBotCommand[];
+	export namespace CommandsAPI {
+		export type Get = Command[];
+		export interface Create extends BaseApiResponse.Success {
+			command: Command;
+		}
 	}
 
-	export namespace TelegramBotCommandAPI {
-		export type Get = TelegramBotCommand;
+	export namespace CommandAPI {
+		export type Get = Command;
+		export type Update = CommandsAPI.Create;
 	}
 
-	export namespace TelegramBotCommandsDiagramAPI {
-		export type Get = TelegramBotCommandDiagram[];
+	export namespace ConditionsAPI {
+		export type Get = Condition[];
+		export interface Create extends BaseApiResponse.Success {
+			condition: Condition;
+		}
 	}
 
-	export namespace TelegramBotCommandDiagramAPI {
+	export namespace ConditionAPI {
+		export type Get = Condition;
+		export type Update = ConditionsAPI.Create;
+	}
+
+	export namespace BackgroundTasksAPI {
+		export type Get = BackgroundTask[];
+		export interface Create extends BaseApiResponse.Success {
+			background_task: BackgroundTask;
+		}
+	}
+
+	export namespace BackgroundTaskAPI {
+		export type Get = BackgroundTask;
+		export type Update = BackgroundTasksAPI.Create;
+	}
+
+	export namespace DiagramCommandsAPI {
+		export type Get = DiagramCommand[];
+	}
+
+	export namespace DiagramCommandAPI {
 		export type Get = {};
 	}
 
-	export namespace TelegramBotVariablesAPI {
+	export namespace DiagramConditionsAPI {
+		export type Get = DiagramCondition[];
+	}
+
+	export namespace DiagramConditionAPI {
+		export type Get = {};
+	}
+
+	export namespace DiagramBackgroundTasksAPI {
+		export type Get = DiagramBackgroundTask[];
+	}
+
+	export namespace DiagramBackgroundTaskAPI {
+		export type Get = {};
+	}
+
+	export namespace VariablesAPI {
 		export namespace Get {
-			export type Default = TelegramBotVariable[];
+			export type Default = Variable[];
 			export interface Pagination {
 				count: number;
 				next: string | null;
 				previous: string | null;
-				results: TelegramBotVariable[];
+				results: Variable[];
 			}
 		}
 	}
 
-	export namespace TelegramBotVariableAPI {
-		export type Get = TelegramBotVariable;
+	export namespace VariableAPI {
+		export type Get = Variable;
 		export interface Create extends BaseApiResponse.Success {
-			telegram_bot_variable: TelegramBotVariable;
+			telegram_bot_variable: Variable;
 		}
 		export type Update = Create;
 	}
 
-	export namespace TelegramBotUserAPI {
-		export type Get = TelegramBotUser;
+	export namespace UserAPI {
+		export type Get = User;
 	}
 
-	export namespace TelegramBotUsersAPI {
+	export namespace UsersAPI {
 		export namespace Get {
-			export type Default = TelegramBotUser[];
+			export type Default = User[];
 			export interface Pagination {
 				count: number;
 				next: string | null;
 				previous: string | null;
-				results: TelegramBotUser[];
+				results: User[];
 			}
 		}
 	}

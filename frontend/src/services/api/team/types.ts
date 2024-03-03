@@ -1,4 +1,4 @@
-export interface TeamMember {
+export interface Member {
 	id: number;
 	image: string;
 	username: string;
@@ -7,7 +7,7 @@ export interface TeamMember {
 }
 
 export namespace APIResponse {
-	export namespace TeamMembersAPI {
-		export type Get = TeamMember[];
+	export namespace MembersAPI {
+		export type Get = Member[];
 	}
 }

@@ -5,13 +5,13 @@ export interface Donation {
 	date: string;
 }
 
-export interface DonationSection {
+export interface Section {
 	id: number;
 	title: string;
 	text: string;
 }
 
-export interface DonationButton {
+export interface Button {
 	id: number;
 	text: string;
 	url: string;
@@ -30,11 +30,11 @@ export namespace APIResponse {
 		}
 	}
 
-	export namespace DonationSectionsAPI {
-		export type Get = DonationSection[];
+	export namespace SectionsAPI {
+		export type Get = Section[];
 	}
 
-	export namespace DonationButtonsAPI {
-		export type Get = DonationButton[];
+	export namespace ButtonsAPI {
+		export type Get = Button[];
 	}
 }

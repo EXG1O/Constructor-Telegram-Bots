@@ -3,8 +3,8 @@ import { APIResponse } from './types';
 
 const rootUrl = '/api/instruction/';
 
-export namespace InstructionSectionsAPI {
+export namespace SectionsAPI {
 	const url = rootUrl + 'sections/';
 
-	export const get = () => makeRequest<APIResponse.InstructionSectionsAPI.Get>(url, 'GET');
+	export const get = () => makeRequest<APIResponse.SectionsAPI.Get>(url, 'GET');
 }
