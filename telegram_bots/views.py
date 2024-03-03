@@ -80,7 +80,7 @@ class TelegramBotAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(TelegramBotSerializer(telegram_bot).data)
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> Response | MessageResponse:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		serializer = TelegramBotActionSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
@@ -277,7 +277,7 @@ class BackgroundTasksAPIView(APIView):
 
 		return MessageResponse(
 			_('Вы успешно добавили фоновую задачу.'),
-			data={'condition': serializer.data},
+			data={'background_task': serializer.data},
 			status=201,
 		)
 
@@ -295,7 +295,7 @@ class BackgroundTaskAPIView(APIView):
 
 		return MessageResponse(
 			_('Вы успешно обновили фоновую задачу.'),
-			data={'condition': serializer.data},
+			data={'background_task': serializer.data},
 		)
 
 	def delete(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> MessageResponse:
