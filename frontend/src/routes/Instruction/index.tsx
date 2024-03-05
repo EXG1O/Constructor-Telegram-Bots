@@ -3,20 +3,22 @@ import { json, useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
-import { InstructionSectionsAPI } from 'services/api/instruction/main';
-import { APIResponse } from 'services/api/instruction/types';
 import Title from 'components/Title';
+
 import Section from './components/Section';
 
+import { SectionsAPI } from 'services/api/instruction/main';
+import { APIResponse } from 'services/api/instruction/types';
+
 export interface LoaderData {
-	sections: APIResponse.InstructionSectionsAPI.Get;
+	sections: APIResponse.SectionsAPI.Get;
 }
 
 export async function loader(): Promise<LoaderData> {
-	const response = await InstructionSectionsAPI.get();
+	const response = await SectionsAPI.get();
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return { sections: response.json };

@@ -3,10 +3,10 @@ import classNames from 'classnames';
 
 import './Section.scss';
 
-import { InstructionSection } from 'services/api/instruction/types';
+import { Section as SectionType } from 'services/api/instruction/types';
 
 export interface SectionProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-	section: InstructionSection;
+	section: SectionType;
 }
 
 function Section({ section, ...props }: SectionProps): ReactElement<SectionProps> {
