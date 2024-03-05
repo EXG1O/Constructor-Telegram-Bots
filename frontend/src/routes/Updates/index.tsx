@@ -29,7 +29,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await UpdatesAPI.get(limit, offset);
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return {
@@ -52,11 +52,11 @@ function Updates(): ReactElement {
 	const [paginationData, setPaginationData] = useState<UpdatesPaginationData>(initialPaginationData);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function updateUpdates(limit?: number, offset?: number): Promise<void> {
+	async function updateUpdates(
+		limit: number = paginationData.limit,
+		offset: number = paginationData.offset,
+	): Promise<void> {
 		setLoading(true);
-
-		limit ??= paginationData.limit;
-		offset ??= paginationData.offset;
 
 		const response = await UpdatesAPI.get(limit, offset);
 
@@ -69,7 +69,10 @@ function Updates(): ReactElement {
 			});
 			setLoading(false);
 		} else {
-			createMessageToast({ message: response.json.message, level: response.json.level });
+			createMessageToast({
+				message: response.json.message,
+				level: response.json.level,
+			});
 		}
 	}
 
