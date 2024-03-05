@@ -5,10 +5,13 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import 'styles/bootstrap.scss';
 import 'bootstrap-icons/font/bootstrap-icons.scss';
 
+import ErrorBoundary from 'routes/ErrorBoundary';
+
 const router = createBrowserRouter([
 	{
 		id: 'root',
 		path: '/',
+		ErrorBoundary,
 		async lazy() {
 			const module = await import('./routes/Root');
 
