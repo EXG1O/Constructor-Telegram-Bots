@@ -25,7 +25,7 @@ function Header(): ReactElement {
 	return (
 		<Nav variant='pills' className='nav-fill bg-light border rounded gap-2 p-2'>
 			{headerLinks.map((props, index) => {
-				const to: string = `/telegram-bot-menu/${telegramBot.id}/` + props.to;
+				const to: string = `/telegram-bot-menu/${telegramBot.id}/${props.to}`;
 
 				return (
 					<Link

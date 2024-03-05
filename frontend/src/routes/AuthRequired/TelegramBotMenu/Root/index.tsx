@@ -22,7 +22,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 	const response = await TelegramBotAPI.get(parseInt(telegramBotID));
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return { telegramBot: response.json };
