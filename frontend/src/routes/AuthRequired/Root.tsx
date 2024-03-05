@@ -9,7 +9,11 @@ function Root(): ReactElement {
 	const navigate = useNavigate();
 	const { user } = useRouteLoaderData('root') as RootLoaderData;
 
-	useEffect(() => { !user && navigate('/') }, [user]);
+	useEffect(() => {
+		if (!user) {
+			navigate('/');
+		}
+	}, [user]);
 
 	return (
 		user ? (
