@@ -4,32 +4,33 @@ import { json, useRouteLoaderData } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
-import Section from './components/Section';
 import Title from 'components/Title';
 
-import { DonationSectionsAPI, DonationButtonsAPI } from 'services/api/donations/main';
+import Section from './components/Section';
+
+import { SectionsAPI, ButtonsAPI } from 'services/api/donations/main';
 import { APIResponse } from 'services/api/donations/types';
 
 export interface LoaderData {
-	sections: APIResponse.DonationSectionsAPI.Get,
-	buttons: APIResponse.DonationButtonsAPI.Get,
+	sections: APIResponse.SectionsAPI.Get,
+	buttons: APIResponse.ButtonsAPI.Get,
 }
 
 export async function loader(): Promise<LoaderData> {
 	const responses = [
-		await DonationSectionsAPI.get(),
-		await DonationButtonsAPI.get(),
+		await SectionsAPI.get(),
+		await ButtonsAPI.get(),
 	];
 
 	for (const response of responses) {
 		if (!response.ok) {
-			throw json(response.json, { status: response.status });
+			throw json(response.json, response.status);
 		}
 	}
 
 	return {
-		sections: responses[0].json as APIResponse.DonationSectionsAPI.Get,
-		buttons: responses[1].json as APIResponse.DonationButtonsAPI.Get,
+		sections: responses[0].json as APIResponse.SectionsAPI.Get,
+		buttons: responses[1].json as APIResponse.ButtonsAPI.Get,
 	}
 }
 
