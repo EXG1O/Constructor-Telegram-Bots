@@ -8,18 +8,18 @@ import Title from 'components/Title';
 
 import Member from './components/Member';
 
-import { TeamMembersAPI } from 'services/api/team/main';
+import { MembersAPI } from 'services/api/team/main';
 import { APIResponse } from 'services/api/team/types';
 
 export interface LoaderData {
-	members: APIResponse.TeamMembersAPI.Get;
+	members: APIResponse.MembersAPI.Get;
 }
 
 export async function loader(): Promise<LoaderData> {
-	const response = await TeamMembersAPI.get();
+	const response = await MembersAPI.get();
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return { members: response.json };

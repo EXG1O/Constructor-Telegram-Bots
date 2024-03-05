@@ -3,10 +3,10 @@ import classNames from 'classnames';
 
 import './Member.scss';
 
-import { TeamMember } from 'services/api/team/types';
+import { Member as MemberType } from 'services/api/team/types';
 
 export interface MemberProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-	member: TeamMember;
+	member: MemberType;
 }
 
 function Member({ member, ...props }: MemberProps): ReactElement<MemberProps> {
