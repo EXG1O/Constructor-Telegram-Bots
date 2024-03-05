@@ -200,6 +200,14 @@ const router = createBrowserRouter([
 					},
 				],
 			},
+			{
+				path: '*',
+				async lazy() {
+					const module = await import('./routes/NotFound');
+
+					return { Component: module.default };
+				},
+			},
 		],
 	},
 ]);
