@@ -7,18 +7,18 @@ import Title from 'components/Title';
 
 import Section from './components/Section';
 
-import { PrivacyPolicySectionsAPI } from 'services/api/privacy_policy/main';
+import { SectionsAPI } from 'services/api/privacy_policy/main';
 import { APIResponse } from 'services/api/privacy_policy/types';
 
 export interface LoaderData {
-	sections: APIResponse.PrivacyPolicySectionsAPI.Get;
+	sections: APIResponse.SectionsAPI.Get;
 }
 
 export async function loader(): Promise<LoaderData> {
-	const response = await PrivacyPolicySectionsAPI.get();
+	const response = await SectionsAPI.get();
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return { sections: response.json };

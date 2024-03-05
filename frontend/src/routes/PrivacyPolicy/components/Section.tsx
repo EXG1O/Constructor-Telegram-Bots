@@ -3,10 +3,10 @@ import classNames from 'classnames';
 
 import './Section.scss';
 
-import { PrivacyPolicySection } from 'services/api/privacy_policy/types';
+import { Section as SectionType } from 'services/api/privacy_policy/types';
 
 export interface SectionProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-	section: PrivacyPolicySection;
+	section: SectionType;
 }
 
 function Section({ section, ...props }: SectionProps): ReactElement<SectionProps> {
