@@ -13,10 +13,10 @@ import Variable from './components/Variable';
 
 import useToast from 'services/hooks/useToast';
 
-import { LoaderData as TelegramBotMenuVariablesLoaderData, UserVariablesPaginationData } from '../..';
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+import { LoaderData as TelegramBotMenuVariablesLoaderData, UserVariablesPaginationData } from '../..';
 
-import { TelegramBotVariablesAPI } from 'services/api/telegram_bots/main';
+import { VariablesAPI } from 'services/api/telegram_bots/main';
 
 function UserVariables(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
@@ -28,13 +28,13 @@ function UserVariables(): ReactElement {
 	const [showCreateVariableModal, setShowCreateVariableModal] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function updateVariables(limit?: number, offset?: number): Promise<void> {
+	async function updateVariables(
+		limit: number = paginationData.limit,
+		offset: number = paginationData.offset,
+	): Promise<void> {
 		setLoading(true);
 
-		limit ??= paginationData.limit;
-		offset ??= paginationData.offset;
-
-		const response = await TelegramBotVariablesAPI.get(telegramBot.id, limit, offset);
+		const response = await VariablesAPI.get(telegramBot.id, limit, offset);
 
 		if (response.ok) {
 			setPaginationData({

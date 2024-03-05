@@ -9,11 +9,11 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
-import { TelegramBotVariable } from 'services/api/telegram_bots/types';
+import { VariableAPI } from 'services/api/telegram_bots/main';
+import { Variable as VariableType } from 'services/api/telegram_bots/types';
 
 export interface VariableProps extends Pick<UpdateVariableModalProps, 'onUpdated'> {
-	variable: TelegramBotVariable;
+	variable: VariableType;
 	onDeleted: () => void;
 }
 
@@ -26,7 +26,7 @@ function Variable({ variable, onUpdated, onDeleted }: VariableProps): ReactEleme
 	const [showDeleteVariableModal, setShowDeleteVariableModal] = useState<boolean>(false);
 
 	const handleConfirmDelete = useCallback(async () => {
-		const response = await TelegramBotVariableAPI._delete(telegramBot.id, variable.id);
+		const response = await VariableAPI._delete(telegramBot.id, variable.id);
 
 		if (response.ok) {
 			onDeleted();

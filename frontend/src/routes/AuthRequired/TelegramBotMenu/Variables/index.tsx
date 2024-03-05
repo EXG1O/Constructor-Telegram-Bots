@@ -9,10 +9,10 @@ import UserVariables from './components/UserVariables';
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotVariablesAPI } from 'services/api/telegram_bots/main';
+import { VariablesAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
 
-export interface UserVariablesPaginationData extends Omit<APIResponse.TelegramBotVariablesAPI.Get.Pagination, 'next' | 'previous'> {
+export interface UserVariablesPaginationData extends Omit<APIResponse.VariablesAPI.Get.Pagination, 'next' | 'previous'> {
 	limit: number;
 	offset: number;
 }
@@ -25,10 +25,10 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 	const telegramBotID: number = parseInt(params.telegramBotID!);
 	const [limit, offset] = [10, 0];
 
-	const response = await TelegramBotVariablesAPI.get(telegramBotID, limit, offset);
+	const response = await VariablesAPI.get(telegramBotID, limit, offset);
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return {

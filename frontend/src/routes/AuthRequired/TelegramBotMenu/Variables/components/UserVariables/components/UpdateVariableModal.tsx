@@ -9,11 +9,11 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotVariableAPI } from 'services/api/telegram_bots/main';
-import { TelegramBotVariable } from 'services/api/telegram_bots/types';
+import { VariableAPI } from 'services/api/telegram_bots/main';
+import { Variable } from 'services/api/telegram_bots/types';
 
 export interface UpdateVariableModalProps extends Pick<VariableModalProps, 'show' | 'onHide'> {
-	variable: TelegramBotVariable;
+	variable: Variable;
 	onUpdated: () => void;
 }
 
@@ -27,7 +27,7 @@ function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVa
 	async function handleSaveButtonClick(data: BaseVariableModalData): Promise<void> {
 		setLoading(true);
 
-		const response = await TelegramBotVariableAPI.update(telegramBot.id, variable.id, data);
+		const response = await VariableAPI.update(telegramBot.id, variable.id, data);
 
 		if (response.ok) {
 			onUpdated();
