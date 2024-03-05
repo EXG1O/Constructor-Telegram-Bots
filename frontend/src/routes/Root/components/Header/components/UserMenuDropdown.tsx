@@ -33,7 +33,10 @@ function UserMenuDropdown({ user, ...props }: UserMenuDropdownProps): ReactEleme
 		}
 
 		setLoadingLogoutModal(false);
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}, []);
 
 	return (

@@ -27,9 +27,9 @@ function LinksBlock({ title, links, ...props }: LinksBlockProps): ReactElement<L
 			<h5 className='mb-0'>{title}</h5>
 			{links.map((props, index) => {
 				if (props.type === 'default') {
-					return <DefaultLink key={index} {...props} />
+					return <DefaultLink key={index} {...props} />;
 				} else if (props.type === 'react') {
-					return <ReactLink key={index} {...props} />
+					return <ReactLink key={index} {...props} />;
 				}
 			})}
 		</Col>

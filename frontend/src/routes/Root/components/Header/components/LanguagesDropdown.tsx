@@ -22,7 +22,10 @@ function LanguagesDropdown(props: LanguagesDropdownProps): ReactElement<Language
 		if (response.ok) {
 			window.location.href = location.pathname;
 		} else {
-			createMessageToast({ message: response.json.message, level: response.json.level });
+			createMessageToast({
+				message: response.json.message,
+				level: response.json.level,
+			});
 		}
 	}
 

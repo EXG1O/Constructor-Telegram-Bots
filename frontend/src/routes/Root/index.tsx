@@ -26,10 +26,9 @@ export interface LoaderData {
 }
 
 export async function loader(): Promise<LoaderData> {
-	const authToken = Cookies.get('auth-token');
 	let user: LoaderData['user'] = null;
 
-	if (authToken !== undefined) {
+	if (Cookies.get('auth-token') !== undefined) {
 		const response = await UserAPI.get();
 
 		if (response.ok) {
@@ -42,7 +41,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await LanguagesAPI.get();
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return {
