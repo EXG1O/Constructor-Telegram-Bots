@@ -33,7 +33,10 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 			navigate('/personal-cabinet/');
 		}
 
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}
 
 	async function handleStartOrStopTelegramBotButtonClick(action: 'start' | 'stop'): Promise<void> {

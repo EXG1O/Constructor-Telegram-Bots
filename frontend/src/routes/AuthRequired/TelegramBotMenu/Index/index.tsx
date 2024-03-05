@@ -6,10 +6,10 @@ import Col from 'react-bootstrap/Col';
 
 import Title from 'components/Title';
 import TelegramBotCard from 'components/TelegramBotCard';
+
 import TelegramBotCardFooter from './components/TelegramBotCardFooter';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
-
 
 function Index(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
