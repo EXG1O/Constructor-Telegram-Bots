@@ -4,6 +4,7 @@ import { json } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import Title from 'components/Title';
+
 import Header from './components/Header';
 import Stats from './components/Stats';
 import Donations from './components/Donations';
@@ -19,7 +20,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await DonationsAPI.get(20);
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return { donations: response.json };
