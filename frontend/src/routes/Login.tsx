@@ -45,13 +45,13 @@ function Login(): ReactElement {
 	useEffect(() => {
 		const options: NavigateOptions = { replace: true };
 
-		createMessageToast({ message, level });
-
 		if (level === 'success') {
 			navigate('/personal-cabinet/', options);
 		} else {
 			navigate('/', options);
 		}
+
+		createMessageToast({ message, level });
 	}, []);
 
 	return <Loading size='lg' className='m-auto' />;
