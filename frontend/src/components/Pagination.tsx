@@ -9,7 +9,13 @@ export interface PaginationProps extends Omit<_PaginationProps, 'children'> {
 	onPageChange: (newItemOffset: number) => void;
 }
 
-function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }: PaginationProps): ReactElement<PaginationProps> {
+function Pagination({
+	itemCount,
+	itemLimit,
+	itemOffset,
+	onPageChange,
+	...props
+}: PaginationProps): ReactElement<PaginationProps> {
 	const [items, setItems] = useState<ReactNode[]>([]);
 
 	useEffect(() => {
@@ -18,36 +24,36 @@ function Pagination({ itemCount, itemLimit, itemOffset, onPageChange, ...props }
 
 		setItems(
 			pageCount > 1 ? (
-				Array.from({ length: pageCount }, (_, num) => {
-					num++;
+				Array.from({ length: pageCount }, (_, pageNum) => {
+					pageNum++;
 
 					if (
 						pageCount <= 7 ||
-						num === 1 || num === pageCount ||
-						num <= 5 && activePageNum <= 5 && activePageNum !== 5 ||
-						num >= pageCount - 4 && activePageNum >= pageCount - 4 && activePageNum !== pageCount - 4 ||
-						num >= activePageNum - 1 && num <= activePageNum + 1
+						pageNum === 1 || pageNum === pageCount ||
+						pageNum <= 5 && activePageNum <= 5 && activePageNum !== 5 ||
+						pageNum >= pageCount - 4 && activePageNum >= pageCount - 4 && activePageNum !== pageCount - 4 ||
+						pageNum >= activePageNum - 1 && pageNum <= activePageNum + 1
 					) {
 						return (
 							<_Pagination.Item
-								key={num}
+								key={pageNum}
 								as='span'
 								{...(
-									activePageNum === num ? {
+									activePageNum === pageNum ? {
 										active: true,
 									} : {
-										onClick: () => onPageChange((num - 1) * itemLimit),
+										onClick: () => onPageChange((pageNum - 1) * itemLimit),
 									}
 								)}
 								style={{ cursor: 'pointer' }}
 							>
-								{num}
+								{pageNum}
 							</_Pagination.Item>
 						);
-					} else if (num === 2 || num === pageCount - 2) {
+					} else if (pageNum === 2 || pageNum === pageCount - 2) {
 						return (
 							<_Pagination.Ellipsis
-								key={num}
+								key={pageNum}
 								style={{
 									cursor: 'default',
 									pointerEvents: 'none',

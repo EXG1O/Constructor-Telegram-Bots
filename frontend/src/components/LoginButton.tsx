@@ -6,12 +6,12 @@ import LoginModal from './LoginModal';
 
 export type LoginButtonProps = Omit<ButtonProps, 'as' | 'href' | 'target' | 'variant' | 'children'>;
 
-function LoginButton(props: LoginButtonProps): ReactElement<LoginButtonProps> {
+function LoginButton({ onClick, ...props }: LoginButtonProps): ReactElement<LoginButtonProps> {
 	const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
 
 	function handleButtonClick(event: MouseEvent<HTMLButtonElement>): void {
 		setShowLoginModal(true);
-		props.onClick?.(event);
+		onClick?.(event);
 	}
 
 	return (

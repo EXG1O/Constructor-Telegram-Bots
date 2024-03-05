@@ -23,7 +23,11 @@ export interface TelegramBotCardProps extends Omit<CardProps, 'children'> {
 	children: (props: TelegramBotCardChildrenProps) => ReactNode;
 }
 
-function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
+function TelegramBotCard({
+	telegramBot: initialTelegramBot,
+	children,
+	...props
+}: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
 	const { createMessageToast } = useToast();
 
 	const [telegramBot, setTelegramBot] = useState<TelegramBot>(initialTelegramBot);
@@ -64,7 +68,10 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 			toggleAPITokenState();
 		}
 
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}
 
 	async function handleIsPrivateSwitchChange(): Promise<void> {
@@ -74,7 +81,10 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 			setTelegramBot(response.json.telegram_bot);
 		}
 
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}
 
 	return (
@@ -112,9 +122,10 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 									{apiTokenIsEditing ? (
 										<Form.Control
 											size='sm'
+											autoFocus
 											type='text'
 											value={apiTokenInputValue}
-											placeholder={gettext('Введите API-токен Telegram бота')}
+											placeholder={gettext('Введите API-токен')}
 											style={{ fontSize: '16px' }}
 											onChange={(event) => setAPITokenInputValue(event.target.value)}
 										/>
@@ -166,7 +177,7 @@ function TelegramBotCard({ telegramBot: initialTelegramBot, ...props }: Telegram
 					</tbody>
 				</Table>
 			</Card.Body>
-			{props.children?.({ telegramBot, setTelegramBot })}
+			{children?.({ telegramBot, setTelegramBot })}
 		</Card>
 	);
 }

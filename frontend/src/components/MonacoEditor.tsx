@@ -15,7 +15,13 @@ export interface MonacoEditorProps extends _MonacoEditorProps {
 	disableFocusEffect?: boolean;
 }
 
-function MonacoEditor({ disablePadding, disableFocusEffect, onMount, onChange, ...props }: MonacoEditorProps): ReactElement<MonacoEditorProps> {
+function MonacoEditor({
+	disablePadding,
+	disableFocusEffect,
+	onChange,
+	onMount,
+	...props
+}: MonacoEditorProps): ReactElement<MonacoEditorProps> {
 	const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | undefined>(undefined);
 	const [focus, setFocus] = useState<boolean>(false);
 
@@ -64,8 +70,8 @@ function MonacoEditor({ disablePadding, disableFocusEffect, onMount, onChange, .
 					props.className,
 				)
 			}
-			onMount={handleMonacoEditorMount}
 			onChange={handleMonacoEditorChange}
+			onMount={handleMonacoEditorMount}
 		/>
 	);
 }

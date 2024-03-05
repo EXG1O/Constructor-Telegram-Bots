@@ -19,7 +19,14 @@ export interface QuillEditorProps extends Omit<ReactQuillProps, 'modules' | 'chi
 	onMount?: (quillEditor: QuillEditor) => void;
 }
 
-function QuillEditor({ height, toolbar, onFocus, onBlur, onMount, ...props }: QuillEditorProps): ReactElement<QuillEditorProps> {
+function QuillEditor({
+	height,
+	toolbar,
+	onFocus,
+	onBlur,
+	onMount,
+	...props
+}: QuillEditorProps): ReactElement<QuillEditorProps> {
 	const quillRef = useRef<Quill | undefined>(undefined);
     const reactQuillRef = useRef<ReactQuill | null>(null);
 	const [focus, setFocus] = useState<boolean>(false);

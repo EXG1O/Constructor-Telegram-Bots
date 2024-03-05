@@ -1,7 +1,7 @@
 import React, { ReactElement, memo } from 'react';
 
-import { QRCodeCanvas } from 'qrcode.react';
 import Modal, { ModalProps } from 'react-bootstrap/Modal';
+import { QRCodeCanvas } from 'qrcode.react';
 
 export type LoginModalProps = Omit<ModalProps, 'children'>;
 
@@ -18,12 +18,8 @@ function LoginModal(props: LoginModalProps): ReactElement<LoginModalProps> {
 						/>
 					</div>
 				</div>
-				<h3 className='fw-semibold mb-1'>
-					{gettext('Telegram не открылся?')}
-				</h3>
-				<p className='mb-1'>
-					{gettext('Отсканируйте QR-код с устройства на котором установлен Telegram.')}
-				</p>
+				<h3 className='fw-semibold mb-1'>{gettext('Telegram не открылся?')}</h3>
+				<p className='mb-1'>{gettext('Отсканируйте QR-код с устройства на котором установлен Telegram.')}</p>
 				<a
 					href={`https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=login`}
 					target='_blank'

@@ -9,7 +9,10 @@ export interface TelegramBotStorageProps {
 	usedStorageSize?: number;
 }
 
-function TelegramBotStorage({ telegramBot, usedStorageSize = telegramBot.used_storage_size}: TelegramBotStorageProps): ReactElement<TelegramBotStorageProps> {
+function TelegramBotStorage({
+	telegramBot,
+	usedStorageSize = telegramBot.used_storage_size,
+}: TelegramBotStorageProps): ReactElement<TelegramBotStorageProps> {
 	return (
 		<div className='d-flex gap-2' style={{ fontSize: '12px' }}>
 			<span>{`${(usedStorageSize / 1024 ** 2).toFixed(2)} MB`}</span>

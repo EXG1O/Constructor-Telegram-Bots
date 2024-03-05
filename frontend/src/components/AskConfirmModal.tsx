@@ -13,7 +13,15 @@ export interface AskConfirmModalProps extends ModalProps {
 	onCancel?: () => void;
 }
 
-function AskConfirmModal({ loading, title, children, onConfirm, onCancel, onHide, ...props }: AskConfirmModalProps): ReactElement<AskConfirmModalProps> {
+function AskConfirmModal({
+	loading,
+	title,
+	children,
+	onHide,
+	onConfirm = onHide,
+	onCancel = onHide,
+	...props
+}: AskConfirmModalProps): ReactElement<AskConfirmModalProps> {
 	return (
 		<Modal {...props} onHide={onHide}>
 			<Modal.Header closeButton>
@@ -26,14 +34,14 @@ function AskConfirmModal({ loading, title, children, onConfirm, onCancel, onHide
 						<Button
 							variant='success'
 							className='flex-fill'
-							onClick={onConfirm ?? onHide}
+							onClick={onConfirm}
 						>
 							{gettext('Да')}
 						</Button>
 						<Button
 							variant='danger'
 							className='flex-fill'
-							onClick={onCancel ?? onHide}
+							onClick={onCancel}
 						>
 							{gettext('Нет')}
 						</Button>
