@@ -4,6 +4,7 @@ import { Link, json, useRouteLoaderData } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
+import Title from 'components/Title';
 import TelegramBotCard from 'components/TelegramBotCard';
 
 import Header from './components/Header';
@@ -12,7 +13,6 @@ import TelegramBotsContext from './services/contexts/TelegramBotsContext';
 
 import { TelegramBotsAPI } from 'services/api/telegram_bots/main';
 import { TelegramBot, APIResponse } from 'services/api/telegram_bots/types';
-import Title from 'components/Title';
 
 export interface LoaderData {
 	telegramBots: APIResponse.TelegramBotsAPI.Get;
@@ -22,7 +22,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await TelegramBotsAPI.get();
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return { telegramBots: response.json };

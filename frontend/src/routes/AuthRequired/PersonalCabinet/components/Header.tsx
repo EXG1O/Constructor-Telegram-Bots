@@ -24,7 +24,7 @@ function Header(): ReactElement {
 				>
 					<i
 						className='bi bi-plus-lg me-1'
-						style={{ WebkitTextStroke: '0.6px' }}
+						style={{ WebkitTextStroke: '1px' }}
 					/>
 					{gettext('Добавить Telegram бота')}
 				</Button>

@@ -9,7 +9,7 @@ import Loading from 'components/Loading';
 import useToast from 'services/hooks/useToast';
 import useTelegramBots from '../services/hooks/useTelegramBots';
 
-import { TelegramBotAPI } from 'services/api/telegram_bots/main';
+import { TelegramBotsAPI } from 'services/api/telegram_bots/main';
 
 interface Data {
 	api_token: string;
@@ -33,7 +33,7 @@ function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactE
 	async function handleAddTelegramBotButtonClick(): Promise<void> {
 		setLoading(true);
 
-		const response = await TelegramBotAPI.create(data);
+		const response = await TelegramBotsAPI.create(data);
 
 		if (response.ok) {
 			setTelegramBots([...telegramBots, response.json.telegram_bot]);
@@ -41,7 +41,10 @@ function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactE
 		}
 
 		setLoading(false);
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}
 
 	return (
