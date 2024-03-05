@@ -8,16 +8,16 @@ import Title from 'components/Title';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
 
-import TelegramBotUser from './components/TelegramBotUser';
+import User from './components/User';
 
 import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 
-import { TelegramBotUsersAPI } from 'services/api/telegram_bots/main';
+import { UsersAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
 
-export interface TelegramBotUsersPaginationData extends Omit<APIResponse.TelegramBotUsersAPI.Get.Pagination, 'next' | 'previous'> {
+export interface TelegramBotUsersPaginationData extends Omit<APIResponse.UsersAPI.Get.Pagination, 'next' | 'previous'> {
 	limit: number;
 	offset: number;
 }
@@ -30,10 +30,10 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 	const telegramBotID: number = parseInt(params.telegramBotID!);
 	const [limit, offset] = [20, 0];
 
-	const response = await TelegramBotUsersAPI.get(telegramBotID, limit, offset);
+	const response = await UsersAPI.get(telegramBotID, limit, offset);
 
 	if (!response.ok) {
-		throw json(response.json, { status: response.status });
+		throw json(response.json, response.status);
 	}
 
 	return {
@@ -55,13 +55,13 @@ function Users(): ReactElement {
 	const [paginationData, setPaginationData] = useState<TelegramBotUsersPaginationData>(initialPaginationData);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function updateTelegramBotUsers(limit?: number, offset?: number): Promise<void> {
+	async function updateTelegramBotUsers(
+		limit: number = paginationData.limit,
+		offset: number = paginationData.offset,
+	): Promise<void> {
 		setLoading(true);
 
-		limit ??= paginationData.limit;
-		offset ??= paginationData.offset;
-
-		const response = await TelegramBotUsersAPI.get(telegramBot.id, limit, offset);
+		const response = await UsersAPI.get(telegramBot.id, limit, offset);
 
 		if (response.ok) {
 			setPaginationData({
@@ -102,9 +102,9 @@ function Users(): ReactElement {
 								>
 									<tbody>
 										{paginationData.results.map(telegramBotUser => (
-											<TelegramBotUser
+											<User
 												key={telegramBotUser.id}
-												telegramBotUser={telegramBotUser}
+												user={telegramBotUser}
 												onDeleted={updateTelegramBotUsers}
 											/>
 										))}
