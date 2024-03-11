@@ -8,6 +8,16 @@ from rest_framework.authtoken.models import Token
 from .models import User
 
 
+class StatsAPIViewTests(TestCase):
+	url: str = reverse('api:users:stats')
+
+	def setUp(self) -> None:
+		self.client: APIClient = APIClient()
+
+	def test_get_method(self) -> None:
+		response = self.client.get(self.url)
+		self.assertEqual(response.status_code, 200)
+
 class CustomTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()

@@ -1,10 +1,11 @@
 from django.urls import path, include
 
-from .views import UserAPIView, UserLoginAPIView, UserLogoutAPIView
+from .views import StatsAPIView, UserAPIView, UserLoginAPIView, UserLogoutAPIView
 
 
 app_name = 'users'
 urlpatterns = [
+	path('stats/', StatsAPIView.as_view(), name='stats'),
 	path('_/', include(((
 		path('', UserAPIView.as_view(), name='index'),
 		path('login/', UserLoginAPIView.as_view(), name='login'),

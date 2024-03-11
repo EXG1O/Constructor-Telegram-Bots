@@ -16,6 +16,13 @@ from .serializers import UserSerializer, UserLoginSerializer
 from typing import Any
 
 
+class StatsAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response({'count': User.objects.count()})
+
 class UserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
