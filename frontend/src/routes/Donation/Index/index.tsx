@@ -17,20 +17,15 @@ export interface LoaderData {
 }
 
 export async function loader(): Promise<LoaderData> {
-	const responses = [
-		await SectionsAPI.get(),
-		await ButtonsAPI.get(),
-	];
+	const [sectionsResponse, buttonsResponse] = await Promise.all([SectionsAPI.get(), ButtonsAPI.get()]);
 
-	for (const response of responses) {
-		if (!response.ok) {
-			throw json(response.json, response.status);
-		}
+	if (!sectionsResponse.ok || !buttonsResponse.ok) {
+		throw Error('Failed to fetch data!');
 	}
 
 	return {
-		sections: responses[0].json as APIResponse.SectionsAPI.Get,
-		buttons: responses[1].json as APIResponse.ButtonsAPI.Get,
+		sections: sectionsResponse.json,
+		buttons:buttonsResponse.json,
 	}
 }
 
