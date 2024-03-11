@@ -1,6 +1,7 @@
 from django.urls import path, include
 
 from .views import (
+	StatsAPIView,
 	TelegramBotsAPIView,
 	TelegramBotAPIView,
 	ConnectionsAPIView,
@@ -26,6 +27,7 @@ from .views import (
 
 app_name = 'telegram-bots'
 urlpatterns = [
+	path('stats/', StatsAPIView.as_view(), name='stats'),
 	path('', TelegramBotsAPIView.as_view(), name='list'),
 	path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
 	path('<int:telegram_bot_id>/', include(([

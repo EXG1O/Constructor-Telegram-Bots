@@ -55,6 +55,21 @@ from json import JSONDecodeError
 from typing import Literal, Any
 
 
+class StatsAPIView(APIView):
+	authentication_classes = []
+	permission_classes = []
+
+	def get(self, request: Request) -> Response:
+		return Response({
+			'telegram_bots': {
+				'total': TelegramBot.objects.count(),
+				'enabled': TelegramBot.objects.filter(is_enabled=True).count(),
+			},
+			'users': {
+				'total': User.objects.count(),
+			},
+		})
+
 class TelegramBotsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
