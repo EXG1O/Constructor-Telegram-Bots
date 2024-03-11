@@ -17,6 +17,7 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import { CommandAPI } from 'services/api/telegram_bots/main';
 import { DiagramBlock, DiagramCommand } from 'services/api/telegram_bots/types';
+import NodeToolbar from './NodeToolbar';
 
 interface NodeData extends Omit<DiagramCommand, keyof DiagramBlock> {
 	updateNodes: () => Promise<void>;
@@ -66,25 +67,12 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 				onUpdated={data.updateNodes}
 				onHide={() => setShowUpdateOffcanvas(false)}
 			/>
+			<NodeToolbar
+				title={gettext('Команда')}
+				onEdit={useCallback(() => setShowDeleteModal(true), [])}
+				onDelete={useCallback(() => setShowUpdateOffcanvas(true), [])}
+			/>
 			<Stack gap={2} style={{ width: '300px' }}>
-				<div className='d-flex gap-1'>
-					<Button
-						as='i'
-						size='sm'
-						variant='danger'
-						className='bi bi-trash d-flex justify-content-center align-items-center p-1'
-						style={{ fontSize: '16px' }}
-						onClick={() => setShowDeleteModal(true)}
-					/>
-					<Button
-						as='i'
-						size='sm'
-						variant='secondary'
-						className='bi bi-pencil-square d-flex justify-content-center align-items-center p-1'
-						style={{ fontSize: '16px' }}
-						onClick={() => setShowUpdateOffcanvas(true)}
-					/>
-				</div>
 				<div className='bg-light border rounded text-center text-break px-3 py-2' style={{ position: 'relative' }}>
 					<Handle
 						id={`${id}:left:0`}
