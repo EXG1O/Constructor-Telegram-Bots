@@ -131,7 +131,11 @@ class ConnectionsAPIView(APIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(_('Вы успешно подключили блок диаграммы к другому блоку'))
+		return MessageResponse(
+			_('Вы успешно подключили блок диаграммы к другому блоку'),
+			data={'connection': serializer.data},
+			status=201,
+		)
 
 class ConnectionAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
