@@ -263,6 +263,22 @@ export namespace Data {
 }
 
 export namespace APIResponse {
+	export namespace StatsAPI {
+		interface TelegramBotsStats {
+			total: number;
+			enabled: number;
+		}
+
+		interface UsersStats {
+			total: number;
+		}
+
+		export interface Get {
+			telegram_bots: TelegramBotsStats;
+			users: UsersStats;
+		}
+	}
+
 	export namespace TelegramBotsAPI {
 		export type Get = TelegramBot[];
 		export interface Create extends BaseApiResponse.Success {

@@ -13,6 +13,12 @@ import {
 
 const rootURL = '/api/telegram-bots/';
 
+export namespace StatsAPI {
+	export const url = rootURL + 'stats/';
+
+	export const get = () => makeRequest<APIResponse.StatsAPI.Get>(url, 'GET');
+}
+
 export namespace TelegramBotsAPI {
 	export const get = () => makeRequest<APIResponse.TelegramBotsAPI.Get>(rootURL, 'GET');
 	export const create = (data: Data.TelegramBotsAPI.Create) => (
