@@ -196,7 +196,7 @@ class ConnectionsAPIViewTests(CustomTestCase):
 			'target_object_type': 'command',
 			'target_object_id': self.command_1.id,
 		})
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, 201)
 
 class ConnectionAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
