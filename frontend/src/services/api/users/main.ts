@@ -3,6 +3,12 @@ import { Data, APIResponse } from './types';
 
 const rootURL = '/api/users/';
 
+export namespace StatsAPI {
+	export const url = rootURL + 'stats/';
+
+	export const get = () => makeRequest<APIResponse.StatsAPI.Get>(url, 'GET');
+}
+
 export namespace UserAPI {
 	export const url = rootURL + '_/';
 

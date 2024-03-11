@@ -18,6 +18,12 @@ export namespace Data {
 }
 
 export namespace APIResponse {
+	export namespace StatsAPI {
+		export interface Get {
+			count: number;
+		}
+	}
+
 	export namespace UserAPI {
 		export type Get = User;
 	}
