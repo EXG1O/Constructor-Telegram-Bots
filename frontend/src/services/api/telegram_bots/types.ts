@@ -111,7 +111,7 @@ export interface BackgroundTask {
 	api_request: BackgroundTaskAPIRequest | null;
 }
 
-export interface Diagram {
+export interface DiagramBlock {
 	x: number;
 	y: number;
 	source_connections: Connection[];
@@ -126,13 +126,13 @@ export interface DiagramCommandKeyboard extends Omit<CommandKeyboard, 'buttons'>
 	buttons: DiagramCommandKeyboardButton[];
 }
 
-export interface DiagramCommand extends Pick<Command, 'id' | 'name' | 'images' | 'files' | 'message'>, Diagram {
+export interface DiagramCommand extends Pick<Command, 'id' | 'name' | 'images' | 'files' | 'message'>, DiagramBlock {
 	keyboard: DiagramCommandKeyboard | null;
 }
 
-export type DiagramCondition = Omit<Condition, 'parts'> & Diagram;
+export type DiagramCondition = Omit<Condition, 'parts'> & DiagramBlock;
 
-export type DiagramBackgroundTask = Omit<BackgroundTask, 'api_request'> & Omit<Diagram, 'source_connections'>;
+export type DiagramBackgroundTask = Omit<BackgroundTask, 'api_request'> & Omit<DiagramBlock, 'source_connections'>;
 
 export interface Variable {
 	id: number;
@@ -277,6 +277,12 @@ export namespace APIResponse {
 		export type Start = {};
 		export type Restart = Start;
 		export type Stop = Start;
+	}
+
+	export namespace ConnectionsAPI {
+		export interface Create extends BaseApiResponse.Success {
+			connection: Connection;
+		}
 	}
 
 	export namespace CommandsAPI {

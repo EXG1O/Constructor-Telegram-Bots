@@ -49,7 +49,7 @@ export namespace ConnectionsAPI {
 	export const create = (
 		telegramBotID: TelegramBot['id'],
 		data: Data.ConnectionsAPI.Create,
-	) => makeRequest(url(telegramBotID), 'POST', data);
+	) => makeRequest<APIResponse.ConnectionsAPI.Create>(url(telegramBotID), 'POST', data);
 }
 
 export namespace ConnectionAPI {
