@@ -5,11 +5,11 @@ import { NodeProps, Handle, Position, useReactFlow } from 'reactflow';
 import './CommandNode.scss';
 
 import Stack from 'react-bootstrap/Stack';
-import Button from 'react-bootstrap/Button';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import UpdateCommandOffcanvas from './UpdateCommandOffcanvas';
+import EditCommandOffcanvas from './EditCommandOffcanvas';
+import NodeToolbar from './NodeToolbar';
 
 import useToast from 'services/hooks/useToast';
 
@@ -17,7 +17,6 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import { CommandAPI } from 'services/api/telegram_bots/main';
 import { DiagramBlock, DiagramCommand } from 'services/api/telegram_bots/types';
-import NodeToolbar from './NodeToolbar';
 
 interface NodeData extends Omit<DiagramCommand, keyof DiagramBlock> {
 	updateNodes: () => Promise<void>;
@@ -61,7 +60,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 			>
 				{gettext('Вы точно хотите удалить команду Telegram бота?')}
 			</AskConfirmModal>
-			<UpdateCommandOffcanvas
+			<EditCommandOffcanvas
 				show={showUpdateOffcanvas}
 				commandID={data.id}
 				onUpdated={data.updateNodes}
