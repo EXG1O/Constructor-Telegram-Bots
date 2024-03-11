@@ -10,26 +10,26 @@ export interface Data {
 	description?: string;
 }
 
-export interface CommandProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface TriggerProps extends Omit<CardProps, 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
 
 export const defaultData: Data = { text: '' };
 
-function Command({ data = defaultData, onChange, ...props }: CommandProps): ReactElement<CommandProps> {
+function Trigger({ data = defaultData, onChange, ...props }: TriggerProps): ReactElement<TriggerProps> {
 	const [showDescription, setShowDescription] = useState<boolean>(Boolean(data?.description));
 
 	return (
 		<Card {...props}>
 			<Card.Header as='h6' className='text-center'>
-				{gettext('Команда')}
+				{gettext('Триггер')}
 			</Card.Header>
 			<Card.Body className='p-2'>
 				<Form.Control
 					className='mb-2'
 					value={data.text}
-					placeholder={gettext('Введите команду')}
+					placeholder={gettext('Введите текст')}
 					onChange={e => onChange({ ...data, text: e.target.value })}
 				/>
 				<Button
@@ -45,7 +45,7 @@ function Command({ data = defaultData, onChange, ...props }: CommandProps): Reac
 							children: gettext('Добавить в меню'),
 						}
 					)}
-					aria-controls='command-offcanvas-command-description-addon'
+					aria-controls='command-offcanvas-trigger-description-addon'
 					aria-expanded={showDescription}
 					onClick={() => setShowDescription(!showDescription)}
 				/>
@@ -54,11 +54,11 @@ function Command({ data = defaultData, onChange, ...props }: CommandProps): Reac
 					unmountOnExit
 					onExited={() => onChange({ ...data, description: undefined })}
 				>
-					<div id='command-offcanvas-command-description-addon'>
+					<div id='command-offcanvas-trigger-description-addon'>
 						<Form.Control
 							value={data.description ?? ''}
 							className='border-top-0 rounded-1 rounded-top-0'
-							placeholder={gettext('Введите описание команды')}
+							placeholder={gettext('Введите описание')}
 							onChange={e => onChange({ ...data, description: e.target.value })}
 						/>
 					</div>
@@ -68,4 +68,4 @@ function Command({ data = defaultData, onChange, ...props }: CommandProps): Reac
 	);
 }
 
-export default memo(Command);
+export default memo(Trigger);

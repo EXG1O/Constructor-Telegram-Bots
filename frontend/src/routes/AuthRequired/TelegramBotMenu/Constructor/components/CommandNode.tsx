@@ -7,16 +7,20 @@ import './CommandNode.scss';
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 
-import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
-
-import { NodeData } from './..';
-
 import AskConfirmModal from 'components/AskConfirmModal';
+
+import UpdateCommandOffcanvas from './UpdateCommandOffcanvas';
 
 import useToast from 'services/hooks/useToast';
 
-import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
-import UpdateCommandOffcanvas from './UpdateCommandOffcanvas';
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+
+import { CommandAPI } from 'services/api/telegram_bots/main';
+import { DiagramBlock, DiagramCommand } from 'services/api/telegram_bots/types';
+
+interface NodeData extends Omit<DiagramCommand, keyof DiagramBlock> {
+	updateNodes: () => Promise<void>;
+}
 
 interface CommandNodeProps extends Omit<NodeProps, 'data'>{
 	data: NodeData;
@@ -27,20 +31,23 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 
 	const { createMessageToast } = useToast();
 
-	const { setNodes } = useReactFlow<NodeData>();
+	const { setNodes } = useReactFlow();
 
 	const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 	const [showUpdateOffcanvas, setShowUpdateOffcanvas] = useState<boolean>(false);
 
 	const handleConfirmDelete = useCallback(async (): Promise<void> => {
-		const response = await TelegramBotCommandAPI._delete(telegramBot.id, data.id);
+		const response = await CommandAPI._delete(telegramBot.id, data.id);
 
 		if (response.ok) {
 			setNodes(prevNodes => prevNodes.filter(node => node.id !== id));
 			setShowDeleteModal(false);
 		}
 
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}, []);
 
 	return (
@@ -80,20 +87,20 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 				</div>
 				<div className='bg-light border rounded text-center text-break px-3 py-2' style={{ position: 'relative' }}>
 					<Handle
-						id={`${data.id}:left:0`}
+						id={`${id}:left:0`}
 						type='target'
 						position={Position.Left}
 					/>
 					{data.name}
 					<Handle
-						id={`${data.id}:right:0`}
+						id={`${id}:right:0`}
 						type='target'
 						position={Position.Right}
 					/>
 				</div>
 				<div
 					className='message-text-block bg-light border rounded px-3 py-2'
-					dangerouslySetInnerHTML={{ __html: data.message_text.text }}
+					dangerouslySetInnerHTML={{ __html: data.message.text }}
 				/>
 				{data.keyboard?.buttons && (
 					<Stack gap={1}>
@@ -104,13 +111,13 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 								style={{ position: 'relative' }}
 							>
 								<Handle
-									id={`${data.id}:left:${button.id}`}
+									id={`${id}:left:${button.id}`}
 									type='source'
 									position={Position.Left}
 								/>
 								{button.text}
 								<Handle
-									id={`${data.id}:right:${button.id}`}
+									id={`${id}:right:${button.id}`}
 									type='source'
 									position={Position.Right}
 								/>

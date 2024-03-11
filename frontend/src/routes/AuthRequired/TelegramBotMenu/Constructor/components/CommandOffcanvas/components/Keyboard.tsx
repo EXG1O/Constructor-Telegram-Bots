@@ -1,13 +1,12 @@
 import React, { ReactElement, memo } from 'react';
 
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import Card, { CardProps } from 'react-bootstrap/Card';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 import ToggleButton, { ToggleButtonProps } from 'react-bootstrap/ToggleButton';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 export interface ButtonData {
 	id?: number;

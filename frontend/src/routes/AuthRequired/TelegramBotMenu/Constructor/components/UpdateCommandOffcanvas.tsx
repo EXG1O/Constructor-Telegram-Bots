@@ -9,7 +9,7 @@ import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
-import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
+import { CommandAPI } from 'services/api/telegram_bots/main';
 
 export interface AddCommandOffcanvasProps {
 	show: boolean;
@@ -31,12 +31,23 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 	async function updateInitialData(): Promise<void> {
 		setLoading(true);
 
-		const response = await TelegramBotCommandAPI.get(telegramBot.id, commandID);
+		const response = await CommandAPI.get(telegramBot.id, commandID);
 
 		if (response.ok) {
-			const { id, name, settings, images, files, command, message_text, keyboard, api_request, database_record } = response.json;
+			const {
+				id,
+				name,
+				settings,
+				images,
+				files,
+				trigger,
+				message,
+				keyboard,
+				api_request,
+				database_record,
+			} = response.json;
 
-			const newInitialData: CommandOffcanvasData = {
+			setInitialData({
 				name,
 				settings: {
 					isReplyToUserMessage: settings.is_reply_to_user_message,
@@ -45,11 +56,11 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 				},
 				images: images.length ? images.map(image => ({ ...image, key: crypto.randomUUID() })) : undefined,
 				files: files.length ? files.map(file => ({ ...file, key: crypto.randomUUID() })) : undefined,
-				command: command ? {
-					text: command.text,
-					description: command.description ?? undefined,
+				trigger: trigger ? {
+					text: trigger.text,
+					description: trigger.description ?? undefined,
 				} : undefined,
-				messageText: message_text.text,
+				message,
 				keyboard: keyboard ? {
 					type: keyboard.type,
 					buttons: keyboard.buttons.map(button => ({
@@ -66,9 +77,7 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 					body: api_request.body ? JSON.stringify(api_request.body, undefined, 4) : undefined,
 				} : undefined,
 				databaseRecord: database_record ? JSON.stringify(database_record.data, undefined, 4) : undefined,
-			}
-
-			setInitialData(newInitialData);
+			});
 			setLoading(false);
 		} else {
 			createMessageToast({
@@ -78,20 +87,27 @@ function UpdateCommandOffcanvas({ show, commandID, onUpdated, onHide }: AddComma
 		}
 	}
 
-	async function handleSaveCommandButtonClick(commandOffcanvasData: CommandOffcanvasData): Promise<void> {
+	async function handleSaveCommandButtonClick({
+		name,
+		settings,
+		images,
+		files,
+		message,
+		apiRequest,
+		databaseRecord,
+		...data
+	}: CommandOffcanvasData): Promise<void> {
 		setLoading(true);
 
-		const { name, settings, images, files, messageText, apiRequest, databaseRecord, ...data_ } = commandOffcanvasData;
-
-		const response = await TelegramBotCommandAPI.update(telegramBot.id, commandID, {
-			...data_,
+		const response = await CommandAPI.update(telegramBot.id, commandID, {
+			...data,
 			name: name ?? '',
 			settings: {
 				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
 				is_delete_user_message: settings?.isDeleteUserMessage ?? false,
 				is_send_as_new_message: settings?.isSendAsNewMessage ?? false,
 			},
-			message_text: { text: messageText ?? '' },
+			message: message ?? { text: '' },
 			images: images?.map(image => image.file ?? image.id!),
 			files: files?.map(file => file.file ?? file.id!),
 			api_request: apiRequest && {

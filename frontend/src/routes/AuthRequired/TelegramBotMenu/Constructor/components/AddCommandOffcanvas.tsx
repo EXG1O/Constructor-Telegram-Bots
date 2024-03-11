@@ -9,7 +9,7 @@ import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
-import { TelegramBotCommandAPI } from 'services/api/telegram_bots/main';
+import { CommandsAPI } from 'services/api/telegram_bots/main';
 
 export interface AddCommandOffcanvasProps {
 	show: boolean;
@@ -24,13 +24,20 @@ function AddCommandOffcanvas({ onAdded, onHide, ...props }: AddCommandOffcanvasP
 
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function handleAddCommandButtonClick(data: CommandOffcanvasData): Promise<void> {
+	async function handleAddCommandButtonClick({
+		name,
+		settings,
+		images,
+		files,
+		message,
+		apiRequest,
+		databaseRecord,
+		...data
+	}: CommandOffcanvasData): Promise<void> {
 		setLoading(true);
 
-		const { name, settings, images, files, messageText, apiRequest, databaseRecord, ..._data } = data;
-
-		const response = await TelegramBotCommandAPI.create(telegramBot.id, {
-			..._data,
+		const response = await CommandsAPI.create(telegramBot.id, {
+			...data,
 			name: name ?? '',
 			settings: {
 				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
@@ -39,7 +46,7 @@ function AddCommandOffcanvas({ onAdded, onHide, ...props }: AddCommandOffcanvasP
 			},
 			images: images?.map(image => image.file!),
 			files: files?.map(file => file.file!),
-			message_text: { text: messageText ?? '' },
+			message: message ?? { text: '' },
 			api_request: apiRequest && {
 				...apiRequest,
 				headers: apiRequest.headers && apiRequest.headers.map(header => ({ [header.key]: header.value })),

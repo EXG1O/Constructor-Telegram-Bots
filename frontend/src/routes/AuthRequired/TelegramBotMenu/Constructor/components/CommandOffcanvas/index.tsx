@@ -11,9 +11,9 @@ import TelegramBotStorage from 'components/TelegramBotStorage';
 
 import Name, { Value as NameValue } from './components/Name';
 import Settings, { Data as SettingsData } from './components/Settings';
-import Command, { Data as CommandData } from './components/Command';
+import Trigger, { Data as TriggerData } from './components/Trigger';
 import Images, { Data as ImagesData } from './components/Images';
-import MessageText, { Value as MessageTextValue } from './components/MessageText';
+import Message, { Data as MessageData } from './components/Message';
 import Keyboard, { Data as KeyboardData } from './components/Keyboard';
 import Files, { Data as FilesData } from './components/Files';
 import APIRequest, { Data as APIRequestData } from './components/APIRequest';
@@ -24,10 +24,10 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 export interface Data {
 	name?: NameValue;
 	settings?: SettingsData;
-	command?: CommandData;
+	trigger?: TriggerData;
 	images?: ImagesData;
 	files?: FilesData,
-	messageText?: MessageTextValue;
+	message?: MessageData;
 	keyboard?: KeyboardData;
 	apiRequest?: APIRequestData;
 	databaseRecord?: DatabaseRecordValue;
@@ -40,14 +40,14 @@ export interface CommandOffcanvasProps extends OffcanvasProps {
 	children?: (data: Data) => ReactNode;
 }
 
-type AddonNames = 'command' | 'images' | 'files' | 'keyboard' | 'apiRequest' | 'databaseRecord';
+type AddonNames = 'trigger' | 'images' | 'files' | 'keyboard' | 'apiRequest' | 'databaseRecord';
 
 interface AddonButtonsProps extends Omit<ButtonProps, 'key' | 'size' | 'variant' | 'onClick'> {
 	name: AddonNames;
 }
 
 const addonButtons: AddonButtonsProps[] = [
-	{ name: 'command', children: gettext('Команда') },
+	{ name: 'trigger', children: gettext('Триггер') },
 	{ name: 'images', children: gettext('Изображения') },
 	{ name: 'files', children: gettext('Файлы') },
 	{ name: 'keyboard', children: gettext('Клавиатура') },
@@ -60,16 +60,16 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 
 	const [name, setName] = useState<NameValue | undefined>(initialData?.name);
 	const [settings, setSettings] = useState<SettingsData | undefined>(initialData?.settings);
-	const [command, setCommand] = useState<CommandData | undefined>(initialData?.command);
+	const [trigger, setTrigger] = useState<TriggerData | undefined>(initialData?.trigger);
 	const [images, setImages] = useState<ImagesData | undefined>(initialData?.images);
 	const [files, setFiles] = useState<FilesData | undefined>(initialData?.files);
-	const [messageText, setMessageText] = useState<MessageTextValue | undefined>(initialData?.messageText);
+	const [message, setMessage] = useState<MessageData | undefined>(initialData?.message);
 	const [keyboard, setKeyboard] = useState<KeyboardData | undefined>(initialData?.keyboard);
 	const [apiRequest, setAPIRequest] = useState<APIRequestData | undefined>(initialData?.apiRequest);
 	const [databaseRecord, setDatabaseRecord] = useState<DatabaseRecordValue | undefined>(initialData?.databaseRecord);
 
 	const getAddonsState = (): Record<AddonNames, boolean> => ({
-		command: Boolean(initialData?.command),
+		trigger: Boolean(initialData?.trigger),
 		images: Boolean(initialData?.images),
 		files: Boolean(initialData?.files),
 		keyboard: Boolean(initialData?.keyboard),
@@ -93,10 +93,10 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 	useEffect(() => {
 		setName(initialData?.name);
 		setSettings(initialData?.settings);
-		setCommand(initialData?.command);
+		setTrigger(initialData?.trigger);
 		setImages(initialData?.images);
 		setFiles(initialData?.files);
-		setMessageText(initialData?.messageText);
+		setMessage(initialData?.message);
 		setKeyboard(initialData?.keyboard);
 		setAPIRequest(initialData?.apiRequest);
 		setDatabaseRecord(initialData?.databaseRecord);
@@ -122,15 +122,15 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 							onChange={setSettings}
 						/>
 						<Collapse
-							in={showAddons.command}
+							in={showAddons.trigger}
 							unmountOnExit
-							onExited={() => setCommand(undefined)}
+							onExited={() => setTrigger(undefined)}
 						>
-							<div id='command-offcanvas-command-addon'>
-								<Command
-									data={command}
+							<div id='command-offcanvas-trigger-addon'>
+								<Trigger
+									data={trigger}
 									className='mb-3'
-									onChange={setCommand}
+									onChange={setTrigger}
 								/>
 							</div>
 						</Collapse>
@@ -162,10 +162,10 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 								/>
 							</div>
 						</Collapse>
-						<MessageText
-							value={messageText}
+						<Message
+							data={message}
 							className='mb-3'
-							onChange={setMessageText}
+							onChange={setMessage}
 						/>
 						<Collapse
 							in={showAddons.keyboard}
@@ -252,10 +252,10 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 							{children({
 								name,
 								settings,
-								command,
+								trigger,
 								images,
 								files,
-								messageText,
+								message,
 								keyboard,
 								apiRequest,
 								databaseRecord,
