@@ -57,22 +57,28 @@ export interface LoaderData {
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
 	const telegramBotID: number = parseInt(params.telegramBotID!);
 
-	const responses = await Promise.all([
+	const [
+		diagramCommandsResponse,
+		diagramConditionsResponse,
+		diagramBackgroundTasksResponse,
+	] = await Promise.all([
 		DiagramCommandsAPI.get(telegramBotID),
 		DiagramConditionsAPI.get(telegramBotID),
 		DiagramBackgroundTasksAPI.get(telegramBotID),
 	]);
 
-	for (const response of responses) {
-		if (!response.ok) {
-			throw json(response.json, response.status);
-		}
+	if (
+		!diagramCommandsResponse.ok ||
+		!diagramConditionsResponse.ok ||
+		!diagramBackgroundTasksResponse.ok
+	) {
+		throw Error('Failed to fetch data!');
 	}
 
 	return {
-		diagramCommands: responses[0].json as APIResponse.DiagramCommandsAPI.Get,
-		diagramConditions: responses[1].json as APIResponse.DiagramConditionsAPI.Get,
-		diagramBackgroundTasks: responses[2].json as APIResponse.DiagramBackgroundTasksAPI.Get,
+		diagramCommands: diagramCommandsResponse.json,
+		diagramConditions: diagramConditionsResponse.json,
+		diagramBackgroundTasks: diagramBackgroundTasksResponse.json,
 	}
 }
 
