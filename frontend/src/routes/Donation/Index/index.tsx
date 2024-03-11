@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { json, useRouteLoaderData } from 'react-router-dom';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
