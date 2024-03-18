@@ -9,7 +9,7 @@ import Collapse from 'react-bootstrap/Collapse';
 import Loading from 'components/Loading';
 import TelegramBotStorage from 'components/TelegramBotStorage';
 
-import Name, { Value as NameValue } from './components/Name';
+import Name, { Value as NameValue } from '../Name';
 import Settings, { Data as SettingsData } from './components/Settings';
 import Trigger, { Data as TriggerData } from './components/Trigger';
 import Images, { Data as ImagesData } from './components/Images';
