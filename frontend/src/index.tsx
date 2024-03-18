@@ -7,8 +7,14 @@ import 'bootstrap-icons/font/bootstrap-icons.scss';
 
 import ErrorBoundary from 'routes/ErrorBoundary';
 
-const router = createBrowserRouter([
-	{
+const router = createBrowserRouter([{
+	id: 'languages',
+	async lazy() {
+		const module = await import('./routes/Languages');
+
+		return { loader: module.loader };
+	},
+	children: [{
 		id: 'root',
 		path: '/',
 		ErrorBoundary,
@@ -209,7 +215,7 @@ const router = createBrowserRouter([
 				},
 			},
 		],
-	},
-]);
+	}],
+}]);
 
 createRoot(document.querySelector<HTMLDivElement>('#root')!).render(<RouterProvider router={router} />);

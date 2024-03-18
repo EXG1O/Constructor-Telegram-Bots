@@ -5,14 +5,14 @@ import Dropdown, { DropdownProps } from 'react-bootstrap/Dropdown';
 
 import useToast from 'services/hooks/useToast';
 
-import { LoaderData as RootLoaderData } from 'routes/Root';
+import { LoaderData as LanguagesLoaderData } from 'routes/Languages';
 
 import { LanguagesAPI } from 'services/api/languages/main';
 
 export type LanguagesDropdownProps = Omit<DropdownProps, 'children'>;
 
 function LanguagesDropdown(props: LanguagesDropdownProps): ReactElement<LanguagesDropdownProps> {
-	const { languages } = useRouteLoaderData('root') as RootLoaderData;
+	const { languages } = useRouteLoaderData('languages') as LanguagesLoaderData;
 
 	const { createMessageToast } = useToast();
 

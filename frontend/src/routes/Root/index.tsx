@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Outlet, json, useNavigation } from 'react-router-dom';
+import { Outlet, useNavigation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 import Loading from 'components/Loading';
@@ -12,17 +12,8 @@ import ToastProvider from 'services/providers/ToastProvider';
 import { UserAPI } from 'services/api/users/main';
 import { User } from 'services/api/users/types';
 
-import { LanguagesAPI } from 'services/api/languages/main';
-import { APIResponse } from 'services/api/languages/types';
-
-export interface Languages {
-	current: string;
-	available: APIResponse.LanguagesAPI.Get;
-}
-
 export interface LoaderData {
 	user: User | null;
-	languages: Languages;
 }
 
 export async function loader(): Promise<LoaderData> {
@@ -38,19 +29,7 @@ export async function loader(): Promise<LoaderData> {
 		}
 	}
 
-	const response = await LanguagesAPI.get();
-
-	if (!response.ok) {
-		throw json(response.json, response.status);
-	}
-
-	return {
-		user,
-		languages: {
-			current: Cookies.get('lang') ?? 'ru',
-			available: response.json,
-		},
-	}
+	return { user };
 }
 
 function Root(): ReactElement {
