@@ -16,7 +16,7 @@ import Images, { Data as ImagesData } from './components/Images';
 import Message, { Data as MessageData } from './components/Message';
 import Keyboard, { Data as KeyboardData } from './components/Keyboard';
 import Files, { Data as FilesData } from './components/Files';
-import APIRequest, { Data as APIRequestData } from './components/APIRequest';
+import APIRequest, { Data as APIRequestData } from '../APIRequest';
 import DatabaseRecord, { Value as DatabaseRecordValue } from './components/DatabaseRecord';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
