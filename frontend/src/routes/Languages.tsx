@@ -1,4 +1,3 @@
-import { json } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 import { LanguagesAPI } from 'services/api/languages/main';
@@ -17,7 +16,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await LanguagesAPI.get();
 
 	if (!response.ok) {
-		throw json(response.json, response.status);
+		throw Error('Failed to fetch data!');
 	}
 
 	return {

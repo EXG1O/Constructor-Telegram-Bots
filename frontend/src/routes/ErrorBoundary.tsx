@@ -13,7 +13,7 @@ function ErrorBoundary(): ReactElement {
 				<Container className='text-center my-3 my-lg-4'>
 					<h1 className='fw-semibold mb-1'>{title}</h1>
 					<p className='lead mb-0'>
-						{gettext('Проверьте ваше интернет-подключение или попробуйте перезагрузить страницу.')}<br />
+						{gettext('Проверьте ваше интернет-подключение или попробуйте перезагрузить страницу.')} <br />
 						{gettext('Если ничего не помогло, свяжитесь с основателем проекта.')}
 					</p>
 				</Container>

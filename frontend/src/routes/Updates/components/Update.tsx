@@ -3,10 +3,10 @@ import classNames from 'classnames';
 
 import './Update.scss';
 
-import { Update as UpdateType } from 'services/api/updates/types';
+import { Update as _Update } from 'services/api/updates/types';
 
 export interface UpdateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'dangerouslySetInnerHTML'> {
-	update: UpdateType;
+	update: _Update;
 }
 
 function Update({ update, ...props }: UpdateProps): ReactElement<UpdateProps> {

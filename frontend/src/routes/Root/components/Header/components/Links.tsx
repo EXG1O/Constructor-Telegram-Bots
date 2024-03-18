@@ -18,7 +18,7 @@ const links: LinkProps[] = [
 	{ to: '/donation/', children: gettext('Пожертвование') },
 ];
 
-function Links({ ...props }: LinksProps): ReactElement<LinksProps> {
+function Links(props: LinksProps): ReactElement<LinksProps> {
 	const location = useLocation();
 
 	return (

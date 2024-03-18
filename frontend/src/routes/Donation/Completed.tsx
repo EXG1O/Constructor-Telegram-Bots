@@ -1,7 +1,8 @@
-import Title from 'components/Title';
 import React, { ReactElement } from 'react';
 
 import Container from 'react-bootstrap/Container';
+
+import Title from 'components/Title';
 
 const title: string = gettext('Спасибо за пожертвование');
 

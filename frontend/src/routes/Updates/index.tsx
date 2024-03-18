@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { json, useRouteLoaderData } from 'react-router-dom';
+import { useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
@@ -29,7 +29,7 @@ export async function loader(): Promise<LoaderData> {
 	const response = await UpdatesAPI.get(limit, offset);
 
 	if (!response.ok) {
-		throw json(response.json, response.status);
+		throw Error('Failed to fetch data!');
 	}
 
 	return {
