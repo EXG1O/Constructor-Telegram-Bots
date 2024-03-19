@@ -38,10 +38,12 @@ function TelegramBotCard({
 		const response = await TelegramBotAPI.get(telegramBot.id);
 
 		if (response.ok) {
-			if (telegramBot.is_loading) {
+			const _telegramBot: TelegramBot = response.json;
+
+			if (_telegramBot.is_loading) {
 				setTimeout(checkTelegramBotStatus, 3000);
 			} else {
-				setTelegramBot(response.json);
+				setTelegramBot(_telegramBot);
 			}
 		}
 	}
