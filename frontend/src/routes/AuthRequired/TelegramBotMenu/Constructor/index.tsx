@@ -1,5 +1,5 @@
 import React, { ReactElement, MouseEvent as ReactMouseEvent, useCallback, useRef, useState } from 'react';
-import { Params, json, useRouteLoaderData } from 'react-router-dom';
+import { Params, useRouteLoaderData } from 'react-router-dom';
 import ReactFlow, {
 	Panel,
 	Controls,
@@ -20,9 +20,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import './index.scss';
 
-import Button from 'react-bootstrap/Button';
-
 import Title from 'components/Title';
+import AddButton from 'components/AddButton';
 
 import CommandNode from './components/CommandNode';
 import AddCommandOffcanvas from './components/AddCommandOffcanvas';
@@ -418,13 +417,13 @@ function Constructor(): ReactElement {
 				>
 					<Panel position='top-right'>
 						<div className='vstack justify-content-end bg-light border rounded-1 p-1 gap-1'>
-							<Button
+							<AddButton
 								size='sm'
 								variant='dark'
 								onClick={useCallback(() => setAddShowCommandOffcanvas(true), [])}
 							>
 								{gettext('Добавить команду')}
-							</Button>
+							</AddButton>
 						</div>
 					</Panel>
 					<Controls

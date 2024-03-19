@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 
 import Loading from 'components/Loading';
+import AddButton from 'components/AddButton';
 import Pagination from 'components/Pagination';
 
 import VariableAdditionModal from './components/VariableAdditionModal';
@@ -62,17 +63,13 @@ function UserVariables(): ReactElement {
 				</Card.Header>
 				<Card.Body className='vstack gap-2'>
 					<div className='d-flex flex-wrap justify-content-between gap-2'>
-						<Button
+						<AddButton
 							size='sm'
 							variant='dark'
-							onClick={() => setShowVariableAdditionModal(true)}
+							onClick={useCallback(() => setShowVariableAdditionModal(true), [])}
 						>
-							<i
-								className='bi bi-plus-lg me-1'
-								style={{ WebkitTextStroke: '1px' }}
-							/>
 							{gettext('Добавить переменную')}
-						</Button>
+						</AddButton>
 						<Pagination
 							itemCount={paginationData.count}
 							itemLimit={paginationData.limit}
