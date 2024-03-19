@@ -1,4 +1,4 @@
-import React, { ReactElement, Dispatch, SetStateAction, useState } from 'react';
+import React, { ReactElement, Dispatch, SetStateAction, memo, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
@@ -22,24 +22,27 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 
 	const { createMessageToast } = useToast();
 
-	const [showDeleteTelegramBotModal, setShowDeleteTelegramBotModal] = useState<boolean>(false);
+	const [showDeletingModal, setShowDeletingModal] = useState<boolean>(false);
+	const [loadingDeletingModal, setLoadingDeletingModal] = useState<boolean>(false);
 
 	async function handleConfirmDelete(): Promise<void> {
-		setShowDeleteTelegramBotModal(false);
+		setLoadingDeletingModal(true);
 
 		const response = await TelegramBotAPI._delete(telegramBot.id);
 
 		if (response.ok) {
+			setShowDeletingModal(false);
 			navigate('/personal-cabinet/');
 		}
 
+		setLoadingDeletingModal(false);
 		createMessageToast({
 			message: response.json.message,
 			level: response.json.level,
 		});
 	}
 
-	async function handleStartOrStopTelegramBotButtonClick(action: 'start' | 'stop'): Promise<void> {
+	async function handleButtonClick(action: 'start' | 'restart' | 'stop'): Promise<void> {
 		const response = await TelegramBotAPI[action](telegramBot.id);
 
 		if (response.ok) {
@@ -50,10 +53,11 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 	return (
 		<>
 			<AskConfirmModal
-				show={showDeleteTelegramBotModal}
+				show={showDeletingModal}
+				loading={loadingDeletingModal}
 				title={gettext('Удаление Telegram бота')}
 				onConfirm={handleConfirmDelete}
-				onHide={() => setShowDeleteTelegramBotModal(false)}
+				onHide={useCallback(() => setShowDeletingModal(false), [])}
 			>
 				{gettext('Вы точно хотите удалить Telegram бота?')}
 			</AskConfirmModal>
@@ -67,32 +71,41 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 						<Loading size='xs' />
 					</Button>
 				) : telegramBot.is_enabled ? (
-					<Button
-						variant='danger'
-						className='flex-fill'
-						onClick={() => handleStartOrStopTelegramBotButtonClick('stop')}
-					>
-						{gettext('Выключить Telegram бота')}
-					</Button>
+					<>
+						<Button
+							variant='danger'
+							className='flex-fill'
+							onClick={() => handleButtonClick('stop')}
+						>
+							{gettext('Выключить')}
+						</Button>
+						<Button
+							variant='success'
+							className='flex-fill'
+							onClick={() => handleButtonClick('restart')}
+						>
+							{gettext('Перезагрузить')}
+						</Button>
+					</>
 				) : (
 					<Button
 						variant='success'
 						className='flex-fill'
-						onClick={() => handleStartOrStopTelegramBotButtonClick('start')}
+						onClick={() => handleButtonClick('start')}
 					>
-						{gettext('Включить Telegram бота')}
+						{gettext('Включить')}
 					</Button>
 				)}
 				<Button
 					variant='danger'
 					className='flex-fill'
-					onClick={() => setShowDeleteTelegramBotModal(true)}
+					onClick={() => setShowDeletingModal(true)}
 				>
-					{gettext('Удалить Telegram бота')}
+					{gettext('Удалить')}
 				</Button>
 			</Card.Footer>
 		</>
 	);
 }
 
-export default TelegramBotCardFooter;
+export default memo(TelegramBotCardFooter);
