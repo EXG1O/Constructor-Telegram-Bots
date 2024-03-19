@@ -56,7 +56,7 @@ function TelegramBotAdditionModal({ onHide, onExited, ...props }: TelegramBotAdd
 			onHide={onHide}
 			onExited={handleExited}
 		>
-			<Modal.Header>
+			<Modal.Header closeButton>
 				<Modal.Title as='h5'>{gettext('Добавление Telegram бота')}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body className='vstack gap-2'>

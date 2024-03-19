@@ -18,7 +18,7 @@ function Modal({ loading, backdrop, keyboard, children, ...props }: ModalProps):
 		>
 			{children && Children.map(children, child => {
 				if (child.type === BaseModal.Header) {
-					return cloneElement(child, { closeButton: !loading });
+					return cloneElement(child, { closeButton: loading ? false : child.props.closeButton });
 				} else if (!loading) {
 					return child;
 				}
