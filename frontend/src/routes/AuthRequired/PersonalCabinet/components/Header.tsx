@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
@@ -11,7 +11,7 @@ function Header(): ReactElement {
 		<>
 			<TelegramBotAdditionModal
 				show={showTelegramBotAdditionModal}
-				onHide={(() => setShowTelegramBotAdditionModal(false))}
+				onHide={useCallback(() => setShowTelegramBotAdditionModal(false), [])}
 			/>
 			<div className='d-flex flex-wrap justify-content-between gap-2'>
 				<h1 className='flex-grow-1 flex-lg-grow-0 fw-semibold text-center mb-0'>
