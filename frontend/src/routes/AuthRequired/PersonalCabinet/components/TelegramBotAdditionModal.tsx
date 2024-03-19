@@ -16,14 +16,14 @@ interface Data {
 	is_private: boolean;
 }
 
-export interface AddTelegramBotModalProps {
+export interface TelegramBotAdditionModalProps {
 	show: boolean;
 	onHide: () => void;
 }
 
 const defaultData: Data = { api_token: '', is_private: false };
 
-function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactElement<AddTelegramBotModalProps> {
+function TelegramBotAdditionModal({ show, onHide }: TelegramBotAdditionModalProps): ReactElement<TelegramBotAdditionModalProps> {
 	const { createMessageToast } = useToast();
 	const [telegramBots, setTelegramBots] = useTelegramBots();
 
@@ -90,4 +90,4 @@ function AddTelegramBotModal({ show, onHide }: AddTelegramBotModalProps): ReactE
 	);
 }
 
-export default AddTelegramBotModal;
+export default TelegramBotAdditionModal;

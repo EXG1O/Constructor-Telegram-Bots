@@ -2,14 +2,14 @@ import React, { ReactElement, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
-import AddTelegramBotModal from './AddTelegramBotModal';
+import TelegramBotAdditionModal from './TelegramBotAdditionModal';
 
 function Header(): ReactElement {
 	const [showAddTelegramBotModal, setShowAddTelegramBotModal] = useState<boolean>(false);
 
 	return (
 		<>
-			<AddTelegramBotModal
+			<TelegramBotAdditionModal
 				show={showAddTelegramBotModal}
 				onHide={(() => setShowAddTelegramBotModal(false))}
 			/>
