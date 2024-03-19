@@ -22,8 +22,8 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 
 	const { createMessageToast } = useToast();
 
-	const [showDeletingModal, setShowDeletingModal] = useState<boolean>(false);
-	const [loadingDeletingModal, setLoadingDeletingModal] = useState<boolean>(false);
+	const [showDeletionModal, setShowDeletingModal] = useState<boolean>(false);
+	const [loadingDeletionModal, setLoadingDeletingModal] = useState<boolean>(false);
 
 	async function handleConfirmDelete(): Promise<void> {
 		setLoadingDeletingModal(true);
@@ -53,8 +53,8 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 	return (
 		<>
 			<AskConfirmModal
-				show={showDeletingModal}
-				loading={loadingDeletingModal}
+				show={showDeletionModal}
+				loading={loadingDeletionModal}
 				title={gettext('Удаление Telegram бота')}
 				onConfirm={handleConfirmDelete}
 				onHide={useCallback(() => setShowDeletingModal(false), [])}
