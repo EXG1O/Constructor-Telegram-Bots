@@ -3,7 +3,7 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 
-import VariableModal, { VariableModalProps, Data as BaseVariableModalData } from './VariableModal';
+import VariableFormModal, { VariableFormModalProps, Data, defaultData } from './VariableFormModal';
 
 import useToast from 'services/hooks/useToast';
 
@@ -11,18 +11,24 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import { VariableAPI } from 'services/api/telegram_bots/main';
 
-export interface AddVariableModalProps extends Pick<VariableModalProps, 'show' | 'onHide'> {
+export interface VariableAdditionModalProps extends Omit<VariableFormModalProps, 'loading' | 'data' | 'title' | 'onChange' | 'children'> {
 	onCreated: () => void;
 }
 
-function AddVariableModal({ onCreated, onHide, ...props }: AddVariableModalProps): ReactElement<AddVariableModalProps> {
+function VariableAdditionModal({ onCreated, onHide, onExited, ...props }: VariableAdditionModalProps): ReactElement<VariableAdditionModalProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
 
+	const [data, setData] = useState<Data>(defaultData);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function handleCreateButtonClick(data: BaseVariableModalData): Promise<void> {
+	function handleExited(node: HTMLElement): void {
+		setData(defaultData);
+		onExited?.(node);
+	}
+
+	async function handleAddButtonClick(): Promise<void> {
 		setLoading(true);
 
 		const response = await VariableAPI.create(telegramBot.id, data);
@@ -33,26 +39,32 @@ function AddVariableModal({ onCreated, onHide, ...props }: AddVariableModalProps
 		}
 
 		setLoading(false);
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}
 
 	return (
-		<VariableModal
+		<VariableFormModal
 			{...props}
 			loading={loading}
+			data={data}
 			title={gettext('Добавление переменной')}
+			onChange={setData}
 			onHide={onHide}
+			onExited={handleExited}
 		>
-			{data => (
+			<VariableFormModal.Footer>
 				<Button
 					variant='success'
-					onClick={() => handleCreateButtonClick(data)}
+					onClick={handleAddButtonClick}
 				>
 					{gettext('Добавить')}
 				</Button>
-			)}
-		</VariableModal>
+			</VariableFormModal.Footer>
+		</VariableFormModal>
 	);
 }
 
-export default memo(AddVariableModal);
+export default memo(VariableAdditionModal);

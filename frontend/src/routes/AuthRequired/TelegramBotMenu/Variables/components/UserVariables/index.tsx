@@ -8,8 +8,8 @@ import Table from 'react-bootstrap/Table';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
 
-import AddVariableModal from './components/AddVariableModal';
-import Variable from './components/Variable';
+import VariableAdditionModal from './components/VariableAdditionModal';
+import VariableDisplay from './components/VariableDisplay';
 
 import useToast from 'services/hooks/useToast';
 
@@ -25,7 +25,7 @@ function UserVariables(): ReactElement {
 	const { createMessageToast } = useToast();
 
 	const [paginationData, setPaginationData] = useState<UserVariablesPaginationData>(initialPaginationData);
-	const [showCreateVariableModal, setShowCreateVariableModal] = useState<boolean>(false);
+	const [showVariableAdditionModal, setShowVariableAdditionModal] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	async function updateVariables(
@@ -51,10 +51,10 @@ function UserVariables(): ReactElement {
 
 	return (
 		<>
-			<AddVariableModal
-				show={showCreateVariableModal}
+			<VariableAdditionModal
+				show={showVariableAdditionModal}
 				onCreated={updateVariables}
-				onHide={useCallback(() => setShowCreateVariableModal(false), [])}
+				onHide={useCallback(() => setShowVariableAdditionModal(false), [])}
 			/>
 			<Card>
 				<Card.Header as='h5' className='text-center'>
@@ -65,7 +65,7 @@ function UserVariables(): ReactElement {
 						<Button
 							size='sm'
 							variant='dark'
-							onClick={() => setShowCreateVariableModal(true)}
+							onClick={() => setShowVariableAdditionModal(true)}
 						>
 							<i
 								className='bi bi-plus-lg me-1'
@@ -93,7 +93,7 @@ function UserVariables(): ReactElement {
 								>
 									<tbody>
 										{paginationData.results.map(variable => (
-											<Variable
+											<VariableDisplay
 												key={variable.id}
 												variable={variable}
 												onUpdated={updateVariables}
@@ -105,7 +105,7 @@ function UserVariables(): ReactElement {
 							</div>
 						) : (
 							<div className='border rounded text-center px-3 py-2'>
-								{gettext('Вы ещё не добавили переменные своему Telegram боту')}
+								{gettext('Вы ещё не добавили переменные')}
 							</div>
 						)
 					) : (

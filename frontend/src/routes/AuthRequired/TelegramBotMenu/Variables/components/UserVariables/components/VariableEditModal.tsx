@@ -3,28 +3,29 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 
-import VariableModal, { VariableModalProps, Data as BaseVariableModalData } from './VariableModal';
-
-import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+import VariableFormModal, { VariableFormModalProps, Data } from './VariableFormModal';
 
 import useToast from 'services/hooks/useToast';
+
+import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import { VariableAPI } from 'services/api/telegram_bots/main';
 import { Variable } from 'services/api/telegram_bots/types';
 
-export interface UpdateVariableModalProps extends Pick<VariableModalProps, 'show' | 'onHide'> {
+export interface VariableEditModalProps extends Omit<VariableFormModalProps, 'loading' | 'data' | 'title' | 'onChange' | 'children'> {
 	variable: Variable;
 	onUpdated: () => void;
 }
 
-function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVariableModalProps): ReactElement<UpdateVariableModalProps> {
+function VariableEditModal({ variable, onUpdated, onHide, ...props }: VariableEditModalProps): ReactElement<VariableEditModalProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
 
+	const [data, setData] = useState<Data>(variable);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function handleSaveButtonClick(data: BaseVariableModalData): Promise<void> {
+	async function handleSaveButtonClick(): Promise<void> {
 		setLoading(true);
 
 		const response = await VariableAPI.update(telegramBot.id, variable.id, data);
@@ -35,27 +36,31 @@ function UpdateVariableModal({ variable, onUpdated, onHide, ...props }: UpdateVa
 		}
 
 		setLoading(false);
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}
 
 	return (
-		<VariableModal
+		<VariableFormModal
 			{...props}
 			loading={loading}
-			initialData={variable}
+			data={data}
 			title={gettext('Редактирование переменной')}
+			onChange={setData}
 			onHide={onHide}
 		>
-			{data => (
+			<VariableFormModal.Footer>
 				<Button
 					variant='success'
-					onClick={() => handleSaveButtonClick(data)}
+					onClick={handleSaveButtonClick}
 				>
 					{gettext('Сохранить')}
 				</Button>
-			)}
-		</VariableModal>
+			</VariableFormModal.Footer>
+		</VariableFormModal>
 	);
 }
 
-export default memo(UpdateVariableModal);
+export default memo(VariableEditModal);

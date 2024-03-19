@@ -3,34 +3,34 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import UpdateVariableModal, { UpdateVariableModalProps } from './UpdateVariableModal';
+import VariableEditModal, { VariableEditModalProps } from './VariableEditModal';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import useToast from 'services/hooks/useToast';
 
 import { VariableAPI } from 'services/api/telegram_bots/main';
-import { Variable as VariableType } from 'services/api/telegram_bots/types';
+import { Variable } from 'services/api/telegram_bots/types';
 
-export interface VariableProps extends Pick<UpdateVariableModalProps, 'onUpdated'> {
-	variable: VariableType;
+export interface VariableDisplayProps extends Pick<VariableEditModalProps, 'onUpdated'> {
+	variable: Variable;
 	onDeleted: () => void;
 }
 
-function Variable({ variable, onUpdated, onDeleted }: VariableProps): ReactElement<VariableProps> {
+function VariableDisplay({ variable, onUpdated, onDeleted }: VariableDisplayProps): ReactElement<VariableDisplayProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
 
-	const [showUpdateVariableModal, setShowUpdateVariableModal] = useState<boolean>(false);
-	const [showDeleteVariableModal, setShowDeleteVariableModal] = useState<boolean>(false);
+	const [showVariableEditModal, setShowVariableEditModal] = useState<boolean>(false);
+	const [showVariableDeletionModal, setShowVariableDeletionModal] = useState<boolean>(false);
 
 	const handleConfirmDelete = useCallback(async () => {
 		const response = await VariableAPI._delete(telegramBot.id, variable.id);
 
 		if (response.ok) {
 			onDeleted();
-			setShowDeleteVariableModal(false);
+			setShowVariableDeletionModal(false);
 		}
 
 		createMessageToast({ message: response.json.message, level: response.json.level });
@@ -38,19 +38,19 @@ function Variable({ variable, onUpdated, onDeleted }: VariableProps): ReactEleme
 
 	return(
 		<>
-			<UpdateVariableModal
+			<VariableEditModal
 				variable={variable}
-				show={showUpdateVariableModal}
+				show={showVariableEditModal}
 				onUpdated={onUpdated}
-				onHide={useCallback(() => setShowUpdateVariableModal(false), [])}
+				onHide={useCallback(() => setShowVariableEditModal(false), [])}
 			/>
 			<AskConfirmModal
-				show={showDeleteVariableModal}
+				show={showVariableDeletionModal}
 				title={gettext('Удаление переменной')}
 				onConfirm={handleConfirmDelete}
-				onHide={useCallback(() => setShowDeleteVariableModal(false), [])}
+				onHide={useCallback(() => setShowVariableDeletionModal(false), [])}
 			>
-				{gettext('Вы точно хотите удалить переменную Telegram бота?')}
+				{gettext('Вы точно хотите удалить переменную?')}
 			</AskConfirmModal>
 			<tr>
 				<td className='w-50'>
@@ -74,12 +74,12 @@ function Variable({ variable, onUpdated, onDeleted }: VariableProps): ReactEleme
 							<i
 								className='d-flex text-secondary bi bi-pencil-square my-auto'
 								style={{ fontSize: '18px', cursor: 'pointer' }}
-								onClick={() => setShowUpdateVariableModal(true)}
+								onClick={() => setShowVariableEditModal(true)}
 							/>
 							<i
 								className='d-flex text-danger bi bi-trash my-auto'
 								style={{ fontSize: '19px', cursor: 'pointer' }}
-								onClick={() => setShowDeleteVariableModal(true)}
+								onClick={() => setShowVariableDeletionModal(true)}
 							/>
 						</div>
 					</div>
@@ -89,4 +89,4 @@ function Variable({ variable, onUpdated, onDeleted }: VariableProps): ReactEleme
 	);
 }
 
-export default Variable;
+export default VariableDisplay;
