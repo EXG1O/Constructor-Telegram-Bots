@@ -1,10 +1,13 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, HTMLAttributes, memo, useCallback, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
 import TelegramBotAdditionModal from './TelegramBotAdditionModal';
+import classNames from 'classnames';
 
-function Header(): ReactElement {
+export type HeaderProps = HTMLAttributes<HTMLDivElement>;
+
+function Header(props: HeaderProps): ReactElement<HeaderProps> {
 	const [showTelegramBotAdditionModal, setShowTelegramBotAdditionModal] = useState<boolean>(false);
 
 	return (
@@ -13,7 +16,7 @@ function Header(): ReactElement {
 				show={showTelegramBotAdditionModal}
 				onHide={useCallback(() => setShowTelegramBotAdditionModal(false), [])}
 			/>
-			<div className='d-flex flex-wrap justify-content-between gap-2'>
+			<div {...props} className={classNames('d-flex flex-wrap justify-content-between gap-2', props.className)}>
 				<h1 className='flex-grow-1 flex-lg-grow-0 fw-semibold text-center mb-0'>
 					{gettext('Добавленные Telegram боты')}
 				</h1>
@@ -33,4 +36,4 @@ function Header(): ReactElement {
 	);
 }
 
-export default Header;
+export default memo(Header);
