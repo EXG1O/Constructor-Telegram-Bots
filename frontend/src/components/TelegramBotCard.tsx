@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, Dispatch, SetStateAction, memo, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, Dispatch, SetStateAction, ChangeEvent, memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
@@ -34,6 +34,11 @@ function TelegramBotCard({
 	const [apiTokenInputValue, setAPITokenInputValue] = useState<string>(telegramBot.api_token);
 	const [apiTokenIsEditing, setAPITokenIsEditing] = useState<boolean>(false);
 
+	useEffect(() => {
+		setTelegramBot(initialTelegramBot);
+		setAPITokenInputValue(initialTelegramBot.api_token);
+	}, [initialTelegramBot]);
+
 	async function checkTelegramBotStatus(): Promise<void> {
 		const response = await TelegramBotAPI.get(telegramBot.id);
 
@@ -62,7 +67,7 @@ function TelegramBotCard({
 		setAPITokenIsEditing(!apiTokenIsEditing);
 	}
 
-	async function handleAPITokenSaveButtonClick(): Promise<void> {
+	async function handleSaveAPIToken(): Promise<void> {
 		const response = await TelegramBotAPI.update(telegramBot.id, { api_token: apiTokenInputValue });
 
 		if (response.ok) {
@@ -76,8 +81,8 @@ function TelegramBotCard({
 		});
 	}
 
-	async function handleIsPrivateSwitchChange(): Promise<void> {
-		const response = await TelegramBotAPI.update(telegramBot.id, { is_private: !telegramBot.is_private });
+	async function handleIsPrivateChange(event: ChangeEvent<HTMLInputElement>): Promise<void> {
+		const response = await TelegramBotAPI.update(telegramBot.id, { is_private: event.target.checked });
 
 		if (response.ok) {
 			setTelegramBot(response.json.telegram_bot);
@@ -141,7 +146,7 @@ function TelegramBotCard({
 											<i
 												className='bi bi-check-lg text-success'
 												style={{ cursor: 'pointer', fontSize: '22px', WebkitTextStroke: '0.3px' }}
-												onClick={handleAPITokenSaveButtonClick}
+												onClick={handleSaveAPIToken}
 											/>
 											<i
 												className='bi bi-x-lg text-danger my-auto'
@@ -168,7 +173,7 @@ function TelegramBotCard({
 							<td>
 								<Form.Switch
 									checked={telegramBot.is_private}
-									onChange={handleIsPrivateSwitchChange}
+									onChange={handleIsPrivateChange}
 								/>
 							</td>
 						</tr>
