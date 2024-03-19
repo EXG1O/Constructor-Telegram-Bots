@@ -1,36 +1,38 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, memo, useState } from 'react';
 
-import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import Loading from 'components/Loading';
+import Modal, { ModalProps } from 'components/Modal';
 
 import useToast from 'services/hooks/useToast';
 import useTelegramBots from '../services/hooks/useTelegramBots';
 
 import { TelegramBotsAPI } from 'services/api/telegram_bots/main';
+import { Data } from 'services/api/telegram_bots/types';
 
-interface Data {
-	api_token: string;
-	is_private: boolean;
-}
+type Data = Data.TelegramBotsAPI.Create;
 
-export interface TelegramBotAdditionModalProps {
-	show: boolean;
-	onHide: () => void;
+export interface TelegramBotAdditionModalProps extends Omit<ModalProps, 'loading' | 'children'> {
+	show: NonNullable<ModalProps['show']>;
+	onHide: NonNullable<ModalProps['onHide']>;
 }
 
 const defaultData: Data = { api_token: '', is_private: false };
 
-function TelegramBotAdditionModal({ show, onHide }: TelegramBotAdditionModalProps): ReactElement<TelegramBotAdditionModalProps> {
+function TelegramBotAdditionModal({ onHide, onExited, ...props }: TelegramBotAdditionModalProps): ReactElement<TelegramBotAdditionModalProps> {
 	const { createMessageToast } = useToast();
 	const [telegramBots, setTelegramBots] = useTelegramBots();
 
 	const [data, setData] = useState<Data>(defaultData);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function handleAddTelegramBotButtonClick(): Promise<void> {
+	function handleExited(node: HTMLElement): void {
+		setData(defaultData);
+		onExited?.(node);
+	}
+
+	async function handleAddButtonClick(): Promise<void> {
 		setLoading(true);
 
 		const response = await TelegramBotsAPI.create(data);
@@ -49,45 +51,36 @@ function TelegramBotAdditionModal({ show, onHide }: TelegramBotAdditionModalProp
 
 	return (
 		<Modal
-			show={show}
+			{...props}
+			loading={loading}
 			onHide={onHide}
-			onExited={() => setData(defaultData)}
+			onExited={handleExited}
 		>
-			<Modal.Header closeButton>
-				<Modal.Title as='h5'>
-					{gettext('Добавление Telegram бота')}
-				</Modal.Title>
+			<Modal.Header>
+				<Modal.Title as='h5'>{gettext('Добавление Telegram бота')}</Modal.Title>
 			</Modal.Header>
-			{!loading ? (
-				<>
-					<Modal.Body className='vstack gap-2'>
-						<Form.Control
-							value={data.api_token}
-							placeholder={gettext('Введите API-токен Telegram бота')}
-							onChange={e => setData({ ...data, api_token: e.target.value })}
-						/>
-						<Form.Switch
-							checked={data.is_private}
-							label={gettext('Сделать Telegram бота приватным')}
-							onChange={e => setData({ ...data, is_private: e.target.checked })}
-						/>
-					</Modal.Body>
-					<Modal.Footer>
-						<Button
-							variant='success'
-							onClick={handleAddTelegramBotButtonClick}
-						>
-							{gettext('Добавить Telegram бота')}
-						</Button>
-					</Modal.Footer>
-				</>
-			) : (
-				<Modal.Body className='d-flex justify-content-center'>
-					<Loading size='md' />
-				</Modal.Body>
-			)}
+			<Modal.Body className='vstack gap-2'>
+				<Form.Control
+					value={data.api_token}
+					placeholder={gettext('Введите API-токен')}
+					onChange={e => setData({ ...data, api_token: e.target.value })}
+				/>
+				<Form.Switch
+					checked={data.is_private}
+					label={gettext('Сделать приватным')}
+					onChange={e => setData({ ...data, is_private: e.target.checked })}
+				/>
+			</Modal.Body>
+			<Modal.Footer>
+				<Button
+					variant='success'
+					onClick={handleAddButtonClick}
+				>
+					{gettext('Добавить')}
+				</Button>
+			</Modal.Footer>
 		</Modal>
 	);
 }
 
-export default TelegramBotAdditionModal;
+export default memo(TelegramBotAdditionModal);
