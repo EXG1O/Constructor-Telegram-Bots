@@ -376,7 +376,7 @@ export namespace APIResponse {
 	export namespace VariableAPI {
 		export type Get = Variable;
 		export interface Create extends BaseApiResponse.Success {
-			telegram_bot_variable: Variable;
+			variable: Variable;
 		}
 		export type Update = Create;
 	}

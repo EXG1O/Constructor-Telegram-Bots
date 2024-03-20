@@ -397,7 +397,7 @@ class VariablesAPIView(APIView, PaginationMixin):
 
 		return MessageResponse(
 			_('Вы успешно создали новую переменную Telegram бота.'),
-			data={'telegram_bot_variable': serializer.data},
+			data={'variable': serializer.data},
 			status=201,
 		)
 
@@ -415,7 +415,7 @@ class VariableAPIView(APIView):
 
 		return MessageResponse(
 			_('Вы успешно обновили переменную Telegram бота.'),
-			data={'telegram_bot_variable': serializer.data},
+			data={'variable': serializer.data},
 		)
 
 	def delete(self, request: Request, telegram_bot: TelegramBot, variable: Variable) -> MessageResponse:
