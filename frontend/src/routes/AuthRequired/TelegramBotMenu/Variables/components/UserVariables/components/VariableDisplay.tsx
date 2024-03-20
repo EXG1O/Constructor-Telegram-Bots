@@ -33,7 +33,10 @@ function VariableDisplay({ variable, onUpdated, onDeleted }: VariableDisplayProp
 			setShowVariableDeletionModal(false);
 		}
 
-		createMessageToast({ message: response.json.message, level: response.json.level });
+		createMessageToast({
+			message: response.json.message,
+			level: response.json.level,
+		});
 	}, []);
 
 	return(
@@ -78,7 +81,7 @@ function VariableDisplay({ variable, onUpdated, onDeleted }: VariableDisplayProp
 							/>
 							<i
 								className='d-flex text-danger bi bi-trash my-auto'
-								style={{ fontSize: '19px', cursor: 'pointer' }}
+								style={{ fontSize: '18px', cursor: 'pointer' }}
 								onClick={() => setShowVariableDeletionModal(true)}
 							/>
 						</div>

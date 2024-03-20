@@ -2,7 +2,6 @@ import React, { ReactElement, useCallback, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 
 import Loading from 'components/Loading';
@@ -46,7 +45,10 @@ function UserVariables(): ReactElement {
 			});
 			setLoading(false);
 		} else {
-			createMessageToast({ message: response.json.message, level: response.json.level });
+			createMessageToast({
+				message: response.json.message,
+				level: response.json.level,
+			});
 		}
 	}
 

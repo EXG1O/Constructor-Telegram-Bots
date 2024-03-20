@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { Params, json } from 'react-router-dom';
+import { Params } from 'react-router-dom';
 import ClipboardJS from 'clipboard';
 
 import Title from 'components/Title';
@@ -28,7 +28,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 	const response = await VariablesAPI.get(telegramBotID, limit, offset);
 
 	if (!response.ok) {
-		throw json(response.json, response.status);
+		throw Error('Failed to fetch data!');
 	}
 
 	return {
