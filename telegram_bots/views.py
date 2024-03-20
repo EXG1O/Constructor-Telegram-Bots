@@ -382,7 +382,14 @@ class VariablesAPIView(APIView, PaginationMixin):
 	pagination_class = LimitOffsetPagination
 
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		queryset: 'QuerySet[Variable]' = telegram_bot.variables.all()
+		name: str | None = request.query_params.get('name')
+		queryset: QuerySet[Variable]
+
+		if name:
+			queryset = telegram_bot.variables.filter(name__icontains=name)
+		else:
+			queryset = telegram_bot.variables.all()
+
 		results: list[Variable] | None = self.paginate_queryset(request, queryset)
 
 		if results is None:
