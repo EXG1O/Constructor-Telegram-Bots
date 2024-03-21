@@ -269,11 +269,25 @@ export namespace VariablesAPI {
 		telegramBotID: TelegramBot['id'],
 		limit: Limit,
 		offset?: number,
-	) => makeRequest<
-		Limit extends number ?
-		APIResponse.VariablesAPI.Get.Pagination :
-		APIResponse.VariablesAPI.Get.Default
-	>(url(telegramBotID) + `?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET');
+		name?: string,
+	) => {
+		let url: string = VariablesAPI.url(telegramBotID);
+
+		if (limit || offset || name) {
+			const params = new URLSearchParams();
+			limit && params.set('limit', limit.toString());
+			offset && params.set('offset', offset.toString());
+			name && params.set('name', name);
+
+			url += `?${params.toString()}`;
+		}
+
+		return makeRequest<
+			Limit extends number ?
+			APIResponse.VariablesAPI.Get.Pagination :
+			APIResponse.VariablesAPI.Get.Default
+		>(url, 'GET');
+	}
 }
 
 export namespace VariableAPI {
