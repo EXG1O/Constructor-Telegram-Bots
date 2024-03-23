@@ -5,9 +5,8 @@ import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 
 import Loading from 'components/Loading';
-import Pagination from 'components/Pagination';
 
-import AddVariableButton from './components/AddVariableButton';
+import Toolbar from './components/Toolbar';
 import VariableDisplay from './components/VariableDisplay';
 
 import useToast from 'services/hooks/useToast';
@@ -56,17 +55,11 @@ function UserVariables(): ReactElement {
 				{gettext('Пользовательские переменные')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2'>
-				<div className='d-flex flex-wrap justify-content-between gap-2'>
-					<AddVariableButton onCreated={updateVariables} />
-					<Pagination
-						itemCount={paginationData.count}
-						itemLimit={paginationData.limit}
-						itemOffset={paginationData.offset}
-						size='sm'
-						className='justify-content-center'
-						onPageChange={offset => updateVariables(undefined, offset)}
-					/>
-				</div>
+				<Toolbar
+					paginationData={paginationData}
+					onVariableCreated={updateVariables}
+					onPageChange={offset => updateVariables(undefined, offset)}
+				/>
 				{!loading ? (
 					paginationData.count ? (
 						<div className='border rounded'>
