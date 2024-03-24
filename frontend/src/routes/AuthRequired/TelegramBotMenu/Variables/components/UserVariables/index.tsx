@@ -17,28 +17,34 @@ import { LoaderData as TelegramBotMenuVariablesLoaderData, UserVariablesPaginati
 
 import { VariablesAPI } from 'services/api/telegram_bots/main';
 
+interface PaginationData extends UserVariablesPaginationData {
+	name: string;
+}
+
 function UserVariables(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 	const { userVariablesPaginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-variables') as TelegramBotMenuVariablesLoaderData;
 
 	const { createMessageToast } = useToast();
 
-	const [paginationData, setPaginationData] = useState<UserVariablesPaginationData>(initialPaginationData);
+	const [paginationData, setPaginationData] = useState<PaginationData>({ ...initialPaginationData, name: ''});
 	const [loading, setLoading] = useState<boolean>(false);
 
 	async function updateVariables(
 		limit: number = paginationData.limit,
 		offset: number = paginationData.offset,
+		name: string = paginationData.name,
 	): Promise<void> {
 		setLoading(true);
 
-		const response = await VariablesAPI.get(telegramBot.id, limit, offset);
+		const response = await VariablesAPI.get(telegramBot.id, limit, offset, name);
 
 		if (response.ok) {
 			setPaginationData({
 				count: response.json.count,
 				limit,
 				offset,
+				name,
 				results: response.json.results,
 			});
 			setLoading(false);
