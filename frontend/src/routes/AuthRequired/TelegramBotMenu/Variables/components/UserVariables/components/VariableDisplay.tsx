@@ -3,24 +3,25 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import VariableEditModal, { VariableEditModalProps } from './VariableEditModal';
+import VariableEditModal from './VariableEditModal';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import useToast from 'services/hooks/useToast';
+import useVariables from '../hooks/useVariables';
 
 import { VariableAPI } from 'services/api/telegram_bots/main';
 import { Variable } from 'services/api/telegram_bots/types';
 
-export interface VariableDisplayProps extends Pick<VariableEditModalProps, 'onUpdated'> {
+export interface VariableDisplayProps {
 	variable: Variable;
-	onDeleted: () => void;
 }
 
-function VariableDisplay({ variable, onUpdated, onDeleted }: VariableDisplayProps): ReactElement<VariableDisplayProps> {
+function VariableDisplay({ variable }: VariableDisplayProps): ReactElement<VariableDisplayProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
+	const { updateVariables } = useVariables();
 
 	const [showVariableEditModal, setShowVariableEditModal] = useState<boolean>(false);
 	const [showVariableDeletionModal, setShowVariableDeletionModal] = useState<boolean>(false);
@@ -29,7 +30,7 @@ function VariableDisplay({ variable, onUpdated, onDeleted }: VariableDisplayProp
 		const response = await VariableAPI._delete(telegramBot.id, variable.id);
 
 		if (response.ok) {
-			onDeleted();
+			updateVariables();
 			setShowVariableDeletionModal(false);
 		}
 
@@ -44,7 +45,6 @@ function VariableDisplay({ variable, onUpdated, onDeleted }: VariableDisplayProp
 			<VariableEditModal
 				variable={variable}
 				show={showVariableEditModal}
-				onUpdated={onUpdated}
 				onHide={useCallback(() => setShowVariableEditModal(false), [])}
 			/>
 			<AskConfirmModal

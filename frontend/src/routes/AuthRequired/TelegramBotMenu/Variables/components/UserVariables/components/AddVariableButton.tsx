@@ -2,14 +2,11 @@ import React, { ReactElement, memo, useCallback, useState } from 'react';
 
 import AddButton, { AddButtonProps } from 'components/AddButton';
 
-import VariableAdditionModal, { VariableAdditionModalProps } from './VariableAdditionModal';
+import VariableAdditionModal from './VariableAdditionModal';
 
-export type AddVariableButtonProps = (
-	Omit<AddButtonProps, 'size' | 'variant'> &
-	Pick<VariableAdditionModalProps, 'onCreated'>
-);
+export type AddVariableButtonProps = Omit<AddButtonProps, 'size' | 'variant'>;
 
-function AddVariableButton({ onCreated, onClick, ...props }: AddVariableButtonProps): ReactElement<AddVariableButtonProps> {
+function AddVariableButton({ onClick, ...props }: AddVariableButtonProps): ReactElement<AddVariableButtonProps> {
 	const [showModal, setShowModal] = useState<boolean>(false);
 
 	const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -21,7 +18,6 @@ function AddVariableButton({ onCreated, onClick, ...props }: AddVariableButtonPr
 		<>
 			<VariableAdditionModal
 				show={showModal}
-				onCreated={onCreated}
 				onHide={useCallback(() => setShowModal(false), [])}
 			/>
 			<AddButton

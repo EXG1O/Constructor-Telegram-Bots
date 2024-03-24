@@ -9,6 +9,8 @@ import Loading from 'components/Loading';
 import Toolbar from './components/Toolbar';
 import VariableDisplay from './components/VariableDisplay';
 
+import VariablesContext from './contexts/VariablesContext';
+
 import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
@@ -55,42 +57,38 @@ function UserVariables(): ReactElement {
 				{gettext('Пользовательские переменные')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2'>
-				<Toolbar
-					paginationData={paginationData}
-					onVariableCreated={updateVariables}
-					onPageChange={offset => updateVariables(undefined, offset)}
-				/>
-				{!loading ? (
-					paginationData.count ? (
-						<div className='border rounded'>
-							<Table
-								responsive
-								striped
-								borderless
-								className='overflow-hidden align-middle rounded mb-0'
-							>
-								<tbody>
-									{paginationData.results.map(variable => (
-										<VariableDisplay
-											key={variable.id}
-											variable={variable}
-											onUpdated={updateVariables}
-											onDeleted={updateVariables}
-										/>
-									))}
-								</tbody>
-							</Table>
-						</div>
+				<VariablesContext.Provider value={{ variables: paginationData.results, updateVariables }}>
+					<Toolbar paginationData={paginationData} />
+					{!loading ? (
+						paginationData.count ? (
+							<div className='border rounded'>
+								<Table
+									responsive
+									striped
+									borderless
+									className='overflow-hidden align-middle rounded mb-0'
+								>
+									<tbody>
+										{paginationData.results.map(variable => (
+											<VariableDisplay
+												key={variable.id}
+												variable={variable}
+											/>
+										))}
+									</tbody>
+								</Table>
+							</div>
+						) : (
+							<div className='border rounded text-center px-3 py-2'>
+								{gettext('Вы ещё не добавили переменные')}
+							</div>
+						)
 					) : (
-						<div className='border rounded text-center px-3 py-2'>
-							{gettext('Вы ещё не добавили переменные')}
+						<div className='d-flex justify-content-center border rounded p-3'>
+							<Loading size='md' />
 						</div>
-					)
-				) : (
-					<div className='d-flex justify-content-center border rounded p-3'>
-						<Loading size='md' />
-					</div>
-				)}
+					)}
+				</VariablesContext.Provider>
 			</Card.Body>
 		</Card>
 	);

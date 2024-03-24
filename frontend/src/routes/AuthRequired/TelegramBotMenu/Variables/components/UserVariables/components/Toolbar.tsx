@@ -1,28 +1,31 @@
 import React, { ReactElement, HTMLAttributes, memo } from 'react';
 import classNames from 'classnames';
 
-import Pagination, { PaginationProps } from 'components/Pagination';
+import Pagination from 'components/Pagination';
 
-import AddVariableButton, { AddVariableButtonProps } from './AddVariableButton';
+import AddVariableButton from './AddVariableButton';
+
+import useVariables from '../hooks/useVariables';
 
 import { UserVariablesPaginationData } from '../../..';
 
-export interface ToolbarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'>, Pick<PaginationProps, 'onPageChange'> {
+export interface ToolbarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
 	paginationData: Omit<UserVariablesPaginationData, 'results'>;
-	onVariableCreated: AddVariableButtonProps['onCreated'];
 }
 
-function Toolbar({ paginationData, className, onVariableCreated, onPageChange, ...props }: ToolbarProps): ReactElement<ToolbarProps> {
+function Toolbar({ paginationData, className, ...props }: ToolbarProps): ReactElement<ToolbarProps> {
+	const { updateVariables } = useVariables();
+
 	return (
 		<div {...props} className={classNames('d-flex flex-wrap justify-content-between gap-2', className)}>
-			<AddVariableButton onCreated={onVariableCreated} />
+			<AddVariableButton />
 			<Pagination
 				itemCount={paginationData.count}
 				itemLimit={paginationData.limit}
 				itemOffset={paginationData.offset}
 				size='sm'
 				className='justify-content-center'
-				onPageChange={onPageChange}
+				onPageChange={newOffset => updateVariables(undefined, newOffset)}
 			/>
 		</div>
 	);
