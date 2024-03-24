@@ -5,11 +5,11 @@ import VariableEditModal from './VariableEditModal';
 
 import { Variable } from 'services/api/telegram_bots/types';
 
-export interface EditVariableButton extends Pick<HTMLAttributes<HTMLElement>, 'className'> {
+export interface EditVariableButtonProps extends Pick<HTMLAttributes<HTMLElement>, 'className'> {
 	variable: Variable;
 }
 
-function EditVariableButton({ variable, className }: EditVariableButton): ReactElement<EditVariableButton> {
+function EditVariableButton({ variable, className }: EditVariableButtonProps): ReactElement<EditVariableButtonProps> {
 	const [showModal, setShowModal] = useState<boolean>(false);
 
 	return (
