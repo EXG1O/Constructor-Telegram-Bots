@@ -2,12 +2,11 @@ import React, { ReactElement, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
-import Table from 'react-bootstrap/Table';
 
 import Loading from 'components/Loading';
 
 import Toolbar from './components/Toolbar';
-import VariableDisplay from './components/VariableDisplay';
+import VariableList from './components/VariableList';
 
 import VariablesContext from './contexts/VariablesContext';
 
@@ -60,29 +59,7 @@ function UserVariables(): ReactElement {
 				<VariablesContext.Provider value={{ variables: paginationData.results, updateVariables }}>
 					<Toolbar paginationData={paginationData} />
 					{!loading ? (
-						paginationData.count ? (
-							<div className='border rounded'>
-								<Table
-									responsive
-									striped
-									borderless
-									className='overflow-hidden align-middle rounded mb-0'
-								>
-									<tbody>
-										{paginationData.results.map(variable => (
-											<VariableDisplay
-												key={variable.id}
-												variable={variable}
-											/>
-										))}
-									</tbody>
-								</Table>
-							</div>
-						) : (
-							<div className='border rounded text-center px-3 py-2'>
-								{gettext('Вы ещё не добавили переменные')}
-							</div>
-						)
+						<VariableList />
 					) : (
 						<div className='d-flex justify-content-center border rounded p-3'>
 							<Loading size='md' />
