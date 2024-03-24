@@ -1,4 +1,4 @@
-import React, { ReactElement, HTMLAttributes, memo } from 'react';
+import React, { ReactElement, HTMLAttributes, memo, useCallback } from 'react';
 import classNames from 'classnames';
 
 import Pagination from 'components/Pagination';
@@ -25,7 +25,7 @@ function Toolbar({ paginationData, className, ...props }: ToolbarProps): ReactEl
 				itemOffset={paginationData.offset}
 				size='sm'
 				className='justify-content-center'
-				onPageChange={newOffset => updateVariables(undefined, newOffset)}
+				onPageChange={useCallback(newOffset => updateVariables(undefined, newOffset), [updateVariables])}
 			/>
 		</div>
 	);

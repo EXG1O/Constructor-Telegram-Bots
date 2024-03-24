@@ -4,15 +4,10 @@ import AddButton, { AddButtonProps } from 'components/AddButton';
 
 import VariableAdditionModal from './VariableAdditionModal';
 
-export type AddVariableButtonProps = Omit<AddButtonProps, 'size' | 'variant'>;
+export type AddVariableButtonProps = Pick<AddButtonProps, 'className' | 'style'>;
 
-function AddVariableButton({ onClick, ...props }: AddVariableButtonProps): ReactElement<AddVariableButtonProps> {
+function AddVariableButton(props: AddVariableButtonProps): ReactElement<AddVariableButtonProps> {
 	const [showModal, setShowModal] = useState<boolean>(false);
-
-	const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-		setShowModal(true);
-		onClick?.(event);
-	}, [onClick]);
 
 	return (
 		<>
@@ -24,7 +19,7 @@ function AddVariableButton({ onClick, ...props }: AddVariableButtonProps): React
 				{...props}
 				size='sm'
 				variant='dark'
-				onClick={handleClick}
+				onClick={useCallback(() => setShowModal(true), [])}
 			>
 				{gettext('Добавить переменную')}
 			</AddButton>
