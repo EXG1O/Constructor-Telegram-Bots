@@ -23,10 +23,7 @@ function VariableList({ className, ...props }: VariableListProps): ReactElement<
 				>
 					<tbody>
 						{variables.map(variable => (
-							<VariableDisplay
-								key={variable.id}
-								variable={variable}
-							/>
+							<VariableDisplay key={variable.id} variable={variable} />
 						))}
 					</tbody>
 				</Table>
