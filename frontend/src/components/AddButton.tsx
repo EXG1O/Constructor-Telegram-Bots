@@ -10,7 +10,7 @@ type SizeOptions = Record<NonNullable<ButtonProps['size']>, number>;
 const sizePaddingStart: SizeOptions = { 'sm': 1, 'lg': 2 };
 const sizeIconFontSize: SizeOptions = { 'sm': 21, 'lg': 30 };
 
-function AddButton({ size, children, ...props }: ButtonProps): ReactElement<ButtonProps> {
+function AddButton({ size, className, children, ...props }: ButtonProps): ReactElement<ButtonProps> {
 	const paddingStart: number = size ? sizePaddingStart[size] : 2;
 	const iconFontSize: number = size ? sizeIconFontSize[size] : 24;
 
@@ -18,7 +18,7 @@ function AddButton({ size, children, ...props }: ButtonProps): ReactElement<Butt
 		<Button
 			size={size}
 			{...props}
-			className={classNames(`d-flex ps-${paddingStart}`, props.className)}
+			className={classNames(`d-flex justify-content-center ps-${paddingStart}`, className)}
 		>
 			<i className='d-flex bi bi-plus' style={{ fontSize: `${iconFontSize}px` }} />
 			{children}
