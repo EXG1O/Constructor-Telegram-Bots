@@ -23,16 +23,14 @@ function Toolbar({ paginationData, className, ...props }: ToolbarProps): ReactEl
 				<AddVariableButton className='w-100' />
 			</div>
 			<NameSearch className='flex-fill' />
-			<div>
-				<Pagination
-					itemCount={paginationData.count}
-					itemLimit={paginationData.limit}
-					itemOffset={paginationData.offset}
-					size='sm'
-					className='justify-content-center'
-					onPageChange={useCallback(newOffset => updateVariables(undefined, newOffset), [updateVariables])}
-				/>
-			</div>
+			<Pagination
+				itemCount={paginationData.count}
+				itemLimit={paginationData.limit}
+				itemOffset={paginationData.offset}
+				size='sm'
+				className='justify-content-center ps-1'
+				onPageChange={useCallback(newOffset => updateVariables(undefined, newOffset), [updateVariables])}
+			/>
 		</div>
 	);
 }
