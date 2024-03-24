@@ -390,7 +390,7 @@ class VariablesAPIView(APIView, PaginationMixin):
 		else:
 			queryset = telegram_bot.variables.all()
 
-		results: list[Variable] | None = self.paginate_queryset(request, queryset)
+		results: list[Variable] | None = self.paginate_queryset(request, queryset.order_by('-id'))
 
 		if results is None:
 			return Response(VariableSerializer(queryset, many=True).data)
