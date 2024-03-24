@@ -3,7 +3,7 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import VariableEditModal from './VariableEditModal';
+import EditVariableButton from './EditVariableButton';
 
 import useToast from 'services/hooks/useToast';
 import useVariables from '../hooks/useVariables';
@@ -23,7 +23,6 @@ function VariableDisplay({ variable }: VariableDisplayProps): ReactElement<Varia
 	const { createMessageToast } = useToast();
 	const { updateVariables } = useVariables();
 
-	const [showEditModal, setShowEditModal] = useState<boolean>(false);
 	const [showDeletionModal, setShowDeletionModal] = useState<boolean>(false);
 	const [loadingDeletionModal, setLoadingDeletionModal] = useState<boolean>(false);
 
@@ -46,11 +45,6 @@ function VariableDisplay({ variable }: VariableDisplayProps): ReactElement<Varia
 
 	return(
 		<>
-			<VariableEditModal
-				variable={variable}
-				show={showEditModal}
-				onHide={useCallback(() => setShowEditModal(false), [])}
-			/>
 			<AskConfirmModal
 				show={showDeletionModal}
 				loading={loadingDeletionModal}
@@ -79,11 +73,7 @@ function VariableDisplay({ variable }: VariableDisplayProps): ReactElement<Varia
 							{variable.description}
 						</span>
 						<div className='d-flex gap-1'>
-							<i
-								className='d-flex text-secondary bi bi-pencil-square my-auto'
-								style={{ fontSize: '18px', cursor: 'pointer' }}
-								onClick={() => setShowEditModal(true)}
-							/>
+							<EditVariableButton variable={variable} className='my-auto' />
 							<i
 								className='d-flex text-danger bi bi-trash my-auto'
 								style={{ fontSize: '18px', cursor: 'pointer' }}
