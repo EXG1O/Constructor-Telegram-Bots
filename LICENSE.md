@@ -7,7 +7,7 @@ to modify, distribute, and use the Software only on your own computer system, su
 
 1. The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-2. The Software or any derivative works of the Software may not be published on the global network (including but not limited to the internet) or used for commercial purposes without the prior written permission of the project owner.
+2. The Software or any derivative works of the Software may not be published on the global network (including but not limited to the internet) or used for commercial purposes.
 
 3. The project owner shall not be liable for any user versions or the distribution of the Software by other users on any resources or platforms.
 
