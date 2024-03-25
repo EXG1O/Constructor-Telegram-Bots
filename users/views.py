@@ -6,9 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import NotFound, AuthenticationFailed
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
-from constructor_telegram_bots.responses import MessageResponse
 
 from .models import User
 from .serializers import UserSerializer, UserLoginSerializer
@@ -30,10 +30,10 @@ class UserAPIView(APIView):
 	def get(self, request: Request) -> Response:
 		return Response(UserSerializer(request.user).data) # type: ignore [arg-type]
 
-	def delete(self, request: Request) -> MessageResponse:
+	def delete(self, request: Request) -> Response:
 		request.user.delete()
 
-		response = MessageResponse(_('Вы успешно удалили свой аккаунт.'))
+		response = Response()
 		response.delete_cookie('auth-token')
 
 		return response
@@ -42,7 +42,7 @@ class UserLoginAPIView(APIView):
 	authentication_classes = []
 	permission_classes = []
 
-	def post(self, request: Request) -> MessageResponse:
+	def post(self, request: Request) -> Response:
 		serializer = UserLoginSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
@@ -53,10 +53,10 @@ class UserLoginAPIView(APIView):
 		try:
 			user: User = User.objects.get(id=user_id)
 		except User.DoesNotExist:
-			return MessageResponse(_('Не удалось найти пользователя!'), status=404)
+			raise NotFound()
 
 		if user.confirm_code != confirm_code:
-			return MessageResponse(_('Неверный код подтверждения!'), status=401)
+			raise AuthenticationFailed()
 
 		login(request, user)
 
@@ -65,7 +65,7 @@ class UserLoginAPIView(APIView):
 
 		auth_token, created = Token.objects.get_or_create(user=user)
 
-		response = MessageResponse(_('Вы успешно вошли в аккаунт.'))
+		response = Response()
 		response.set_cookie('auth-token', auth_token.key)
 
 		return response
@@ -74,12 +74,12 @@ class UserLogoutAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
-	def post(self, request: Request) -> MessageResponse:
+	def post(self, request: Request) -> Response:
 		request.user.auth_token.delete() # type: ignore [arg-type, union-attr]
 
 		logout(request)
 
-		response = MessageResponse(_('Вы успешно вышли из своего аккаунта.'))
+		response = Response()
 		response.delete_cookie('auth-token')
 
 		return response

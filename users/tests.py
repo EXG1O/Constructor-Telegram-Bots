@@ -77,7 +77,7 @@ class UserLoginAPIViewTests(CustomTestCase):
 			'user_id': self.user.id,
 			'confirm_code': 'Yes, I love Python <3',
 		})
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, 403)
 
 		response = self.client.post(self.url, {
 			'user_id': self.user.id,

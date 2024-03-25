@@ -11,7 +11,6 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
-from constructor_telegram_bots.responses import MessageResponse
 from constructor_telegram_bots.mixins import PaginationMixin
 
 from .models import (
@@ -77,16 +76,12 @@ class TelegramBotsAPIView(APIView):
 	def get(self, request: Request) -> Response:
 		return Response(TelegramBotSerializer(request.user.telegram_bots.all(), many=True).data) # type: ignore [union-attr]
 
-	def post(self, request: Request) -> MessageResponse:
+	def post(self, request: Request) -> Response:
 		serializer = TelegramBotSerializer(data=request.data, context={'site_user': request.user})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно добавили Telegram бота.'),
-			data={'telegram_bot': serializer.data},
-			status=201,
-		)
+		return Response(serializer.data, status=201)
 
 class TelegramBotAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -111,55 +106,37 @@ class TelegramBotAPIView(APIView):
 
 		return Response()
 
-	def patch(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def patch(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		serializer = TelegramBotSerializer(telegram_bot, request.data, context={'user': request.user})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		validated_data: dict[str, Any] = serializer.validated_data
-		api_token: str | None = validated_data.get('api_token')
-		is_private: bool | None = validated_data.get('is_private')
+		return Response(serializer.data)
 
-		match (api_token, is_private):
-			case (str(), None):
-				success_message = _('Вы успешно изменили API-токен Telegram бота.')
-			case (None, True):
-				success_message = _('Вы успешно сделали Telegram бота приватным.')
-			case (None, False):
-				success_message = _('Вы успешно сделали Telegram бота не приватным.')
-			case __:
-				success_message = _('Вы успешно обновили Telegram бота.')
-
-		return MessageResponse(success_message, data={'telegram_bot': serializer.data})
-
-	def delete(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		telegram_bot.delete()
 
-		return MessageResponse(_('Вы успешно удалили Telegram бота.'))
+		return Response()
 
 class ConnectionsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		serializer = ConnectionSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно подключили блок диаграммы к другому блоку'),
-			data={'connection': serializer.data},
-			status=201,
-		)
+		return Response(serializer.data, status=201)
 
 class ConnectionAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConnectionIsFound]
 
-	def delete(self, request: Request, telegram_bot: TelegramBot, connection: Connection) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, connection: Connection) -> Response:
 		connection.delete()
 
-		return MessageResponse(_('Вы успешно отсоединили блок диаграммы от другого блока'))
+		return Response()
 
 class CommandsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -168,7 +145,7 @@ class CommandsAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(CommandSerializer(telegram_bot.commands.all(), many=True).data)
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		try:
 			data: dict[str, Any] = json.loads(request.data['data'])
 		except (KeyError, JSONDecodeError):
@@ -191,11 +168,7 @@ class CommandsAPIView(APIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно добавили команду Telegram боту.'),
-			data={'command': serializer.data},
-			status=201,
-		)
+		return Response(serializer.data, status=201)
 
 class CommandAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -204,7 +177,7 @@ class CommandAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot, command: Command) -> Response:
 		return Response(CommandSerializer(command).data)
 
-	def patch(self, request: Request, telegram_bot: TelegramBot, command: Command) -> MessageResponse:
+	def patch(self, request: Request, telegram_bot: TelegramBot, command: Command) -> Response:
 		try:
 			data: dict[str, Any] = json.loads(request.data['data'])
 		except (KeyError, JSONDecodeError):
@@ -232,15 +205,12 @@ class CommandAPIView(APIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно изменили команду Telegram бота.'),
-			data={'command': serializer.data},
-		)
+		return Response(serializer.data)
 
-	def delete(self, request: Request, telegram_bot: TelegramBot, command: Command) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, command: Command) -> Response:
 		command.delete()
 
-		return MessageResponse(_('Вы успешно удалили команду Telegram бота.'))
+		return Response()
 
 class ConditionsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -249,16 +219,12 @@ class ConditionsAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(ConditionSerializer(telegram_bot.conditions, many=True).data)
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		serializer = ConditionSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно добавили условие.'),
-			data={'condition': serializer.data},
-			status=201,
-		)
+		return Response(serializer.data, status=201)
 
 class ConditionAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -267,20 +233,17 @@ class ConditionAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> Response:
 		return Response(ConditionSerializer(condition).data)
 
-	def patch(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> MessageResponse:
+	def patch(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> Response:
 		serializer = ConditionSerializer(condition, request.data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно обновили условие.'),
-			data={'condition': serializer.data},
-		)
+		return Response(serializer.data)
 
-	def delete(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, condition: Condition) -> Response:
 		condition.delete()
 
-		return MessageResponse(_('Вы успешно удалили условие.'))
+		return Response()
 
 class BackgroundTasksAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -289,16 +252,12 @@ class BackgroundTasksAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		return Response(BackgroundTaskSerializer(telegram_bot.background_tasks, many=True).data)
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		serializer = BackgroundTaskSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно добавили фоновую задачу.'),
-			data={'background_task': serializer.data},
-			status=201,
-		)
+		return Response(serializer.data, status=201)
 
 class BackgroundTaskAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -307,20 +266,17 @@ class BackgroundTaskAPIView(APIView):
 	def get(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> Response:
 		return Response(BackgroundTaskSerializer(background_task).data)
 
-	def patch(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> MessageResponse:
+	def patch(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> Response:
 		serializer = BackgroundTaskSerializer(background_task, request.data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно обновили фоновую задачу.'),
-			data={'background_task': serializer.data},
-		)
+		return Response(serializer.data)
 
-	def delete(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, background_task: BackgroundTask) -> Response:
 		background_task.delete()
 
-		return MessageResponse(_('Вы успешно удалили фоновую задачу.'))
+		return Response()
 
 class DiagramCommandsAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -397,16 +353,12 @@ class VariablesAPIView(APIView, PaginationMixin):
 		else:
 			return self.get_paginated_response(VariableSerializer(results, many=True).data)
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> MessageResponse:
+	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
 		serializer = VariableSerializer(data=request.data, context={'telegram_bot': telegram_bot})
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно создали новую переменную Telegram бота.'),
-			data={'variable': serializer.data},
-			status=201,
-		)
+		return Response(serializer.data, status=201)
 
 class VariableAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -420,15 +372,12 @@ class VariableAPIView(APIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		return MessageResponse(
-			_('Вы успешно обновили переменную Telegram бота.'),
-			data={'variable': serializer.data},
-		)
+		return Response(serializer.data)
 
-	def delete(self, request: Request, telegram_bot: TelegramBot, variable: Variable) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, variable: Variable) -> Response:
 		variable.delete()
 
-		return MessageResponse(_('Вы успешно удалили переменную Telegram бота.'))
+		return Response()
 
 class UsersAPIView(APIView, PaginationMixin):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -468,16 +417,9 @@ class UserAPIView(APIView):
 
 		user.save()
 
-		success_messages = {
-			'allow': _('Вы успешно добавили пользователя в список разрешённых пользователей Telegram бота.'),
-			'unallow': _('Вы успешно удалили пользователя из списка разрешённых пользователей Telegram бота.'),
-			'block': _('Вы успешно добавили пользователя в список заблокированных пользователей Telegram бота.'),
-			'unblock': _('Вы успешно удалили пользователя из списка заблокированных пользователей Telegram бота.'),
-		}
+		return Response()
 
-		return MessageResponse(success_messages[action])
-
-	def delete(self, request: Request, telegram_bot: TelegramBot, user: User) -> MessageResponse:
+	def delete(self, request: Request, telegram_bot: TelegramBot, user: User) -> Response:
 		user.delete()
 
-		return MessageResponse(_('Вы успешно удалили пользователя Telegram бота.'))
+		return Response()
