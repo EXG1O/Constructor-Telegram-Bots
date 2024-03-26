@@ -68,30 +68,46 @@ function TelegramBotCard({
 	}
 
 	async function handleSaveAPIToken(): Promise<void> {
-		const response = await TelegramBotAPI.update(telegramBot.id, { api_token: apiTokenInputValue });
+		const response = await TelegramBotAPI.partialUpdate(telegramBot.id, { api_token: apiTokenInputValue });
 
 		if (response.ok) {
-			setTelegramBot(response.json.telegram_bot);
+			setTelegramBot(response.json);
 			toggleAPITokenState();
+			createMessageToast({
+				message: gettext('Вы успешно обновили API-токен Telegram бота.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось обновить API-токен Telegram бота!'),
+				level: 'error',
+			});
 		}
-
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}
 
 	async function handleIsPrivateChange(event: ChangeEvent<HTMLInputElement>): Promise<void> {
-		const response = await TelegramBotAPI.update(telegramBot.id, { is_private: event.target.checked });
+		const response = await TelegramBotAPI.partialUpdate(telegramBot.id, { is_private: event.target.checked });
 
 		if (response.ok) {
-			setTelegramBot(response.json.telegram_bot);
+			setTelegramBot(response.json);
+			createMessageToast({
+				message: interpolate(
+					gettext('Вы успешно сделали Telegram бота %(private)s.'),
+					{ private: response.json.is_private ? gettext('приватным') : gettext('не приватным') },
+					true,
+				),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: interpolate(
+					gettext('Не удалось сделать Telegram бота %(private)s!'),
+					{ private: event.target.checked ? gettext('приватным') : gettext('не приватным') },
+					true,
+				),
+				level: 'error',
+			});
 		}
-
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}
 
 	return (

@@ -38,15 +38,15 @@ function TelegramBotAdditionModal({ onHide, onExited, ...props }: TelegramBotAdd
 		const response = await TelegramBotsAPI.create(data);
 
 		if (response.ok) {
-			setTelegramBots([...telegramBots, response.json.telegram_bot]);
+			setTelegramBots([...telegramBots, response.json]);
 			onHide();
+			createMessageToast({
+				message: gettext('Вы успешно добавили Telegram бота.'),
+				level: 'success',
+			});
 		}
 
 		setLoading(false);
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}
 
 	return (

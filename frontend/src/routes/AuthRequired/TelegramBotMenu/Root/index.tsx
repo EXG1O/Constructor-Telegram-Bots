@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Outlet, Params, json, redirect } from 'react-router-dom';
+import { Outlet, Params, redirect } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
 
@@ -22,7 +22,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 	const response = await TelegramBotAPI.get(parseInt(telegramBotID));
 
 	if (!response.ok) {
-		throw json(response.json, response.status);
+		throw Error('Failed to fetch data!');
 	}
 
 	return { telegramBot: response.json };

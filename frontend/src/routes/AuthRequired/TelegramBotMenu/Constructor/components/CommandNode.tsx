@@ -42,12 +42,16 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 		if (response.ok) {
 			setNodes(prevNodes => prevNodes.filter(node => node.id !== id));
 			setShowDeleteModal(false);
+			createMessageToast({
+				message: gettext('Вы успешно удалили команду.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось удалить команду!'),
+				level: 'error',
+			});
 		}
-
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}, []);
 
 	return (

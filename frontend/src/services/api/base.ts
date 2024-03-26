@@ -7,24 +7,24 @@ export namespace APIResponse {
 		json: Json;
 	}
 
-	export interface Success {
-		message: string;
-		level: 'success' | 'info';
-	}
-	export interface Error {
+	interface _Error {
 		code: string;
-		name: string | null;
-		message: string;
-		level: 'error';
+		detail: string;
+		attr: string | null;
+	}
+
+	export interface Error {
+		type: 'server_error' | 'client_error' | 'validation_error';
+		errors: _Error[];
 	}
 }
 
 export async function makeRequest<
-	SuccessAPIResponse extends Record<string, any> = APIResponse.Success,
+	SuccessAPIResponse extends Record<string, any> = {},
 	ErrorAPIResponse extends Record<string, any> = APIResponse.Error
 >(
 	url: string,
-	method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+	method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
 	data?: Record<string, any> | FormData,
 ): Promise<
 	APIResponse.Base<true, SuccessAPIResponse> |

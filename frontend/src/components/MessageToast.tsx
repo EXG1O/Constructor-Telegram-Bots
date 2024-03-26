@@ -1,14 +1,14 @@
 import React, { ReactElement, memo, useEffect, useState } from 'react';
 
-import Toast from 'react-bootstrap/Toast';
+import Toast, { ToastProps } from 'react-bootstrap/Toast';
 import CloseButton from 'react-bootstrap/CloseButton';
 
 type Levels = 'success' | 'info' | 'error';
 
-export interface MessageToastProps {
+export interface MessageToastProps extends Omit<ToastProps, 'autohide' | 'show' | 'delay' | 'className' | 'onClose' | 'children'> {
 	message: string;
 	level: Levels;
-	onExited: () => void;
+	onExited: ToastProps['onExited'];
 }
 
 const colors: Record<Levels, string> = {
@@ -22,18 +22,18 @@ const icons: Record<Levels, string> = {
 	error: 'exclamation-triangle-fill',
 }
 
-function MessageToast({ message, level, onExited }: MessageToastProps): ReactElement<MessageToastProps> {
+function MessageToast({ message, level, ...props }: MessageToastProps): ReactElement<MessageToastProps> {
 	const [show, setShow] = useState<boolean>(false);
 
 	useEffect(() => setShow(true), []);
 
 	return (
 		<Toast
+			{...props}
 			autohide
 			show={show}
 			delay={6000}
 			className={`text-bg-${colors[level]} mb-0`}
-			onExited={onExited}
 			onClose={() => setShow(false)}
 		>
 			<Toast.Body className='d-flex align-items-center gap-2'>

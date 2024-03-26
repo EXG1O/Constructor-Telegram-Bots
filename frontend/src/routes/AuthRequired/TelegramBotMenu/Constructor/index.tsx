@@ -267,12 +267,8 @@ function Constructor(): ReactElement {
 		});
 	}, []);
 
-	const addEdge = useCallback(async (
-		connection: Connection,
-		shouldUpdateEdges: boolean = true,
-		showMessageToast: boolean = true,
-	): Promise<void> => {
-		if (connection.source && connection.sourceHandle && connection.target && connection.targetHandle) {			
+	const addEdge = useCallback(async (connection: Connection, shouldUpdateEdges: boolean = true): Promise<void> => {
+		if (connection.source && connection.sourceHandle && connection.target && connection.targetHandle) {
 			const [
 				source_object_type,
 				source_object_id,
@@ -310,31 +306,31 @@ function Constructor(): ReactElement {
 
 			const response = await makeRequest;
 
-			if (response.ok && shouldUpdateEdges) {
-				setEdges(prevEdges => _addEdge({ ...connection, id: `reactflow__edge-${response.json.connection.id}`}, prevEdges));
-			}
-
-			if (!response.ok || showMessageToast) {
+			if (response.ok) {
+				if (shouldUpdateEdges) {
+					setEdges(prevEdges => _addEdge({ ...connection, id: `reactflow__edge-${response.json.id}` }, prevEdges));
+				}
+			} else {
 				createMessageToast({
-					message: response.json.message,
-					level: response.json.level,
+					message: gettext('Не удалось подключить блок к другому блоку!'),
+					level: 'error',
 				});
 			}
 		}
 	}, []);
 
-	async function deleteEdge(edge: Edge, shouldUpdateEdges: boolean = true, showMessageToast: boolean = true): Promise<void> {
+	async function deleteEdge(edge: Edge, shouldUpdateEdges: boolean = true): Promise<void> {
 		if (edge.sourceHandle) {
 			const response = await ConnectionAPI._delete(telegramBot.id, parseInt(edge.id.split('-')[1]));
 
-			if (response.ok && shouldUpdateEdges) {
-				setEdges(prevEdges => prevEdges.filter(prevEdge => prevEdge.id !== edge.id));
-			}
-
-			if (showMessageToast) {
+			if (response.ok) {
+				if (shouldUpdateEdges) {
+					setEdges(prevEdges => prevEdges.filter(prevEdge => prevEdge.id !== edge.id));
+				}
+			} else {
 				createMessageToast({
-					message: response.json.message,
-					level: response.json.level,
+					message: gettext('Не удалось отключить блок от другого блока!'),
+					level: 'error',
 				});
 			}
 		}
@@ -351,14 +347,8 @@ function Constructor(): ReactElement {
 				edgeUpdating.current.targetHandle !== newConnection.targetHandle
 			)
 		) {
-			const showMessageToast = (
-				edgeUpdating.current.sourceHandle?.split(':')[2] !== newConnection.sourceHandle?.split(':')[2]
-			) || (
-				edgeUpdating.current.target !== newConnection.target
-			);
-
-			deleteEdge(oldEdge, false, showMessageToast);
-			addEdge(newConnection, false, showMessageToast);
+			deleteEdge(oldEdge, false);
+			addEdge(newConnection, false);
 
 			setEdges(prevEdges => updateEdge(oldEdge, newConnection, prevEdges));
 		}

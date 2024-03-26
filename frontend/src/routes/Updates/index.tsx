@@ -14,7 +14,7 @@ import useToast from 'services/hooks/useToast';
 import { UpdatesAPI } from 'services/api/updates/main';
 import { APIResponse } from 'services/api/updates/types';
 
-export interface UpdatesPaginationData extends Omit<APIResponse.UpdatesAPI.Get.Pagination, 'next' | 'previous'> {
+export interface UpdatesPaginationData extends APIResponse.UpdatesAPI.Get.Pagination {
 	limit: number;
 	offset: number;
 }
@@ -32,14 +32,7 @@ export async function loader(): Promise<LoaderData> {
 		throw Error('Failed to fetch data!');
 	}
 
-	return {
-		updatesPaginationData: {
-			count: response.json.count,
-			limit,
-			offset,
-			results: response.json.results,
-		}
-	}
+	return { updatesPaginationData: { ...response.json, limit, offset } };
 }
 
 const title: string = gettext('Обновления');
@@ -61,19 +54,15 @@ function Updates(): ReactElement {
 		const response = await UpdatesAPI.get(limit, offset);
 
 		if (response.ok) {
-			setPaginationData({
-				count: response.json.count,
-				limit,
-				offset,
-				results: response.json.results,
-			});
-			setLoading(false);
+			setPaginationData({ ...response.json, limit, offset });
 		} else {
 			createMessageToast({
-				message: response.json.message,
-				level: response.json.level,
+				message: gettext('Не удалось получить список обновлений!'),
+				level: 'error',
 			});
 		}
+
+		setLoading(false);
 	}
 
 	return (

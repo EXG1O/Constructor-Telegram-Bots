@@ -33,13 +33,18 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 		if (response.ok) {
 			setShowDeletingModal(false);
 			navigate('/personal-cabinet/');
+			createMessageToast({
+				message: gettext('Вы успешно удалили Telegram бота.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось удалить Telegram бота!'),
+				level: 'error',
+			});
 		}
 
 		setLoadingDeletingModal(false);
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}
 
 	async function handleButtonClick(action: 'start' | 'restart' | 'stop'): Promise<void> {
@@ -47,6 +52,40 @@ function TelegramBotCardFooter({ telegramBot, setTelegramBot }: TelegramBotCardF
 
 		if (response.ok) {
 			setTelegramBot({ ...telegramBot, is_loading: true });
+
+			if (action === 'start') {
+				createMessageToast({
+					message: gettext('Выполняется включение Telegram бота...'),
+					level: 'info',
+				});
+			} else if (action === 'restart') {
+				createMessageToast({
+					message: gettext('Выполняется перезагрузка Telegram бота...'),
+					level: 'info',
+				});
+			} else if (action === 'stop') {
+				createMessageToast({
+					message: gettext('Выполняется выключение Telegram бота...'),
+					level: 'info',
+				});
+			}
+		} else {
+			if (action === 'start') {
+				createMessageToast({
+					message: gettext('Не удалось включить Telegram бота!'),
+					level: 'error',
+				});
+			} else if (action === 'restart') {
+				createMessageToast({
+					message: gettext('Не удалось перезагрузить Telegram бота!'),
+					level: 'error',
+				});
+			} else if (action === 'stop') {
+				createMessageToast({
+					message: gettext('Не удалось выключить Telegram бота!'),
+					level: 'error',
+				});
+			}
 		}
 	}
 

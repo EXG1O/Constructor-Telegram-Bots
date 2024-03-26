@@ -33,13 +33,18 @@ function DeleteVariableButton({ variable, className }: DeleteVariableButtonProps
 		if (response.ok) {
 			updateVariables();
 			setShowModal(false);
+			createMessageToast({
+				message: gettext('Вы успешно удалили переменную.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось удалить переменную!'),
+				level: 'error',
+			});
 		}
 
 		setLoadingModal(false);
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}, []);
 
 	return (

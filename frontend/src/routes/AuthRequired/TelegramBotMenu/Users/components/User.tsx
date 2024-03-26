@@ -31,13 +31,18 @@ function User({ user, onDeleted }: UserProps): ReactNode {
 		if (response.ok) {
 			onDeleted();
 			setShowDeleteUserModal(false);
+			createMessageToast({
+				message: gettext('Вы успешно удалили пользователя.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось удалить пользователя!'),
+				level: 'error',
+			});
 		}
 
 		setLoadingDeleteUserModal(false);
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}
 
 	return (

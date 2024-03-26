@@ -23,8 +23,8 @@ function LanguagesDropdown(props: LanguagesDropdownProps): ReactElement<Language
 			window.location.href = location.pathname;
 		} else {
 			createMessageToast({
-				message: response.json.message,
-				level: response.json.level,
+				message: gettext('Не удалось изменить язык!'),
+				level: 'error',
 			});
 		}
 	}

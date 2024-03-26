@@ -40,20 +40,15 @@ function UserVariables(): ReactElement {
 		const response = await VariablesAPI.get(telegramBot.id, limit, offset, name);
 
 		if (response.ok) {
-			setPaginationData({
-				count: response.json.count,
-				limit,
-				offset,
-				name,
-				results: response.json.results,
-			});
-			setLoading(false);
+			setPaginationData({ ...response.json, limit, offset, name });
 		} else {
 			createMessageToast({
-				message: response.json.message,
-				level: response.json.level,
+				message: gettext('Не удалось получить список переменных!'),
+				level: 'error',
 			});
 		}
+
+		setLoading(false);
 	}
 
 	return (

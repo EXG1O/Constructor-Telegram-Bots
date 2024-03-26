@@ -16,7 +16,7 @@ function Stats(): ReactElement {
 		<div className='stats'>
 			<h3>{gettext('Информация о сайте')}</h3>
 			<Stack gap={1}>
-				<InfoArea value={stats.users.count}>
+				<InfoArea value={stats.users.total}>
 					{gettext('Пользователей')}
 				</InfoArea>
 				<InfoArea value={stats.telegramBots.telegram_bots.total}>

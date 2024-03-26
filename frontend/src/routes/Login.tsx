@@ -2,23 +2,16 @@ import React, { ReactElement, useEffect } from 'react';
 import { Params, NavigateOptions, useNavigate, useRouteLoaderData } from 'react-router-dom';
 
 import Loading from 'components/Loading';
+import { MessageToastProps } from 'components/MessageToast';
 
 import useToast from 'services/hooks/useToast';
 
 import { UserAPI } from 'services/api/users/main';
 
-type Levels = 'success' | 'info' | 'error';
-
-export interface LoaderData {
-	message: string;
-	level: Levels;
-}
+export type LoaderData = Pick<MessageToastProps, 'message' | 'level'>;
 
 export async function loader({ params }: { params: Params<'userID' | 'confirmCode'> }): Promise<LoaderData> {
 	const { userID, confirmCode } = params;
-
-	let message: string;
-	let level: Levels;
 
 	if (userID && confirmCode) {
 		const response = await UserAPI.login({
@@ -26,14 +19,28 @@ export async function loader({ params }: { params: Params<'userID' | 'confirmCod
 			confirm_code: confirmCode,
 		});
 
-		message = response.json.message;
-		level = response.json.level;
-	} else {
-		message = gettext('Неправильный URL-адрес!');
-		level = 'error';
+		if (response.ok) {
+			return {
+				message: gettext('Успешная авторизация.'),
+				level: 'success',
+			}
+		} else if (response.status === 404) {
+			return {
+				message: gettext('Пользователь не найден!'),
+				level: 'error',
+			}
+		} else if (response.status === 401) {
+			return {
+				message: gettext('Неверный код подтверждения!'),
+				level: 'error',
+			}
+		}
 	}
 
-	return { message, level };
+	return {
+		message: gettext('Не удалось пройти авторизацию!'),
+		level: 'error',
+	}
 }
 
 function Login(): ReactElement {

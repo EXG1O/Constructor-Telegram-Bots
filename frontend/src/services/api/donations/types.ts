@@ -23,8 +23,6 @@ export namespace APIResponse {
 			export type Default = Donation[];
 			export interface Pagination {
 				count: number;
-				next: string | null;
-				previous: string | null;
 				results: Donation[];
 			}
 		}

@@ -30,13 +30,18 @@ function UserMenuDropdown({ user, ...props }: UserMenuDropdownProps): ReactEleme
 		if (response.ok) {
 			setShowLogoutModal(false);
 			navigate('/');
+			createMessageToast({
+				message: gettext('Вы успешно вышли из аккаунта.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось выйти из аккаунта!'),
+				level: 'error',
+			});
 		}
 
 		setLoadingLogoutModal(false);
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}, []);
 
 	return (

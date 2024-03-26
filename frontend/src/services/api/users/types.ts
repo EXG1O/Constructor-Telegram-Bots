@@ -20,7 +20,7 @@ export namespace Data {
 export namespace APIResponse {
 	export namespace StatsAPI {
 		export interface Get {
-			count: number;
+			total: number;
 		}
 	}
 

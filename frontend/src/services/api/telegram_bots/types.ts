@@ -1,5 +1,3 @@
-import { APIResponse  as BaseApiResponse } from 'services/api/base';
-
 export interface TelegramBot {
 	id: number;
 	username: string | null;
@@ -156,7 +154,8 @@ export namespace Data {
 	}
 
 	export namespace TelegramBotAPI {
-		export type Update = Partial<TelegramBotsAPI.Create>;
+		export type Update = TelegramBotsAPI.Create;
+		export type PartialUpdate = Partial<Update>;
 	}
 
 	export namespace ConnectionsAPI {
@@ -164,39 +163,19 @@ export namespace Data {
 	}
 
 	export namespace CommandsAPI {
-		interface CreateCommandTrigger extends Omit<CommandTrigger, 'description'> {
-			description?: NonNullable<CommandTrigger['description']>;
-		}
-
-		export interface CreateCommandKeyboardButton extends Omit<CommandKeyboardButton, 'id' | 'row' | 'url'> {
-			row?: NonNullable<CommandKeyboardButton['row']>;
-			url?: NonNullable<CommandKeyboardButton['url']>;
-		}
-
 		interface CreateCommandKeyboard extends Omit<CommandKeyboard, 'buttons'> {
-			buttons: CreateCommandKeyboardButton[];
+			buttons: Omit<CommandKeyboardButton, 'id'>[];
 		}
 
-		interface CreateCommandAPIRequest extends Omit<CommandAPIRequest, 'headers' | 'body'> {
-			headers?: NonNullable<CommandAPIRequest['headers']>;
-			body?: NonNullable<CommandAPIRequest['body']>;
-		}
-
-		export interface Create {
-			name: Command['name'];
-			settings: Command['settings'];
-			trigger?: CreateCommandTrigger;
+		export interface Create extends Omit<Command, 'id' | 'images' | 'files' | 'keyboard'> {
 			images?: File[],
 			files?: File[],
-			message: Command['message'];
-			keyboard?: CreateCommandKeyboard;
-			api_request?: CreateCommandAPIRequest;
-			database_record?: NonNullable<Command['database_record']>;
+			keyboard: CreateCommandKeyboard | null;
 		}
 	}
 
 	export namespace CommandAPI {
-		interface UpdateCommandKeyboardButton extends CommandsAPI.CreateCommandKeyboardButton {
+		interface UpdateCommandKeyboardButton extends Omit<CommandKeyboardButton, 'id'> {
 			id?: CommandKeyboardButton['id'];
 		}
 
@@ -204,61 +183,53 @@ export namespace Data {
 			buttons: UpdateCommandKeyboardButton[];
 		}
 
-		export interface Update extends Omit<CommandsAPI.Create, 'images' | 'files' | 'keyboard'> {
+		export interface Update extends Omit<Command, 'id' | 'images' | 'files' | 'keyboard'> {
 			images?: (File | number)[];
 			files?: (File | number)[];
-			keyboard?: UpdateCommandKeyboard;
+			keyboard: UpdateCommandKeyboard | null;
 		}
 	}
 
 	export namespace ConditionsAPI {
-		type CreateConditionPart = Omit<ConditionPart, 'id'>;
-
 		export interface Create extends Omit<Condition, 'id' | 'parts'> {
-			parts: CreateConditionPart[];
+			parts: Omit<ConditionPart, 'id'>[];
 		}
 	}
 
 	export namespace ConditionAPI {
-		export type Update = ConditionsAPI.Create;
+		export type Update = Omit<Condition, 'id'>;
 	}
 
 	export namespace BackgroundTasksAPI {
-		type CreateBackgroundTaskAPIRequest = Omit<BackgroundTaskAPIRequest, 'id'>;
-
 		export interface Create extends Omit<BackgroundTask, 'id' | 'api_request'> {
-			api_request: CreateBackgroundTaskAPIRequest[];
+			api_request: Omit<BackgroundTaskAPIRequest, 'id'>[];
 		}
 	}
 
 	export namespace BackgroundTaskAPI {
-		export type Update = BackgroundTasksAPI.Create;
+		export type Update = Omit<BackgroundTask, 'id'>;
 	}
 
 	export namespace DiagramCommandAPI {
-		export interface Update {
-			x?: number;
-			y?: number;
-		}
+		export type Update = Pick<DiagramCommand, 'x' | 'y'>;
 	}
 
 	export namespace DiagramConditionAPI {
-		export interface Update {
-			x?: number;
-			y?: number;
-		}
+		export type Update = Pick<DiagramCondition, 'x' | 'y'>;
 	}
 
 	export namespace DiagramBackgroundTaskAPI {
-		export interface Update {
-			x?: number;
-			y?: number;
-		}
+		export type Update = Pick<DiagramBackgroundTask, 'x' | 'y'>;
 	}
 
 	export namespace VariableAPI {
 		export type Create = Omit<Variable, 'id'>;
 		export type Update = Create;
+	}
+
+	export namespace UserAPI {
+		export type Update = Pick<User, 'is_allowed' | 'is_blocked'>;
+		export type PartialUpdate = Partial<Update>;
 	}
 }
 
@@ -281,84 +252,59 @@ export namespace APIResponse {
 
 	export namespace TelegramBotsAPI {
 		export type Get = TelegramBot[];
-		export interface Create extends BaseApiResponse.Success {
-			telegram_bot: TelegramBot;
-		}
+		export type Create = TelegramBot;
 	}
 
 	export namespace TelegramBotAPI {
 		export type Get = TelegramBot;
-		export type Update = TelegramBotsAPI.Create;
-
-		export type Start = {};
-		export type Restart = Start;
-		export type Stop = Start;
+		export type Update = TelegramBot;
+		export type PartialUpdate = TelegramBot;
 	}
 
 	export namespace ConnectionsAPI {
-		export interface Create extends BaseApiResponse.Success {
-			connection: Connection;
-		}
+		export type Create = Connection;
 	}
 
 	export namespace CommandsAPI {
 		export type Get = Command[];
-		export interface Create extends BaseApiResponse.Success {
-			command: Command;
-		}
+		export type Create = Command;
 	}
 
 	export namespace CommandAPI {
 		export type Get = Command;
-		export type Update = CommandsAPI.Create;
+		export type Update = Command;
 	}
 
 	export namespace ConditionsAPI {
 		export type Get = Condition[];
-		export interface Create extends BaseApiResponse.Success {
-			condition: Condition;
-		}
+		export type Create = Condition;
 	}
 
 	export namespace ConditionAPI {
 		export type Get = Condition;
-		export type Update = ConditionsAPI.Create;
+		export type Update = Condition;
 	}
 
 	export namespace BackgroundTasksAPI {
 		export type Get = BackgroundTask[];
-		export interface Create extends BaseApiResponse.Success {
-			background_task: BackgroundTask;
-		}
+		export type Create = BackgroundTask;
 	}
 
 	export namespace BackgroundTaskAPI {
 		export type Get = BackgroundTask;
-		export type Update = BackgroundTasksAPI.Create;
+		export type Update = BackgroundTask;
 	}
 
 	export namespace DiagramCommandsAPI {
 		export type Get = DiagramCommand[];
 	}
 
-	export namespace DiagramCommandAPI {
-		export type Get = {};
-	}
-
 	export namespace DiagramConditionsAPI {
 		export type Get = DiagramCondition[];
 	}
 
-	export namespace DiagramConditionAPI {
-		export type Get = {};
-	}
-
 	export namespace DiagramBackgroundTasksAPI {
 		export type Get = DiagramBackgroundTask[];
-	}
-
-	export namespace DiagramBackgroundTaskAPI {
-		export type Get = {};
 	}
 
 	export namespace VariablesAPI {
@@ -366,8 +312,6 @@ export namespace APIResponse {
 			export type Default = Variable[];
 			export interface Pagination {
 				count: number;
-				next: string | null;
-				previous: string | null;
 				results: Variable[];
 			}
 		}
@@ -375,14 +319,8 @@ export namespace APIResponse {
 
 	export namespace VariableAPI {
 		export type Get = Variable;
-		export interface Create extends BaseApiResponse.Success {
-			variable: Variable;
-		}
-		export type Update = Create;
-	}
-
-	export namespace UserAPI {
-		export type Get = User;
+		export type Create = Variable;
+		export type Update = Variable;
 	}
 
 	export namespace UsersAPI {
@@ -390,10 +328,14 @@ export namespace APIResponse {
 			export type Default = User[];
 			export interface Pagination {
 				count: number;
-				next: string | null;
-				previous: string | null;
 				results: User[];
 			}
 		}
+	}
+
+	export namespace UserAPI {
+		export type Get = User;
+		export type Update = User;
+		export type PartialUpdate = User;
 	}
 }

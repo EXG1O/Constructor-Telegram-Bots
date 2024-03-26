@@ -11,8 +11,6 @@ export namespace APIResponse {
 			export type Default = Update[];
 			export interface Pagination {
 				count: number;
-				next: string | null;
-				previous: string | null;
 				results: Update[];
 			}
 		}

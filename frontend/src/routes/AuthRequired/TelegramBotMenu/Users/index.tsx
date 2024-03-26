@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { Params, json, useRouteLoaderData } from 'react-router-dom';
+import { Params, useRouteLoaderData } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
@@ -17,7 +17,7 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 import { UsersAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
 
-export interface TelegramBotUsersPaginationData extends Omit<APIResponse.UsersAPI.Get.Pagination, 'next' | 'previous'> {
+export interface TelegramBotUsersPaginationData extends APIResponse.UsersAPI.Get.Pagination {
 	limit: number;
 	offset: number;
 }
@@ -33,17 +33,10 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 	const response = await UsersAPI.get(telegramBotID, limit, offset);
 
 	if (!response.ok) {
-		throw json(response.json, response.status);
+		throw Error('Failed to fetch data!');
 	}
 
-	return {
-		telegramBotUsersPaginationData: {
-			count: response.json.count,
-			limit,
-			offset,
-			results: response.json.results,
-		},
-	}
+	return { telegramBotUsersPaginationData: { ...response.json, limit, offset } };
 }
 
 function Users(): ReactElement {
@@ -64,16 +57,15 @@ function Users(): ReactElement {
 		const response = await UsersAPI.get(telegramBot.id, limit, offset);
 
 		if (response.ok) {
-			setPaginationData({
-				count: response.json.count,
-				limit,
-				offset,
-				results: response.json.results,
-			});
-			setLoading(false);
+			setPaginationData({ ...response.json, limit, offset });
 		} else {
-			createMessageToast({ message: response.json.message, level: response.json.level });
+			createMessageToast({
+				message: gettext('Не удалось получить список пользователей!'),
+				level: 'error',
+			});
 		}
+
+		setLoading(false);
 	}
 
 	return (

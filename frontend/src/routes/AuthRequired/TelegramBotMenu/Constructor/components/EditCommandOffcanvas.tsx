@@ -81,7 +81,7 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 			setLoading(false);
 		} else {
 			createMessageToast({
-				message: gettext('Не удалось получить данные с сервера!'),
+				message: gettext('Не удалось получить данные команды!'),
 				level: 'error',
 			});
 		}
@@ -90,41 +90,61 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 	async function handleSaveCommandButtonClick({
 		name,
 		settings,
+		trigger,
 		images,
 		files,
 		message,
+		keyboard,
 		apiRequest,
 		databaseRecord,
-		...data
 	}: CommandOffcanvasData): Promise<void> {
 		setLoading(true);
 
 		const response = await CommandAPI.update(telegramBot.id, commandID, {
-			...data,
 			name: name ?? '',
 			settings: {
 				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
 				is_delete_user_message: settings?.isDeleteUserMessage ?? false,
 				is_send_as_new_message: settings?.isSendAsNewMessage ?? false,
 			},
-			message: message ?? { text: '' },
+			trigger: trigger ? {
+				...trigger,
+				description: trigger.description ?? null,
+			} : null,
 			images: images?.map(image => image.file ?? image.id!),
 			files: files?.map(file => file.file ?? file.id!),
-			api_request: apiRequest && {
+			message: message ?? { text: '' },
+			keyboard: keyboard ? {
+				...keyboard,
+				buttons: keyboard.buttons.map(button => ({
+					...button,
+					row: button.row ?? null,
+					url: button.url ?? null,
+				})),
+			} : null,
+			api_request: apiRequest ? {
 				...apiRequest,
-				headers: apiRequest.headers && apiRequest.headers.map(header => ({ [header.key]: header.value })),
-				body: apiRequest.body && JSON.parse(apiRequest.body),
-			},
-			database_record: databaseRecord ? { data: JSON.parse(databaseRecord) } : undefined,
+				headers: apiRequest.headers ? apiRequest.headers.map(header => ({ [header.key]: header.value })) : null,
+				body: apiRequest.body ? JSON.parse(apiRequest.body) : null,
+			} : null,
+			database_record: databaseRecord ? { data: JSON.parse(databaseRecord) } : null,
 		});
 
 		if (response.ok) {
 			onUpdated();
 			onHide();
+			createMessageToast({
+				message: gettext('Вы успешно сохранили команду.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось сохранить команду!'),
+				level: 'error',
+			});
 		}
 
 		setLoading(false);
-		createMessageToast({ message: response.json.message, level: response.json.level });
 	}
 
 	return (

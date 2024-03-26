@@ -35,17 +35,21 @@ export namespace TelegramBotAPI {
 	export const update = (
 		telegramBotID: TelegramBot['id'],
 		data: Data.TelegramBotAPI.Update,
-	) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PATCH', data);
+	) => makeRequest<APIResponse.TelegramBotAPI.Update>(url(telegramBotID), 'PUT', data);
+	export const partialUpdate = (
+		telegramBotID: TelegramBot['id'],
+		data: Data.TelegramBotAPI.PartialUpdate,
+	) => makeRequest<APIResponse.TelegramBotAPI.PartialUpdate>(url(telegramBotID), 'PATCH', data);
 	export const _delete = (telegramBotID: TelegramBot['id']) => makeRequest(url(telegramBotID), 'DELETE');
 
 	export const start = (telegramBotID: TelegramBot['id']) => (
-		makeRequest<APIResponse.TelegramBotAPI.Start>(url(telegramBotID), 'POST', { action: 'start' })
+		makeRequest(url(telegramBotID), 'POST', { action: 'start' })
 	);
 	export const restart = (telegramBotID: TelegramBot['id']) => (
-		makeRequest<APIResponse.TelegramBotAPI.Restart>(url(telegramBotID), 'POST', { action: 'restart' })
+		makeRequest(url(telegramBotID), 'POST', { action: 'restart' })
 	);
 	export const stop = (telegramBotID: TelegramBot['id']) => (
-		makeRequest<APIResponse.TelegramBotAPI.Stop>(url(telegramBotID), 'POST', { action: 'stop' })
+		makeRequest(url(telegramBotID), 'POST', { action: 'stop' })
 	);
 }
 
@@ -125,7 +129,7 @@ export namespace CommandAPI {
 		});
 		formData.append('data', JSON.stringify(data));
 
-		return makeRequest<APIResponse.CommandAPI.Update>(url(telegramBotID, commandID), 'PATCH', formData);
+		return makeRequest<APIResponse.CommandAPI.Update>(url(telegramBotID, commandID), 'PUT', formData);
 	};
 	export const _delete = (
 		telegramBotID: TelegramBot['id'],
@@ -159,7 +163,7 @@ export namespace ConditionAPI {
 		telegramBotID: TelegramBot['id'],
 		conditionID: Condition['id'],
 		data: Data.ConditionAPI.Update,
-	) => makeRequest<APIResponse.ConditionAPI.Update>(url(telegramBotID, conditionID), 'PATCH', data);
+	) => makeRequest<APIResponse.ConditionAPI.Update>(url(telegramBotID, conditionID), 'PUT', data);
 	export const _delete = (
 		telegramBotID: TelegramBot['id'],
 		conditionID: Condition['id'],
@@ -192,7 +196,7 @@ export namespace BackgroundTaskAPI {
 		telegramBotID: TelegramBot['id'],
 		backgroundTaskID: BackgroundTask['id'],
 		data: Data.BackgroundTaskAPI.Update,
-	) => makeRequest<APIResponse.BackgroundTaskAPI.Update>(url(telegramBotID, backgroundTaskID), 'PATCH', data);
+	) => makeRequest<APIResponse.BackgroundTaskAPI.Update>(url(telegramBotID, backgroundTaskID), 'PUT', data);
 	export const _delete = (
 		telegramBotID: TelegramBot['id'],
 		backgroundTaskID: BackgroundTask['id'],
@@ -217,7 +221,7 @@ export namespace DiagramCommandAPI {
 		telegramBotID: TelegramBot['id'],
 		commandID: Command['id'],
 		data: Data.DiagramCommandAPI.Update,
-	) => makeRequest<APIResponse.DiagramCommandAPI.Get>(url(telegramBotID, commandID), 'PATCH', data);
+	) => makeRequest(url(telegramBotID, commandID), 'PATCH', data);
 }
 
 export namespace DiagramConditionsAPI {
@@ -238,7 +242,7 @@ export namespace DiagramConditionAPI {
 		telegramBotID: TelegramBot['id'],
 		conditionID: Condition['id'],
 		data: Data.DiagramConditionAPI.Update,
-	) => makeRequest<APIResponse.DiagramConditionAPI.Get>(url(telegramBotID, conditionID), 'PATCH', data);
+	) => makeRequest(url(telegramBotID, conditionID), 'PATCH', data);
 }
 
 export namespace DiagramBackgroundTasksAPI {
@@ -259,7 +263,7 @@ export namespace DiagramBackgroundTaskAPI {
 		telegramBotID: TelegramBot['id'],
 		backgroundTaskID: BackgroundTask['id'],
 		data: Data.DiagramBackgroundTaskAPI.Update,
-	) => makeRequest<APIResponse.DiagramBackgroundTaskAPI.Get>(url(telegramBotID, backgroundTaskID), 'PATCH', data);
+	) => makeRequest(url(telegramBotID, backgroundTaskID), 'PATCH', data);
 }
 
 export namespace VariablesAPI {
@@ -269,15 +273,15 @@ export namespace VariablesAPI {
 		telegramBotID: TelegramBot['id'],
 		limit: Limit,
 		offset?: number,
-		name?: string,
+		search?: string,
 	) => {
 		let url: string = VariablesAPI.url(telegramBotID);
 
-		if (limit || offset || name) {
+		if (limit || offset || search) {
 			const params = new URLSearchParams();
 			limit && params.set('limit', limit.toString());
 			offset && params.set('offset', offset.toString());
-			name && params.set('name', name);
+			search && params.set('search', search);
 
 			url += `?${params.toString()}`;
 		}
@@ -308,7 +312,7 @@ export namespace VariableAPI {
 		telegramBotID: TelegramBot['id'],
 		variableID: Variable['id'],
 		data: Data.VariableAPI.Update,
-	) => makeRequest<APIResponse.VariableAPI.Update>(url(telegramBotID, variableID), 'PATCH', data);
+	) => makeRequest<APIResponse.VariableAPI.Update>(url(telegramBotID, variableID), 'PUT', data);
 	export const _delete = (
 		telegramBotID: TelegramBot['id'],
 		variableID: Variable['id'],
@@ -322,11 +326,25 @@ export namespace UsersAPI {
 		telegramBotID: TelegramBot['id'],
 		limit: Limit,
 		offset?: number,
-	) => makeRequest<
-		Limit extends number ?
-		APIResponse.UsersAPI.Get.Pagination :
-		APIResponse.UsersAPI.Get.Default
-	>(url(telegramBotID) + `?limit=${limit ?? 0}&offset=${offset ?? 0}`, 'GET');
+		search?: string
+	) => {
+		let url: string = UsersAPI.url(telegramBotID);
+
+		if (limit || offset || search) {
+			const params = new URLSearchParams();
+			limit && params.set('limit', limit.toString());
+			offset && params.set('offset', offset.toString());
+			search && params.set('search', search);
+
+			url += `?${params.toString()}`;
+		}
+
+		return makeRequest<
+			Limit extends number ?
+			APIResponse.UsersAPI.Get.Pagination :
+			APIResponse.UsersAPI.Get.Default
+		>(url, 'GET');
+	}
 }
 
 export namespace UserAPI {
@@ -339,11 +357,16 @@ export namespace UserAPI {
 		telegramBotID: TelegramBot['id'],
 		userID: User['id'],
 	) => makeRequest<APIResponse.UserAPI.Get>(url(telegramBotID, userID), 'GET');
-	export const post = (
+	export const update = (
 		telegramBotID: TelegramBot['id'],
 		userID: User['id'],
-		action: 'allow' | 'unallow' | 'block' | 'unblock',
-	) => makeRequest(url(telegramBotID, userID), 'POST', { action });
+		data: Data.UserAPI.Update,
+	) => makeRequest<APIResponse.UserAPI.Update>(url(telegramBotID, userID), 'PATCH', data);
+	export const partialUpdate = (
+		telegramBotID: TelegramBot['id'],
+		userID: User['id'],
+		data: Data.UserAPI.PartialUpdate,
+	) => makeRequest<APIResponse.UserAPI.PartialUpdate>(url(telegramBotID, userID), 'PATCH', data);
 	export const _delete = (
 		telegramBotID: TelegramBot['id'],
 		userID: User['id'],

@@ -34,13 +34,18 @@ function VariableEditModal({ variable, onHide, ...props }: VariableEditModalProp
 		if (response.ok) {
 			updateVariables();
 			onHide();
+			createMessageToast({
+				message: gettext('Вы успешно сохранили переменную.'),
+				level: 'success',
+			});
+		} else {
+			createMessageToast({
+				message: gettext('Не удалось сохранить переменную!'),
+				level: 'error',
+			});
 		}
 
 		setLoading(false);
-		createMessageToast({
-			message: response.json.message,
-			level: response.json.level,
-		});
 	}
 
 	return (
