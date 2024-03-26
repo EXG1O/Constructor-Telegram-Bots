@@ -1,5 +1,6 @@
 from rest_framework.generics import ListAPIView
-from rest_framework.pagination import LimitOffsetPagination
+
+from constructor_telegram_bots.pagination import LimitOffsetPagination
 
 from .models import Update
 from .serializers import UpdateSerializer
