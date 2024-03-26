@@ -21,7 +21,7 @@ class StatsAPIView(APIView):
 	permission_classes = []
 
 	def get(self, request: Request) -> Response:
-		return Response({'count': User.objects.count()})
+		return Response({'total': User.objects.count()})
 
 class UserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
