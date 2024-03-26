@@ -85,6 +85,10 @@ INSTALLED_APPS = [
 	'privacy_policy',
 ]
 
+REST_FRAMEWORK = {
+	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
+}
+
 TINYMCE_DEFAULT_CONFIG = {
 	'theme': 'silver',
 	'menubar': True,
@@ -117,13 +121,6 @@ MIDDLEWARE = [
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'django.middleware.locale.LocaleMiddleware',
 ]
-
-REST_FRAMEWORK = {
-	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
-}
-DRF_STANDARDIZED_ERRORS = {
-	'EXCEPTION_FORMATTER_CLASS': 'constructor_telegram_bots.exception_formatter.CustomExceptionFormatter',
-}
 
 
 TEMPLATES = [
