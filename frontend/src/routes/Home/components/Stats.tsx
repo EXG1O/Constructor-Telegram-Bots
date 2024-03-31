@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
-import './index.scss';
+import './Stats.scss';
 
 import Stack from 'react-bootstrap/Stack';
 
-import InfoArea from './components/InfoArea';
+import InfoArea from 'components/InfoArea';
 
-import { LoaderData as HomeLoaderData } from '../..';
+import { LoaderData as HomeLoaderData } from '..';
 
 function Stats(): ReactElement {
 	const { stats } = useRouteLoaderData('home') as HomeLoaderData;

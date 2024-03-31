@@ -9,7 +9,7 @@ function LoginModal(props: LoginModalProps): ReactElement<LoginModalProps> {
 	return (
 		<Modal {...props}>
 			<Modal.Header closeButton className='border-bottom-0' />
-			<Modal.Body className='text-center pt-0 pb-4'>
+			<Modal.Body className='text-center pt-0 pb-5'>
 				<div className='d-flex justify-content-center mb-3'>
 					<div className='border border-3 rounded-3 p-3'>
 						<QRCodeCanvas

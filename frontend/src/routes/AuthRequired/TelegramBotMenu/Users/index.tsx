@@ -8,7 +8,7 @@ import Title from 'components/Title';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
 
-import User from './components/User';
+import UserDisplay from './components/UserDisplay';
 
 import useToast from 'services/hooks/useToast';
 
@@ -23,7 +23,7 @@ export interface TelegramBotUsersPaginationData extends APIResponse.UsersAPI.Get
 }
 
 export interface LoaderData {
-	telegramBotUsersPaginationData: TelegramBotUsersPaginationData;
+	usersPaginationData: TelegramBotUsersPaginationData;
 }
 
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
@@ -36,12 +36,12 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 		throw Error('Failed to fetch data!');
 	}
 
-	return { telegramBotUsersPaginationData: { ...response.json, limit, offset } };
+	return { usersPaginationData: { ...response.json, limit, offset } };
 }
 
 function Users(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
-	const { telegramBotUsersPaginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-users') as LoaderData;
+	const { usersPaginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-users') as LoaderData;
 
 	const { createMessageToast } = useToast();
 
@@ -94,7 +94,7 @@ function Users(): ReactElement {
 								>
 									<tbody>
 										{paginationData.results.map(telegramBotUser => (
-											<User
+											<UserDisplay
 												key={telegramBotUser.id}
 												user={telegramBotUser}
 												onDeleted={updateTelegramBotUsers}

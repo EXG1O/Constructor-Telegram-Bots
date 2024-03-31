@@ -18,7 +18,7 @@ import { LoaderData as TelegramBotMenuVariablesLoaderData, UserVariablesPaginati
 import { VariablesAPI } from 'services/api/telegram_bots/main';
 
 interface PaginationData extends UserVariablesPaginationData {
-	name: string;
+	search: string;
 }
 
 function UserVariables(): ReactElement {
@@ -27,20 +27,20 @@ function UserVariables(): ReactElement {
 
 	const { createMessageToast } = useToast();
 
-	const [paginationData, setPaginationData] = useState<PaginationData>({ ...initialPaginationData, name: ''});
+	const [paginationData, setPaginationData] = useState<PaginationData>({ ...initialPaginationData, search: '' });
 	const [loading, setLoading] = useState<boolean>(false);
 
 	async function updateVariables(
 		limit: number = paginationData.limit,
 		offset: number = paginationData.offset,
-		name: string = paginationData.name,
+		search: string = paginationData.search,
 	): Promise<void> {
 		setLoading(true);
 
-		const response = await VariablesAPI.get(telegramBot.id, limit, offset, name);
+		const response = await VariablesAPI.get(telegramBot.id, limit, offset, search);
 
 		if (response.ok) {
-			setPaginationData({ ...response.json, limit, offset, name });
+			setPaginationData({ ...response.json, limit, offset, search });
 		} else {
 			createMessageToast({
 				message: gettext('Не удалось получить список переменных!'),

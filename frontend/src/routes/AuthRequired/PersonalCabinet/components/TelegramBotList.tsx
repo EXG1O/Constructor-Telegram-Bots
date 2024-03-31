@@ -8,13 +8,13 @@ import TelegramBotCard from 'components/TelegramBotCard';
 
 import useTelegramBots from '../services/hooks/useTelegramBots';
 
-export type TelegramBotListProps = RowProps;
+export type TelegramBotListProps = Omit<RowProps, 'children'>;
 
-function TelegramBotList(props: TelegramBotListProps): ReactElement<TelegramBotListProps> {
+function TelegramBotList({ className, ...props }: TelegramBotListProps): ReactElement<TelegramBotListProps> {
 	const [telegramBots] = useTelegramBots();
 
 	return (
-		<Row xs={1} md={2} xl={3} className={classNames('g-3', props.className)}>
+		<Row xs={1} md={2} xl={3} {...props} className={classNames('g-3', className)}>
 			{telegramBots.length ? (
 				telegramBots.map(telegramBot => (
 					<TelegramBotCard key={telegramBot.id} telegramBot={telegramBot}>

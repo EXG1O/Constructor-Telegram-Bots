@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
@@ -7,7 +7,7 @@ import Title from 'components/Title';
 import Loading from 'components/Loading';
 import Pagination from 'components/Pagination';
 
-import Update from './components/Update';
+import UpdateDisplay from './components/UpdateDisplay';
 
 import useToast from 'services/hooks/useToast';
 
@@ -71,7 +71,7 @@ function Updates(): ReactElement {
 				<h1 className='fw-semibold text-center mb-0'>{title}</h1>
 				{!loading ? (
 					paginationData.results.map(update => (
-						<Update key={update.id} update={update} />
+						<UpdateDisplay key={update.id} update={update} />
 					))
 				) : (
 					<Loading size='lg' className='m-auto' />
@@ -81,7 +81,7 @@ function Updates(): ReactElement {
 					itemLimit={paginationData.limit}
 					itemOffset={paginationData.offset}
 					className='align-self-center'
-					onPageChange={newItemOffset => updateUpdates(undefined, newItemOffset)}
+					onPageChange={useCallback(newItemOffset => updateUpdates(undefined, newItemOffset), [])}
 				/>
 			</Container>
 		</Title>

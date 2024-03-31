@@ -4,9 +4,7 @@
 	.ql-toolbar {
 		.ql-formats {
 			button {
-				$formats: (
-					'spoiler': '\F777',
-				);
+				$formats: ('spoiler': '\F777');
 
 				@each $name, $icon in $formats {
 					&.ql-#{$name} {
@@ -26,15 +24,11 @@
 	.ql-container {
 		.ql-editor {
 			tg-spoiler {
-				color: $dark;
-				background-color: $dark;
+				color: $light;
+				background-color: $secondary;
 				border-radius: 4px;
 				padding: 2px 4px;
 				transition: color 0.15s ease-in-out;
-
-				&:hover {
-					color: $light;
-				}
 			}
 		}
 	}

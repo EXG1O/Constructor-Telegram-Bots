@@ -29,14 +29,14 @@ function AskConfirmModal({
 				<Button
 					variant='success'
 					className='flex-fill'
-					onClick={onConfirm}
+					onClick={() => onConfirm?.()}
 				>
 					{gettext('Да')}
 				</Button>
 				<Button
 					variant='danger'
 					className='flex-fill'
-					onClick={onCancel}
+					onClick={() => onCancel?.()}
 				>
 					{gettext('Нет')}
 				</Button>

@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
 
 import ToastContainer from 'react-bootstrap/ToastContainer';
 
@@ -13,18 +13,23 @@ export interface ToastProviderProps {
 function ToastProvider({ children }: ToastProviderProps): ReactElement<ToastProviderProps> {
 	const [toasts, setToasts] = useState<ReactElement[]>([]);
 
-	function removeToast(toast: ReactElement): void {
-		setToasts(prevToasts => prevToasts.filter(_toast => _toast !== toast));
+	function deleteToast(key: string): void {
+		setToasts(prevToasts => prevToasts.filter(toast => toast.key !== key));
 	}
 
-	function createMessageToast(props: Omit<MessageToastProps, 'onExited'>): void {
-		const toast = <MessageToast key={Date.now()} {...props} onExited={() => removeToast(toast)} />;
+	function createMessageToast({ onExited, ...props }: MessageToastProps): void {
+		const key: string = Date.now().toString();
 
-		setToasts(prevToasts => [...prevToasts, toast]);
+		function handleExited(node: HTMLElement): void {
+			deleteToast(key);
+			onExited?.(node);
+		}
+
+		setToasts(prevToasts => [...prevToasts, <MessageToast key={key} {...props} onExited={handleExited} />]);
 	}
 
 	return (
-		<ToastContext.Provider value={{ createMessageToast }}>
+		<ToastContext.Provider value={useMemo(() => ({ createMessageToast }), [])}>
 			<ToastContainer className='vstack position-fixed bottom-0 end-0 gap-3 p-3'>
 				{toasts}
 			</ToastContainer>

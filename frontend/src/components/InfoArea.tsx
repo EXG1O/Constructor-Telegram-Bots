@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode, HTMLAttributes, memo } from 'react';
 
 export interface InfoAreaProps extends HTMLAttributes<HTMLDivElement> {
 	value: ReactNode;
-	children: ReactNode;
 }
 
 function InfoArea({ value, children, ...props }: InfoAreaProps): ReactElement<InfoAreaProps> {

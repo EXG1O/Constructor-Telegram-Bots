@@ -22,13 +22,15 @@ export interface QuillEditorProps extends Omit<ReactQuillProps, 'modules' | 'chi
 function QuillEditor({
 	height,
 	toolbar,
+	className,
 	onFocus,
 	onBlur,
 	onMount,
 	...props
 }: QuillEditorProps): ReactElement<QuillEditorProps> {
-	const quillRef = useRef<Quill | undefined>(undefined);
+	const quillRef = useRef<Quill | null>(null);
     const reactQuillRef = useRef<ReactQuill | null>(null);
+
 	const [focus, setFocus] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -60,13 +62,7 @@ function QuillEditor({
 			ref={reactQuillRef}
 			{...props}
 			modules={{ toolbar }}
-			className={
-				classNames(
-					'border rounded',
-					focus ? 'focus' : undefined,
-					props.className,
-				)
-			}
+			className={classNames('border rounded', focus ? 'focus' : undefined, className)}
 			onFocus={handleFocus}
 			onBlur={handleBlur}
 		/>

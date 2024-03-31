@@ -7,18 +7,8 @@ export interface ReactLinkProps extends LinkProps {
 	children: ReactNode;
 }
 
-function ReactLink(props: ReactLinkProps): ReactElement<ReactLinkProps> {
-	return (
-		<Link
-			{...props}
-			className={
-				classNames(
-					'link-secondary link-underline-opacity-0',
-					props.className,
-				)
-			}
-		/>
-	);
+function ReactLink({ className, ...props }: ReactLinkProps): ReactElement<ReactLinkProps> {
+	return <Link {...props} className={classNames('link-secondary link-underline-opacity-0', className)} />;
 }
 
 export default ReactLink;

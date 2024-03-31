@@ -1,4 +1,4 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement, memo, useMemo } from 'react';
 import Quill from 'quill';
 
 import('./TelegramQuillEditor.scss');
@@ -14,30 +14,25 @@ class SpoilerBlot extends Inline {
 
 Quill.register(SpoilerBlot);
 
-export interface TelegramQuillEditorProps extends Omit<QuillEditorProps, 'toolbar'> {
-	toolbar?: QuillEditorProps['toolbar'];
-}
+export type TelegramQuillEditorProps = Omit<QuillEditorProps, 'toolbar'>;
 
 function TelegramQuillEditor(props: TelegramQuillEditorProps): ReactElement<TelegramQuillEditorProps> {
-	return (
-		<QuillEditor
-			toolbar={{
-				container: [
-					'bold',
-					'italic',
-					'underline',
-					'strike',
-					'link',
-					'code',
-					'code-block',
-					'blockquote',
-					'spoiler',
-					'clean',
-				],
-			}}
-			{...props}
-		/>
-	);
+	const toolbar = useMemo<QuillEditorProps['toolbar']>(() => ({
+		container: [
+			'bold',
+			'italic',
+			'underline',
+			'strike',
+			'link',
+			'code',
+			'code-block',
+			'blockquote',
+			'spoiler',
+			'clean',
+		],
+	}), []);
+
+	return <QuillEditor {...props} toolbar={toolbar} />;
 }
 
 export default memo(TelegramQuillEditor);

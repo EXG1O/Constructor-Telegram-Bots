@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 
 import Title from 'components/Title';
 
-import Section from './components/Section';
+import SectionDisplay from './components/SectionDisplay';
 
 import { SectionsAPI, ButtonsAPI } from 'services/api/donations/main';
 import { APIResponse } from 'services/api/donations/types';
@@ -39,7 +39,7 @@ function Index(): ReactElement {
 			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
 				<h1 className='fw-semibold text-center mb-0'>{title}</h1>
 				{sections.map(section => (
-					<Section key={section.id} section={section} />
+					<SectionDisplay key={section.id} section={section} />
 				))}
 				<div className='d-flex gap-2 mt-auto'>
 					{buttons.map(button => (

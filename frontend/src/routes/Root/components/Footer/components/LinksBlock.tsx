@@ -21,9 +21,9 @@ export interface LinksBlockProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
 	links: Link[];
 }
 
-function LinksBlock({ title, links, ...props }: LinksBlockProps): ReactElement<LinksBlockProps> {
+function LinksBlock({ title, links, className, ...props }: LinksBlockProps): ReactElement<LinksBlockProps> {
 	return (
-		<Col {...props} className={classNames('vstack', props.className)}>
+		<Col {...props} className={classNames('vstack', className)}>
 			<h5 className='mb-0'>{title}</h5>
 			{links.map((props, index) => {
 				if (props.type === 'default') {

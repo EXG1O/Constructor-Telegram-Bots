@@ -24,7 +24,7 @@ function Header(): ReactElement {
 
 	return (
 		<Nav variant='pills' className='nav-fill bg-light border rounded gap-2 p-2'>
-			{headerLinks.map((props, index) => {
+			{headerLinks.map(({ className, ...props }, index) => {
 				const to: string = `/telegram-bot-menu/${telegramBot.id}/${props.to}`;
 
 				return (
@@ -36,7 +36,7 @@ function Header(): ReactElement {
 							classNames(
 								'nav-link',
 								location.pathname === to ? 'active' : undefined,
-								props.className,
+								className,
 							)
 						}
 					/>

@@ -1,23 +1,20 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement, memo, useMemo } from 'react';
 import classNames from 'classnames';
 
 import Button, { ButtonProps } from 'react-bootstrap/Button';
 
 export type AddButtonProps = ButtonProps;
 
-type SizeOptions = Record<NonNullable<ButtonProps['size']>, number>;
+const iconFontSizes: Record<NonNullable<AddButtonProps['size']>, number> = { 'sm': 21, 'lg': 30 };
 
-const sizePaddingStart: SizeOptions = { 'sm': 1, 'lg': 2 };
-const sizeIconFontSize: SizeOptions = { 'sm': 21, 'lg': 30 };
-
-function AddButton({ size, className, children, ...props }: ButtonProps): ReactElement<ButtonProps> {
-	const paddingStart: number = size ? sizePaddingStart[size] : 2;
-	const iconFontSize: number = size ? sizeIconFontSize[size] : 24;
+function AddButton({ size, className, children, ...props }: AddButtonProps): ReactElement<AddButtonProps> {
+	const paddingStart: number = size === 'sm' ? 1 : 2;
+	const iconFontSize: number = size ? iconFontSizes[size] : 24;
 
 	return (
 		<Button
-			size={size}
 			{...props}
+			size={size}
 			className={classNames(`d-flex justify-content-center ps-${paddingStart}`, className)}
 		>
 			<i className='d-flex bi bi-plus' style={{ fontSize: `${iconFontSize}px` }} />

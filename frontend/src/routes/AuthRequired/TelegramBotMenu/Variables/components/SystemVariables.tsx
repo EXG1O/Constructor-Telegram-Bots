@@ -40,7 +40,7 @@ const variables: Record<VariablesTypes, Variables[]> = {
 }
 
 function SystemVariables(): ReactElement {
-	const [variablesType, setVariablesType] = useState<VariablesTypes>('personal');
+	const [type, setType] = useState<VariablesTypes>('personal');
 
 	return (
 		<Card>
@@ -52,45 +52,40 @@ function SystemVariables(): ReactElement {
 					<ToggleButtonGroup
 						type='radio'
 						name='system-variables-types'
-						defaultValue='personal'
+						value={type}
 						className='w-100'
+						onChange={setType}
 					>
 						{variablesTypeToggleButtons.map((props, index) => (
 							<ToggleButton
 								{...props}
 								key={index}
-								id={`btn-radio-system-variables-type-${props.value}`}
+								id={`btn-radio__system-variables__type-${props.value}`}
 								size='sm'
 								variant='outline-dark'
-								onChange={() => setVariablesType(props.value)}
 							/>
 						))}
 					</ToggleButtonGroup>
 				</div>
 				<div className='border rounded'>
-					<Table
-						responsive
-						borderless
-						striped
-						className='overflow-hidden rounded mb-0'
-					>
+					<Table responsive borderless striped className='overflow-hidden rounded mb-0'>
 						<tbody>
-							{variables[variablesType].map((data, index) => (
+							{variables[type].map(({ variable, description }, index) => (
 								<tr key={index}>
 									<td className='w-50'>
 										<div className='d-flex gap-2'>
 											<i
 												className='btn-clipboard bi bi-clipboard'
-												data-clipboard-text={data.variable}
+												data-clipboard-text={variable}
 												style={{ cursor: 'pointer' }}
 											/>
 											<span className='flex-fill text-info-emphasis'>
-												{data.variable}
+												{variable}
 											</span>
 										</div>
 									</td>
 									<td className='text-nowrap'>
-										{data.description}
+										{description}
 									</td>
 								</tr>
 							))}

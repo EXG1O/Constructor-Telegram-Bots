@@ -1,7 +1,7 @@
 import React, { ReactElement, Children, cloneElement } from 'react';
 
-import { BaseModalProps } from '@restart/ui/Modal';
 import BaseModal from 'react-bootstrap/Modal';
+import { BaseModalProps } from '@restart/ui/Modal';
 
 import Loading from './Loading';
 

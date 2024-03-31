@@ -8,14 +8,14 @@ import useToast from 'services/hooks/useToast';
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import { UserAPI } from 'services/api/telegram_bots/main';
-import { User as UserType } from 'services/api/telegram_bots/types';
+import { User } from 'services/api/telegram_bots/types';
 
-export interface UserProps {
-	user: UserType;
+export interface UserDisplayProps {
+	user: User;
 	onDeleted: () => Promise<void> | void;
 }
 
-function User({ user, onDeleted }: UserProps): ReactNode {
+function UserDisplay({ user, onDeleted }: UserDisplayProps): ReactNode {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
@@ -72,4 +72,4 @@ function User({ user, onDeleted }: UserProps): ReactNode {
 	);
 }
 
-export default User;
+export default UserDisplay;

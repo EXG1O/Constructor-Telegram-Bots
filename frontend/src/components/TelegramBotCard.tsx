@@ -25,12 +25,14 @@ export interface TelegramBotCardProps extends Omit<CardProps, 'children'> {
 
 function TelegramBotCard({
 	telegramBot: initialTelegramBot,
+	className,
 	children,
 	...props
 }: TelegramBotCardProps): ReactElement<TelegramBotCardProps> {
 	const { createMessageToast } = useToast();
 
 	const [telegramBot, setTelegramBot] = useState<TelegramBot>(initialTelegramBot);
+
 	const [apiTokenInputValue, setAPITokenInputValue] = useState<string>(telegramBot.api_token);
 	const [apiTokenIsEditing, setAPITokenIsEditing] = useState<boolean>(false);
 
@@ -43,12 +45,10 @@ function TelegramBotCard({
 		const response = await TelegramBotAPI.get(telegramBot.id);
 
 		if (response.ok) {
-			const _telegramBot: TelegramBot = response.json;
-
-			if (_telegramBot.is_loading) {
+			if (response.json.is_loading) {
 				setTimeout(checkTelegramBotStatus, 3000);
 			} else {
-				setTelegramBot(_telegramBot);
+				setTelegramBot(response.json);
 			}
 		}
 	}
@@ -111,7 +111,7 @@ function TelegramBotCard({
 	}
 
 	return (
-		<Card {...props} className={classNames('border-0', props.className)}>
+		<Card {...props} className={classNames('border-0', className)}>
 			<Card.Header as='h5' {...(
 				telegramBot.is_loading ? {
 					className: 'd-flex justify-content-center juitext-bg-secondary text-bg-secondary border-secondary text-center',
@@ -150,30 +150,38 @@ function TelegramBotCard({
 											value={apiTokenInputValue}
 											placeholder={gettext('Введите API-токен')}
 											style={{ fontSize: '16px' }}
-											onChange={(event) => setAPITokenInputValue(event.target.value)}
+											onChange={event => setAPITokenInputValue(event.target.value)}
 										/>
 									) : (
-										<span className='text-break flex-fill'>
-											{telegramBot.api_token}
-										</span>
+										<span className='text-break flex-fill'>{telegramBot.api_token}</span>
 									)}
 									{apiTokenIsEditing ? (
-										<div className='d-flex gap-1'>
+										<div className='d-flex'>
 											<i
-												className='bi bi-check-lg text-success'
-												style={{ cursor: 'pointer', fontSize: '22px', WebkitTextStroke: '0.3px' }}
+												className='d-flex bi bi-check text-success'
+												style={{
+													cursor: 'pointer',
+													fontSize: '28px',
+												}}
 												onClick={handleSaveAPIToken}
 											/>
 											<i
-												className='bi bi-x-lg text-danger my-auto'
-												style={{ cursor: 'pointer', fontSize: '18px', WebkitTextStroke: '1px' }}
+												className='d-flex bi bi-x text-danger'
+												style={{
+													cursor: 'pointer',
+													fontSize: '28px',
+													WebkitTextStroke: '0.4px',
+												}}
 												onClick={toggleAPITokenState}
 											/>
 										</div>
 									) : (
 										<i
 											className='d-flex bi bi-pencil-square text-secondary'
-											style={{ cursor: 'pointer', fontSize: '19px' }}
+											style={{
+												cursor: 'pointer',
+												fontSize: '18px',
+											}}
 											onClick={toggleAPITokenState}
 										/>
 									)}

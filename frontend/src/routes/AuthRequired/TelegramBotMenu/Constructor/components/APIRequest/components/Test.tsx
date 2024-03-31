@@ -68,7 +68,7 @@ function Test({ url, data }: TestProps): ReactElement<TestProps> {
 			<Button
 				size='sm'
 				variant='dark'
-				className={classNames('w-100', result ? 'border-bottom-0 rounded-bottom-0' : undefined)}
+				className={classNames('w-100', result && 'border-bottom-0 rounded-bottom-0')}
 				onClick={handleMakeTestAPIRequestButtonClick}
 			>
 				{gettext('Протестировать')}

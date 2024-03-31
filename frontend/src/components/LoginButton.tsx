@@ -4,27 +4,26 @@ import Button, { ButtonProps } from 'react-bootstrap/Button';
 
 import LoginModal from './LoginModal';
 
-export type LoginButtonProps = Omit<ButtonProps, 'as' | 'href' | 'target' | 'variant' | 'children'>;
+export type LoginButtonProps = Omit<ButtonProps, 'as' | 'href' | 'target' | 'children'>;
 
 function LoginButton({ onClick, ...props }: LoginButtonProps): ReactElement<LoginButtonProps> {
-	const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+	const [showModal, setShowModal] = useState<boolean>(false);
 
 	function handleButtonClick(event: MouseEvent<HTMLButtonElement>): void {
-		setShowLoginModal(true);
+		setShowModal(true);
 		onClick?.(event);
 	}
 
 	return (
 		<>
 			<LoginModal
-				show={showLoginModal}
-				onHide={useCallback(() => setShowLoginModal(false), [])}
+				show={showModal}
+				onHide={useCallback(() => setShowModal(false), [])}
 			/>
 			<Button
 				{...props}
 				as='a'
 				href={`tg://resolve?domain=${process.env.TELEGRAM_BOT_USERNAME}&start=login`}
-				variant='success'
 				onClick={handleButtonClick}
 			>
 				<i className='bi bi-telegram me-1' />

@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 
 import Title from 'components/Title';
 
-import Section from './components/Section';
+import SectionDisplay from './components/SectionDisplay';
 
 import { SectionsAPI } from 'services/api/instruction/main';
 import { APIResponse } from 'services/api/instruction/types';
@@ -34,7 +34,7 @@ function Instruction(): ReactElement {
 			<Container as='main' className='vstack gap-3 gap-lg-4 my-3 my-lg-4'>
 				<h1 className='fw-semibold text-center mb-0'>{title}</h1>
 				{sections.map(section => (
-					<Section key={section.id} section={section} />
+					<SectionDisplay key={section.id} section={section} />
 				))}
 			</Container>
 		</Title>

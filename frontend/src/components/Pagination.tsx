@@ -1,8 +1,8 @@
-import React, { ReactElement, ReactNode, memo, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, memo, useMemo } from 'react';
 
-import _Pagination, { PaginationProps as _PaginationProps } from 'react-bootstrap/Pagination';
+import BasePagination, { PaginationProps as BasePaginationProps } from 'react-bootstrap/Pagination';
 
-export interface PaginationProps extends Omit<_PaginationProps, 'children'> {
+export interface PaginationProps extends Omit<BasePaginationProps, 'children'> {
 	itemCount: number;
 	itemLimit: number;
 	itemOffset: number;
@@ -16,13 +16,11 @@ function Pagination({
 	onPageChange,
 	...props
 }: PaginationProps): ReactElement<PaginationProps> {
-	const [items, setItems] = useState<ReactNode[]>([]);
-
-	useEffect(() => {
+	const items = useMemo<ReactNode[] | undefined>(() => {
 		const pageCount: number = Math.ceil(itemCount / itemLimit);
 		const activePageNum: number = Math.ceil(itemOffset / itemLimit) + 1;
 
-		setItems(
+		return (
 			pageCount > 1 ? (
 				Array.from({ length: pageCount }, (_, pageNum) => {
 					pageNum++;
@@ -35,7 +33,7 @@ function Pagination({
 						pageNum >= activePageNum - 1 && pageNum <= activePageNum + 1
 					) {
 						return (
-							<_Pagination.Item
+							<BasePagination.Item
 								key={pageNum}
 								as='span'
 								{...(
@@ -48,11 +46,11 @@ function Pagination({
 								style={{ cursor: 'pointer' }}
 							>
 								{pageNum}
-							</_Pagination.Item>
+							</BasePagination.Item>
 						);
 					} else if (pageNum === 2 || pageNum === pageCount - 2) {
 						return (
-							<_Pagination.Ellipsis
+							<BasePagination.Ellipsis
 								key={pageNum}
 								style={{
 									cursor: 'default',
@@ -67,10 +65,10 @@ function Pagination({
 	}, [itemCount, itemLimit, itemOffset]);
 
 	return (
-		items.length ? (
-			<_Pagination {...props}>
+		items?.length ? (
+			<BasePagination {...props}>
 				{items}
-			</_Pagination>
+			</BasePagination>
 		) : <></>
 	);
 }

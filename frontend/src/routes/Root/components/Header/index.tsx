@@ -28,7 +28,7 @@ function Header(): ReactElement {
 						{user ? (
 							<UserMenuDropdown user={user} />
 						) : (
-							<LoginButton />
+							<LoginButton variant='success' />
 						)}
 					</div>
 				</Navbar.Collapse>

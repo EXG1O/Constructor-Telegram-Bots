@@ -8,7 +8,6 @@ type Levels = 'success' | 'info' | 'error';
 export interface MessageToastProps extends Omit<ToastProps, 'autohide' | 'show' | 'delay' | 'className' | 'onClose' | 'children'> {
 	message: string;
 	level: Levels;
-	onExited: ToastProps['onExited'];
 }
 
 const colors: Record<Levels, string> = {

@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 
 import Title from 'components/Title';
 
-import Member from './components/Member';
+import MemberDisplay from './components/MemberDisplay';
 
 import { MembersAPI } from 'services/api/team/main';
 import { APIResponse } from 'services/api/team/types';
@@ -37,7 +37,7 @@ function Team(): ReactElement {
 					<h1 className='fw-semibold mb-0'>{title}</h1>
 					<Row xs={1} lg={6} className='justify-content-center g-3 g-lg-4'>
 						{members.map(member => (
-							<Member key={member.id} member={member} />
+							<MemberDisplay key={member.id} member={member} />
 						))}
 					</Row>
 				</Container>

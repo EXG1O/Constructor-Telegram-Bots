@@ -6,17 +6,12 @@ export interface DefaultLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement
 	children: ReactNode;
 }
 
-function DefaultLink(props: DefaultLinkProps): ReactElement<DefaultLinkProps> {
+function DefaultLink({ className, ...props }: DefaultLinkProps): ReactElement<DefaultLinkProps> {
 	return (
 		<a
 			target='_blank'
 			{...props}
-			className={
-				classNames(
-					'link-secondary link-underline-opacity-0',
-					props.className,
-				)
-			}
+			className={classNames('link-secondary link-underline-opacity-0', className)}
 		/>
 	);
 }

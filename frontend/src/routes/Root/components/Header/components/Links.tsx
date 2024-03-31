@@ -18,16 +18,16 @@ const links: LinkProps[] = [
 	{ to: '/donation/', children: gettext('Пожертвование') },
 ];
 
-function Links(props: LinksProps): ReactElement<LinksProps> {
+function Links({ className, ...props }: LinksProps): ReactElement<LinksProps> {
 	const location = useLocation();
 
 	return (
 		<Nav
 			{...props}
 			variant='underline'
-			className={classNames('gap-0', props.className)}
+			className={classNames('gap-0', className)}
 		>
-			{links.map((props, index) => (
+			{links.map(({ className, ...props }, index) => (
 				<Link
 					key={index}
 					{...props}
@@ -35,7 +35,7 @@ function Links(props: LinksProps): ReactElement<LinksProps> {
 						classNames(
 							'nav-link pb-1',
 							location.pathname === props.to ? 'active' : undefined,
-							props.className,
+							className,
 						)
 					}
 				/>

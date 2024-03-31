@@ -15,13 +15,7 @@ function Root(): ReactElement {
 		}
 	}, [user]);
 
-	return (
-		user ? (
-			<Outlet />
-		) : (
-			<Loading size='xl' className='m-auto' />
-		)
-	);
+	return user ? <Outlet /> : <Loading size='xl' className='m-auto' />;
 }
 
 export default Root;

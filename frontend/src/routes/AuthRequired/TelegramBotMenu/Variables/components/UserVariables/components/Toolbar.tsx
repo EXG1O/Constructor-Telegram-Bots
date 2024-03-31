@@ -1,10 +1,10 @@
 import React, { ReactElement, HTMLAttributes, memo, useCallback } from 'react';
 import classNames from 'classnames';
 
+import Search, { defaultValue as searchDefaultValue } from 'components/Search';
 import Pagination from 'components/Pagination';
 
 import AddVariableButton from './AddVariableButton';
-import NameSearch from './NameSearch';
 
 import useVariables from '../hooks/useVariables';
 
@@ -22,7 +22,12 @@ function Toolbar({ paginationData, className, ...props }: ToolbarProps): ReactEl
 			<div>
 				<AddVariableButton className='w-100' />
 			</div>
-			<NameSearch className='flex-fill' />
+			<Search
+				size='sm'
+				className='flex-fill'
+				onSearch={useCallback(value => updateVariables(undefined, undefined, value), [])}
+				onClear={useCallback(() => updateVariables(undefined, undefined, searchDefaultValue), [])}
+			/>
 			<Pagination
 				itemCount={paginationData.count}
 				itemLimit={paginationData.limit}

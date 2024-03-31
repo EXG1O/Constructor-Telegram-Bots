@@ -4,13 +4,13 @@ import monaco from 'monaco-editor';
 
 import('./MonacoEditor.scss');
 
-import _MonacoEditor, { Monaco, EditorProps as _MonacoEditorProps } from '@monaco-editor/react';
+import BaseMonacoEditor, { Monaco, EditorProps as BaseMonacoEditorProps } from '@monaco-editor/react';
 
 import Loading from './Loading';
 
 import { updateEditorLayout } from 'utils/monaco_editor';
 
-export interface MonacoEditorProps extends _MonacoEditorProps {
+export interface MonacoEditorProps extends BaseMonacoEditorProps {
 	disablePadding?: boolean;
 	disableFocusEffect?: boolean;
 }
@@ -18,11 +18,14 @@ export interface MonacoEditorProps extends _MonacoEditorProps {
 function MonacoEditor({
 	disablePadding,
 	disableFocusEffect,
+	options,
+	className,
 	onChange,
 	onMount,
 	...props
 }: MonacoEditorProps): ReactElement<MonacoEditorProps> {
 	const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | undefined>(undefined);
+
 	const [focus, setFocus] = useState<boolean>(false);
 
 	function handleMonacoEditorMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco): void {
@@ -49,9 +52,9 @@ function MonacoEditor({
 	}
 
 	return (
-		<_MonacoEditor
-			loading={<Loading size='sm' />}
+		<BaseMonacoEditor
 			{...props}
+			loading={<Loading size='sm' />}
 			options={{
 				minimap: { enabled: false },
 				renderLineHighlight: 'none',
@@ -60,14 +63,14 @@ function MonacoEditor({
 				scrollBeyondLastLine: false,
 				scrollbar: { vertical: 'hidden' },
 				inlayHints: { enabled: 'off' },
-				...props.options,
+				...options,
 			}}
 			className={
 				classNames(
 					'monaco-editor-wrapper overflow-hidden border rounded',
 					disablePadding ? undefined : 'padding',
 					focus ? 'focus' : undefined,
-					props.className,
+					className,
 				)
 			}
 			onChange={handleMonacoEditorChange}
