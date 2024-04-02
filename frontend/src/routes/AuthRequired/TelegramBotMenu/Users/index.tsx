@@ -6,8 +6,8 @@ import Table from 'react-bootstrap/Table';
 
 import Title from 'components/Title';
 import Loading from 'components/Loading';
-import Pagination from 'components/Pagination';
 
+import Toolbar from './components/Toolbar';
 import UserDisplay from './components/UserDisplay';
 
 import useToast from 'services/hooks/useToast';
@@ -16,14 +16,16 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 
 import { UsersAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
+import UsersContext from './contexts/UsersContext';
 
-export interface TelegramBotUsersPaginationData extends APIResponse.UsersAPI.Get.Pagination {
+export interface PaginationData extends APIResponse.UsersAPI.Get.Pagination {
 	limit: number;
 	offset: number;
+	search: string;
 }
 
 export interface LoaderData {
-	usersPaginationData: TelegramBotUsersPaginationData;
+	paginationData: PaginationData;
 }
 
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
@@ -36,28 +38,29 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 		throw Error('Failed to fetch data!');
 	}
 
-	return { usersPaginationData: { ...response.json, limit, offset } };
+	return { paginationData: { ...response.json, limit, offset, search: '' } };
 }
 
 function Users(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
-	const { usersPaginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-users') as LoaderData;
+	const { paginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-users') as LoaderData;
 
 	const { createMessageToast } = useToast();
 
-	const [paginationData, setPaginationData] = useState<TelegramBotUsersPaginationData>(initialPaginationData);
+	const [paginationData, setPaginationData] = useState<PaginationData>(initialPaginationData);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function updateTelegramBotUsers(
+	async function updateUsers(
 		limit: number = paginationData.limit,
 		offset: number = paginationData.offset,
+		search: string = paginationData.search,
 	): Promise<void> {
 		setLoading(true);
 
-		const response = await UsersAPI.get(telegramBot.id, limit, offset);
+		const response = await UsersAPI.get(telegramBot.id, limit, offset, search);
 
 		if (response.ok) {
-			setPaginationData({ ...response.json, limit, offset });
+			setPaginationData({ ...response.json, limit, offset, search });
 		} else {
 			createMessageToast({
 				message: gettext('Не удалось получить список пользователей!'),
@@ -75,44 +78,35 @@ function Users(): ReactElement {
 					{gettext('Список пользователей')}
 				</Card.Header>
 				<Card.Body className='vstack gap-2'>
-					<Pagination
-						itemCount={paginationData.count}
-						itemLimit={paginationData.limit}
-						itemOffset={paginationData.offset}
-						size='sm'
-						className='align-self-center'
-						onPageChange={offset => updateTelegramBotUsers(undefined, offset)}
-					/>
-					{!loading ? (
-						paginationData.count ? (
-							<div className='border rounded'>
-								<Table
-									responsive
-									striped
-									borderless
-									className='overflow-hidden align-middle text-nowrap rounded mb-0'
-								>
-									<tbody>
-										{paginationData.results.map(telegramBotUser => (
-											<UserDisplay
-												key={telegramBotUser.id}
-												user={telegramBotUser}
-												onDeleted={updateTelegramBotUsers}
-											/>
-										))}
-									</tbody>
-								</Table>
-							</div>
+					<UsersContext.Provider value={{ users: paginationData.results, updateUsers }}>
+						<Toolbar paginationData={paginationData} />
+						{!loading ? (
+							paginationData.count ? (
+								<div className='border rounded'>
+									<Table
+										responsive
+										striped
+										borderless
+										className='overflow-hidden align-middle text-nowrap rounded mb-0'
+									>
+										<tbody>
+											{paginationData.results.map(user => (
+												<UserDisplay key={user.id} user={user} />
+											))}
+										</tbody>
+									</Table>
+								</div>
+							) : (
+								<div className='border rounded text-center px-3 py-2'>
+									{gettext('Вашего Telegram бота ещё никто не активировал')}
+								</div>
+							)
 						) : (
-							<div className='border rounded text-center px-3 py-2'>
-								{gettext('Вашего Telegram бота ещё никто не активировал')}
+							<div className='d-flex justify-content-center border rounded p-3'>
+								<Loading size='md' />
 							</div>
-						)
-					) : (
-						<div className='d-flex justify-content-center border rounded p-3'>
-							<Loading size='md' />
-						</div>
-					)}
+						)}
+					</UsersContext.Provider>
 				</Card.Body>
 			</Card>
 		</Title>
