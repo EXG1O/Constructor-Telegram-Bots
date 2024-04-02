@@ -17,9 +17,7 @@ import { LoaderData as TelegramBotMenuVariablesLoaderData, UserVariablesPaginati
 
 import { VariablesAPI } from 'services/api/telegram_bots/main';
 
-interface PaginationData extends UserVariablesPaginationData {
-	search: string;
-}
+type PaginationData = UserVariablesPaginationData;
 
 function UserVariables(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
@@ -27,7 +25,7 @@ function UserVariables(): ReactElement {
 
 	const { createMessageToast } = useToast();
 
-	const [paginationData, setPaginationData] = useState<PaginationData>({ ...initialPaginationData, search: '' });
+	const [paginationData, setPaginationData] = useState<PaginationData>(initialPaginationData);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	async function updateVariables(

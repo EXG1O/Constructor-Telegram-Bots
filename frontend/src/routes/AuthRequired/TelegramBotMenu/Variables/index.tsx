@@ -15,6 +15,7 @@ import { APIResponse } from 'services/api/telegram_bots/types';
 export interface UserVariablesPaginationData extends APIResponse.VariablesAPI.Get.Pagination {
 	limit: number;
 	offset: number;
+	search: string;
 }
 
 export interface LoaderData {
@@ -31,7 +32,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 		throw Error('Failed to fetch data!');
 	}
 
-	return { userVariablesPaginationData: { ...response.json, limit, offset } };
+	return { userVariablesPaginationData: { ...response.json, limit, offset, search: '' } };
 }
 
 function Variables(): ReactElement {
