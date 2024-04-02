@@ -326,7 +326,8 @@ export namespace UsersAPI {
 		telegramBotID: TelegramBot['id'],
 		limit: Limit,
 		offset?: number,
-		search?: string
+		search?: string,
+		ordering?: 'is_allowed' | 'is_blocked',
 	) => {
 		let url: string = UsersAPI.url(telegramBotID);
 
@@ -335,6 +336,7 @@ export namespace UsersAPI {
 			limit && params.set('limit', limit.toString());
 			offset && params.set('offset', offset.toString());
 			search && params.set('search', search);
+			ordering && params.set('ordering', ordering);
 
 			url += `?${params.toString()}`;
 		}
