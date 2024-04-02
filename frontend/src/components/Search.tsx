@@ -41,7 +41,7 @@ function Search({ size, className, onSearch, onClear, ...props }: SearchProps): 
 					placeholder={gettext('Поиск')}
 					onChange={e => setValue(e.target.value)}
 				/>
-				<Collapse in={Boolean(value)} dimension='width'>
+				<Collapse in={Boolean(value)} unmountOnExit dimension='width'>
 					<div>
 						<Button
 							variant='light'
