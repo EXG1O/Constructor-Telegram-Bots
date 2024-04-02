@@ -3,6 +3,7 @@ import React, { ReactNode, memo } from 'react';
 import { User } from 'services/api/telegram_bots/types';
 
 import AllowButton from './components/AllowButton';
+import UnallowButton from './components/UnallowButton';
 import DeleteButton from './components/DeleteButton';
 
 export interface UserDisplayProps {
@@ -17,6 +18,9 @@ function UserDisplay({ user }: UserDisplayProps): ReactNode {
 			<td className='w-100'>{user.full_name}</td>
 			<td>
 				<AllowButton user={user} />
+			</td>
+			<td>
+				<UnallowButton user={user} />
 			</td>
 			<td>
 				<DeleteButton user={user} />
