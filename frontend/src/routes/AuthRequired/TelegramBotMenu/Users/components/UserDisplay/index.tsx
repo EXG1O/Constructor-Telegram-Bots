@@ -5,6 +5,7 @@ import { User } from 'services/api/telegram_bots/types';
 import AllowButton from './components/AllowButton';
 import UnallowButton from './components/UnallowButton';
 import BlockButton from './components/BlockButton';
+import UnblockButton from './components/UnblockButton';
 import DeleteButton from './components/DeleteButton';
 
 export interface UserDisplayProps {
@@ -25,6 +26,9 @@ function UserDisplay({ user }: UserDisplayProps): ReactNode {
 			</td>
 			<td>
 				<BlockButton user={user} />
+			</td>
+			<td>
+				<UnblockButton user={user} />
 			</td>
 			<td>
 				<DeleteButton user={user} />
