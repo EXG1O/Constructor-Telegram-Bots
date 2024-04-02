@@ -33,7 +33,7 @@ function UnallowButton({ user, className, style, onClick, ...props }: UnallowBut
 	const handleConfirm = useCallback(async () => {
 		setLoadingModal(true);
 
-		const response = await UserAPI.partialUpdate(telegramBot.id, user.id, { is_allowed: true });
+		const response = await UserAPI.partialUpdate(telegramBot.id, user.id, { is_allowed: false });
 
 		if (response.ok) {
 			updateUsers();
