@@ -9,12 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11.8
+          python-version: 3.11
 
       - name: Install system dependencies
         run: |
@@ -33,10 +34,15 @@ jobs:
           sudo -u postgres psql -c "ALTER ROLE github CREATEDB;"
           sudo -u postgres psql -c "CREATE DATABASE github_action OWNER github;"
 
+      - name: Create Python virtual environment
+        run: python -m venv env
+
       - name: Install Python requirements
         run: |
+          source ./env/bin/activate
           pip install -U pip
-          pip install -r requirements.txt
+          pip install poetry
+          poetry install
 
       - name: Create .env file
         run: |
@@ -45,7 +51,7 @@ jobs:
           echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
 
       - name: Run mypy
-        run: mypy .
+        run: ./env/bin/mypy .
 
       - name: Run tests
-        run: python manage.py test --verbosity 3
+        run: ./env/bin/python manage.py test --verbosity 3
