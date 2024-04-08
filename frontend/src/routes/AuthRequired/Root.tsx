@@ -9,11 +9,7 @@ function Root(): ReactElement {
 	const navigate = useNavigate();
 	const { user } = useRouteLoaderData('root') as RootLoaderData;
 
-	useEffect(() => {
-		if (!user) {
-			navigate('/');
-		}
-	}, [user]);
+	useEffect(() => { !user && navigate('/') }, [user]);
 
 	return user ? <Outlet /> : <Loading size='xl' className='m-auto' />;
 }

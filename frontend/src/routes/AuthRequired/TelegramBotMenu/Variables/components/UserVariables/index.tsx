@@ -3,8 +3,6 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
 
-import Loading from 'components/Loading';
-
 import Toolbar from './components/Toolbar';
 import VariableList from './components/VariableList';
 
@@ -13,15 +11,13 @@ import VariablesContext from './contexts/VariablesContext';
 import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
-import { LoaderData as TelegramBotMenuVariablesLoaderData, UserVariablesPaginationData } from '../..';
+import { LoaderData as TelegramBotMenuVariablesLoaderData, PaginationData } from '../..';
 
 import { VariablesAPI } from 'services/api/telegram_bots/main';
 
-type PaginationData = UserVariablesPaginationData;
-
 function UserVariables(): ReactElement {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
-	const { userVariablesPaginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-variables') as TelegramBotMenuVariablesLoaderData;
+	const { paginationData: initialPaginationData } = useRouteLoaderData('telegram-bot-menu-variables') as TelegramBotMenuVariablesLoaderData;
 
 	const { createMessageToast } = useToast();
 
@@ -55,15 +51,13 @@ function UserVariables(): ReactElement {
 				{gettext('Пользовательские переменные')}
 			</Card.Header>
 			<Card.Body className='vstack gap-2'>
-				<VariablesContext.Provider value={{ variables: paginationData.results, updateVariables }}>
+				<VariablesContext.Provider value={{
+					variables: paginationData.results,
+					filter: { search: paginationData.search },
+					updateVariables,
+				}}>
 					<Toolbar paginationData={paginationData} />
-					{!loading ? (
-						<VariableList />
-					) : (
-						<div className='d-flex justify-content-center border rounded p-3'>
-							<Loading size='md' />
-						</div>
-					)}
+					<VariableList loading={loading} />
 				</VariablesContext.Provider>
 			</Card.Body>
 		</Card>

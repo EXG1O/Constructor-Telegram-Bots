@@ -41,12 +41,12 @@ function TelegramBotCard({
 		setAPITokenInputValue(initialTelegramBot.api_token);
 	}, [initialTelegramBot]);
 
-	async function checkTelegramBotStatus(): Promise<void> {
+	async function checkStatus(): Promise<void> {
 		const response = await TelegramBotAPI.get(telegramBot.id);
 
 		if (response.ok) {
 			if (response.json.is_loading) {
-				setTimeout(checkTelegramBotStatus, 3000);
+				setTimeout(checkStatus, 3000);
 			} else {
 				setTelegramBot(response.json);
 			}
@@ -55,7 +55,7 @@ function TelegramBotCard({
 
 	useEffect(() => {
 		if (telegramBot.is_loading) {
-			checkTelegramBotStatus();
+			checkStatus();
 		}
 	}, [telegramBot.is_loading]);
 
@@ -114,7 +114,7 @@ function TelegramBotCard({
 		<Card {...props} className={classNames('border-0', className)}>
 			<Card.Header as='h5' {...(
 				telegramBot.is_loading ? {
-					className: 'd-flex justify-content-center juitext-bg-secondary text-bg-secondary border-secondary text-center',
+					className: 'd-flex justify-content-center text-bg-secondary border-secondary',
 					children: <Loading size='xs' />,
 				} : telegramBot.is_enabled ? {
 					className: 'text-bg-success border-success fw-semibold text-center',
@@ -146,7 +146,6 @@ function TelegramBotCard({
 										<Form.Control
 											size='sm'
 											autoFocus
-											type='text'
 											value={apiTokenInputValue}
 											placeholder={gettext('Введите API-токен')}
 											style={{ fontSize: '16px' }}

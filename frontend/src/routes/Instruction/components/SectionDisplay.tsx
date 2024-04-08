@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { ReactElement, HTMLAttributes } from 'react';
 import classNames from 'classnames';
 
 import './SectionDisplay.scss';

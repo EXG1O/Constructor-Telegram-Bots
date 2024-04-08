@@ -209,6 +209,7 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 					</Offcanvas.Body>
 					<div className='offcanvas-footer gap-2'>
 						<TelegramBotStorage
+							size='sm'
 							telegramBot={telegramBot}
 							usedStorageSize={usedStorageSize}
 						/>

@@ -3,19 +3,19 @@ import React, { ReactElement, memo, useEffect, useState } from 'react';
 import Toast, { ToastProps } from 'react-bootstrap/Toast';
 import CloseButton from 'react-bootstrap/CloseButton';
 
-type Levels = 'success' | 'info' | 'error';
+type Level = 'success' | 'info' | 'error';
 
 export interface MessageToastProps extends Omit<ToastProps, 'autohide' | 'show' | 'delay' | 'className' | 'onClose' | 'children'> {
 	message: string;
-	level: Levels;
+	level: Level;
 }
 
-const colors: Record<Levels, string> = {
+const colors: Record<Level, string> = {
 	success: 'success',
 	info: 'primary',
 	error: 'danger',
 }
-const icons: Record<Levels, string> = {
+const icons: Record<Level, string> = {
 	success: 'check-circle-fill',
 	info: 'info-circle-fill',
 	error: 'exclamation-triangle-fill',

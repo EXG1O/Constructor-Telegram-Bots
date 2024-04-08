@@ -1,12 +1,12 @@
 import React, { ReactElement, ReactNode, memo } from 'react';
-import { Link, LinkProps as _LinkProps, useLocation } from 'react-router-dom';
+import { Link, LinkProps as BaseLinkProps, useLocation } from 'react-router-dom';
 import classNames from 'classnames';
 
 import Nav, { NavProps } from 'react-bootstrap/Nav';
 
 export type LinksProps = Omit<NavProps, 'variant' | 'children'>;
 
-export interface LinkProps extends _LinkProps {
+export interface LinkProps extends BaseLinkProps {
 	children: ReactNode;
 }
 

@@ -1,31 +1,30 @@
-import React, { ReactElement, HTMLAttributes, MouseEvent, memo, useCallback, useState } from 'react'
+import React, { ReactElement, HTMLAttributes, memo, useState, useCallback } from 'react'
 import { useRouteLoaderData } from 'react-router-dom';
 import classNames from 'classnames';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
-import useUsers from '../../../hooks/useUsers';
+import useUsers from '../../../../../hooks/useUsers';
+import useUser from '../../../hooks/useUser';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import { UserAPI } from 'services/api/telegram_bots/main';
-import { User } from 'services/api/telegram_bots/types';
 
-export interface AllowButtonProps extends HTMLAttributes<HTMLElement> {
-	user: User;
-}
+export type DisallowButtonProps = Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
-function AllowButton({ user, className, style, onClick, ...props }: AllowButtonProps): ReactElement<AllowButtonProps> {
+function DisallowButton({ className, style, onClick, ...props }: DisallowButtonProps): ReactElement<DisallowButtonProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
 	const { updateUsers } = useUsers();
+	const { user } = useUser();
 
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [loadingModal, setLoadingModal] = useState<boolean>(false);
 
-	function handleClick(event: MouseEvent<HTMLElement>): void {
+	function handleClick(event: React.MouseEvent<HTMLElement>): void {
 		setShowModal(true);
 		onClick?.(event);
 	}
@@ -33,18 +32,18 @@ function AllowButton({ user, className, style, onClick, ...props }: AllowButtonP
 	const handleConfirm = useCallback(async () => {
 		setLoadingModal(true);
 
-		const response = await UserAPI.partialUpdate(telegramBot.id, user.id, { is_allowed: true });
+		const response = await UserAPI.partialUpdate(telegramBot.id, user.id, { is_allowed: false });
 
 		if (response.ok) {
 			updateUsers();
 			setShowModal(false);
 			createMessageToast({
-				message: gettext('Вы успешно разрешили пользователя.'),
+				message: gettext('Вы успешно запретили пользователя.'),
 				level: 'success',
 			});
 		} else {
 			createMessageToast({
-				message: gettext('Не удалось разрешить пользователя!'),
+				message: gettext('Не удалось запретить пользователя!'),
 				level: 'error',
 			});
 		}
@@ -57,15 +56,15 @@ function AllowButton({ user, className, style, onClick, ...props }: AllowButtonP
 			<AskConfirmModal
 				show={showModal}
 				loading={loadingModal}
-				title={gettext('Разрешение пользователя')}
+				title={gettext('Запрещение пользователя')}
 				onConfirm={handleConfirm}
 				onHide={useCallback(() => setShowModal(false), [])}
 			>
-				{gettext('Вы точно хотите разрешить пользователя?')}
+				{gettext('Вы точно хотите запретить пользователя?')}
 			</AskConfirmModal>
 			<i
 				{...props}
-				className={classNames('d-flex bi bi-key text-warning', className)}
+				className={classNames('d-flex bi bi-key-fill text-warning', className)}
 				style={{ fontSize: '18px', cursor: 'pointer', ...style }}
 				onClick={handleClick}
 			/>
@@ -73,4 +72,4 @@ function AllowButton({ user, className, style, onClick, ...props }: AllowButtonP
 	);
 }
 
-export default memo(AllowButton);
+export default memo(DisallowButton);

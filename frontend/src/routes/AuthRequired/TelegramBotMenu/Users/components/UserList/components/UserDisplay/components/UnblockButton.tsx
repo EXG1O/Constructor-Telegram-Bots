@@ -1,31 +1,30 @@
-import React, { ReactElement, HTMLAttributes, MouseEvent, memo, useCallback, useState } from 'react'
+import React, { ReactElement, HTMLAttributes, memo, useState, useCallback } from 'react'
 import { useRouteLoaderData } from 'react-router-dom';
 import classNames from 'classnames';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
-import useUsers from '../../../hooks/useUsers';
+import useUsers from '../../../../../hooks/useUsers';
+import useUser from '../../../hooks/useUser';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import { UserAPI } from 'services/api/telegram_bots/main';
-import { User } from 'services/api/telegram_bots/types';
 
-export interface BlockButtonProps extends HTMLAttributes<HTMLElement> {
-	user: User;
-}
+export type UnblockButtonProps = Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
-function BlockButton({ user, className, style, onClick, ...props }: BlockButtonProps): ReactElement<BlockButtonProps> {
+function UnblockButton({ className, style, onClick, ...props }: UnblockButtonProps): ReactElement<UnblockButtonProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
 	const { updateUsers } = useUsers();
+	const { user } = useUser();
 
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [loadingModal, setLoadingModal] = useState<boolean>(false);
 
-	function handleClick(event: MouseEvent<HTMLElement>): void {
+	function handleClick(event: React.MouseEvent<HTMLElement>): void {
 		setShowModal(true);
 		onClick?.(event);
 	}
@@ -33,18 +32,18 @@ function BlockButton({ user, className, style, onClick, ...props }: BlockButtonP
 	const handleConfirm = useCallback(async () => {
 		setLoadingModal(true);
 
-		const response = await UserAPI.partialUpdate(telegramBot.id, user.id, { is_blocked: true });
+		const response = await UserAPI.partialUpdate(telegramBot.id, user.id, { is_blocked: false });
 
 		if (response.ok) {
 			updateUsers();
 			setShowModal(false);
 			createMessageToast({
-				message: gettext('Вы успешно заблокировали пользователя.'),
+				message: gettext('Вы успешно разблокировали пользователя.'),
 				level: 'success',
 			});
 		} else {
 			createMessageToast({
-				message: gettext('Не удалось заблокировать пользователя!'),
+				message: gettext('Не удалось разблокировать пользователя!'),
 				level: 'error',
 			});
 		}
@@ -57,15 +56,15 @@ function BlockButton({ user, className, style, onClick, ...props }: BlockButtonP
 			<AskConfirmModal
 				show={showModal}
 				loading={loadingModal}
-				title={gettext('Блокирование пользователя')}
+				title={gettext('Разблокирование пользователя')}
 				onConfirm={handleConfirm}
 				onHide={useCallback(() => setShowModal(false), [])}
 			>
-				{gettext('Вы точно хотите заблокировать пользователя?')}
+				{gettext('Вы точно хотите разблокировать пользователя?')}
 			</AskConfirmModal>
 			<i
 				{...props}
-				className={classNames('d-flex bi bi-ban text-danger', className)}
+				className={classNames('d-flex bi bi-ban-fill text-danger', className)}
 				style={{ fontSize: '18px', cursor: 'pointer', ...style }}
 				onClick={handleClick}
 			/>
@@ -73,4 +72,4 @@ function BlockButton({ user, className, style, onClick, ...props }: BlockButtonP
 	);
 }
 
-export default memo(BlockButton);
+export default memo(UnblockButton);

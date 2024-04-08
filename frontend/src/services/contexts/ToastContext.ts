@@ -3,7 +3,7 @@ import { createContext } from 'react';
 import { MessageToastProps } from 'components/MessageToast';
 
 export interface ToastContextProps {
-	createMessageToast: (props: Omit<MessageToastProps, 'onExited'>) => void;
+	createMessageToast: (props: MessageToastProps) => void;
 }
 
 const ToastContext = createContext<ToastContextProps | undefined>(undefined);

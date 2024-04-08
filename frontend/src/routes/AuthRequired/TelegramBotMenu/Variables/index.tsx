@@ -12,14 +12,14 @@ import useToast from 'services/hooks/useToast';
 import { VariablesAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
 
-export interface UserVariablesPaginationData extends APIResponse.VariablesAPI.Get.Pagination {
+export interface PaginationData extends APIResponse.VariablesAPI.Get.Pagination {
 	limit: number;
 	offset: number;
 	search: string;
 }
 
 export interface LoaderData {
-	userVariablesPaginationData: UserVariablesPaginationData;
+	paginationData: PaginationData;
 }
 
 export async function loader({ params }: { params: Params<'telegramBotID'> }): Promise<LoaderData | Response> {
@@ -32,7 +32,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 		throw Error('Failed to fetch data!');
 	}
 
-	return { userVariablesPaginationData: { ...response.json, limit, offset, search: '' } };
+	return { paginationData: { ...response.json, limit, offset, search: '' } };
 }
 
 function Variables(): ReactElement {

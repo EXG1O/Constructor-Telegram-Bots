@@ -4,9 +4,9 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import LinksBlock, { LinksBlockProps } from './components/LinksBlock';
+import LinkGroup, { LinkGroupProps } from './components/LinkGroup';
 
-const linksBlocks: LinksBlockProps[] = [
+const linkGroups: LinkGroupProps[] = [
 	{
 		title: gettext('Проект'),
 		links: [
@@ -36,8 +36,8 @@ function Footer(): ReactElement {
 		<footer className='text-bg-dark'>
 			<Container className='text-center py-2'>
 				<Row xs={1} lg={3} className='gy-1 gy-lg-0'>
-					{linksBlocks.map((props, index) => (
-						<LinksBlock key={index} {...props} />
+					{linkGroups.map((props, index) => (
+						<LinkGroup key={index} {...props} />
 					))}
 				</Row>
 				<Row className='justify-content-center'>

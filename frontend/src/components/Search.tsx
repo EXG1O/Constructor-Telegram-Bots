@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, memo, useMemo, useState } from 'react';
+import React, { ReactElement, HTMLAttributes, memo, useState } from 'react';
 import classNames from 'classnames';
 
 import InputGroup, { InputGroupProps } from 'react-bootstrap/InputGroup';

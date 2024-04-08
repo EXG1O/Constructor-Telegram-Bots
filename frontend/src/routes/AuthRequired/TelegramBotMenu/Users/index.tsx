@@ -2,21 +2,20 @@ import React, { ReactElement, useState } from 'react';
 import { Params, useRouteLoaderData } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
-import Table from 'react-bootstrap/Table';
 
 import Title from 'components/Title';
-import Loading from 'components/Loading';
 
 import Toolbar from './components/Toolbar';
-import UserDisplay from './components/UserDisplay';
+import UserList from './components/UserList';
 
 import useToast from 'services/hooks/useToast';
+
+import UsersContext from './contexts/UsersContext';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 
 import { UsersAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
-import UsersContext from './contexts/UsersContext';
 
 export interface PaginationData extends APIResponse.UsersAPI.Get.Pagination {
 	limit: number;
@@ -78,34 +77,13 @@ function Users(): ReactElement {
 					{gettext('Список пользователей')}
 				</Card.Header>
 				<Card.Body className='vstack gap-2'>
-					<UsersContext.Provider value={{ users: paginationData.results, updateUsers }}>
+					<UsersContext.Provider value={{
+						users: paginationData.results,
+						filter: { search: paginationData.search },
+						updateUsers,
+					}}>
 						<Toolbar paginationData={paginationData} />
-						{!loading ? (
-							paginationData.count ? (
-								<div className='border rounded'>
-									<Table
-										responsive
-										striped
-										borderless
-										className='overflow-hidden align-middle text-nowrap rounded mb-0'
-									>
-										<tbody>
-											{paginationData.results.map(user => (
-												<UserDisplay key={user.id} user={user} />
-											))}
-										</tbody>
-									</Table>
-								</div>
-							) : (
-								<div className='border rounded text-center px-3 py-2'>
-									{gettext('Вашего Telegram бота ещё никто не активировал')}
-								</div>
-							)
-						) : (
-							<div className='d-flex justify-content-center border rounded p-3'>
-								<Loading size='md' />
-							</div>
-						)}
+						<UserList loading={loading} />
 					</UsersContext.Provider>
 				</Card.Body>
 			</Card>

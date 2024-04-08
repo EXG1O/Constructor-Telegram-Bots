@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, memo } from 'react';
+import React, { ReactElement, HTMLAttributes, memo } from 'react';
 import classNames from 'classnames';
 
 import ProgressBar from 'react-bootstrap/ProgressBar';
@@ -13,7 +13,7 @@ export interface TelegramBotStorageProps extends HTMLAttributes<HTMLDivElement> 
 	usedStorageSize?: number;
 }
 
-const sizeFontSize: Record<Size, number> = { 'sm': 14, 'lg': 18 };
+const fontSizes: Record<Size, number> = { sm: 14, lg: 18 };
 
 function TelegramBotStorage({
 	size,
@@ -27,7 +27,7 @@ function TelegramBotStorage({
 		<div
 			{...props}
 			className={classNames('d-flex gap-2', className)}
-			style={{ fontSize: size && `${sizeFontSize[size]}px`, ...style }}
+			style={{ fontSize: size && `${fontSizes[size]}px`, ...style }}
 		>
 			<span>{`${(usedStorageSize / 1024 ** 2).toFixed(2)} MB`}</span>
 			<ProgressBar

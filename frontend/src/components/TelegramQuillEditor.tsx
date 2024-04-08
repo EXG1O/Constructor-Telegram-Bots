@@ -3,7 +3,7 @@ import Quill from 'quill';
 
 import('./TelegramQuillEditor.scss');
 
-import QuillEditor, { QuillEditorProps } from './QuillEditor';
+import QuillEditor, { QuillEditorProps, Toolbar } from './QuillEditor';
 
 const Inline = Quill.import('blots/inline');
 
@@ -14,25 +14,38 @@ class SpoilerBlot extends Inline {
 
 Quill.register(SpoilerBlot);
 
-export type TelegramQuillEditorProps = Omit<QuillEditorProps, 'toolbar'>;
+export interface TelegramQuillEditorProps extends Omit<QuillEditorProps, 'toolbar'> {
+	toolbar?: Toolbar;
+}
 
-function TelegramQuillEditor(props: TelegramQuillEditorProps): ReactElement<TelegramQuillEditorProps> {
-	const toolbar = useMemo<QuillEditorProps['toolbar']>(() => ({
-		container: [
-			'bold',
-			'italic',
-			'underline',
-			'strike',
-			'link',
-			'code',
-			'code-block',
-			'blockquote',
-			'spoiler',
-			'clean',
-		],
-	}), []);
+const baseToolbar: Toolbar = {
+	container: [
+		'bold',
+		'italic',
+		'underline',
+		'strike',
+		'link',
+		'code',
+		'code-block',
+		'blockquote',
+		'spoiler',
+		'clean',
+	],
+}
 
-	return <QuillEditor {...props} toolbar={toolbar} />;
+function TelegramQuillEditor({ toolbar, ...props }: TelegramQuillEditorProps): ReactElement<TelegramQuillEditorProps> {
+	return (
+		<QuillEditor
+			{...props}
+			toolbar={useMemo(() => toolbar ? ({
+				...toolbar,
+				container: {
+					...baseToolbar.container,
+					...toolbar.container,
+				},
+			}) : baseToolbar, [toolbar])}
+		/>
+	);
 }
 
 export default memo(TelegramQuillEditor);

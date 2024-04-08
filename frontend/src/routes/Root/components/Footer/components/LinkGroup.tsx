@@ -3,25 +3,25 @@ import classNames from 'classnames';
 
 import Col from 'react-bootstrap/Col';
 
-import DefaultLink, { DefaultLinkProps as _DefaultLinkProps } from './DefaultLink';
-import ReactLink, { ReactLinkProps as _ReactLinkProps } from './ReactLink';
+import DefaultLink, { DefaultLinkProps as BaseDefaultLinkProps } from './DefaultLink';
+import ReactLink, { ReactLinkProps as BaseReactLinkProps } from './ReactLink';
 
-interface DefaultLinkProps extends _DefaultLinkProps {
+interface DefaultLinkProps extends BaseDefaultLinkProps {
 	type: 'default';
 }
 
-interface ReactLinkProps extends _ReactLinkProps {
+interface ReactLinkProps extends BaseReactLinkProps {
 	type: 'react';
 }
 
 type Link = DefaultLinkProps | ReactLinkProps;
 
-export interface LinksBlockProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface LinkGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title' | 'children'> {
 	title: ReactNode;
 	links: Link[];
 }
 
-function LinksBlock({ title, links, className, ...props }: LinksBlockProps): ReactElement<LinksBlockProps> {
+function LinkGroup({ title, links, className, ...props }: LinkGroupProps): ReactElement<LinkGroupProps> {
 	return (
 		<Col {...props} className={classNames('vstack', className)}>
 			<h5 className='mb-0'>{title}</h5>
@@ -36,4 +36,4 @@ function LinksBlock({ title, links, className, ...props }: LinksBlockProps): Rea
 	);
 }
 
-export default LinksBlock;
+export default LinkGroup;

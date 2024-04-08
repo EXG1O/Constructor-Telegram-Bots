@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useMemo } from 'react';
+import React, { ReactElement, memo } from 'react';
 import classNames from 'classnames';
 
 import Button, { ButtonProps } from 'react-bootstrap/Button';
@@ -17,7 +17,10 @@ function AddButton({ size, className, children, ...props }: AddButtonProps): Rea
 			size={size}
 			className={classNames(`d-flex justify-content-center ps-${paddingStart}`, className)}
 		>
-			<i className='d-flex bi bi-plus' style={{ fontSize: `${iconFontSize}px` }} />
+			<i
+				className='d-flex bi bi-plus'
+				style={{ fontSize: `${iconFontSize}px` }}
+			/>
 			{children}
 		</Button>
 	);

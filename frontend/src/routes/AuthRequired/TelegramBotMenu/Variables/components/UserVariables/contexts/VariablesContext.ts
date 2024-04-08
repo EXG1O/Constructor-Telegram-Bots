@@ -1,9 +1,14 @@
 import { createContext } from 'react';
 
-import { APIResponse } from 'services/api/telegram_bots/types';
+import { Variable } from 'services/api/telegram_bots/types';
+
+interface Filter {
+	search: string;
+}
 
 export interface VariablesContextProps {
-	variables: APIResponse.VariablesAPI.Get.Pagination['results'];
+	variables: Variable[];
+	filter: Filter;
 	updateVariables: (limit?: number, offset?: number, search?: string) => Promise<void>;
 }
 

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useState, useCallback } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
@@ -14,13 +14,13 @@ import useToast from 'services/hooks/useToast';
 import { UpdatesAPI } from 'services/api/updates/main';
 import { APIResponse } from 'services/api/updates/types';
 
-export interface UpdatesPaginationData extends APIResponse.UpdatesAPI.Get.Pagination {
+export interface PaginationData extends APIResponse.UpdatesAPI.Get.Pagination {
 	limit: number;
 	offset: number;
 }
 
 export interface LoaderData {
-	updatesPaginationData: UpdatesPaginationData;
+	paginationData: PaginationData;
 }
 
 export async function loader(): Promise<LoaderData> {
@@ -32,17 +32,17 @@ export async function loader(): Promise<LoaderData> {
 		throw Error('Failed to fetch data!');
 	}
 
-	return { updatesPaginationData: { ...response.json, limit, offset } };
+	return { paginationData: { ...response.json, limit, offset } };
 }
 
 const title: string = gettext('Обновления');
 
 function Updates(): ReactElement {
-	const { updatesPaginationData: initialPaginationData } = useRouteLoaderData('updates') as LoaderData;
+	const { paginationData: initialPaginationData } = useRouteLoaderData('updates') as LoaderData;
 
 	const { createMessageToast } = useToast();
 
-	const [paginationData, setPaginationData] = useState<UpdatesPaginationData>(initialPaginationData);
+	const [paginationData, setPaginationData] = useState<PaginationData>(initialPaginationData);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	async function updateUpdates(

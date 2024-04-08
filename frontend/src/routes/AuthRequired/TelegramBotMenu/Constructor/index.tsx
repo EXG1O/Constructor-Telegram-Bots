@@ -1,4 +1,4 @@
-import React, { ReactElement, MouseEvent as ReactMouseEvent, useCallback, useRef, useState } from 'react';
+import React, { ReactElement, useCallback, useRef, useState } from 'react';
 import { Params, useRouteLoaderData } from 'react-router-dom';
 import ReactFlow, {
 	Panel,
@@ -240,7 +240,7 @@ function Constructor(): ReactElement {
 		);
 	}, []);
 
-	const handleNodeDragStop = useCallback((event: ReactMouseEvent, node: Node, nodes?: Node[]) => {
+	const handleNodeDragStop = useCallback((event: React.MouseEvent, node: Node, nodes?: Node[]) => {
 		nodes?.forEach(node => {
 			const [type, id] = node.id.split(':') as ['command' | 'condition' | 'background_task', string];
 
@@ -336,7 +336,7 @@ function Constructor(): ReactElement {
 		}
 	}
 
-	const handleEdgeUpdateStart = useCallback((event: ReactMouseEvent, edge: Edge): void => {
+	const handleEdgeUpdateStart = useCallback((event: React.MouseEvent, edge: Edge): void => {
 		edgeUpdating.current = edge;
 	}, []);
 

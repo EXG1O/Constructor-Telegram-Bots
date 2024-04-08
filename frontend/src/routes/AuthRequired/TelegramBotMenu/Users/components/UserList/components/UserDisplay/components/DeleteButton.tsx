@@ -1,31 +1,30 @@
-import React, { ReactElement, HTMLAttributes, MouseEvent, memo, useCallback, useState } from 'react'
+import React, { ReactElement, HTMLAttributes, memo, useState, useCallback } from 'react'
 import { useRouteLoaderData } from 'react-router-dom';
 import classNames from 'classnames';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
 import useToast from 'services/hooks/useToast';
-import useUsers from '../../../hooks/useUsers';
+import useUsers from '../../../../../hooks/useUsers';
+import useUser from '../../../hooks/useUser';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
 import { UserAPI } from 'services/api/telegram_bots/main';
-import { User } from 'services/api/telegram_bots/types';
 
-export interface DeleteButtonProps extends HTMLAttributes<HTMLElement> {
-	user: User;
-}
+export type DeleteButtonProps = Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
-function DeleteButton({ user, className, style, onClick, ...props }: DeleteButtonProps): ReactElement<DeleteButtonProps> {
+function DeleteButton({ className, style, onClick, ...props }: DeleteButtonProps): ReactElement<DeleteButtonProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
 	const { updateUsers } = useUsers();
+	const { user } = useUser();
 
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [loadingModal, setLoadingModal] = useState<boolean>(false);
 
-	function handleClick(event: MouseEvent<HTMLElement>): void {
+	function handleClick(event: React.MouseEvent<HTMLElement>): void {
 		setShowModal(true);
 		onClick?.(event);
 	}

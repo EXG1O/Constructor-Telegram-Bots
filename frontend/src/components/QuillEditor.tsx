@@ -8,14 +8,14 @@ import ReactQuill, { ReactQuillProps, UnprivilegedEditor, Range } from 'react-qu
 
 export type QuillEditor = Quill & ReactQuill;
 
-export interface QuillEditorToolbar {
+export interface Toolbar {
 	container: string[];
 	handlers?: Record<string, (value: any) => void>;
 }
 
 export interface QuillEditorProps extends Omit<ReactQuillProps, 'modules' | 'children'> {
 	height?: number;
-	toolbar: QuillEditorToolbar;
+	toolbar: Toolbar;
 	onMount?: (quillEditor: QuillEditor) => void;
 }
 

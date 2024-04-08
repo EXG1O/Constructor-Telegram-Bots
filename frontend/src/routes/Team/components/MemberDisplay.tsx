@@ -12,7 +12,7 @@ export interface MemberDisplayProps extends Omit<HTMLAttributes<HTMLDivElement>,
 function MemberDisplay({ member, className, ...props }: MemberDisplayProps): ReactElement<MemberDisplayProps> {
 	return (
 		<div {...props} className={classNames('team-member d-flex flex-column align-items-center', className)}>
-			<img src={member.image} className='mb-1' />
+			<img src={member.image} alt={member.username} className='mb-1' />
 			<a
 				className='h5 link-dark link-underline-opacity-0 fw-semibold mb-0'
 				href={`tg://resolve?domain=${member.username}`}

@@ -1,10 +1,10 @@
-import React, { ReactElement, memo, useCallback, useState } from 'react';
+import React, { ReactElement, memo, useState, useCallback } from 'react';
 
 import AddButton, { AddButtonProps } from 'components/AddButton';
 
-import VariableAdditionModal from './VariableAdditionModal';
+import VariableAdditionModal from '../../VariableAdditionModal';
 
-export type AddVariableButtonProps = Pick<AddButtonProps, 'className' | 'style'>;
+export type AddVariableButtonProps = Omit<AddButtonProps, 'children'>;
 
 function AddVariableButton(props: AddVariableButtonProps): ReactElement<AddVariableButtonProps> {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -17,8 +17,6 @@ function AddVariableButton(props: AddVariableButtonProps): ReactElement<AddVaria
 			/>
 			<AddButton
 				{...props}
-				size='sm'
-				variant='dark'
 				onClick={useCallback(() => setShowModal(true), [])}
 			>
 				{gettext('Добавить переменную')}

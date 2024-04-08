@@ -1,4 +1,4 @@
-import React, { ReactElement, MouseEvent, memo, useCallback, useState } from 'react';
+import React, { ReactElement, memo, useState, useCallback } from 'react';
 
 import Button, { ButtonProps } from 'react-bootstrap/Button';
 
@@ -9,7 +9,7 @@ export type LoginButtonProps = Omit<ButtonProps, 'as' | 'href' | 'target' | 'chi
 function LoginButton({ onClick, ...props }: LoginButtonProps): ReactElement<LoginButtonProps> {
 	const [showModal, setShowModal] = useState<boolean>(false);
 
-	function handleButtonClick(event: MouseEvent<HTMLButtonElement>): void {
+	function handleClick(event: React.MouseEvent<HTMLButtonElement>): void {
 		setShowModal(true);
 		onClick?.(event);
 	}
@@ -24,7 +24,7 @@ function LoginButton({ onClick, ...props }: LoginButtonProps): ReactElement<Logi
 				{...props}
 				as='a'
 				href={`tg://resolve?domain=${process.env.TELEGRAM_BOT_USERNAME}&start=login`}
-				onClick={handleButtonClick}
+				onClick={handleClick}
 			>
 				<i className='bi bi-telegram me-1' />
 				{gettext('Войти через Telegram')}

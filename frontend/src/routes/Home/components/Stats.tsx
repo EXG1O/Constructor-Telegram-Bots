@@ -16,18 +16,22 @@ function Stats(): ReactElement {
 		<div className='stats'>
 			<h3>{gettext('Информация о сайте')}</h3>
 			<Stack gap={1}>
-				<InfoArea value={stats.users.total}>
-					{gettext('Пользователей')}
-				</InfoArea>
-				<InfoArea value={stats.telegramBots.telegram_bots.total}>
-					{gettext('Добавленных Telegram ботов')}
-				</InfoArea>
-				<InfoArea value={stats.telegramBots.telegram_bots.enabled}>
-					{gettext('Включенных Telegram ботов')}
-				</InfoArea>
-				<InfoArea value={stats.telegramBots.users.total}>
-					{gettext('Пользователей Telegram ботов')}
-				</InfoArea>
+				<InfoArea
+					value={stats.users.total}
+					description={gettext('Пользователей')}
+				/>
+				<InfoArea
+					value={stats.telegramBots.telegram_bots.total}
+					description={gettext('Добавленных Telegram ботов')}
+				/>
+				<InfoArea
+					value={stats.telegramBots.telegram_bots.enabled}
+					description={gettext('Включенных Telegram ботов')}
+				/>
+				<InfoArea
+					value={stats.telegramBots.users.total}
+					description={gettext('Пользователей Telegram ботов')}
+				/>
 			</Stack>
 		</div>
 	);

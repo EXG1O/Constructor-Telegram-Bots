@@ -28,7 +28,7 @@ function MonacoEditor({
 
 	const [focus, setFocus] = useState<boolean>(false);
 
-	function handleMonacoEditorMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco): void {
+	function handleMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco): void {
 		if (!disableFocusEffect) {
 			editor.onDidFocusEditorText(() => setFocus(true));
 			editor.onDidBlurEditorText(() => setFocus(false));
@@ -44,7 +44,7 @@ function MonacoEditor({
 		}, 500);
 	}
 
-	function handleMonacoEditorChange(value: string | undefined, event: monaco.editor.IModelContentChangedEvent): void {
+	function handleChange(value: string | undefined, event: monaco.editor.IModelContentChangedEvent): void {
 		if (monacoEditor.current && value !== undefined) {
 			updateEditorLayout(monacoEditor.current);
 			onChange?.(value, event);
@@ -73,8 +73,8 @@ function MonacoEditor({
 					className,
 				)
 			}
-			onChange={handleMonacoEditorChange}
-			onMount={handleMonacoEditorMount}
+			onChange={handleChange}
+			onMount={handleMount}
 		/>
 	);
 }

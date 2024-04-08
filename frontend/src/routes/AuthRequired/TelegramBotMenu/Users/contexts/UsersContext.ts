@@ -1,9 +1,14 @@
 import { createContext } from 'react';
 
-import { APIResponse } from 'services/api/telegram_bots/types';
+import { User } from 'services/api/telegram_bots/types';
+
+interface Filter {
+	search: string;
+}
 
 export interface UsersContextProps {
-	users: APIResponse.UsersAPI.Get.Pagination['results'];
+	users: User[];
+	filter: Filter;
 	updateUsers: (limit?: number, offset?: number, search?: string) => Promise<void>;
 }
 
