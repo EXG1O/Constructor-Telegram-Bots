@@ -17,10 +17,13 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from '../Root';
 import { UsersAPI } from 'services/api/telegram_bots/main';
 import { APIResponse } from 'services/api/telegram_bots/types';
 
+export type Type = 'all' | 'allowed' | 'blocked';
+
 export interface PaginationData extends APIResponse.UsersAPI.Get.Pagination {
 	limit: number;
 	offset: number;
 	search: string;
+	type: Type;
 }
 
 export interface LoaderData {
@@ -37,7 +40,7 @@ export async function loader({ params }: { params: Params<'telegramBotID'> }): P
 		throw Error('Failed to fetch data!');
 	}
 
-	return { paginationData: { ...response.json, limit, offset, search: '' } };
+	return { paginationData: { ...response.json, limit, offset, search: '', type: 'all' } };
 }
 
 function Users(): ReactElement {
@@ -53,13 +56,22 @@ function Users(): ReactElement {
 		limit: number = paginationData.limit,
 		offset: number = paginationData.offset,
 		search: string = paginationData.search,
+		type: Type = paginationData.type,
 	): Promise<void> {
 		setLoading(true);
 
-		const response = await UsersAPI.get(telegramBot.id, limit, offset, search);
+		let filter: Parameters<typeof UsersAPI.get>[4];
+
+		if (type === 'allowed') {
+			filter = 'is_allowed';
+		} else if (type === 'blocked') {
+			filter = 'is_blocked';
+		}
+
+		const response = await UsersAPI.get(telegramBot.id, limit, offset, search, filter);
 
 		if (response.ok) {
-			setPaginationData({ ...response.json, limit, offset, search });
+			setPaginationData({ ...response.json, limit, offset, search, type });
 		} else {
 			createMessageToast({
 				message: gettext('Не удалось получить список пользователей!'),
@@ -79,7 +91,10 @@ function Users(): ReactElement {
 				<Card.Body className='vstack gap-2'>
 					<UsersContext.Provider value={{
 						users: paginationData.results,
-						filter: { search: paginationData.search },
+						filter: {
+							search: paginationData.search,
+							type: paginationData.type,
+						},
 						updateUsers,
 					}}>
 						<Toolbar paginationData={paginationData} />
