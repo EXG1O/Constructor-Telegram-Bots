@@ -12,7 +12,7 @@ class CookiesTokenAuthentication(TokenAuthentication):
 	Simple token based authentication that supports authentication via cookies.
 
 	Clients can authenticate by passing the token key either in the `Authorization`
-	HTTP heade or by storing the token in a cookie named `auth-token`.
+	HTTP header or by storing the token in a cookie named `auth-token`.
 
 	Authorization header example:
 		Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a

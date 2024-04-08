@@ -57,7 +57,7 @@ function Test({ url, data }: TestProps): ReactElement<TestProps> {
 			setResult({ status: response.status, json });
 		} catch {
 			createMessageToast({
-				message: gettext('Произошла ошибка во время отпрвки API-запроса!'),
+				message: gettext('Произошла ошибка во время отправки API-запроса!'),
 				level: 'error',
 			});
 		}

@@ -31,7 +31,7 @@ class TelegramBot(models.Model):
 	storage_size = models.PositiveBigIntegerField(_('Размер хранилища'), default=41943040)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_enabled = models.BooleanField(_('Включён'), default=False)
-	is_loading = models.BooleanField(_('Загружаеться'), default=False)
+	is_loading = models.BooleanField(_('Загружается'), default=False)
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
 	if TYPE_CHECKING:
@@ -74,10 +74,10 @@ class TelegramBot(models.Model):
 		if settings.TEST:
 			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
 		else:
-			responce: Response = requests.get(f'https://api.telegram.org/bot{self.api_token}/getMe')
+			response: Response = requests.get(f'https://api.telegram.org/bot{self.api_token}/getMe')
 
-			if responce.ok:
-				self.username = responce.json()['result']['username']
+			if response.ok:
+				self.username = response.json()['result']['username']
 
 	def save(
 		self,
