@@ -1,9 +1,5 @@
 [tool.poetry]
-name = "Constructor Telegram Bots"
-version = "1.0.0"
-description = ""
-authors = ["exg1o"]
-readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -43,7 +39,3 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 
 [tool.django-stubs]
 django_settings_module = "constructor_telegram_bots.settings"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
