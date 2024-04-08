@@ -59,6 +59,8 @@ CELERY_BEAT_SCHEDULE = {
 INSTALLED_APPS = [
 	'rest_framework',
 	'rest_framework.authtoken',
+
+	'django_filters',
 	'drf_standardized_errors',
 
 	'admin_interface',

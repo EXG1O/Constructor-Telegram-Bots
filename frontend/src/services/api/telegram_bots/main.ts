@@ -327,7 +327,7 @@ export namespace UsersAPI {
 		limit: Limit,
 		offset?: number,
 		search?: string,
-		ordering?: 'is_allowed' | 'is_blocked',
+		filter?: 'is_allowed' | 'is_blocked',
 	) => {
 		let url: string = UsersAPI.url(telegramBotID);
 
@@ -336,7 +336,7 @@ export namespace UsersAPI {
 			limit && params.set('limit', limit.toString());
 			offset && params.set('offset', offset.toString());
 			search && params.set('search', search);
-			ordering && params.set('ordering', ordering);
+			filter && params.set(filter, 'True');
 
 			url += `?${params.toString()}`;
 		}

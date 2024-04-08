@@ -17,6 +17,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 
@@ -250,9 +252,9 @@ class UsersAPIView(ListAPIView[User]):
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 	serializer_class = UserSerializer
 	pagination_class = LimitOffsetPagination
-	filter_backends = [SearchFilter, OrderingFilter]
+	filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
 	search_fields = ('telegram_id', 'full_name')
-	ordering_fields = ('is_allowed', 'is_blocked')
+	filterset_fields = ('is_allowed', 'is_blocked')
 	ordering = ('-id',)
 
 	def get_queryset(self) -> QuerySet[User]:
