@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "Constructor Telegram Bots"
+version = "1.0.0"
+description = ""
+authors = ["exg1o"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.4.1"
+celery = "^5.3.6"
+django = "^5.0.4"
+django-admin-interface = "^0.28.6"
+django-filter = "^24.2"
+django-modeltranslation = "^0.18.11"
+django-stubs = "^4.2.7"
+django-tinymce = "^4.0.0"
+djangorestframework = "^3.15.1"
+djangorestframework-stubs = "^3.14.5"
+drf-standardized-errors = "^0.13.0"
+gunicorn = "^21.2.0"
+mypy = "^1.9.0"
+python-dotenv = "^1.0.1"
+redis = "^5.0.3"
+psycopg = "^3.1.18"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+ignore_errors = false
+ignore_missing_imports = true
+implicit_reexport = false
+strict_equality = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+warn_unused_configs = true
+
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "constructor_telegram_bots.settings"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
