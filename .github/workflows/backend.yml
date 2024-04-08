@@ -14,7 +14,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: 3.11.6
+          python-version: 3.11.8
 
       - name: Install system dependencies
         run: |
@@ -27,22 +27,20 @@ jobs:
       - name: Start PostgreSQL
         run: sudo systemctl start postgresql
 
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.10.0
-        with:
-          mongodb-version: 6.0
-
-      - name: Create PostgreSQL user and database
+      - name: Create PostgreSQL database
         run: |
           sudo -u postgres psql -c "CREATE USER github WITH PASSWORD 'password';"
           sudo -u postgres psql -c "ALTER ROLE github CREATEDB;"
           sudo -u postgres psql -c "CREATE DATABASE github_action OWNER github;"
 
+      - name: Create Python virtual environment
+        run: python -m venv env
+
       - name: Install Python requirements
         run: |
-          pip install -U pip
-          pip install poetry
-          poetry install
+          ./env/bin/pip install -U pip
+          ./env/bin/pip install poetry
+          ./env/bin/poetry install
 
       - name: Create .env file
         run: |
@@ -51,7 +49,7 @@ jobs:
           echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
 
       - name: Run mypy
-        run: mypy .
+        run: ./env/bin/mypy .
 
       - name: Run tests
-        run: python manage.py test --verbosity 3
+        run: ./env/bin/python manage.py test --verbosity 3
