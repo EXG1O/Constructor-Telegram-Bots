@@ -68,8 +68,7 @@ function MonacoEditor({
 			className={
 				classNames(
 					'monaco-editor-wrapper overflow-hidden border rounded',
-					disablePadding ? undefined : 'padding',
-					focus ? 'focus' : undefined,
+					{ padding: disablePadding, focus },
 					className,
 				)
 			}

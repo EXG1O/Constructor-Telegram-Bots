@@ -35,7 +35,7 @@ function Header(): ReactElement {
 						className={
 							classNames(
 								'nav-link',
-								location.pathname === to ? 'active' : undefined,
+								{ active:  location.pathname === to },
 								className,
 							)
 						}

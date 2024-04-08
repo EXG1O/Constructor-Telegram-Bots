@@ -34,7 +34,7 @@ function Links({ className, ...props }: LinksProps): ReactElement<LinksProps> {
 					className={
 						classNames(
 							'nav-link pb-1',
-							location.pathname === props.to ? 'active' : undefined,
+							{ active: location.pathname === props.to },
 							className,
 						)
 					}

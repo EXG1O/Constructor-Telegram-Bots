@@ -62,7 +62,7 @@ function QuillEditor({
 			ref={reactQuillRef}
 			{...props}
 			modules={{ toolbar }}
-			className={classNames('border rounded', focus ? 'focus' : undefined, className)}
+			className={classNames('border rounded', { focus }, className)}
 			onFocus={handleFocus}
 			onBlur={handleBlur}
 		/>
