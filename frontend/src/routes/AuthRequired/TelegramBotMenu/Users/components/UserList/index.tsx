@@ -36,6 +36,14 @@ function UserList({ loading, className, ...props }: UserListProps): ReactElement
 				<Block className='text-center px-3 py-2'>
 					{gettext('Не найдены пользователи по поиску')}
 				</Block>
+			) : filter.type === 'allowed' ? (
+				<Block className='text-center px-3 py-2'>
+					{gettext('У вас нет разрешённых пользователей')}
+				</Block>
+			) : filter.type === 'blocked' ? (
+				<Block className='text-center px-3 py-2'>
+					{gettext('У вас нет заблокированных пользователей')}
+				</Block>
 			) : (
 				<Block className='text-center px-3 py-2'>
 					{gettext('Вашего Telegram бота ещё никто не активировал')}
