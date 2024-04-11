@@ -7,6 +7,7 @@ import {
 	BackgroundTask,
 	Variable,
 	User,
+	DatabaseRecord,
 	Data,
 	APIResponse,
 } from './types';
@@ -373,4 +374,62 @@ export namespace UserAPI {
 		telegramBotID: TelegramBot['id'],
 		userID: User['id'],
 	) => makeRequest(url(telegramBotID, userID), 'DELETE');
+}
+
+export namespace DatabaseRecordsAPI {
+	export const url = (telegramBotID: TelegramBot['id']) => TelegramBotAPI.url(telegramBotID) + 'database-records/';
+
+	export const get = <Limit extends number | undefined>(
+		telegramBotID: TelegramBot['id'],
+		limit: Limit,
+		offset?: number,
+		search?: string,
+	) => {
+		let url: string = UsersAPI.url(telegramBotID);
+
+		if (limit || offset || search) {
+			const params = new URLSearchParams();
+			limit && params.set('limit', limit.toString());
+			offset && params.set('offset', offset.toString());
+			search && params.set('search', search);
+
+			url += `?${params.toString()}`;
+		}
+
+		return makeRequest<
+			Limit extends number ?
+			APIResponse.DatabaseRecordsAPI.Get.Pagination :
+			APIResponse.DatabaseRecordsAPI.Get.Default
+		>(url, 'GET');
+	}
+}
+
+export namespace DatabaseRecordAPI {
+	export const url = (
+		telegramBotID: TelegramBot['id'],
+		databaseRecordID: DatabaseRecord['id'],
+	) => `${DatabaseRecordsAPI.url(telegramBotID)}${databaseRecordID}/`;
+
+	export const get = (
+		telegramBotID: TelegramBot['id'],
+		databaseRecordID: DatabaseRecord['id'],
+	) => makeRequest<APIResponse.DatabaseRecordAPI.Get>(url(telegramBotID, databaseRecordID), 'GET');
+	export const create = (
+		telegramBotID: TelegramBot['id'],
+		data: Data.DatabaseRecordAPI.Create,
+	) => makeRequest<APIResponse.DatabaseRecordAPI.Create>(DatabaseRecordsAPI.url(telegramBotID), 'POST', data);
+	export const update = (
+		telegramBotID: TelegramBot['id'],
+		databaseRecordID: DatabaseRecord['id'],
+		data: Data.DatabaseRecordAPI.Update,
+	) => makeRequest<APIResponse.DatabaseRecordAPI.Update>(url(telegramBotID, databaseRecordID), 'PATCH', data);
+	export const partialUpdate = (
+		telegramBotID: TelegramBot['id'],
+		databaseRecordID: DatabaseRecord['id'],
+		data: Data.DatabaseRecordAPI.PartialUpdate,
+	) => makeRequest<APIResponse.DatabaseRecordAPI.PartialUpdate>(url(telegramBotID, databaseRecordID), 'PATCH', data);
+	export const _delete = (
+		telegramBotID: TelegramBot['id'],
+		databaseRecordID: DatabaseRecord['id'],
+	) => makeRequest(url(telegramBotID, databaseRecordID), 'DELETE');
 }

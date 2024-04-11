@@ -148,6 +148,11 @@ export interface User {
 	activated_date: string;
 }
 
+export interface DatabaseRecord {
+	id: number;
+	data: Record<string, any>;
+}
+
 export namespace Data {
 	export namespace TelegramBotsAPI {
 		export type Create = Pick<TelegramBot, 'api_token' | 'is_private'>;
@@ -229,6 +234,12 @@ export namespace Data {
 
 	export namespace UserAPI {
 		export type Update = Pick<User, 'is_allowed' | 'is_blocked'>;
+		export type PartialUpdate = Partial<Update>;
+	}
+
+	export namespace DatabaseRecordAPI {
+		export type Create = Omit<DatabaseRecord, 'id'>;
+		export type Update = Create;
 		export type PartialUpdate = Partial<Update>;
 	}
 }
@@ -337,5 +348,22 @@ export namespace APIResponse {
 		export type Get = User;
 		export type Update = User;
 		export type PartialUpdate = User;
+	}
+
+	export namespace DatabaseRecordsAPI {
+		export namespace Get {
+			export type Default = DatabaseRecord[];
+			export interface Pagination {
+				count: number;
+				results: DatabaseRecord[];
+			}
+		}
+	}
+
+	export namespace DatabaseRecordAPI {
+		export type Get = DatabaseRecord;
+		export type Create = DatabaseRecord;
+		export type Update = DatabaseRecord;
+		export type PartialUpdate = DatabaseRecord;
 	}
 }
