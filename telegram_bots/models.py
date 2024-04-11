@@ -469,7 +469,7 @@ class BackgroundTask(AbstractBlock):
 		verbose_name=_('Telegram бот'),
 	)
 	interval = models.PositiveSmallIntegerField(_('Интервал'), choices=INTERVAL_CHOICES)
-	source_connections = None # type: ignore [assignment]
+	source_connections = None
 
 	if TYPE_CHECKING:
 		api_request: BackgroundTaskAPIRequest
