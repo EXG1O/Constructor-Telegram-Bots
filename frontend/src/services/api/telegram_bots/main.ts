@@ -385,7 +385,7 @@ export namespace DatabaseRecordsAPI {
 		offset?: number,
 		search?: string,
 	) => {
-		let url: string = UsersAPI.url(telegramBotID);
+		let url: string = DatabaseRecordsAPI.url(telegramBotID);
 
 		if (limit || offset || search) {
 			const params = new URLSearchParams();
