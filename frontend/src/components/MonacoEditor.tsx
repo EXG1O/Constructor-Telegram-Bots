@@ -10,9 +10,10 @@ import Loading from './Loading';
 
 import { updateEditorLayout } from 'utils/monaco_editor';
 
-export interface MonacoEditorProps extends BaseMonacoEditorProps {
+export interface MonacoEditorProps extends Omit<BaseMonacoEditorProps, 'onChange'> {
 	disablePadding?: boolean;
 	disableFocusEffect?: boolean;
+	onChange?: (value: string, ev: monaco.editor.IModelContentChangedEvent) => void
 }
 
 function MonacoEditor({
