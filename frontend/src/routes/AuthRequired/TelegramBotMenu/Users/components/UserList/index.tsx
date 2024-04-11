@@ -22,7 +22,7 @@ function UserList({ loading, className, ...props }: UserListProps): ReactElement
 		!loading ? (
 			users.length ? (
 				<Block {...props} className={classNames('overflow-hidden', className)}>
-					<Table responsive striped borderless className='text-nowrap mb-0'>
+					<Table responsive striped borderless className='align-middle text-nowrap mb-0'>
 						<tbody>
 							{users.map(user => (
 								<UserContext.Provider key={user.id} value={{ user }}>
