@@ -30,6 +30,7 @@ from .models import (
 	BackgroundTask,
 	Variable,
 	User,
+	DatabaseRecord,
 )
 from .permissions import (
 	TelegramBotIsFound,
@@ -39,6 +40,7 @@ from .permissions import (
 	BackgroundTaskIsIsFound,
 	VariableIsFound,
 	UserIsFound,
+	DatabaseRecordIsFound,
 )
 from .parsers import CommandMultiPartParser
 from .serializers import (
@@ -55,6 +57,7 @@ from .serializers import (
 	DiagramBackgroundTaskSerializer,
 	VariableSerializer,
 	UserSerializer,
+	DatabaseRecordSerializer,
 )
 
 from typing import Literal
@@ -267,3 +270,22 @@ class UserAPIView(RetrieveUpdateDestroyAPIView[User]):
 
 	def get_object(self) -> User:
 		return self.kwargs['user']
+
+class DatabaseRecordsAPIView(ListCreateAPIView[DatabaseRecord]):
+	authentication_classes = (CookiesTokenAuthentication,)
+	permission_classes = (IsAuthenticated & TelegramBotIsFound,)
+	serializer_class = DatabaseRecordSerializer
+	pagination_class = LimitOffsetPagination
+	filter_backends = (SearchFilter,)
+	search_fields = ('data',)
+
+	def get_queryset(self) -> QuerySet[DatabaseRecord]:
+		return self.kwargs['telegram_bot'].database_records.all()
+
+class DatabaseRecordAPIView(RetrieveUpdateDestroyAPIView[DatabaseRecord]):
+	authentication_classes = (CookiesTokenAuthentication,)
+	permission_classes = (IsAuthenticated & TelegramBotIsFound & DatabaseRecordIsFound,)
+	serializer_class = DatabaseRecordSerializer
+
+	def get_object(self) -> DatabaseRecord:
+		return self.kwargs['database_record']

@@ -22,6 +22,8 @@ from .views import (
 	VariableAPIView,
 	UsersAPIView,
 	UserAPIView,
+	DatabaseRecordsAPIView,
+	DatabaseRecordAPIView,
 )
 
 
@@ -61,5 +63,8 @@ urlpatterns = [
 
 		path('users/', UsersAPIView.as_view(), name='users'),
 		path('users/<int:user_id>/', UserAPIView.as_view(), name='user'),
+
+		path('database-records/', DatabaseRecordsAPIView.as_view(), name='database-records'),
+		path('database-records/<int:database_record_id>/', DatabaseRecordAPIView.as_view(), name='database-record'),
 	], 'detail'))),
 ]

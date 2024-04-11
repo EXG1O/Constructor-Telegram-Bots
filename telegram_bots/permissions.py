@@ -12,6 +12,7 @@ from .models import (
 	BackgroundTask,
 	Variable,
 	User,
+	DatabaseRecord,
 )
 
 from typing import Any
@@ -107,6 +108,18 @@ class UserIsFound(BasePermission):
 		try:
 			view.kwargs['user'] = telegram_bot.users.get(id=user_id)
 		except User.DoesNotExist:
+			return False
+
+		return True
+
+class DatabaseRecordIsFound(BasePermission):
+	def has_permission(self, request: Request, view: APIView) -> bool:
+		telegram_bot: TelegramBot = get_telegram_bot(view)
+		database_record_id: int = view.kwargs.pop('database_record_id', 0)
+
+		try:
+			view.kwargs['database_record'] = telegram_bot.database_records.get(id=database_record_id)
+		except DatabaseRecord.DoesNotExist:
 			return False
 
 		return True

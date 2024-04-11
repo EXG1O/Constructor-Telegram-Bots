@@ -30,6 +30,7 @@ from .models import (
 	BackgroundTask,
 	Variable,
 	User,
+	DatabaseRecord,
 )
 
 from typing import  Any
@@ -697,3 +698,17 @@ class UserSerializer(serializers.ModelSerializer[User]):
 		representation['activated_date'] = filters.datetime(user.activated_date)
 
 		return representation
+
+class DatabaseRecordSerializer(serializers.ModelSerializer[DatabaseRecord], TelegramBotContextMixin):
+	class Meta:
+		model = DatabaseRecord
+		fields = ('id', 'data')
+
+	def create(self, validated_data: dict[str, Any]) -> DatabaseRecord:
+		return self.telegram_bot.database_records.create(**validated_data)
+
+	def update(self, database_record: DatabaseRecord, validated_data: dict[str, Any]) -> DatabaseRecord:
+		database_record.data = validated_data.get('data', database_record.data)
+		database_record.save()
+
+		return database_record

@@ -19,8 +19,10 @@ from .models import (
 	BackgroundTask,
 	Variable,
 	User,
+	DatabaseRecord,
 )
 
+from typing import Any
 import json
 
 
@@ -1321,7 +1323,7 @@ class UsersAPIViewTests(CustomTestCase):
 		)
 		self.false_url: str = reverse(
 			'api:telegram-bots:detail:users',
-			kwargs={'telegram_bot_id': 0}
+			kwargs={'telegram_bot_id': 0},
 		)
 
 	def test_get_method(self) -> None:
@@ -1354,14 +1356,14 @@ class UserAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'user_id': self.user.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:user',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'user_id': 0,
-			}
+			},
 		)
 
 	def test_get_method(self) -> None:
@@ -1435,4 +1437,153 @@ class UserAPIViewTests(CustomTestCase):
 			self.user.refresh_from_db()
 			raise self.failureException('User has not been deleted from database!')
 		except User.DoesNotExist:
+			pass
+
+class DatabaseRecordsAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:database-records',
+			kwargs={'telegram_bot_id': self.telegram_bot.id},
+		)
+		self.false_url: str = reverse(
+			'api:telegram-bots:detail:database-records',
+			kwargs={'telegram_bot_id': 0},
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.get(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+	def test_post_method(self) -> None:
+		response: HttpResponse = self.client.post(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		response = self.client.post(self.false_url)
+		self.assertEqual(response.status_code, 403)
+
+		old_database_record_count: int = self.telegram_bot.database_records.count()
+
+		response = self.client.post(self.true_url, {'data': {'key': 'value'}}, format='json')
+		self.assertEqual(response.status_code, 201)
+
+		self.assertEqual(self.telegram_bot.database_records.count(), old_database_record_count + 1)
+
+class DatabaseRecordAPIViewTests(CustomTestCase):
+	def setUp(self) -> None:
+		super().setUp()
+
+		self.database_record = self.telegram_bot.database_records.create(data={'key': 'value'})
+
+		self.true_url: str = reverse(
+			'api:telegram-bots:detail:database-record',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'database_record_id': self.database_record.id,
+			},
+		)
+		self.false_url_1: str = reverse(
+			'api:telegram-bots:detail:database-record',
+			kwargs={
+				'telegram_bot_id': 0,
+				'database_record_id': self.database_record.id,
+			}
+		)
+		self.false_url_2: str = reverse(
+			'api:telegram-bots:detail:database-record',
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'database_record_id': 0,
+			}
+		)
+
+	def test_get_method(self) -> None:
+		response: HttpResponse = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.get(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.get(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+	def test_put_method(self) -> None:
+		response: HttpResponse = self.client.put(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.put(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.put(self.true_url)
+		self.assertEqual(response.status_code, 400)
+
+		new_data: dict[str, Any] = {'new_key': 'new_value'}
+
+		response = self.client.put(self.true_url, {'data': new_data}, format='json')
+		self.assertEqual(response.status_code, 200)
+
+		self.database_record.refresh_from_db()
+		self.assertEqual(
+			self.telegram_bot.database_records.get(data__contains=new_data).id,
+			self.database_record.id,
+		)
+
+	def test_patch_method(self) -> None:
+		response: HttpResponse = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.patch(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.patch(self.true_url)
+		self.assertEqual(response.status_code, 200)
+
+		new_data: dict[str, Any] = {'new_key': 'new_value'}
+
+		response = self.client.patch(self.true_url, {'data': new_data}, format='json')
+		self.assertEqual(response.status_code, 200)
+
+		self.database_record.refresh_from_db()
+		self.assertEqual(
+			self.telegram_bot.database_records.get(data__contains=new_data).id,
+			self.database_record.id,
+		)
+
+	def test_delete_method(self) -> None:
+		response: HttpResponse = self.client.delete(self.true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in (self.false_url_1, self.false_url_2):
+			response = self.client.delete(url)
+			self.assertEqual(response.status_code, 403)
+
+		response = self.client.delete(self.true_url)
+		self.assertEqual(response.status_code, 204)
+
+		try:
+			self.database_record.refresh_from_db()
+			raise self.failureException('Database record has not been deleted from database!')
+		except DatabaseRecord.DoesNotExist:
 			pass
