@@ -41,6 +41,7 @@ class TelegramBot(models.Model):
 		background_tasks: models.Manager['BackgroundTask']
 		variables: models.Manager['Variable']
 		users: models.Manager['User']
+		database_records: models.Manager['DatabaseRecord']
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot'
@@ -189,6 +190,12 @@ class AbstractAPIRequest(models.Model):
 
 	def __str__(self) -> str:
 		return self.url
+
+class AbstractDatabaseRecord(models.Model):
+	data = models.JSONField(_('Данные'))
+
+	class Meta(TypedModelMeta):
+		abstract = True
 
 class CommandSettings(models.Model):
 	command = models.OneToOneField(
@@ -359,14 +366,13 @@ class CommandAPIRequest(AbstractAPIRequest):
 	def __str__(self) -> str:
 		return self.command.name
 
-class CommandDatabaseRecord(models.Model):
+class CommandDatabaseRecord(AbstractDatabaseRecord):
 	command = models.OneToOneField(
 		'Command',
 		on_delete=models.CASCADE,
 		related_name='database_record',
 		verbose_name=_('Команда'),
 	)
-	data = models.JSONField(_('Данные'))
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_database_record'
@@ -550,3 +556,19 @@ class User(models.Model):
 
 	def __str__(self) -> str:
 		return self.full_name
+
+class DatabaseRecord(AbstractDatabaseRecord):
+	telegram_bot = models.ForeignKey(
+		TelegramBot,
+		on_delete=models.CASCADE,
+		related_name='database_records',
+		verbose_name=_('Telegram бот'),
+	)
+
+	class Meta(TypedModelMeta):
+		db_table = 'telegram_bot_database_record'
+		verbose_name = _('Запись в БД')
+		verbose_name_plural = _('Записи в БД')
+
+	def __str__(self) -> str:
+		return f"{self.telegram_bot.username} | {getattr(self, 'id', 'NULL')}"
