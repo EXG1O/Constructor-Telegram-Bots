@@ -128,7 +128,7 @@ class CommandsAPIView(ListCreateAPIView[Command]):
 	parser_classes = [CommandMultiPartParser]
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.kwargs['telegram_bot'].commands
+		return self.kwargs['telegram_bot'].commands.all()
 
 	def get_serializer_class(self) -> type[BaseSerializer[Command]]:
 		if self.request.method == 'POST':
@@ -156,7 +156,7 @@ class ConditionsAPIView(ListCreateAPIView[Condition]):
 	serializer_class = ConditionSerializer
 
 	def get_queryset(self) -> QuerySet[Condition]:
-		return self.kwargs['telegram_bot'].conditions
+		return self.kwargs['telegram_bot'].conditions.all()
 
 class ConditionAPIView(RetrieveUpdateDestroyAPIView[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -172,7 +172,7 @@ class BackgroundTasksAPIView(ListCreateAPIView[BackgroundTask]):
 	serializer_class = BackgroundTaskSerializer
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
-		return self.kwargs['telegram_bot'].background_tasks
+		return self.kwargs['telegram_bot'].background_tasks.all()
 
 class BackgroundTaskAPIView(RetrieveUpdateDestroyAPIView[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -188,7 +188,7 @@ class DiagramCommandsAPIView(ListAPIView[Command]):
 	serializer_class = DiagramCommandSerializer
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.kwargs['telegram_bot'].commands
+		return self.kwargs['telegram_bot'].commands.all()
 
 class DiagramCommandAPIView(RetrieveUpdateAPIView[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -204,7 +204,7 @@ class DiagramConditionsAPIView(ListAPIView[Condition]):
 	serializer_class = DiagramConditionSerializer
 
 	def get_queryset(self) -> QuerySet[Condition]:
-		return self.kwargs['telegram_bot'].conditions
+		return self.kwargs['telegram_bot'].conditions.all()
 
 class DiagramConditionAPIView(RetrieveUpdateAPIView[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -220,7 +220,7 @@ class DiagramBackgroundTasksAPIView(ListAPIView[BackgroundTask]):
 	serializer_class = DiagramBackgroundTaskSerializer
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
-		return self.kwargs['telegram_bot'].background_tasks
+		return self.kwargs['telegram_bot'].background_tasks.all()
 
 class DiagramBackgroundTaskAPIView(RetrieveUpdateAPIView[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -240,7 +240,7 @@ class VariablesAPIView(ListCreateAPIView[Variable]):
 	ordering = ('-id',)
 
 	def get_queryset(self) -> QuerySet[Variable]:
-		return self.kwargs['telegram_bot'].variables
+		return self.kwargs['telegram_bot'].variables.all()
 
 class VariableAPIView(RetrieveUpdateDestroyAPIView[Variable]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -261,7 +261,7 @@ class UsersAPIView(ListAPIView[User]):
 	ordering = ('-id',)
 
 	def get_queryset(self) -> QuerySet[User]:
-		return self.kwargs['telegram_bot'].users
+		return self.kwargs['telegram_bot'].users.all()
 
 class UserAPIView(RetrieveUpdateDestroyAPIView[User]):
 	authentication_classes = [CookiesTokenAuthentication]
