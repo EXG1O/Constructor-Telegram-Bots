@@ -310,6 +310,10 @@ export namespace APIResponse {
 		export type Get = DiagramCommand[];
 	}
 
+	export namespace DiagramCommandAPI {
+		export type Get = DiagramCommand;
+	}
+
 	export namespace DiagramConditionsAPI {
 		export type Get = DiagramCondition[];
 	}

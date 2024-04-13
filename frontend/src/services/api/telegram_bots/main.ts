@@ -218,6 +218,10 @@ export namespace DiagramCommandAPI {
 		commandID: Command['id'],
 	) => DiagramCommandsAPI.url(telegramBotID) + commandID + '/';
 
+	export const get = (
+		telegramBotID: TelegramBot['id'],
+		commandID: Command['id'],
+	) => makeRequest<APIResponse.DiagramCommandAPI.Get>(url(telegramBotID, commandID), 'GET');
 	export const update = (
 		telegramBotID: TelegramBot['id'],
 		commandID: Command['id'],
