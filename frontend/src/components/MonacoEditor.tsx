@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useRef, useMemo, useState } from 'react';
+import React, { ReactElement, memo, useRef, useMemo, useState, useCallback } from 'react';
 import classNames from 'classnames';
 import monaco from 'monaco-editor';
 
@@ -8,15 +8,18 @@ import BaseMonacoEditor, { Monaco, EditorProps as BaseMonacoEditorProps } from '
 
 import Loading from './Loading';
 
-type Size = 'sm' | 'lg';
+export interface Editor extends monaco.editor.IStandaloneCodeEditor {
+	updateLayout: (shouldResetWidth?: boolean) => void;
+}
 
 export interface MonacoEditorProps extends Omit<BaseMonacoEditorProps, 'loading' | 'onChange'> {
-	size?: Size;
+	size?: 'sm' | 'lg';
 	disablePadding?: boolean;
 	disableFocusEffect?: boolean;
 	onFocus?: () => void;
 	onBlur?: () => void;
-	onChange?: (value: string, ev: monaco.editor.IModelContentChangedEvent) => void
+	onChange?: (editor: Editor, value: string) => void
+	OnMount?: (editor: Editor, monaco: Monaco) => void;
 }
 
 function MonacoEditor({
@@ -31,21 +34,23 @@ function MonacoEditor({
 	onMount,
 	...props
 }: MonacoEditorProps): ReactElement<MonacoEditorProps> {
-	const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor | undefined>(undefined);
+	const editor = useRef<Editor | undefined>(undefined);
 
 	const lineHeight = useMemo<number>(() => size === 'sm' ? 19 : size === 'lg' ? 24 : 22, [size]);
 	const fontSize = useMemo<number>(() => size === 'sm' ? 14 : size === 'lg' ? 18 : 16, [size]);
+	const roundedValue = useMemo<number>(() =>  size === 'sm' ? 1 : size === 'lg' ? 3 : 2, [size]);
+	const baseClassName = useMemo<string>(() => classNames(`border rounded-${roundedValue}`), [roundedValue]);
 
 	const [focus, setFocus] = useState<boolean>(false);
 
-	function updateEditorLayout(): void {
-		if (monacoEditor.current) {
-			const monacoEditorModel: monaco.editor.ITextModel | null = monacoEditor.current.getModel();
+	function updateLayout(shouldResetWidth?: boolean): void {
+		if (editor.current) {
+			const editorModel: monaco.editor.ITextModel | null = editor.current.getModel();
 
-			if (monacoEditorModel !== null) {
-				monacoEditor.current.layout({
-					width: monacoEditor.current.getContainerDomNode().querySelector('.monaco-editor')!.clientWidth,
-					height: monacoEditorModel.getLineCount() * lineHeight,
+			if (editorModel !== null) {
+				editor.current.layout({
+					width: shouldResetWidth ? 0 : editor.current.getContainerDomNode().querySelector('.monaco-editor')!.clientWidth,
+					height: editorModel.getLineCount() * lineHeight,
 				});
 			}
 		}
@@ -67,31 +72,32 @@ function MonacoEditor({
 		onBlur?.();
 	}
 
-	function handleChange(value: string | undefined, event: monaco.editor.IModelContentChangedEvent): void {
-		if (monacoEditor.current && value !== undefined) {
-			updateEditorLayout();
-			onChange?.(value, event);
+	const handleChange = useCallback<NonNullable<BaseMonacoEditorProps['onChange']>>(value => {
+		if (editor.current && value !== undefined) {
+			updateLayout();
+			onChange?.(editor.current, value);
 		}
-	}
+	}, [onChange]);
 
-	function handleMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco): void {
-		monacoEditor.current = editor;
+	const handleMount = useCallback<NonNullable<BaseMonacoEditorProps['onMount']>>((baseEditor, monaco) => {
+		editor.current = Object.assign(baseEditor, { updateLayout });
 
-		monacoEditor.current.onDidFocusEditorText(handleFocus);
-		monacoEditor.current.onDidBlurEditorText(handleBlur);
+		editor.current.onDidFocusEditorText(handleFocus);
+		editor.current.onDidBlurEditorText(handleBlur);
 
-		setTimeout(() => {
-			if (monacoEditor.current) {
-				updateEditorLayout();
-				onMount?.(monacoEditor.current, monaco);
-			}
-		}, 500);
-	}
+		updateLayout();
+
+		onMount?.(editor.current, monaco);
+	}, [onMount]);
 
 	return (
 		<BaseMonacoEditor
 			{...props}
-			loading={<Loading size='sm' />}
+			loading={
+				<div className={classNames(baseClassName, 'd-flex justify-content-center w-100 p-2')}>
+					<Loading size='sm' />
+				</div>
+			}
 			options={useMemo(() => ({
 				minimap: { enabled: false },
 				renderLineHighlight: 'none',
@@ -106,14 +112,9 @@ function MonacoEditor({
 			}), [options])}
 			className={
 				classNames(
-					'monaco-editor-wrapper overflow-hidden border',
-					{
-						rounded: size === undefined,
-						'rounded-1': size === 'sm',
-						'rounded-3': size === 'lg',
-						padding: !disablePadding,
-						focus,
-					},
+					baseClassName,
+					'monaco-editor-wrapper overflow-hidden',
+					{ padding: !disablePadding, focus },
 					className,
 				)
 			}

@@ -30,7 +30,7 @@ function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRe
 						lineDecorationsWidth: 0,
 						lineNumbersMinChars: 0,
 					}}
-					onChange={value => onChange(value ?? defaultValue)}
+					onChange={(editor, newValue) => onChange(newValue)}
 				/>
 			</Card.Body>
 		</Card>

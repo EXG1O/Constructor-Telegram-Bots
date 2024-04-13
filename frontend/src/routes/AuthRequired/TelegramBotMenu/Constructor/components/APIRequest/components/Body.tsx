@@ -52,7 +52,7 @@ function Body({ show, value, onShow, onHide, onChange }: BodyProps): ReactElemen
 							lineNumbersMinChars: 0,
 						}}
 						className='border-top-0 rounded-1 rounded-top-0'
-						onChange={onChange}
+						onChange={(editor, newValue) => onChange(newValue)}
 					/>
 				</div>
 			</Collapse>
