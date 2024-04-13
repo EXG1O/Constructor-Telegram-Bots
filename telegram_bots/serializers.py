@@ -276,13 +276,13 @@ class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabas
 
 class CommandSerializer(serializers.ModelSerializer):
 	settings = CommandSettingsSerializer()
-	trigger = CommandTriggerSerializer(required=False)
+	trigger = CommandTriggerSerializer(required=False, allow_null=True)
 	images = CommandImageSerializer(many=True)
 	files = CommandFileSerializer(many=True)
 	message = CommandMessageSerializer()
-	keyboard = CommandKeyboardSerializer(required=False)
-	api_request = CommandAPIRequestSerializer(required=False)
-	database_record = CommandDatabaseRecordSerializer(required=False)
+	keyboard = CommandKeyboardSerializer(required=False, allow_null=True)
+	api_request = CommandAPIRequestSerializer(required=False, allow_null=True)
+	database_record = CommandDatabaseRecordSerializer(required=False, allow_null=True)
 
 	class Meta:
 		model = Command
