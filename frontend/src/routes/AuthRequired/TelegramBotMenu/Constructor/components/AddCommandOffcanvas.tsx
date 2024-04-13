@@ -1,6 +1,7 @@
 import React, { ReactElement, memo, useState, useCallback } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
+import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 
 import CommandOffcanvas, { Data as CommandOffcanvasData } from './CommandOffcanvas';
@@ -9,17 +10,19 @@ import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
-import { CommandsAPI } from 'services/api/telegram_bots/main';
+import { parseNodes } from '../utils';
+
+import { CommandsAPI, DiagramCommandAPI } from 'services/api/telegram_bots/main';
 
 export interface AddCommandOffcanvasProps {
 	show: boolean;
-	onAdded: () => void;
 	onHide: () => void
 }
 
-function AddCommandOffcanvas({ onAdded, onHide, ...props }: AddCommandOffcanvasProps): ReactElement<AddCommandOffcanvasProps> {
+function AddCommandOffcanvas({ onHide, ...props }: AddCommandOffcanvasProps): ReactElement<AddCommandOffcanvasProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
+	const { addNodes } = useReactFlow();
 	const { createMessageToast } = useToast();
 
 	const [loading, setLoading] = useState<boolean>(false);
@@ -37,7 +40,7 @@ function AddCommandOffcanvas({ onAdded, onHide, ...props }: AddCommandOffcanvasP
 	}: CommandOffcanvasData): Promise<void> {
 		setLoading(true);
 
-		const response = await CommandsAPI.create(telegramBot.id, {
+		const commandResponse = await CommandsAPI.create(telegramBot.id, {
 			name: name ?? '',
 			settings: {
 				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
@@ -67,13 +70,22 @@ function AddCommandOffcanvas({ onAdded, onHide, ...props }: AddCommandOffcanvasP
 			database_record: databaseRecord ? { data: JSON.parse(databaseRecord) } : null,
 		});
 
-		if (response.ok) {
-			onAdded();
-			onHide();
-			createMessageToast({
-				message: gettext('Вы успешно добавили команду.'),
-				level: 'success',
-			});
+		if (commandResponse.ok) {
+			const diagramCommandResponse = await DiagramCommandAPI.get(telegramBot.id, commandResponse.json.id);
+
+			if (diagramCommandResponse.ok) {
+				addNodes(parseNodes([diagramCommandResponse.json]));
+				onHide();
+				createMessageToast({
+					message: gettext('Вы успешно добавили команду.'),
+					level: 'success',
+				});
+			} else {
+				createMessageToast({
+					message: gettext('Не удалось получить добавленную команду!'),
+					level: 'error',
+				});
+			}
 		} else {
 			createMessageToast({
 				message: gettext('Не удалось добавить команду!'),

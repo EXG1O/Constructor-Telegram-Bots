@@ -1,7 +1,6 @@
-import React, { ReactElement, useCallback, useRef, useState } from 'react';
+import React, { ReactElement, useCallback, useRef } from 'react';
 import { Params, useRouteLoaderData } from 'react-router-dom';
 import ReactFlow, {
-	Panel,
 	Controls,
 	MiniMap,
 	Background,
@@ -21,14 +20,15 @@ import 'reactflow/dist/style.css';
 import './index.scss';
 
 import Title from 'components/Title';
-import AddButton from 'components/AddButton';
 
+import Panel from './components/Panel';
 import CommandNode from './components/CommandNode';
-import AddCommandOffcanvas from './components/AddCommandOffcanvas';
 
 import useToast from 'services/hooks/useToast';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
+
+import { parseNodes } from './utils';
 
 import {
 	ConnectionsAPI,
@@ -111,35 +111,6 @@ function Constructor(): ReactElement {
 		)
 	);
 	const edgeUpdating = useRef<Edge | null>(null);
-
-	const [showAddCommandOffcanvas, setAddShowCommandOffcanvas] = useState<boolean>(false);
-
-	function parseNodes(
-		diagramCommands: DiagramCommand[] = [],
-		diagramConditions: DiagramCondition[] = [],
-		diagramBackgroundTasks: DiagramBackgroundTask[] = [],
-	): Node[] {
-		return Object.assign(
-			diagramCommands.map(({ x, y, source_connections, target_connections, ...diagramCommand }) => ({
-				id: `command:${diagramCommand.id}`,
-				type: 'command',
-				position: { x, y },
-				data: { ...diagramCommand, updateNodes },
-			})),
-			diagramConditions.map(({ x, y, source_connections, target_connections, ...diagramCondition }) => ({
-				id: `condition:${diagramCondition.id}`,
-				type: 'condition',
-				position: { x, y },
-				data: { ...diagramCondition, updateNodes },
-			})),
-			diagramBackgroundTasks.map(({ x, y, target_connections, ...diagramBackgroundTask }) => ({
-				id: `background_task:${diagramBackgroundTask.id}`,
-				type: 'background_task',
-				position: { x, y },
-				data: { ...diagramBackgroundTask, updateNodes },
-			})),
-		);
-	}
 
 	function parseEdges(
 		diagramCommands?: DiagramCommand[],
@@ -378,11 +349,6 @@ function Constructor(): ReactElement {
 
 	return (
 		<Title title={gettext('Конструктор')}>
-			<AddCommandOffcanvas
-				show={showAddCommandOffcanvas}
-				onAdded={updateNodes}
-				onHide={useCallback(() => setAddShowCommandOffcanvas(false), [])}
-			/>
 			<div className='border rounded' style={{ height: '100%' }}>
 				<ReactFlow
 					fitView
@@ -405,17 +371,7 @@ function Constructor(): ReactElement {
 					isValidConnection={handleCheckValidConnection}
 					onConnect={addEdge}
 				>
-					<Panel position='top-right'>
-						<div className='vstack justify-content-end bg-light border rounded-1 p-1 gap-1'>
-							<AddButton
-								size='sm'
-								variant='dark'
-								onClick={useCallback(() => setAddShowCommandOffcanvas(true), [])}
-							>
-								{gettext('Добавить команду')}
-							</AddButton>
-						</div>
-					</Panel>
+					<Panel />
 					<Controls
 						showInteractive={false}
 						className='border rounded-1'
