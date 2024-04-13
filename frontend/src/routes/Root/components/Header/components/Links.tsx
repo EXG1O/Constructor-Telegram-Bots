@@ -12,9 +12,8 @@ export interface LinkProps extends BaseLinkProps {
 
 const links: LinkProps[] = [
 	{ to: '/', children: gettext('Главная') },
-	{ to: '/team/', children: gettext('Команда') },
-	{ to: '/updates/', children: gettext('Обновления') },
 	{ to: '/instruction/', children: gettext('Инструкция') },
+	{ to: '/updates/', children: gettext('Обновления') },
 	{ to: '/donation/', children: gettext('Пожертвование') },
 ];
 

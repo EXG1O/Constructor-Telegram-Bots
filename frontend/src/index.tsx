@@ -53,18 +53,6 @@ const router = createBrowserRouter([{
 				},
 			},
 			{
-				id: 'team',
-				path: 'team/',
-				async lazy() {
-					const module = await import('./routes/Team');
-
-					return {
-						Component: module.default,
-						loader: module.loader,
-					}
-				},
-			},
-			{
 				id: 'updates',
 				path: 'updates/',
 				async lazy() {
