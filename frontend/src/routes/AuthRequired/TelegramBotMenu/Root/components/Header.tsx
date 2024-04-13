@@ -15,6 +15,7 @@ const headerLinks: HeaderLinkProps[] = [
 	{ to: '', children: gettext('Telegram бот') },
 	{ to: 'variables/', children: gettext('Переменные') },
 	{ to: 'users/', children: gettext('Пользователи') },
+	{ to: 'database/', children: gettext('База данных') },
 	{ to: 'constructor/', children: gettext('Конструктор') },
 ];
 
