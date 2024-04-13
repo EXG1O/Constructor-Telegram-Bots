@@ -80,7 +80,6 @@ INSTALLED_APPS = [
 	'users',
 	'telegram_bots',
 	'telegram_bots.hub',
-	'team',
 	'updates',
 	'instruction',
 	'donation',
