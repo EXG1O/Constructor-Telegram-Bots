@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useState, useCallback } from 'react';
 
 import AddButton, { AddButtonProps } from 'components/AddButton';
 
-import AddCommandOffcanvas from '../../AddCommandOffcanvas';
+import CommandAdditionOffcanvas from '../../CommandAdditionOffcanvas';
 
 export type AddCommandButtonProps = Omit<AddButtonProps, 'variant' | 'children'>;
 
@@ -16,7 +16,7 @@ function AddCommandButton({ onClick, ...props }: AddCommandButtonProps): ReactEl
 
 	return (
 		<>
-			<AddCommandOffcanvas
+			<CommandAdditionOffcanvas
 				show={showModal}
 				onHide={useCallback(() => setShowModal(false), [])}
 			/>

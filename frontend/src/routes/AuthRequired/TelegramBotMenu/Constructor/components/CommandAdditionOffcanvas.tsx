@@ -14,12 +14,12 @@ import { parseNodes } from '../utils';
 
 import { CommandsAPI, DiagramCommandAPI } from 'services/api/telegram_bots/main';
 
-export interface AddCommandOffcanvasProps {
+export interface CommandAdditionOffcanvasProps {
 	show: boolean;
 	onHide: () => void
 }
 
-function AddCommandOffcanvas({ onHide, ...props }: AddCommandOffcanvasProps): ReactElement<AddCommandOffcanvasProps> {
+function CommandAdditionOffcanvas({ onHide, ...props }: CommandAdditionOffcanvasProps): ReactElement<CommandAdditionOffcanvasProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { addNodes } = useReactFlow();
@@ -115,4 +115,4 @@ function AddCommandOffcanvas({ onHide, ...props }: AddCommandOffcanvasProps): Re
 	);
 }
 
-export default memo(AddCommandOffcanvas);
+export default memo(CommandAdditionOffcanvas);
