@@ -3,7 +3,7 @@ import { useRouteLoaderData } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 
-import CommandOffcanvas, { Data as CommandOffcanvasData } from './CommandOffcanvas';
+import CommandFormOffcanvas, { Data as CommandFormOffcanvasData } from './CommandFormOffcanvas';
 
 import useToast from 'services/hooks/useToast';
 
@@ -23,7 +23,7 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 
 	const { createMessageToast } = useToast();
 
-	const [initialData, setInitialData] = useState<CommandOffcanvasData | undefined>(undefined);
+	const [initialData, setInitialData] = useState<CommandFormOffcanvasData | undefined>(undefined);
 	const [loading, setLoading] = useState<boolean>(true);
 
 	useEffect(() => { show && updateInitialData() }, [show]);
@@ -97,7 +97,7 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 		keyboard,
 		apiRequest,
 		databaseRecord,
-	}: CommandOffcanvasData): Promise<void> {
+	}: CommandFormOffcanvasData): Promise<void> {
 		setLoading(true);
 
 		const response = await CommandAPI.update(telegramBot.id, commandID, {
@@ -148,14 +148,14 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 	}
 
 	return (
-		<CommandOffcanvas
+		<CommandFormOffcanvas
 			show={show}
 			loading={loading}
 			title={gettext('Редактирование команды')}
 			initialData={initialData}
 			onHide={onHide}
 		>
-			{useCallback((commandOffcanvasData: CommandOffcanvasData) => (
+			{useCallback((commandOffcanvasData: CommandFormOffcanvasData) => (
 				<Button
 					variant='success'
 					onClick={() => handleSaveCommandButtonClick(commandOffcanvasData)}
@@ -163,7 +163,7 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 					{gettext('Сохранить команду')}
 				</Button>
 			), [])}
-		</CommandOffcanvas>
+		</CommandFormOffcanvas>
 	);
 }
 

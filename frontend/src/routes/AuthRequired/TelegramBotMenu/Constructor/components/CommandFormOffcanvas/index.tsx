@@ -33,7 +33,7 @@ export interface Data {
 	databaseRecord?: DatabaseRecordValue;
 }
 
-export interface CommandOffcanvasProps extends OffcanvasProps {
+export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	loading?: boolean;
 	title: ReactNode;
 	initialData?: Data;
@@ -55,7 +55,7 @@ const addonButtons: AddonButtonsProps[] = [
 	{ name: 'databaseRecord', children: gettext('Запись в базу данных') },
 ];
 
-function CommandOffcanvas({ loading, title, initialData, children, ...props }: CommandOffcanvasProps): ReactElement<CommandOffcanvasProps> {
+function CommandFormOffcanvas({ loading, title, initialData, children, ...props }: CommandFormOffcanvasProps): ReactElement<CommandFormOffcanvasProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const [name, setName] = useState<NameValue | undefined>(initialData?.name);
@@ -273,4 +273,4 @@ function CommandOffcanvas({ loading, title, initialData, children, ...props }: C
 	);
 }
 
-export default memo(CommandOffcanvas);
+export default memo(CommandFormOffcanvas);

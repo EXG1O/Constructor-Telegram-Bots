@@ -4,7 +4,7 @@ import { useRouteLoaderData } from 'react-router-dom';
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 
-import CommandOffcanvas, { Data as CommandOffcanvasData } from './CommandOffcanvas';
+import CommandFormOffcanvas, { Data as CommandFormOffcanvasData } from './CommandFormOffcanvas';
 
 import useToast from 'services/hooks/useToast';
 
@@ -37,7 +37,7 @@ function AddCommandOffcanvas({ onHide, ...props }: AddCommandOffcanvasProps): Re
 		keyboard,
 		apiRequest,
 		databaseRecord,
-	}: CommandOffcanvasData): Promise<void> {
+	}: CommandFormOffcanvasData): Promise<void> {
 		setLoading(true);
 
 		const commandResponse = await CommandsAPI.create(telegramBot.id, {
@@ -97,13 +97,13 @@ function AddCommandOffcanvas({ onHide, ...props }: AddCommandOffcanvasProps): Re
 	}
 
 	return (
-		<CommandOffcanvas
+		<CommandFormOffcanvas
 			{...props}
 			loading={loading}
 			title={gettext('Добавление команды')}
 			onHide={onHide}
 		>
-			{useCallback((data: CommandOffcanvasData) => (
+			{useCallback((data: CommandFormOffcanvasData) => (
 				<Button
 					variant='success'
 					onClick={() => handleAddCommandButtonClick(data)}
@@ -111,7 +111,7 @@ function AddCommandOffcanvas({ onHide, ...props }: AddCommandOffcanvasProps): Re
 					{gettext('Добавить команду')}
 				</Button>
 			), [])}
-		</CommandOffcanvas>
+		</CommandFormOffcanvas>
 	);
 }
 
