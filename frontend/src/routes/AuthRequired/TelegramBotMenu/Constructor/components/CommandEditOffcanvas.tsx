@@ -11,14 +11,14 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 import { CommandAPI } from 'services/api/telegram_bots/main';
 
-export interface EditCommandOffcanvasProps {
+export interface CommandEditOffcanvasProps {
 	show: boolean;
 	commandID: number;
 	onUpdated: () => void;
 	onHide: () => void
 }
 
-function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditCommandOffcanvasProps): ReactElement<EditCommandOffcanvasProps> {
+function CommandEditOffcanvas({ show, commandID, onUpdated, onHide }: CommandEditOffcanvasProps): ReactElement<CommandEditOffcanvasProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
 	const { createMessageToast } = useToast();
@@ -167,4 +167,4 @@ function EditCommandOffcanvas({ show, commandID, onUpdated, onHide }: EditComman
 	);
 }
 
-export default memo(EditCommandOffcanvas);
+export default memo(CommandEditOffcanvas);

@@ -8,7 +8,7 @@ import Stack from 'react-bootstrap/Stack';
 
 import AskConfirmModal from 'components/AskConfirmModal';
 
-import EditCommandOffcanvas from './EditCommandOffcanvas';
+import CommandEditOffcanvas from './CommandEditOffcanvas';
 import NodeToolbar from './NodeToolbar';
 
 import useToast from 'services/hooks/useToast';
@@ -64,7 +64,7 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 			>
 				{gettext('Вы точно хотите удалить команду Telegram бота?')}
 			</AskConfirmModal>
-			<EditCommandOffcanvas
+			<CommandEditOffcanvas
 				show={showUpdateOffcanvas}
 				commandID={data.id}
 				onUpdated={data.updateNodes}
