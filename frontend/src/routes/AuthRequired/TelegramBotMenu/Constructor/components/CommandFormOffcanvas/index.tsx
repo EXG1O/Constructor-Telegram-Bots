@@ -1,8 +1,6 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
-import Button, { ButtonProps } from 'react-bootstrap/Button';
-import Stack from 'react-bootstrap/Stack';
 import Collapse from 'react-bootstrap/Collapse';
 
 import Offcanvas, { OffcanvasProps } from 'components/Offcanvas';
@@ -17,6 +15,7 @@ import Message, { Value as MessageValue } from './components/Message';
 import Keyboard, { Data as KeyboardData, defaultData as keyboardDefaultData } from './components/Keyboard';
 import APIRequest, { Data as APIRequestData, defaultData as apiRequestDefaultData } from '../APIRequest';
 import DatabaseRecord, { Value as DatabaseRecordValue, defaultValue as databaseRecordDefaultValue } from './components/DatabaseRecord';
+import AddonButtonGroup, { AddonButtonProps } from '../AddonButtonGroup';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
@@ -44,13 +43,6 @@ export interface CommandFormOffcanvasProps extends OffcanvasProps {
 
 type AddonNames = 'trigger' | 'images' | 'files' | 'keyboard' | 'apiRequest' | 'databaseRecord';
 
-interface AddonButtonsProps extends Omit<ButtonProps, 'key' | 'size' | 'variant' | 'onClick'> {
-	name: AddonNames;
-	onShow: () => void;
-	onHide: () => void;
-	children: string;
-}
-
 function CommandFormOffcanvas({
 	name,
 	settings,
@@ -76,7 +68,7 @@ function CommandFormOffcanvas({
 }: CommandFormOffcanvasProps): ReactElement<CommandFormOffcanvasProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
-	const addonButtons = useMemo<AddonButtonsProps[]>(() => [
+	const addonButtons = useMemo<AddonButtonProps<AddonNames>[]>(() => [
 		{
 			name: 'trigger',
 			onShow: () => onTriggerChange(triggerDefaultData),
@@ -129,8 +121,6 @@ function CommandFormOffcanvas({
 		apiRequest: apiRequest !== undefined,
 		databaseRecord: databaseRecord !== undefined,
 	}), [trigger, images, files, keyboard, apiRequest, databaseRecord]);
-
-	const [showAddonButtons, setShowAddonButtons] = useState<boolean>(false);
 
 	const usedStorageSize: number = useMemo(() => {
 		let size: number = telegramBot.used_storage_size;
@@ -226,38 +216,10 @@ function CommandFormOffcanvas({
 					telegramBot={telegramBot}
 					usedStorageSize={usedStorageSize}
 				/>
-				<div>
-					<Button
-						size='sm'
-						{...(
-							showAddonButtons ? {
-								variant: 'secondary',
-								className: 'w-100 border-bottom-0 rounded-bottom-0',
-								children: gettext('Скрыть дополнения'),
-							} : {
-								variant: 'dark',
-								className: 'w-100',
-								children: gettext('Показать дополнения'),
-							}
-						)}
-						onClick={() => setShowAddonButtons(!showAddonButtons)}
-					/>
-					<Collapse in={showAddonButtons} unmountOnExit>
-						<div>
-							<Stack className='border border-top-0 rounded-1 rounded-top-0 p-1' gap={1}>
-								{addonButtons.map(({ name, onShow, onHide, ...props }, index) => (
-									<Button
-										{...props}
-										key={index}
-										size='sm'
-										variant={showAddons[name] ? 'secondary' : 'dark'}
-										onClick={showAddons[name] ? onHide : onShow}
-									/>
-								))}
-							</Stack>
-						</div>
-					</Collapse>
-				</div>
+				<AddonButtonGroup
+					addonButtons={addonButtons}
+					showAddons={showAddons}
+				/>
 			</Offcanvas.Footer>
 			{children}
 		</Offcanvas>
