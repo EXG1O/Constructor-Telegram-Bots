@@ -1,11 +1,16 @@
-import React, { ReactElement, ReactNode, Children, cloneElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import BaseOffcanvas from 'react-bootstrap/Offcanvas';
+import Title from 'react-bootstrap/OffcanvasTitle';
 import { BaseModalProps } from '@restart/ui/Modal';
 
 import Loading from '../Loading';
 
+import Header from './components/Header';
+import Body from './components/Body';
 import Footer from './components/Footer';
+
+import OffcanvasContext from './contexts/OffcanvasContext';
 
 export interface OffcanvasProps extends Omit<
 	BaseModalProps,
@@ -29,23 +34,19 @@ export interface OffcanvasProps extends Omit<
 }
 
 /** The wrapper component adds support for the `loading` prop to the Offcanvas component from `react-bootstrap`. */
-function Offcanvas({ loading, children, ...props }: OffcanvasProps): ReactElement<OffcanvasProps> {
+function Offcanvas({ loading = false, children, ...props }: OffcanvasProps): ReactElement<OffcanvasProps> {
 	return (
-		<BaseOffcanvas {...props}>
-			{children && Children.map(children as ReactElement, child => {
-				if (child.type === BaseOffcanvas.Header) {
-					return cloneElement(child, { closeButton: loading ? false : child.props.closeButton });
-				} else if (!loading) {
-					return child;
-				}
-			})}
-			{loading && (
-				<BaseOffcanvas.Body className='d-flex justify-content-center'>
-					<Loading size='md' className='align-self-center' />
-				</BaseOffcanvas.Body>
-			)}
-		</BaseOffcanvas>
+		<OffcanvasContext.Provider value={{ loading }}>
+			<BaseOffcanvas {...props}>
+				{children}
+				{loading && (
+					<BaseOffcanvas.Body className='d-flex justify-content-center'>
+						<Loading size='md' className='align-self-center' />
+					</BaseOffcanvas.Body>
+				)}
+			</BaseOffcanvas>
+		</OffcanvasContext.Provider>
 	);
 }
 
-export default Object.assign(Offcanvas, { ...BaseOffcanvas, Footer });
+export default Object.assign(Offcanvas, { Header, Title, Body, Footer });
