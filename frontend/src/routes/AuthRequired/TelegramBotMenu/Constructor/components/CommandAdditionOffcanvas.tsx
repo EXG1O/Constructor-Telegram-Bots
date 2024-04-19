@@ -1,12 +1,25 @@
-import React, { ReactElement, memo, useState, useCallback } from 'react';
+import React, { ReactElement, memo, useCallback, useState } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
 import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 
-import CommandFormOffcanvas, { Data as CommandFormOffcanvasData } from './CommandFormOffcanvas';
+import CommandFormOffcanvas, { CommandFormOffcanvasProps } from './CommandFormOffcanvas';
+import { defaultValue as nameDefaultValue } from '../components/Name';
+import { defaultData as settingsDefaultData } from './CommandFormOffcanvas/components/Settings';
+import { defaultValue as messageDefaultValue } from './CommandFormOffcanvas/components/Message';
 
 import useToast from 'services/hooks/useToast';
+
+import useNameState from './CommandFormOffcanvas/hooks/useNameState';
+import useSettingsState from './CommandFormOffcanvas/hooks/useSettingsState';
+import useTriggerState from './CommandFormOffcanvas/hooks/useTriggerState';
+import useImagesState from './CommandFormOffcanvas/hooks/useImagesState';
+import useFilesState from './CommandFormOffcanvas/hooks/useFilesState';
+import useMessageState from './CommandFormOffcanvas/hooks/useMessageState';
+import useKeyboardState from './CommandFormOffcanvas/hooks/useKeyboardState';
+import useAPIRequestState from './CommandFormOffcanvas/hooks/useAPIRequestState';
+import useDatabaseRecordState from './CommandFormOffcanvas/hooks/useDatabaseRecordState';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
 
@@ -22,30 +35,43 @@ export interface CommandAdditionOffcanvasProps {
 function CommandAdditionOffcanvas({ onHide, ...props }: CommandAdditionOffcanvasProps): ReactElement<CommandAdditionOffcanvasProps> {
 	const { telegramBot } = useRouteLoaderData('telegram-bot-menu-root') as TelegramBotMenuRootLoaderData;
 
-	const { addNodes } = useReactFlow();
 	const { createMessageToast } = useToast();
+
+	const { addNodes } = useReactFlow();
+
+	const [name, setName] = useNameState();
+	const [settings, setSettings] = useSettingsState();
+	const [trigger, setTrigger] = useTriggerState();
+	const [images, setImages] = useImagesState();
+	const [files, setFiles] = useFilesState();
+	const [message, setMessage] = useMessageState();
+	const [keyboard, setKeyboard] = useKeyboardState();
+	const [apiRequest, setAPIRequest] = useAPIRequestState();
+	const [databaseRecord, setDatabaseRecord] = useDatabaseRecordState();
 
 	const [loading, setLoading] = useState<boolean>(false);
 
-	async function handleAddCommandButtonClick({
-		name,
-		settings,
-		trigger,
-		images,
-		files,
-		message,
-		keyboard,
-		apiRequest,
-		databaseRecord,
-	}: CommandFormOffcanvasData): Promise<void> {
+	const handleExited = useCallback<NonNullable<CommandFormOffcanvasProps['onExited']>>(() => {
+		setName(nameDefaultValue);
+		setSettings(settingsDefaultData);
+		setTrigger(undefined);
+		setImages(undefined);
+		setFiles(undefined);
+		setMessage(messageDefaultValue);
+		setKeyboard(undefined);
+		setAPIRequest(undefined);
+		setDatabaseRecord(undefined);
+	}, []);
+
+	async function handleClick(): Promise<void> {
 		setLoading(true);
 
 		const commandResponse = await CommandsAPI.create(telegramBot.id, {
-			name: name ?? '',
+			name: name,
 			settings: {
-				is_reply_to_user_message: settings?.isReplyToUserMessage ?? false,
-				is_delete_user_message: settings?.isDeleteUserMessage ?? false,
-				is_send_as_new_message: settings?.isSendAsNewMessage ?? false,
+				is_reply_to_user_message: settings.isReplyToUserMessage,
+				is_delete_user_message: settings.isDeleteUserMessage,
+				is_send_as_new_message: settings.isSendAsNewMessage,
 			},
 			trigger: trigger ? {
 				...trigger,
@@ -53,7 +79,7 @@ function CommandAdditionOffcanvas({ onHide, ...props }: CommandAdditionOffcanvas
 			} : null,
 			images: images?.map(image => image.file!),
 			files: files?.map(file => file.file!),
-			message: message ?? { text: '' },
+			message: { text: message },
 			keyboard: keyboard ? {
 				...keyboard,
 				buttons: keyboard.buttons.map(button => ({
@@ -82,7 +108,7 @@ function CommandAdditionOffcanvas({ onHide, ...props }: CommandAdditionOffcanvas
 				});
 			} else {
 				createMessageToast({
-					message: gettext('Не удалось получить добавленную команду!'),
+					message: gettext('Не удалось получить добавленную ранее команду!'),
 					level: 'error',
 				});
 			}
@@ -100,17 +126,36 @@ function CommandAdditionOffcanvas({ onHide, ...props }: CommandAdditionOffcanvas
 		<CommandFormOffcanvas
 			{...props}
 			loading={loading}
+			name={name}
+			settings={settings}
+			trigger={trigger}
+			images={images}
+			files={files}
+			message={message}
+			keyboard={keyboard}
+			apiRequest={apiRequest}
+			databaseRecord={databaseRecord}
 			title={gettext('Добавление команды')}
+			onNameChange={setName}
+			onSettingsChange={setSettings}
+			onTriggerChange={setTrigger}
+			onImagesChange={setImages}
+			onFilesChange={setFiles}
+			onMessageChange={setMessage}
+			onKeyboardChange={setKeyboard}
+			onAPIRequestChange={setAPIRequest}
+			onDatabaseRecordChange={setDatabaseRecord}
+			onExited={handleExited}
 			onHide={onHide}
 		>
-			{useCallback((data: CommandFormOffcanvasData) => (
+			<CommandFormOffcanvas.Footer>
 				<Button
 					variant='success'
-					onClick={() => handleAddCommandButtonClick(data)}
+					onClick={handleClick}
 				>
-					{gettext('Добавить команду')}
+					{gettext('Добавить')}
 				</Button>
-			), [])}
+			</CommandFormOffcanvas.Footer>
 		</CommandFormOffcanvas>
 	);
 }

@@ -33,15 +33,15 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 
 	const { setNodes } = useReactFlow();
 
-	const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-	const [showUpdateOffcanvas, setShowUpdateOffcanvas] = useState<boolean>(false);
+	const [showDeletionModal, setShowDeletionModal] = useState<boolean>(false);
+	const [showEditOffcanvas, setShowEditOffcanvas] = useState<boolean>(false);
 
 	const handleConfirmDelete = useCallback(async (): Promise<void> => {
 		const response = await CommandAPI._delete(telegramBot.id, data.id);
 
 		if (response.ok) {
 			setNodes(prevNodes => prevNodes.filter(node => node.id !== id));
-			setShowDeleteModal(false);
+			setShowDeletionModal(false);
 			createMessageToast({
 				message: gettext('Вы успешно удалили команду.'),
 				level: 'success',
@@ -57,23 +57,22 @@ function CommandNode({ id, data }: CommandNodeProps): ReactElement<CommandNodePr
 	return (
 		<>
 			<AskConfirmModal
-				show={showDeleteModal}
+				show={showDeletionModal}
 				title={gettext('Удаление команды')}
-				onHide={useCallback(() => setShowDeleteModal(false), [])}
 				onConfirm={handleConfirmDelete}
+				onHide={useCallback(() => setShowDeletionModal(false), [])}
 			>
-				{gettext('Вы точно хотите удалить команду Telegram бота?')}
+				{gettext('Вы точно хотите удалить команду?')}
 			</AskConfirmModal>
 			<CommandEditOffcanvas
-				show={showUpdateOffcanvas}
+				show={showEditOffcanvas}
 				commandID={data.id}
-				onUpdated={data.updateNodes}
-				onHide={() => setShowUpdateOffcanvas(false)}
+				onHide={useCallback(() => setShowEditOffcanvas(false), [])}
 			/>
 			<NodeToolbar
 				title={gettext('Команда')}
-				onEdit={useCallback(() => setShowDeleteModal(true), [])}
-				onDelete={useCallback(() => setShowUpdateOffcanvas(true), [])}
+				onEdit={useCallback(() => setShowDeletionModal(true), [])}
+				onDelete={useCallback(() => setShowEditOffcanvas(true), [])}
 			/>
 			<Stack gap={2} style={{ width: '300px' }}>
 				<div className='bg-light border rounded text-center text-break px-3 py-2' style={{ position: 'relative' }}>

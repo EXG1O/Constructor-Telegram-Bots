@@ -21,7 +21,7 @@ function Name({ value = defaultValue, onChange, ...props }: NameProps): ReactEle
 			<Card.Body className='p-2'>
 				<Input
 					value={value}
-					placeholder={gettext('Введите название')}
+					placeholder={gettext('Придумайте название')}
 					onChange={e => onChange(e.target.value)}
 				/>
 			</Card.Body>

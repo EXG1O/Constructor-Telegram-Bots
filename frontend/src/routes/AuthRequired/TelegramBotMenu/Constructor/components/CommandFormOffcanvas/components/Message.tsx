@@ -1,21 +1,19 @@
-import React, { ReactElement, memo, useCallback } from 'react';
+import React, { ReactElement, memo } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 
 import TelegramQuillEditor from 'components/TelegramQuillEditor';
 
-export interface Data {
-	text: string;
-}
+export type Value = string;
 
 export interface MessageProps extends Omit<CardProps, 'onChange' | 'children'> {
-	data?: Data;
-	onChange: (data: Data) => void;
+	value?: Value;
+	onChange: (value: Value) => void;
 }
 
-export const defaultData: Data = { text: '' };
+export const defaultValue: Value = '';
 
-function Message({ data = defaultData, onChange, ...props }: MessageProps): ReactElement<MessageProps> {
+function Message({ value = defaultValue, onChange, ...props }: MessageProps): ReactElement<MessageProps> {
 	return (
 		<Card {...props}>
 			<Card.Header as='h6' className='text-center'>
@@ -24,9 +22,9 @@ function Message({ data = defaultData, onChange, ...props }: MessageProps): Reac
 			<Card.Body className='p-2'>
 				<TelegramQuillEditor
 					height={220}
-					value={data.text}
+					value={value}
 					placeholder={gettext('Введите текст')}
-					onChange={useCallback((text: string) => onChange({ ...data, text }), [])}
+					onChange={onChange}
 				/>
 			</Card.Body>
 		</Card>

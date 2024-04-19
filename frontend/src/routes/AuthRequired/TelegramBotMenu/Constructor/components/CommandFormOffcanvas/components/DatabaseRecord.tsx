@@ -1,8 +1,8 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement, memo, useCallback, useMemo } from 'react';
 
 import Card, { CardProps } from 'react-bootstrap/Card';
 
-import MonacoEditor from 'components/MonacoEditor';
+import MonacoEditor, { MonacoEditorProps } from 'components/MonacoEditor';
 
 export type Value = string;
 
@@ -11,7 +11,7 @@ export interface DatabaseRecordProps extends Omit<CardProps, 'onChange' | 'child
 	onChange: (value: Value) => void;
 }
 
-export const defaultValue = JSON.stringify({ key: 'value' }, undefined, 4);
+export const defaultValue: Value = JSON.stringify({ key: 'value' }, undefined, 4);
 
 function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRecordProps): ReactElement<DatabaseRecordProps> {
 	return (
@@ -23,14 +23,17 @@ function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRe
 				<MonacoEditor
 					value={value}
 					defaultLanguage='json'
-					options={{
+					options={useMemo(() => ({
 						glyphMargin: false,
 						folding: false,
 						lineNumbers: 'off',
 						lineDecorationsWidth: 0,
 						lineNumbersMinChars: 0,
-					}}
-					onChange={(editor, newValue) => onChange(newValue)}
+					}), [])}
+					onChange={useCallback<NonNullable<MonacoEditorProps['onChange']>>(
+						(editor, newValue) => onChange(newValue),
+						[],
+					)}
 				/>
 			</Card.Body>
 		</Card>
