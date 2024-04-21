@@ -1,9 +1,10 @@
 import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo } from 'react';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import Card, { CardProps } from 'react-bootstrap/Card';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
+
+import Block, { BlockProps } from '../../Block';
 
 import useToast from 'services/hooks/useToast';
 
@@ -15,7 +16,7 @@ interface FileData extends Pick<File, 'name' | 'size'> {
 
 export type Data = FileData[];
 
-export interface FilesProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface FilesProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	remainingStorageSize: number;
 	onChange: (data: Data) => void;
@@ -93,11 +94,8 @@ function Files({ data = defaultData, remainingStorageSize, onChange, ...props }:
 	}
 
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('Файлы')}
-			</Card.Header>
-			<Card.Body className='vstack gap-2 p-2'>
+		<Block {...props} title={gettext('Файлы')}>
+			<Block.Body className='vstack gap-2'>
 				{Boolean(data.length) && (
 					<div className='d-flex flex-wrap border rounded-1 gap-1 p-1'>
 						<DragDropContext onDragEnd={handleFileDragEnd}>
@@ -160,8 +158,8 @@ function Files({ data = defaultData, remainingStorageSize, onChange, ...props }:
 				>
 					{gettext('Добавить файл')}
 				</Button>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 

@@ -1,16 +1,17 @@
 import React, { ReactElement, memo, useState } from 'react';
 
-import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
+
+import Block, { BlockProps } from '../../Block';
 
 export interface Data {
 	text: string;
 	description?: string;
 }
 
-export interface TriggerProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface TriggerProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
@@ -21,11 +22,8 @@ function Trigger({ data = defaultData, onChange, ...props }: TriggerProps): Reac
 	const [showDescription, setShowDescription] = useState<boolean>(Boolean(data?.description));
 
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('Триггер')}
-			</Card.Header>
-			<Card.Body className='p-2'>
+		<Block {...props} title={gettext('Триггер')}>
+			<Block.Body>
 				<Form.Control
 					className='mb-2'
 					value={data.text}
@@ -63,8 +61,8 @@ function Trigger({ data = defaultData, onChange, ...props }: TriggerProps): Reac
 						/>
 					</div>
 				</Collapse>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 

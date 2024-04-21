@@ -1,12 +1,12 @@
 import React, { ReactElement, memo, useCallback, useMemo } from 'react';
 
-import Card, { CardProps } from 'react-bootstrap/Card';
-
 import MonacoEditor, { MonacoEditorProps } from 'components/MonacoEditor';
+
+import Block, { BlockProps } from '../../Block';
 
 export type Value = string;
 
-export interface DatabaseRecordProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface DatabaseRecordProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	value?: Value;
 	onChange: (value: Value) => void;
 }
@@ -15,11 +15,8 @@ export const defaultValue: Value = JSON.stringify({ key: 'value' }, undefined, 4
 
 function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRecordProps): ReactElement<DatabaseRecordProps> {
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('Запись в базу данных')}
-			</Card.Header>
-			<Card.Body className='p-2'>
+		<Block {...props} title={gettext('Запись в базу данных')}>
+			<Block.Body>
 				<MonacoEditor
 					value={value}
 					defaultLanguage='json'
@@ -35,8 +32,8 @@ function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRe
 						[],
 					)}
 				/>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 

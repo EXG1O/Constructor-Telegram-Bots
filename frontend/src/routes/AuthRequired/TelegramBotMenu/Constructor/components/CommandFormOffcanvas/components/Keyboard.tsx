@@ -1,12 +1,13 @@
 import React, { ReactElement, memo } from 'react';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import Card, { CardProps } from 'react-bootstrap/Card';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 import ToggleButton, { ToggleButtonProps } from 'react-bootstrap/ToggleButton';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+
+import Block, { BlockProps } from '../../Block';
 
 export interface ButtonData {
 	id?: number;
@@ -20,7 +21,7 @@ export interface Data {
 	buttons: ButtonData[];
 }
 
-export interface KeyboardProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface KeyboardProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
@@ -69,11 +70,8 @@ function Keyboard({ data = defaultData, onChange, ...props }: KeyboardProps): Re
 	}
 
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('Клавиатура')}
-			</Card.Header>
-			<Card.Body className='vstack gap-2 p-2'>
+		<Block {...props} title={gettext('Клавиатура')}>
+			<Block.Body className='vstack gap-2'>
 				<ToggleButtonGroup type='radio' name='keyboard-types' defaultValue='default'>
 					{keyboardToggleButtons.map((props, index) => (
 						<ToggleButton
@@ -166,8 +164,8 @@ function Keyboard({ data = defaultData, onChange, ...props }: KeyboardProps): Re
 						{gettext('Добавить кнопку')}
 					</Button>
 				</div>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 

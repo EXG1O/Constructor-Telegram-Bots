@@ -1,12 +1,13 @@
 import React, { ReactElement, ChangeEvent as ReactChangeEvent, memo, useState } from 'react';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import Card, { CardProps } from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 
 import Loading from 'components/Loading';
+
+import Block, { BlockProps } from '../../Block';
 
 import useToast from 'services/hooks/useToast';
 
@@ -19,7 +20,7 @@ interface ImageData extends Pick<File, 'name' | 'size'> {
 
 export type Data = ImageData[];
 
-export interface ImagesProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface ImagesProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	remainingStorageSize: number;
 	onChange: (data: Data) => void;
@@ -132,11 +133,8 @@ function Images({ data = defaultData, remainingStorageSize, onChange, ...props }
 	}
 
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('Изображение')}
-			</Card.Header>
-			<Card.Body className='vstack gap-2 p-2'>
+		<Block {...props} title={gettext('Изображение')}>
+			<Block.Body className='vstack gap-2'>
 				{!loading ? (
 					Boolean(data.length) && (
 						<>
@@ -228,8 +226,8 @@ function Images({ data = defaultData, remainingStorageSize, onChange, ...props }
 				>
 					{gettext('Добавить изображение')}
 				</Button>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 

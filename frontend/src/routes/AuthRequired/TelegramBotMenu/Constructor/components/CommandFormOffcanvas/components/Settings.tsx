@@ -1,7 +1,8 @@
 import React, { ReactElement, memo } from 'react';
 
-import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
+
+import Block, { BlockProps } from '../../Block';
 
 export interface Data {
 	isReplyToUserMessage: boolean;
@@ -9,7 +10,7 @@ export interface Data {
 	isSendAsNewMessage: boolean;
 }
 
-export interface SettingsProps extends Omit<CardProps, 'onChange' | 'children'> {
+export interface SettingsProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
@@ -22,11 +23,8 @@ export const defaultData: Data = {
 
 function Settings({ data = defaultData, onChange, ...props }: SettingsProps): ReactElement<SettingsProps> {
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('Настройки')}
-			</Card.Header>
-			<Card.Body className='vstack gap-2 p-2'>
+		<Block {...props} title={gettext('Настройки')}>
+			<Block.Body className='vstack gap-2'>
 				<Form.Switch
 					checked={data.isReplyToUserMessage}
 					label={gettext('Ответить на сообщение пользователя')}
@@ -42,8 +40,8 @@ function Settings({ data = defaultData, onChange, ...props }: SettingsProps): Re
 					label={gettext('Отправить сообщение как новое')}
 					onChange={e => onChange({ ...data, isSendAsNewMessage: e.target.checked })}
 				/>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 

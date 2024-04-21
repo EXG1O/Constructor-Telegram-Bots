@@ -1,7 +1,8 @@
 import React, { ReactElement, memo, useMemo, useState, useCallback } from 'react';
 
-import Card, { CardProps } from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
+
+import Block, { BlockProps } from '../Block';
 
 import MethodToggle, { Value as MethodValue } from './components/MethodToggle';
 import Headers, { Data as HeadersData } from './components/Headers';
@@ -15,7 +16,7 @@ export interface Data {
 	body?: BodyData;
 }
 
-export interface APIRequestProps extends Omit<CardProps, 'onChange' | 'children'>  {
+export interface APIRequestProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'>  {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
@@ -27,11 +28,8 @@ function APIRequest({ data = defaultData, onChange, ...props }: APIRequestProps)
 	const [showBody, setShowBody] = useState<boolean>(Boolean(data.body));
 
 	return (
-		<Card {...props}>
-			<Card.Header as='h6' className='text-center'>
-				{gettext('API-запрос')}
-			</Card.Header>
-			<Card.Body className='vstack gap-2 p-2'>
+		<Block {...props} title={gettext('API-запрос')}>
+			<Block.Body className='vstack gap-2'>
 				<Form.Control
 					value={data.url}
 					placeholder={gettext('Введите URL-адрес')}
@@ -63,8 +61,8 @@ function APIRequest({ data = defaultData, onChange, ...props }: APIRequestProps)
 						body: data.body,
 					}), [data])}
 				/>
-			</Card.Body>
-		</Card>
+			</Block.Body>
+		</Block>
 	);
 }
 
