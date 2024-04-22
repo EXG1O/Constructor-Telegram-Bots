@@ -349,7 +349,10 @@ function Constructor(): ReactElement {
 
 	return (
 		<Title title={gettext('Конструктор')}>
-			<div className='border rounded' style={{ height: '100%' }}>
+			<div
+				className='border rounded'
+				style={{ height: '100%', minHeight: '600px' }}
+			>
 				<ReactFlow
 					fitView
 					nodes={nodes}
