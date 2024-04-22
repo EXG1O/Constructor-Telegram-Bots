@@ -5,9 +5,9 @@ import { useReactFlow } from 'reactflow';
 import Button from 'react-bootstrap/Button';
 
 import CommandFormOffcanvas, { CommandFormOffcanvasProps } from './CommandFormOffcanvas';
-import { defaultValue as nameDefaultValue } from '../components/Name';
-import { defaultData as settingsDefaultData } from './CommandFormOffcanvas/components/Settings';
-import { defaultValue as messageDefaultValue } from './CommandFormOffcanvas/components/Message';
+import { defaultValue as nameDefaultValue } from './NameBlock';
+import { defaultData as settingsDefaultData } from './CommandFormOffcanvas/components/SettingsBlock';
+import { defaultValue as messageDefaultValue } from './CommandFormOffcanvas/components/MessageBlock';
 
 import useToast from 'services/hooks/useToast';
 

@@ -21,7 +21,7 @@ export interface Data {
 	buttons: ButtonData[];
 }
 
-export interface KeyboardProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface KeyboardBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
@@ -38,7 +38,7 @@ const keyboardToggleButtons: KeyboardToggleButtonProps[] = [
 	{ value: 'payment', children: gettext('Платёжный') },
 ];
 
-function Keyboard({ data = defaultData, onChange, ...props }: KeyboardProps): ReactElement<KeyboardProps> {
+function KeyboardBlock({ data = defaultData, onChange, ...props }: KeyboardBlockProps): ReactElement<KeyboardBlockProps> {
 	function handleButtonChange(index: number, buttonData: Partial<ButtonData>): void {
 		const buttons = [...data.buttons];
 
@@ -169,4 +169,4 @@ function Keyboard({ data = defaultData, onChange, ...props }: KeyboardProps): Re
 	);
 }
 
-export default memo(Keyboard);
+export default memo(KeyboardBlock);

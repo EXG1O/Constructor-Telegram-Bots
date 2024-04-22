@@ -6,14 +6,14 @@ import Block, { BlockProps } from '../../Block';
 
 export type Value = string;
 
-export interface DatabaseRecordProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface DatabaseRecordBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	value?: Value;
 	onChange: (value: Value) => void;
 }
 
 export const defaultValue: Value = JSON.stringify({ key: 'value' }, undefined, 4);
 
-function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRecordProps): ReactElement<DatabaseRecordProps> {
+function DatabaseRecordBlock({ value = defaultValue, onChange, ...props }: DatabaseRecordBlockProps): ReactElement<DatabaseRecordBlockProps> {
 	return (
 		<Block {...props} title={gettext('Запись в базу данных')}>
 			<Block.Body>
@@ -37,4 +37,4 @@ function DatabaseRecord({ value = defaultValue, onChange, ...props }: DatabaseRe
 	);
 }
 
-export default memo(DatabaseRecord);
+export default memo(DatabaseRecordBlock);

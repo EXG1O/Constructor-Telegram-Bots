@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Data as BaseData } from '../../APIRequest';
+import { Data as BaseData } from '../../APIRequestBlock';
 
 type Data = BaseData | undefined;
 

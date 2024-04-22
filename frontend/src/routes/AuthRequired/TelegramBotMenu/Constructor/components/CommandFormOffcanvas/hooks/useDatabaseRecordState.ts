@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Value as BaseValue } from '../components/DatabaseRecord';
+import { Value as BaseValue } from '../components/DatabaseRecordBlock';
 
 type Value = BaseValue | undefined;
 

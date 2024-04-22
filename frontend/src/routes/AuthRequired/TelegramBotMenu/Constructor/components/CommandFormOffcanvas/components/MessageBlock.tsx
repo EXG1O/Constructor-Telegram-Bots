@@ -6,14 +6,14 @@ import Block, { BlockProps } from '../../Block';
 
 export type Value = string;
 
-export interface MessageProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface MessageBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	value?: Value;
 	onChange: (value: Value) => void;
 }
 
 export const defaultValue: Value = '';
 
-function Message({ value = defaultValue, onChange, ...props }: MessageProps): ReactElement<MessageProps> {
+function MessageBlock({ value = defaultValue, onChange, ...props }: MessageBlockProps): ReactElement<MessageBlockProps> {
 	return (
 		<Block {...props} title={gettext('Сообщение')}>
 			<Block.Body>
@@ -28,4 +28,4 @@ function Message({ value = defaultValue, onChange, ...props }: MessageProps): Re
 	);
 }
 
-export default memo(Message);
+export default memo(MessageBlock);

@@ -11,14 +11,14 @@ export interface Data {
 	description?: string;
 }
 
-export interface TriggerProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface TriggerBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
 
 export const defaultData: Data = { text: '' };
 
-function Trigger({ data = defaultData, onChange, ...props }: TriggerProps): ReactElement<TriggerProps> {
+function TriggerBlock({ data = defaultData, onChange, ...props }: TriggerBlockProps): ReactElement<TriggerBlockProps> {
 	const [showDescription, setShowDescription] = useState<boolean>(Boolean(data?.description));
 
 	return (
@@ -66,4 +66,4 @@ function Trigger({ data = defaultData, onChange, ...props }: TriggerProps): Reac
 	);
 }
 
-export default memo(Trigger);
+export default memo(TriggerBlock);

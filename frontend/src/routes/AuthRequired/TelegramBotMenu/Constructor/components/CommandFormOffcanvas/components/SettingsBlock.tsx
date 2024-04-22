@@ -10,7 +10,7 @@ export interface Data {
 	isSendAsNewMessage: boolean;
 }
 
-export interface SettingsProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface SettingsBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
@@ -21,7 +21,7 @@ export const defaultData: Data = {
 	isSendAsNewMessage: false,
 }
 
-function Settings({ data = defaultData, onChange, ...props }: SettingsProps): ReactElement<SettingsProps> {
+function SettingsBlock({ data = defaultData, onChange, ...props }: SettingsBlockProps): ReactElement<SettingsBlockProps> {
 	return (
 		<Block {...props} title={gettext('Настройки')}>
 			<Block.Body className='vstack gap-2'>
@@ -45,4 +45,4 @@ function Settings({ data = defaultData, onChange, ...props }: SettingsProps): Re
 	);
 }
 
-export default memo(Settings);
+export default memo(SettingsBlock);

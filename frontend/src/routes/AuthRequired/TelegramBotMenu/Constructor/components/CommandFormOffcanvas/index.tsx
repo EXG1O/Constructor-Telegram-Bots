@@ -6,15 +6,15 @@ import Collapse from 'react-bootstrap/Collapse';
 import Offcanvas, { OffcanvasProps } from 'components/Offcanvas';
 import TelegramBotStorage from 'components/TelegramBotStorage';
 
-import Name, { Value as NameValue } from '../Name';
-import Settings, { Data as SettingsData } from './components/Settings';
-import Trigger, { Data as TriggerData, defaultData as triggerDefaultData } from './components/Trigger';
-import Images, { Data as ImagesData, defaultData as imagesDefaultData } from './components/Images';
-import FilesCard, { Data as FilesData, defaultData as filesDefaultData } from './components/Files';
-import Message, { Value as MessageValue } from './components/Message';
-import Keyboard, { Data as KeyboardData, defaultData as keyboardDefaultData } from './components/Keyboard';
-import APIRequest, { Data as APIRequestData, defaultData as apiRequestDefaultData } from '../APIRequest';
-import DatabaseRecord, { Value as DatabaseRecordValue, defaultValue as databaseRecordDefaultValue } from './components/DatabaseRecord';
+import NameBlock, { Value as NameValue } from '../NameBlock';
+import SettingsBlock, { Data as SettingsData } from './components/SettingsBlock';
+import TriggerBlock, { Data as TriggerData, defaultData as triggerDefaultData } from './components/TriggerBlock';
+import ImagesBlock, { Data as ImagesData, defaultData as imagesDefaultData } from './components/ImagesBlock';
+import FilesCard, { Data as FilesData, defaultData as filesDefaultData } from './components/FilesBlock';
+import MessageBlock, { Value as MessageValue } from './components/MessageBlock';
+import KeyboardBlock, { Data as KeyboardData, defaultData as keyboardDefaultData } from './components/KeyboardBlock';
+import APIRequestBlock, { Data as APIRequestData, defaultData as apiRequestDefaultData } from '../APIRequestBlock';
+import DatabaseRecordBlock, { Value as DatabaseRecordValue, defaultValue as databaseRecordDefaultValue } from './components/DatabaseRecordBlock';
 import AddonButtonGroup, { AddonButtonProps } from '../AddonButtonGroup';
 
 import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired/TelegramBotMenu/Root';
@@ -138,19 +138,19 @@ function CommandFormOffcanvas({
 				<Offcanvas.Title as='h5'>{title}</Offcanvas.Title>
 			</Offcanvas.Header>
 			<Offcanvas.Body>
-				<Name
+				<NameBlock
 					value={name}
 					className='mb-3'
 					onChange={onNameChange}
 				/>
-				<Settings
+				<SettingsBlock
 					data={settings}
 					className='mb-3'
 					onChange={onSettingsChange}
 				/>
 				<Collapse in={showAddons.trigger} unmountOnExit>
 					<div>
-						<Trigger
+						<TriggerBlock
 							data={trigger}
 							className='mb-3'
 							onChange={onTriggerChange}
@@ -159,7 +159,7 @@ function CommandFormOffcanvas({
 				</Collapse>
 				<Collapse in={showAddons.images} unmountOnExit>
 					<div id='command-offcanvas-image-addon'>
-						<Images
+						<ImagesBlock
 							data={images}
 							remainingStorageSize={remainingStorageSize}
 							className='mb-3'
@@ -177,14 +177,14 @@ function CommandFormOffcanvas({
 						/>
 					</div>
 				</Collapse>
-				<Message
+				<MessageBlock
 					value={message}
 					className='mb-3'
 					onChange={onMessageChange}
 				/>
 				<Collapse in={showAddons.keyboard} unmountOnExit>
 					<div>
-						<Keyboard
+						<KeyboardBlock
 							data={keyboard}
 							className='mb-3'
 							onChange={onKeyboardChange}
@@ -193,7 +193,7 @@ function CommandFormOffcanvas({
 				</Collapse>
 				<Collapse in={showAddons.apiRequest} unmountOnExit>
 					<div>
-						<APIRequest
+						<APIRequestBlock
 							data={apiRequest}
 							className='mb-3'
 							onChange={onAPIRequestChange}
@@ -202,7 +202,7 @@ function CommandFormOffcanvas({
 				</Collapse>
 				<Collapse in={showAddons.databaseRecord} unmountOnExit>
 					<div>
-						<DatabaseRecord
+						<DatabaseRecordBlock
 							value={databaseRecord}
 							className='mb-3'
 							onChange={onDatabaseRecordChange}

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Data as BaseData } from '../components/Trigger';
+import { Data as BaseData } from '../components/TriggerBlock';
 
 type Data = BaseData | undefined;
 

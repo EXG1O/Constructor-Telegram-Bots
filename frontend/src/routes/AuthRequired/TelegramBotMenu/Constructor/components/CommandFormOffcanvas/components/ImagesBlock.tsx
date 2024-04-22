@@ -20,7 +20,7 @@ interface ImageData extends Pick<File, 'name' | 'size'> {
 
 export type Data = ImageData[];
 
-export interface ImagesProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface ImagesBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	remainingStorageSize: number;
 	onChange: (data: Data) => void;
@@ -32,7 +32,7 @@ interface ProcessedFile extends File {
 	url?: string;
 }
 
-function Images({ data = defaultData, remainingStorageSize, onChange, ...props }: ImagesProps): ReactElement<ImagesProps> {
+function ImagesBlock({ data = defaultData, remainingStorageSize, onChange, ...props }: ImagesBlockProps): ReactElement<ImagesBlockProps> {
 	const { createMessageToast } = useToast();
 
 	const [loading, setLoading] = useState<boolean>(false);
@@ -231,4 +231,4 @@ function Images({ data = defaultData, remainingStorageSize, onChange, ...props }
 	);
 }
 
-export default memo(Images);
+export default memo(ImagesBlock);

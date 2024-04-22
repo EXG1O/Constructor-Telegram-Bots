@@ -16,7 +16,7 @@ interface FileData extends Pick<File, 'name' | 'size'> {
 
 export type Data = FileData[];
 
-export interface FilesProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
+export interface FilesBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
 	data?: Data;
 	remainingStorageSize: number;
 	onChange: (data: Data) => void;
@@ -24,7 +24,7 @@ export interface FilesProps extends Omit<BlockProps, 'title' | 'onChange' | 'chi
 
 export const defaultData: Data = [];
 
-function Files({ data = defaultData, remainingStorageSize, onChange, ...props }: FilesProps): ReactElement<FilesProps> {
+function FilesBlock({ data = defaultData, remainingStorageSize, onChange, ...props }: FilesBlockProps): ReactElement<FilesBlockProps> {
 	const { createMessageToast } = useToast();
 
 	function handleFilesChange(event: ReactChangeEvent<HTMLInputElement>): void {
@@ -163,4 +163,4 @@ function Files({ data = defaultData, remainingStorageSize, onChange, ...props }:
 	);
 }
 
-export default memo(Files);
+export default memo(FilesBlock);

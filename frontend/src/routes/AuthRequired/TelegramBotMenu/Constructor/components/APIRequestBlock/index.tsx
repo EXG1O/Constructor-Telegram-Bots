@@ -16,14 +16,14 @@ export interface Data {
 	body?: BodyData;
 }
 
-export interface APIRequestProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'>  {
+export interface APIRequestBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'>  {
 	data?: Data;
 	onChange: (data: Data) => void;
 }
 
 export const defaultData: Data = { url: '', method: 'get' };
 
-function APIRequest({ data = defaultData, onChange, ...props }: APIRequestProps): ReactElement<APIRequestProps> {
+function APIRequestBlock({ data = defaultData, onChange, ...props }: APIRequestBlockProps): ReactElement<APIRequestBlockProps> {
 	const [showHeaders, setShowHeaders] = useState<boolean>(Boolean(data.headers));
 	const [showBody, setShowBody] = useState<boolean>(Boolean(data.body));
 
@@ -66,4 +66,4 @@ function APIRequest({ data = defaultData, onChange, ...props }: APIRequestProps)
 	);
 }
 
-export default memo(APIRequest);
+export default memo(APIRequestBlock);

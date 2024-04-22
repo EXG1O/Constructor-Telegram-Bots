@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Data as BaseData } from '../components/Keyboard';
+import { Data as BaseData } from '../components/KeyboardBlock';
 
 type Data = BaseData | undefined;
 

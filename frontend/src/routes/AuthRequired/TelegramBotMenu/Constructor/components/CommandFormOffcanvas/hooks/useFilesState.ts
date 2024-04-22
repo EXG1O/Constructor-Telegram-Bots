@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Data as BaseData } from '../components/Files';
+import { Data as BaseData } from '../components/FilesBlock';
 
 type Data = BaseData | undefined;
 
