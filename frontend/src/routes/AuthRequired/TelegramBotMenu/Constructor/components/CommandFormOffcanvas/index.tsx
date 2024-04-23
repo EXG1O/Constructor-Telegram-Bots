@@ -31,8 +31,8 @@ export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	databaseRecord?: DatabaseRecordValue;
 	title: ReactNode;
 	onNameChange: (value: NameValue) => void;
-	onSettingsChange: (data: Settings) => void;
-	onTriggerChange: (data: Trigger | undefined) => void;
+	onSettingsChange: (settings: Settings) => void;
+	onTriggerChange: (trigger: Trigger | undefined) => void;
 	onImagesChange: (data: ImagesData | undefined) => void;
 	onFilesChange: (data: FilesData | undefined) => void;
 	onMessageChange: (message: Message) => void;
