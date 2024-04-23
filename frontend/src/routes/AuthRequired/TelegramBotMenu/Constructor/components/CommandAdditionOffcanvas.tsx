@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 
 import CommandFormOffcanvas, { CommandFormOffcanvasProps } from './CommandFormOffcanvas';
 import { defaultValue as nameDefaultValue } from './NameBlock';
-import { defaultData as settingsDefaultData } from './CommandFormOffcanvas/components/SettingsBlock';
+import { defaultSettings } from './CommandFormOffcanvas/components/SettingsBlock';
 import { defaultValue as messageDefaultValue } from './CommandFormOffcanvas/components/MessageBlock';
 
 import useToast from 'services/hooks/useToast';
@@ -53,7 +53,7 @@ function CommandAdditionOffcanvas({ onHide, ...props }: CommandAdditionOffcanvas
 
 	const handleExited = useCallback<NonNullable<CommandFormOffcanvasProps['onExited']>>(() => {
 		setName(nameDefaultValue);
-		setSettings(settingsDefaultData);
+		setSettings(defaultSettings);
 		setTrigger(undefined);
 		setImages(undefined);
 		setFiles(undefined);

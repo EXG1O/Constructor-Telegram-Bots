@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Data, defaultData } from '../components/SettingsBlock';
+import { Settings, defaultSettings } from '../components/SettingsBlock';
 
-function useSettingsState(initialData: Data = defaultData): [Data, Dispatch<SetStateAction<Data>>] {
-	return useState<Data>(initialData);
+function useSettingsState(initialSettings: Settings = defaultSettings): [Settings, Dispatch<SetStateAction<Settings>>] {
+	return useState<Settings>(initialSettings);
 }
 
 export default useSettingsState;

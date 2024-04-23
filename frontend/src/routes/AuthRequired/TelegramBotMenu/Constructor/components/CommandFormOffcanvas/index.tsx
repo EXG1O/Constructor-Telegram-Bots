@@ -7,7 +7,7 @@ import Offcanvas, { OffcanvasProps } from 'components/Offcanvas';
 import TelegramBotStorage from 'components/TelegramBotStorage';
 
 import NameBlock, { Value as NameValue } from '../NameBlock';
-import SettingsBlock, { Data as SettingsData } from './components/SettingsBlock';
+import SettingsBlock, { Settings } from './components/SettingsBlock';
 import TriggerBlock, { Trigger, defaultTrigger } from './components/TriggerBlock';
 import ImagesBlock, { Data as ImagesData, defaultData as imagesDefaultData } from './components/ImagesBlock';
 import FilesCard, { Data as FilesData, defaultData as filesDefaultData } from './components/FilesBlock';
@@ -21,7 +21,7 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 
 export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	name?: NameValue;
-	settings?: SettingsData;
+	settings?: Settings;
 	trigger?: Trigger;
 	images?: ImagesData;
 	files?: FilesData,
@@ -31,7 +31,7 @@ export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	databaseRecord?: DatabaseRecordValue;
 	title: ReactNode;
 	onNameChange: (value: NameValue) => void;
-	onSettingsChange: (data: SettingsData) => void;
+	onSettingsChange: (data: Settings) => void;
 	onTriggerChange: (data: Trigger | undefined) => void;
 	onImagesChange: (data: ImagesData | undefined) => void;
 	onFilesChange: (data: FilesData | undefined) => void;
@@ -144,7 +144,7 @@ function CommandFormOffcanvas({
 					onChange={onNameChange}
 				/>
 				<SettingsBlock
-					data={settings}
+					settings={settings}
 					className='mb-3'
 					onChange={onSettingsChange}
 				/>
