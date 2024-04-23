@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Value, defaultValue } from '../components/MessageBlock';
+import { Message, defaultMessage } from '../components/MessageBlock';
 
-function useMessageState(initialValue: Value = defaultValue): [Value, Dispatch<SetStateAction<Value>>] {
-	return useState<Value>(initialValue);
+function useMessageState(initialMessage: Message = defaultMessage): [Message, Dispatch<SetStateAction<Message>>] {
+	return useState<Message>(initialMessage);
 }
 
 export default useMessageState;

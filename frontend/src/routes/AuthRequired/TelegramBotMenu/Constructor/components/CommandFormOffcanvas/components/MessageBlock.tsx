@@ -4,22 +4,22 @@ import TelegramQuillEditor from 'components/TelegramQuillEditor';
 
 import Block, { BlockProps } from '../../Block';
 
-export type Value = string;
+export type Message = string;
 
 export interface MessageBlockProps extends Omit<BlockProps, 'title' | 'onChange' | 'children'> {
-	value?: Value;
-	onChange: (value: Value) => void;
+	message?: Message;
+	onChange: (message: Message) => void;
 }
 
-export const defaultValue: Value = '';
+export const defaultMessage: Message = '';
 
-function MessageBlock({ value = defaultValue, onChange, ...props }: MessageBlockProps): ReactElement<MessageBlockProps> {
+function MessageBlock({ message = defaultMessage, onChange, ...props }: MessageBlockProps): ReactElement<MessageBlockProps> {
 	return (
 		<Block {...props} title={gettext('Сообщение')}>
 			<Block.Body>
 				<TelegramQuillEditor
 					height={220}
-					value={value}
+					value={message}
 					placeholder={gettext('Введите текст')}
 					onChange={onChange}
 				/>

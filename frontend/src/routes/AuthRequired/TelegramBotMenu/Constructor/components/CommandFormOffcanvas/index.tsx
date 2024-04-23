@@ -11,7 +11,7 @@ import SettingsBlock, { Settings } from './components/SettingsBlock';
 import TriggerBlock, { Trigger, defaultTrigger } from './components/TriggerBlock';
 import ImagesBlock, { Data as ImagesData, defaultData as imagesDefaultData } from './components/ImagesBlock';
 import FilesCard, { Data as FilesData, defaultData as filesDefaultData } from './components/FilesBlock';
-import MessageBlock, { Value as MessageValue } from './components/MessageBlock';
+import MessageBlock, { Message } from './components/MessageBlock';
 import KeyboardBlock, { Data as KeyboardData, defaultData as keyboardDefaultData } from './components/KeyboardBlock';
 import APIRequestBlock, { Data as APIRequestData, defaultData as apiRequestDefaultData } from '../APIRequestBlock';
 import DatabaseRecordBlock, { Value as DatabaseRecordValue, defaultValue as databaseRecordDefaultValue } from './components/DatabaseRecordBlock';
@@ -25,7 +25,7 @@ export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	trigger?: Trigger;
 	images?: ImagesData;
 	files?: FilesData,
-	message?: MessageValue;
+	message?: Message;
 	keyboard?: KeyboardData;
 	apiRequest?: APIRequestData;
 	databaseRecord?: DatabaseRecordValue;
@@ -35,7 +35,7 @@ export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	onTriggerChange: (data: Trigger | undefined) => void;
 	onImagesChange: (data: ImagesData | undefined) => void;
 	onFilesChange: (data: FilesData | undefined) => void;
-	onMessageChange: (value: MessageValue) => void;
+	onMessageChange: (message: Message) => void;
 	onKeyboardChange: (data: KeyboardData | undefined) => void;
 	onAPIRequestChange: (data: APIRequestData | undefined) => void;
 	onDatabaseRecordChange: (value: DatabaseRecordValue | undefined) => void;
@@ -178,7 +178,7 @@ function CommandFormOffcanvas({
 					</div>
 				</Collapse>
 				<MessageBlock
-					value={message}
+					message={message}
 					className='mb-3'
 					onChange={onMessageChange}
 				/>
