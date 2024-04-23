@@ -71,7 +71,7 @@ function DeleteButton({ record, className, style, onClick, ...props }: DeleteBut
 				size='sm'
 				variant='danger'
 				className={classNames('d-flex justify-content-center align-items-center bi bi-trash p-0', className)}
-				style={{ width: '28px', height: '28px', fontSize: '19px', ...style }}
+				style={{ width: '25px', height: '25px', fontSize: '18px', ...style }}
 				onClick={handleClick}
 			/>
 		</>

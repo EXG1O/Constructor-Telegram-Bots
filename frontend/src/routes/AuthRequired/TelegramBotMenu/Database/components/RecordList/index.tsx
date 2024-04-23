@@ -1,4 +1,5 @@
 import React, { ReactElement, memo } from 'react';
+import classNames from 'classnames';
 
 import ListGroup, { ListGroupProps } from 'react-bootstrap/ListGroup';
 
@@ -13,13 +14,13 @@ export interface RecordListProps extends Omit<ListGroupProps, 'children'> {
 	loading: boolean;
 }
 
-function RecordList({ loading, ...props }: RecordListProps): ReactElement<RecordListProps> {
+function RecordList({ loading, className, ...props }: RecordListProps): ReactElement<RecordListProps> {
 	const { records, filter } = useRecords();
 
 	return (
 		!loading ? (
 			records.length ? (
-				<ListGroup {...props}>
+				<ListGroup {...props} className={classNames(className, 'rounded-1')}>
 					{records.map(record => (
 						<RecordDisplay key={record.id} record={record} />
 					))}

@@ -92,6 +92,7 @@ function RecordDisplay({ record, className, ...props }: RecordDisplayProps): Rea
 		!loading ? (
 			<ListGroupItem {...props} className={classNames(className, 'd-flex gap-3')}>
 				<MonacoEditor
+					size='sm'
 					value={value}
 					language='json'
 					options={options}

@@ -15,14 +15,14 @@ function ConfirmButtonGroup({ onConfirm, onCancel, ...props }: ConfirmButtonGrou
 				as='i'
 				variant='success'
 				className='d-flex bi bi-check p-0'
-				style={{ fontSize: '26px' }}
+				style={{ fontSize: '25px' }}
 				onClick={onConfirm}
 			/>
 			<Button
 				as='i'
 				variant='danger'
 				className='d-flex bi bi-x p-0'
-				style={{ fontSize: '26px', WebkitTextStroke: '0.4px' }}
+				style={{ fontSize: '25px', WebkitTextStroke: '0.4px' }}
 				onClick={onCancel}
 			/>
 		</ButtonGroup>
