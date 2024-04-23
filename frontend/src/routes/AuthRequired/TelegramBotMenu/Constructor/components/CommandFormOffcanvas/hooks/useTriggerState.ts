@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { Data as BaseData } from '../components/TriggerBlock';
+import { Trigger as BaseTrigger } from '../components/TriggerBlock';
 
-type Data = BaseData | undefined;
+type Trigger = BaseTrigger | undefined;
 
-function useTriggerState(initialData?: Data): [Data, Dispatch<SetStateAction<Data>>] {
-	return useState<Data>(initialData);
+function useTriggerState(initialTrigger?: Trigger): [Trigger, Dispatch<SetStateAction<Trigger>>] {
+	return useState<Trigger>(initialTrigger);
 }
 
 export default useTriggerState;

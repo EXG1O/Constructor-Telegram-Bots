@@ -8,7 +8,7 @@ import TelegramBotStorage from 'components/TelegramBotStorage';
 
 import NameBlock, { Value as NameValue } from '../NameBlock';
 import SettingsBlock, { Data as SettingsData } from './components/SettingsBlock';
-import TriggerBlock, { Data as TriggerData, defaultData as triggerDefaultData } from './components/TriggerBlock';
+import TriggerBlock, { Trigger, defaultTrigger } from './components/TriggerBlock';
 import ImagesBlock, { Data as ImagesData, defaultData as imagesDefaultData } from './components/ImagesBlock';
 import FilesCard, { Data as FilesData, defaultData as filesDefaultData } from './components/FilesBlock';
 import MessageBlock, { Value as MessageValue } from './components/MessageBlock';
@@ -22,7 +22,7 @@ import { LoaderData as TelegramBotMenuRootLoaderData } from 'routes/AuthRequired
 export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	name?: NameValue;
 	settings?: SettingsData;
-	trigger?: TriggerData;
+	trigger?: Trigger;
 	images?: ImagesData;
 	files?: FilesData,
 	message?: MessageValue;
@@ -32,7 +32,7 @@ export interface CommandFormOffcanvasProps extends OffcanvasProps {
 	title: ReactNode;
 	onNameChange: (value: NameValue) => void;
 	onSettingsChange: (data: SettingsData) => void;
-	onTriggerChange: (data: TriggerData | undefined) => void;
+	onTriggerChange: (data: Trigger | undefined) => void;
 	onImagesChange: (data: ImagesData | undefined) => void;
 	onFilesChange: (data: FilesData | undefined) => void;
 	onMessageChange: (value: MessageValue) => void;
@@ -71,7 +71,7 @@ function CommandFormOffcanvas({
 	const addonButtons = useMemo<AddonButtonProps<AddonNames>[]>(() => [
 		{
 			name: 'trigger',
-			onShow: () => onTriggerChange(triggerDefaultData),
+			onShow: () => onTriggerChange(defaultTrigger),
 			onHide: () => onTriggerChange(undefined),
 			children: gettext('Триггер'),
 		},
@@ -151,7 +151,7 @@ function CommandFormOffcanvas({
 				<Collapse in={showAddons.trigger} unmountOnExit>
 					<div>
 						<TriggerBlock
-							data={trigger}
+							trigger={trigger}
 							className='mb-3'
 							onChange={onTriggerChange}
 						/>
