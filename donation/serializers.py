@@ -18,10 +18,12 @@ class DonationSerializer(serializers.ModelSerializer[Donation]):
 
 		return representation
 
+
 class SectionSerializer(serializers.ModelSerializer[Section]):
 	class Meta:
 		model = Section
 		fields = ('id', 'title', 'text')
+
 
 class ButtonSerializer(serializers.ModelSerializer[Button]):
 	class Meta:

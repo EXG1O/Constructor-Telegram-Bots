@@ -45,9 +45,13 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	)
 
 	def get_queryset(self, request: HttpRequest) -> QuerySet:
-		return super().get_queryset(request).annotate(
-			commands_count=Count('commands'),
-			users_count=Count('users'),
+		return (
+			super()
+			.get_queryset(request)
+			.annotate(
+				commands_count=Count('commands'),
+				users_count=Count('users'),
+			)
 		)
 
 	@admin.display(description='@username', ordering='username')
@@ -79,6 +83,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 
 	def has_change_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin[User]):

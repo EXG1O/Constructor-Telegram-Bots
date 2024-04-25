@@ -9,6 +9,7 @@ class CustomTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
 
+
 class DonationsAPIViewTests(CustomTestCase):
 	url: str = reverse('api:donation:index')
 
@@ -16,12 +17,14 @@ class DonationsAPIViewTests(CustomTestCase):
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
+
 class SectionsAPIViewTests(CustomTestCase):
 	url: str = reverse('api:donation:sections')
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
+
 
 class ButtonsAPIViewTests(CustomTestCase):
 	url: str = reverse('api:donation:buttons')

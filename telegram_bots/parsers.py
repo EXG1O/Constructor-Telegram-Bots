@@ -10,7 +10,7 @@ from typing import Any
 
 
 class CommandMultiPartParser(MultiPartParser):
-	def parse(self, *args: Any, **kwargs: Any) -> dict[str, Any]: # type: ignore [override]
+	def parse(self, *args: Any, **kwargs: Any) -> dict[str, Any]:  # type: ignore [override]
 		parsed: DataAndFiles = super().parse(*args, **kwargs)
 
 		try:

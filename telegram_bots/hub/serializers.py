@@ -32,15 +32,18 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 		return instance
 
+
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 	class Meta:
 		model = CommandSettings
 		fields = ('is_reply_to_user_message', 'is_delete_user_message', 'is_send_as_new_message')
 
+
 class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
 	class Meta:
 		model = CommandTrigger
 		fields = ('text', 'description')
+
 
 class CommandImageSerializer(serializers.ModelSerializer[CommandImage]):
 	name = serializers.CharField(source='image.name')
@@ -56,6 +59,7 @@ class CommandImageSerializer(serializers.ModelSerializer[CommandImage]):
 
 		return representation
 
+
 class CommandFileSerializer(serializers.ModelSerializer[CommandFile]):
 	name = serializers.CharField(source='file.name')
 	url = serializers.CharField(source='file.url')
@@ -70,10 +74,12 @@ class CommandFileSerializer(serializers.ModelSerializer[CommandFile]):
 
 		return representation
 
+
 class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
 	class Meta:
 		model = CommandMessage
 		fields = ('text',)
+
 
 class CommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
 	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id')
@@ -82,6 +88,7 @@ class CommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboar
 		model = CommandKeyboardButton
 		fields = ('id', 'row', 'text', 'url', 'telegram_bot_command_id')
 
+
 class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
 	buttons = CommandKeyboardButtonSerializer(many=True)
 
@@ -89,25 +96,28 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
 		model = CommandKeyboard
 		fields = ('type', 'buttons')
 
+
 class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]):
 	class Meta:
 		model = CommandAPIRequest
 		fields = ('url', 'method', 'headers', 'body')
+
 
 class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabaseRecord]):
 	class Meta:
 		model = CommandDatabaseRecord
 		fields = ('data',)
 
+
 class CommandSerializer(serializers.ModelSerializer[Command]):
 	settings = CommandSettingsSerializer()
-	trigger = CommandTriggerSerializer(default=None) # type: ignore [arg-type]
+	trigger = CommandTriggerSerializer(default=None)  # type: ignore [arg-type]
 	images = CommandImageSerializer(many=True)
 	files = CommandFileSerializer(many=True)
 	message = CommandMessageSerializer()
-	keyboard = CommandKeyboardSerializer(default=None) # type: ignore [arg-type]
-	api_request = CommandAPIRequestSerializer(default=None) # type: ignore [arg-type]
-	database_record = CommandDatabaseRecordSerializer(default=None) # type: ignore [arg-type]
+	keyboard = CommandKeyboardSerializer(default=None)  # type: ignore [arg-type]
+	api_request = CommandAPIRequestSerializer(default=None)  # type: ignore [arg-type]
+	database_record = CommandDatabaseRecordSerializer(default=None)  # type: ignore [arg-type]
 
 	class Meta:
 		model = Command
@@ -124,10 +134,12 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 			'database_record',
 		)
 
+
 class VariableSerializer(serializers.ModelSerializer[Variable]):
 	class Meta:
 		model = Variable
 		fields = ('id', 'name', 'value')
+
 
 class UserSerializer(serializers.ModelSerializer[User]):
 	class Meta:

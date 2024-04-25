@@ -10,6 +10,7 @@ celery_app = Celery('constructor_telegram_bots')
 celery_app.config_from_object('django.conf:settings', namespace='CELERY')
 celery_app.autodiscover_tasks(['user', 'telegram_bot'])
 
+
 @signals.celeryd_after_setup.connect
 def celery_after_setup(*args: Any, **kwargs: Any) -> None:
 	from telegram_bots.tasks import start_telegram_bots

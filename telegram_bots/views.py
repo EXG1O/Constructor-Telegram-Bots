@@ -1,4 +1,3 @@
-from django.utils.translation import gettext as _
 from django.db.models import QuerySet
 from django.conf import settings
 
@@ -68,15 +67,18 @@ class StatsAPIView(APIView):
 	permission_classes = []
 
 	def get(self, request: Request) -> Response:
-		return Response({
-			'telegram_bots': {
-				'total': TelegramBot.objects.count(),
-				'enabled': TelegramBot.objects.filter(is_enabled=True).count(),
-			},
-			'users': {
-				'total': User.objects.count(),
-			},
-		})
+		return Response(
+			{
+				'telegram_bots': {
+					'total': TelegramBot.objects.count(),
+					'enabled': TelegramBot.objects.filter(is_enabled=True).count(),
+				},
+				'users': {
+					'total': User.objects.count(),
+				},
+			}
+		)
+
 
 class TelegramBotsAPIView(ListCreateAPIView[TelegramBot]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -84,7 +86,8 @@ class TelegramBotsAPIView(ListCreateAPIView[TelegramBot]):
 	serializer_class = TelegramBotSerializer
 
 	def get_queryset(self) -> QuerySet[TelegramBot]:
-		return self.request.user.telegram_bots.all() # type: ignore [union-attr]
+		return self.request.user.telegram_bots.all()  # type: ignore [union-attr]
+
 
 class TelegramBotAPIView(RetrieveUpdateDestroyAPIView[TelegramBot]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -110,10 +113,12 @@ class TelegramBotAPIView(RetrieveUpdateDestroyAPIView[TelegramBot]):
 
 		return Response()
 
+
 class ConnectionsAPIView(CreateAPIView[Connection]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 	serializer_class = ConnectionSerializer
+
 
 class ConnectionAPIView(DestroyAPIView[Connection]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -121,6 +126,7 @@ class ConnectionAPIView(DestroyAPIView[Connection]):
 
 	def get_object(self) -> Connection:
 		return self.kwargs['connection']
+
 
 class CommandsAPIView(ListCreateAPIView[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -136,6 +142,7 @@ class CommandsAPIView(ListCreateAPIView[Command]):
 		else:
 			return CommandSerializer
 
+
 class CommandAPIView(RetrieveUpdateDestroyAPIView[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandIsFound]
@@ -150,6 +157,7 @@ class CommandAPIView(RetrieveUpdateDestroyAPIView[Command]):
 		else:
 			return CommandSerializer
 
+
 class ConditionsAPIView(ListCreateAPIView[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -157,6 +165,7 @@ class ConditionsAPIView(ListCreateAPIView[Condition]):
 
 	def get_queryset(self) -> QuerySet[Condition]:
 		return self.kwargs['telegram_bot'].conditions.all()
+
 
 class ConditionAPIView(RetrieveUpdateDestroyAPIView[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -166,6 +175,7 @@ class ConditionAPIView(RetrieveUpdateDestroyAPIView[Condition]):
 	def get_object(self) -> Condition:
 		return self.kwargs['condition']
 
+
 class BackgroundTasksAPIView(ListCreateAPIView[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -173,6 +183,7 @@ class BackgroundTasksAPIView(ListCreateAPIView[BackgroundTask]):
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
 		return self.kwargs['telegram_bot'].background_tasks.all()
+
 
 class BackgroundTaskAPIView(RetrieveUpdateDestroyAPIView[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -182,6 +193,7 @@ class BackgroundTaskAPIView(RetrieveUpdateDestroyAPIView[BackgroundTask]):
 	def get_object(self) -> BackgroundTask:
 		return self.kwargs['background_task']
 
+
 class DiagramCommandsAPIView(ListAPIView[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -189,6 +201,7 @@ class DiagramCommandsAPIView(ListAPIView[Command]):
 
 	def get_queryset(self) -> QuerySet[Command]:
 		return self.kwargs['telegram_bot'].commands.all()
+
 
 class DiagramCommandAPIView(RetrieveUpdateAPIView[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -198,6 +211,7 @@ class DiagramCommandAPIView(RetrieveUpdateAPIView[Command]):
 	def get_object(self) -> Command:
 		return self.kwargs['command']
 
+
 class DiagramConditionsAPIView(ListAPIView[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -205,6 +219,7 @@ class DiagramConditionsAPIView(ListAPIView[Condition]):
 
 	def get_queryset(self) -> QuerySet[Condition]:
 		return self.kwargs['telegram_bot'].conditions.all()
+
 
 class DiagramConditionAPIView(RetrieveUpdateAPIView[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -214,6 +229,7 @@ class DiagramConditionAPIView(RetrieveUpdateAPIView[Condition]):
 	def get_object(self) -> Condition:
 		return self.kwargs['condition']
 
+
 class DiagramBackgroundTasksAPIView(ListAPIView[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -222,6 +238,7 @@ class DiagramBackgroundTasksAPIView(ListAPIView[BackgroundTask]):
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
 		return self.kwargs['telegram_bot'].background_tasks.all()
 
+
 class DiagramBackgroundTaskAPIView(RetrieveUpdateAPIView[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & BackgroundTaskIsIsFound]
@@ -229,6 +246,7 @@ class DiagramBackgroundTaskAPIView(RetrieveUpdateAPIView[BackgroundTask]):
 
 	def get_object(self) -> BackgroundTask:
 		return self.kwargs['background_task']
+
 
 class VariablesAPIView(ListCreateAPIView[Variable]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -242,6 +260,7 @@ class VariablesAPIView(ListCreateAPIView[Variable]):
 	def get_queryset(self) -> QuerySet[Variable]:
 		return self.kwargs['telegram_bot'].variables.all()
 
+
 class VariableAPIView(RetrieveUpdateDestroyAPIView[Variable]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & VariableIsFound]
@@ -249,6 +268,7 @@ class VariableAPIView(RetrieveUpdateDestroyAPIView[Variable]):
 
 	def get_object(self) -> Variable:
 		return self.kwargs['variable']
+
 
 class UsersAPIView(ListAPIView[User]):
 	authentication_classes = [CookiesTokenAuthentication]
@@ -263,6 +283,7 @@ class UsersAPIView(ListAPIView[User]):
 	def get_queryset(self) -> QuerySet[User]:
 		return self.kwargs['telegram_bot'].users.all()
 
+
 class UserAPIView(RetrieveUpdateDestroyAPIView[User]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound & UserIsFound]
@@ -270,6 +291,7 @@ class UserAPIView(RetrieveUpdateDestroyAPIView[User]):
 
 	def get_object(self) -> User:
 		return self.kwargs['user']
+
 
 class DatabaseRecordsAPIView(ListCreateAPIView[DatabaseRecord]):
 	authentication_classes = (CookiesTokenAuthentication,)
@@ -281,6 +303,7 @@ class DatabaseRecordsAPIView(ListCreateAPIView[DatabaseRecord]):
 
 	def get_queryset(self) -> QuerySet[DatabaseRecord]:
 		return self.kwargs['telegram_bot'].database_records.all()
+
 
 class DatabaseRecordAPIView(RetrieveUpdateDestroyAPIView[DatabaseRecord]):
 	authentication_classes = (CookiesTokenAuthentication,)

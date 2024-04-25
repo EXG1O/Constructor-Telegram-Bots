@@ -16,7 +16,9 @@ load_dotenv()
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
-SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(string.ascii_letters + string.digits, 50)}')
+SECRET_KEY: str = os.getenv(
+	'SECRET_KEY', f'django-insecure-{generate_random_string(string.ascii_letters + string.digits, 50)}'
+)
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
 
 match sys.argv:
@@ -45,13 +47,13 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
-	'update_users_first_and_last_name_schedule' : {
+	'update_users_first_and_last_name_schedule': {
 		'task': 'users.tasks.update_users_first_and_last_name',
-		'schedule': 86400, # 24 ч.
+		'schedule': 86400,  # 24 ч.
 	},
 	'check_confirm_code_generation_date_schedule': {
 		'task': 'users.tasks.check_confirm_code_generation_date',
-		'schedule': 3600, # 1 ч.
+		'schedule': 3600,  # 1 ч.
 	},
 }
 
@@ -59,23 +61,18 @@ CELERY_BEAT_SCHEDULE = {
 INSTALLED_APPS = [
 	'rest_framework',
 	'rest_framework.authtoken',
-
 	'django_filters',
 	'drf_standardized_errors',
-
 	'admin_interface',
 	'colorfield',
-
 	'modeltranslation',
 	'tinymce',
-
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-
 	'languages',
 	'users',
 	'telegram_bots',
@@ -213,7 +210,7 @@ LOGGING = {
 			'class': 'logging.StreamHandler',
 			'formatter': 'simple',
 		},
-		'django_info_file': { 
+		'django_info_file': {
 			'level': 'DEBUG',
 			'class': 'logging.handlers.RotatingFileHandler',
 			'filename': BASE_DIR / 'logs/django_info.log',
@@ -221,7 +218,7 @@ LOGGING = {
 			'backupCount': 10,
 			'formatter': 'verbose',
 		},
-		'django_error_file': { 
+		'django_error_file': {
 			'level': 'WARNING',
 			'class': 'logging.handlers.RotatingFileHandler',
 			'filename': BASE_DIR / 'logs/django_error.log',

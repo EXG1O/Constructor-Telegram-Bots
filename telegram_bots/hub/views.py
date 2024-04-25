@@ -29,6 +29,7 @@ class TelegramBotAPIView(RetrieveUpdateAPIView[TelegramBot]):
 	def get_object(self) -> TelegramBot:
 		return self.kwargs['telegram_bot']
 
+
 class CommandsAPIView(ListAPIView[Command]):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -36,6 +37,7 @@ class CommandsAPIView(ListAPIView[Command]):
 
 	def get_queryset(self) -> QuerySet[Command]:
 		return self.kwargs['telegram_bot'].commands.all()
+
 
 class CommandAPIView(RetrieveAPIView[Command]):
 	authentication_classes = [TokenAuthentication]
@@ -45,6 +47,7 @@ class CommandAPIView(RetrieveAPIView[Command]):
 	def get_object(self) -> Command:
 		return self.kwargs['telegram_bot_command']
 
+
 class VariablesAPIView(ListAPIView[Variable]):
 	authentication_classes = [TokenAuthentication]
 	permission_classes = [IsAuthenticated & TelegramBotIsFound]
@@ -52,6 +55,7 @@ class VariablesAPIView(ListAPIView[Variable]):
 
 	def get_queryset(self) -> QuerySet[Variable]:
 		return self.kwargs['telegram_bot'].variables.all()
+
 
 class UsersAPIView(CreateAPIView[User]):
 	authentication_classes = [TokenAuthentication]

@@ -36,6 +36,7 @@ class StatsAPIViewTests(TestCase):
 		response = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
+
 class CustomTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
@@ -45,6 +46,7 @@ class CustomTestCase(TestCase):
 		)
 		self.token: Token = Token.objects.create(user=self.site_user)
 		self.telegram_bot: TelegramBot = self.site_user.telegram_bots.create(api_token='Hi!')
+
 
 class TelegramBotsAPIViewTests(CustomTestCase):
 	url: str = reverse('api:telegram-bots:list')
@@ -69,15 +71,19 @@ class TelegramBotsAPIViewTests(CustomTestCase):
 
 		old_telegram_bot_count: int = self.site_user.telegram_bots.count()
 
-		response = self.client.post(self.url, {
-			'api_token': 'Bye!',
-			'is_private': False,
-		})
+		response = self.client.post(
+			self.url,
+			{
+				'api_token': 'Bye!',
+				'is_private': False,
+			},
+		)
 		self.assertEqual(response.status_code, 201)
 		self.assertEqual(
 			self.site_user.telegram_bots.count(),
 			old_telegram_bot_count + 1,
 		)
+
 
 class TelegramBotAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -150,10 +156,13 @@ class TelegramBotAPIViewTests(CustomTestCase):
 
 		new_api_token_2: str = '987654321:exg1o'
 
-		response = self.client.put(self.true_url, {
-			'api_token': new_api_token_2,
-			'is_private': True,
-		})
+		response = self.client.put(
+			self.true_url,
+			{
+				'api_token': new_api_token_2,
+				'is_private': True,
+			},
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.telegram_bot.refresh_from_db()
@@ -204,6 +213,7 @@ class TelegramBotAPIViewTests(CustomTestCase):
 		except TelegramBot.DoesNotExist:
 			pass
 
+
 class ConnectionsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -227,10 +237,7 @@ class ConnectionsAPIViewTests(CustomTestCase):
 			'api:telegram-bots:detail:connections',
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
-		self.false_url: str = reverse(
-			'api:telegram-bots:detail:connections',
-			kwargs={'telegram_bot_id': 0}
-		)
+		self.false_url: str = reverse('api:telegram-bots:detail:connections', kwargs={'telegram_bot_id': 0})
 
 	def test_post_method(self) -> None:
 		response: HttpResponse = self.client.post(self.true_url)
@@ -242,14 +249,19 @@ class ConnectionsAPIViewTests(CustomTestCase):
 		self.assertEqual(response.status_code, 403)
 
 		old_command_1_target_connection_count: int = self.command_1.target_connections.count()
-		old_command_2_keyboard_button_source_connection_count: int = self.command_2_keyboard_button.source_connections.count()
+		old_command_2_keyboard_button_source_connection_count: int = (
+			self.command_2_keyboard_button.source_connections.count()
+		)
 
-		response = self.client.post(self.true_url, {
-			'source_object_type': 'command_keyboard_button',
-			'source_object_id': self.command_2_keyboard_button.id,
-			'target_object_type': 'command',
-			'target_object_id': self.command_1.id,
-		})
+		response = self.client.post(
+			self.true_url,
+			{
+				'source_object_type': 'command_keyboard_button',
+				'source_object_id': self.command_2_keyboard_button.id,
+				'target_object_type': 'command',
+				'target_object_id': self.command_1.id,
+			},
+		)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(
@@ -260,6 +272,7 @@ class ConnectionsAPIViewTests(CustomTestCase):
 			self.command_2_keyboard_button.source_connections.count(),
 			old_command_2_keyboard_button_source_connection_count + 1,
 		)
+
 
 class ConnectionAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -297,14 +310,14 @@ class ConnectionAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'connection_id': self.connection.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:connection',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'connection_id': 0,
-			}
+			},
 		)
 
 	def test_delete_method(self) -> None:
@@ -325,6 +338,7 @@ class ConnectionAPIViewTests(CustomTestCase):
 			raise self.failureException('Connection has not been deleted from database!')
 		except Connection.DoesNotExist:
 			pass
+
 
 class CommandsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -363,46 +377,62 @@ class CommandsAPIViewTests(CustomTestCase):
 		response = self.client.post(self.true_url)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(self.true_url, {
-			'data': json.dumps({
-				'name': 'Test name',
-				'message': {
-					'text': 'The test message :)',
-				},
-			}),
-		})
+		response = self.client.post(
+			self.true_url,
+			{
+				'data': json.dumps(
+					{
+						'name': 'Test name',
+						'message': {
+							'text': 'The test message :)',
+						},
+					}
+				),
+			},
+		)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(self.true_url, {
-			'data': json.dumps({
-				'name': 'Test name',
-				'settings': {
-					'is_reply_to_user_message': False,
-					'is_delete_user_message': False,
-					'is_send_as_new_message': False,
-				},
-			}),
-		})
+		response = self.client.post(
+			self.true_url,
+			{
+				'data': json.dumps(
+					{
+						'name': 'Test name',
+						'settings': {
+							'is_reply_to_user_message': False,
+							'is_delete_user_message': False,
+							'is_send_as_new_message': False,
+						},
+					}
+				),
+			},
+		)
 		self.assertEqual(response.status_code, 400)
 
 		old_command_count: int = self.telegram_bot.commands.count()
 
-		response = self.client.post(self.true_url, {
-			'data': json.dumps({
-				'name': 'Test name',
-				'settings': {
-					'is_reply_to_user_message': False,
-					'is_delete_user_message': False,
-					'is_send_as_new_message': False,
-				},
-				'message': {
-					'text': 'The test message :)',
-				},
-			}),
-		})
+		response = self.client.post(
+			self.true_url,
+			{
+				'data': json.dumps(
+					{
+						'name': 'Test name',
+						'settings': {
+							'is_reply_to_user_message': False,
+							'is_delete_user_message': False,
+							'is_send_as_new_message': False,
+						},
+						'message': {
+							'text': 'The test message :)',
+						},
+					}
+				),
+			},
+		)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(self.telegram_bot.commands.count(), old_command_count + 1)
+
 
 class CommandAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -424,14 +454,14 @@ class CommandAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'command_id': self.command.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:command',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'command_id': 0,
-			}
+			},
 		)
 
 	def test_get_method(self) -> None:
@@ -465,19 +495,24 @@ class CommandAPIViewTests(CustomTestCase):
 		response = self.client.put(self.true_url, {'data': json.dumps({'name': new_name})})
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.put(self.true_url, {
-			'data': json.dumps({
-				'name': new_name,
-				'settings': {
-					'is_reply_to_user_message': False,
-					'is_delete_user_message': False,
-					'is_send_as_new_message': False,
-				},
-				'message': {
-					'text': 'The test message :)',
-				},
-			}),
-		})
+		response = self.client.put(
+			self.true_url,
+			{
+				'data': json.dumps(
+					{
+						'name': new_name,
+						'settings': {
+							'is_reply_to_user_message': False,
+							'is_delete_user_message': False,
+							'is_send_as_new_message': False,
+						},
+						'message': {
+							'text': 'The test message :)',
+						},
+					}
+				),
+			},
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.command.refresh_from_db()
@@ -523,6 +558,7 @@ class CommandAPIViewTests(CustomTestCase):
 		except Command.DoesNotExist:
 			pass
 
+
 class ConditionsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -560,26 +596,37 @@ class ConditionsAPIViewTests(CustomTestCase):
 		response = self.client.post(self.true_url)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(self.true_url, {
-			'name': 'Test name',
-			'parts': [],
-		}, format='json')
+		response = self.client.post(
+			self.true_url,
+			{
+				'name': 'Test name',
+				'parts': [],
+			},
+			format='json',
+		)
 		self.assertEqual(response.status_code, 400)
 
 		old_condition_count: int = self.telegram_bot.conditions.count()
 
-		response = self.client.post(self.true_url, {
-			'name': 'Test name',
-			'parts': [{
-				'type': '+',
-				'first_value': 'first_value',
-				'operator': '==',
-				'second_value': 'second_value',
-			}],
-		}, format='json')
+		response = self.client.post(
+			self.true_url,
+			{
+				'name': 'Test name',
+				'parts': [
+					{
+						'type': '+',
+						'first_value': 'first_value',
+						'operator': '==',
+						'second_value': 'second_value',
+					}
+				],
+			},
+			format='json',
+		)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(self.telegram_bot.conditions.count(), old_condition_count + 1)
+
 
 class ConditionAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -605,14 +652,14 @@ class ConditionAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'condition_id': self.condition.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:condition',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'condition_id': 0,
-			}
+			},
 		)
 
 	def test_get_method(self) -> None:
@@ -643,21 +690,31 @@ class ConditionAPIViewTests(CustomTestCase):
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(self.true_url, {
-			'name': new_name,
-			'parts': [],
-		}, format='json')
+		response = self.client.put(
+			self.true_url,
+			{
+				'name': new_name,
+				'parts': [],
+			},
+			format='json',
+		)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.put(self.true_url, {
-			'name': new_name,
-			'parts': [{
-				'type': '+',
-				'first_value': 'first_value',
-				'operator': '==',
-				'second_value': 'second_value',
-			}],
-		}, format='json')
+		response = self.client.put(
+			self.true_url,
+			{
+				'name': new_name,
+				'parts': [
+					{
+						'type': '+',
+						'first_value': 'first_value',
+						'operator': '==',
+						'second_value': 'second_value',
+					}
+				],
+			},
+			format='json',
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.condition.refresh_from_db()
@@ -703,6 +760,7 @@ class ConditionAPIViewTests(CustomTestCase):
 		except Condition.DoesNotExist:
 			pass
 
+
 class BackgroundTasksAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -742,13 +800,17 @@ class BackgroundTasksAPIViewTests(CustomTestCase):
 
 		old_background_task_count: int = self.telegram_bot.background_tasks.count()
 
-		response = self.client.post(self.true_url, {
-			'name': 'Test name',
-			'interval': 1,
-		})
+		response = self.client.post(
+			self.true_url,
+			{
+				'name': 'Test name',
+				'interval': 1,
+			},
+		)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(self.telegram_bot.background_tasks.count(), old_background_task_count + 1)
+
 
 class BackgroundTaskAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -771,14 +833,14 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'background_task_id': self.background_task.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:background-task',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'background_task_id': 0,
-			}
+			},
 		)
 
 	def test_get_method(self) -> None:
@@ -812,10 +874,13 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 		response = self.client.put(self.true_url, {'name': new_name})
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.put(self.true_url, {
-			'name': new_name,
-			'interval': 1,
-		})
+		response = self.client.put(
+			self.true_url,
+			{
+				'name': new_name,
+				'interval': 1,
+			},
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.background_task.refresh_from_db()
@@ -861,6 +926,7 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 		except BackgroundTask.DoesNotExist:
 			pass
 
+
 class DiagramCommandsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -886,6 +952,7 @@ class DiagramCommandsAPIViewTests(CustomTestCase):
 		response = self.client.get(self.true_url)
 		self.assertEqual(response.status_code, 200)
 
+
 class DiagramCommandAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -904,14 +971,14 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'command_id': self.command.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:diagram:command',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'command_id': 0,
-			}
+			},
 		)
 
 	def test_put_method(self) -> None:
@@ -955,6 +1022,7 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 
 		self.command.refresh_from_db()
 		self.assertEqual(self.command.x, new_x)
+
 
 class DiagramConditionsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -981,6 +1049,7 @@ class DiagramConditionsAPIViewTests(CustomTestCase):
 		response = self.client.get(self.true_url)
 		self.assertEqual(response.status_code, 200)
 
+
 class DiagramConditionAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -1005,14 +1074,14 @@ class DiagramConditionAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'condition_id': self.condition.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:diagram:condition',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'condition_id': 0,
-			}
+			},
 		)
 
 	def test_put_method(self) -> None:
@@ -1056,6 +1125,7 @@ class DiagramConditionAPIViewTests(CustomTestCase):
 
 		self.condition.refresh_from_db()
 		self.assertEqual(self.condition.x, new_x)
+
 
 class DiagramBackgroundTasksAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -1082,6 +1152,7 @@ class DiagramBackgroundTasksAPIViewTests(CustomTestCase):
 		response = self.client.get(self.true_url)
 		self.assertEqual(response.status_code, 200)
 
+
 class DiagramBackgroundTaskAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -1103,14 +1174,14 @@ class DiagramBackgroundTaskAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'background_task_id': self.background_task.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:diagram:background-task',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'background_task_id': 0,
-			}
+			},
 		)
 
 	def test_put_method(self) -> None:
@@ -1155,6 +1226,7 @@ class DiagramBackgroundTaskAPIViewTests(CustomTestCase):
 		self.background_task.refresh_from_db()
 		self.assertEqual(self.background_task.x, new_x)
 
+
 class VariablesAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -1163,10 +1235,7 @@ class VariablesAPIViewTests(CustomTestCase):
 			'api:telegram-bots:detail:variables',
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
-		self.false_url: str = reverse(
-			'api:telegram-bots:detail:variables',
-			kwargs={'telegram_bot_id': 0}
-		)
+		self.false_url: str = reverse('api:telegram-bots:detail:variables', kwargs={'telegram_bot_id': 0})
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.true_url)
@@ -1194,14 +1263,18 @@ class VariablesAPIViewTests(CustomTestCase):
 
 		old_variable_count: int = self.telegram_bot.variables.count()
 
-		response = self.client.post(self.true_url, {
-			'name': 'Test name',
-			'value': 'The test value :)',
-			'description': 'The test variable',
-		})
+		response = self.client.post(
+			self.true_url,
+			{
+				'name': 'Test name',
+				'value': 'The test value :)',
+				'description': 'The test variable',
+			},
+		)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(self.telegram_bot.variables.count(), old_variable_count + 1)
+
 
 class VariableAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -1225,14 +1298,14 @@ class VariableAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'variable_id': self.variable.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:variable',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'variable_id': 0,
-			}
+			},
 		)
 
 	def test_get_method(self) -> None:
@@ -1263,11 +1336,14 @@ class VariableAPIViewTests(CustomTestCase):
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(self.true_url, {
-			'name': new_name,
-			'value': 'The test value :)',
-			'description': 'The test variable',
-		})
+		response = self.client.put(
+			self.true_url,
+			{
+				'name': new_name,
+				'value': 'The test value :)',
+				'description': 'The test variable',
+			},
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.variable.refresh_from_db()
@@ -1313,6 +1389,7 @@ class VariableAPIViewTests(CustomTestCase):
 		except Variable.DoesNotExist:
 			pass
 
+
 class UsersAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -1337,6 +1414,7 @@ class UsersAPIViewTests(CustomTestCase):
 
 		response = self.client.get(self.true_url)
 		self.assertEqual(response.status_code, 200)
+
 
 class UserAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
@@ -1392,10 +1470,13 @@ class UserAPIViewTests(CustomTestCase):
 		response = self.client.put(self.true_url)
 		self.assertEqual(response.status_code, 200)
 
-		response = self.client.put(self.true_url, {
-			'is_allowed': False,
-			'is_blocked': True,
-		})
+		response = self.client.put(
+			self.true_url,
+			{
+				'is_allowed': False,
+				'is_blocked': True,
+			},
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.user.refresh_from_db()
@@ -1439,6 +1520,7 @@ class UserAPIViewTests(CustomTestCase):
 		except User.DoesNotExist:
 			pass
 
+
 class DatabaseRecordsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -1480,6 +1562,7 @@ class DatabaseRecordsAPIViewTests(CustomTestCase):
 
 		self.assertEqual(self.telegram_bot.database_records.count(), old_database_record_count + 1)
 
+
 class DatabaseRecordAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
@@ -1498,14 +1581,14 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 			kwargs={
 				'telegram_bot_id': 0,
 				'database_record_id': self.database_record.id,
-			}
+			},
 		)
 		self.false_url_2: str = reverse(
 			'api:telegram-bots:detail:database-record',
 			kwargs={
 				'telegram_bot_id': self.telegram_bot.id,
 				'database_record_id': 0,
-			}
+			},
 		)
 
 	def test_get_method(self) -> None:

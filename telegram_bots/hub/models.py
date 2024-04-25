@@ -42,6 +42,7 @@ class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
 
 		return None
 
+
 class TelegramBotsHub(models.Model):
 	pid = models.PositiveIntegerField('PID')
 	port = models.PositiveSmallIntegerField(_('Порт'))

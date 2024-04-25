@@ -18,6 +18,7 @@ class StatsAPIViewTests(TestCase):
 		response = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
+
 class CustomTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
@@ -26,6 +27,7 @@ class CustomTestCase(TestCase):
 			first_name='exg1o',
 		)
 		self.token: Token = Token.objects.create(user=self.user)
+
 
 class UserAPIViewTests(CustomTestCase):
 	url: str = reverse('api:users:detail:index')
@@ -54,6 +56,7 @@ class UserAPIViewTests(CustomTestCase):
 		except User.DoesNotExist:
 			pass
 
+
 class UserLoginAPIViewTests(CustomTestCase):
 	url: str = reverse('api:users:detail:login')
 
@@ -67,27 +70,37 @@ class UserLoginAPIViewTests(CustomTestCase):
 		response: HttpResponse = self.client.post(self.url)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(self.url, {
-			'user_id': 0,
-			'confirm_code': self.user.confirm_code,
-		})
+		response = self.client.post(
+			self.url,
+			{
+				'user_id': 0,
+				'confirm_code': self.user.confirm_code,
+			},
+		)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.url, {
-			'user_id': self.user.id,
-			'confirm_code': 'Yes, I love Python <3',
-		})
+		response = self.client.post(
+			self.url,
+			{
+				'user_id': self.user.id,
+				'confirm_code': 'Yes, I love Python <3',
+			},
+		)
 		self.assertEqual(response.status_code, 403)
 
-		response = self.client.post(self.url, {
-			'user_id': self.user.id,
-			'confirm_code': self.user.confirm_code,
-		})
+		response = self.client.post(
+			self.url,
+			{
+				'user_id': self.user.id,
+				'confirm_code': self.user.confirm_code,
+			},
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.user.refresh_from_db()
 
 		self.assertTrue(self.user.last_login)
+
 
 class UserLogoutAPIViewTests(CustomTestCase):
 	url: str = reverse('api:users:detail:logout')

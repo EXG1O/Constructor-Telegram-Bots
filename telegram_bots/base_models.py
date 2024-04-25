@@ -7,7 +7,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 
 class AbstractBlock(models.Model):
 	name = models.CharField(_('Название'), max_length=128)
-	x =	models.FloatField(_('Координата X'), default=0)
+	x = models.FloatField(_('Координата X'), default=0)
 	y = models.FloatField(_('Координата Y'), default=0)
 	source_connections = GenericRelation('Connection', 'source_object_id', 'source_content_type')
 	target_connections = GenericRelation('Connection', 'target_object_id', 'target_content_type')
@@ -17,6 +17,7 @@ class AbstractBlock(models.Model):
 
 	def __str__(self) -> str:
 		return self.name
+
 
 class AbstractAPIRequest(models.Model):
 	METHOD_CHOICES = (
@@ -37,6 +38,7 @@ class AbstractAPIRequest(models.Model):
 
 	def __str__(self) -> str:
 		return self.url
+
 
 class AbstractDatabaseRecord(models.Model):
 	data = models.JSONField(_('Данные'))

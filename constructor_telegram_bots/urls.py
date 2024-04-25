@@ -15,18 +15,24 @@ django_stubs_ext.monkeypatch(extra_classes=(GenericAPIView,))
 urlpatterns = [
 	path('admin/', admin.site.urls),
 	path('tinymce/', include('tinymce.urls')),
-
 	path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-
-	path('api/', include(([
-		path('languages/', include('languages.urls')),
-		path('users/', include('users.urls')),
-		path('telegram-bots/', include('telegram_bots.urls')),
-		path('updates/', include('updates.urls')),
-		path('donations/', include('donation.urls')),
-		path('instruction/', include('instruction.urls')),
-		path('privacy-policy/', include('privacy_policy.urls')),
-	], 'api'))),
+	path(
+		'api/',
+		include(
+			(
+				[
+					path('languages/', include('languages.urls')),
+					path('users/', include('users.urls')),
+					path('telegram-bots/', include('telegram_bots.urls')),
+					path('updates/', include('updates.urls')),
+					path('donations/', include('donation.urls')),
+					path('instruction/', include('instruction.urls')),
+					path('privacy-policy/', include('privacy_policy.urls')),
+				],
+				'api',
+			)
+		),
+	),
 ]
 
 if settings.DEBUG:

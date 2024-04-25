@@ -24,8 +24,9 @@ class UserManager(BaseUserManager['User']):
 	def create_superuser(self, **fields: Any) -> 'User':
 		return self.create(is_staff=True, is_superuser=True, **fields)
 
+
 class User(AbstractBaseUser, PermissionsMixin):
-	password = None # type: ignore [assignment]
+	password = None  # type: ignore [assignment]
 
 	telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
 	first_name = models.CharField(_('Имя'), max_length=64)
@@ -111,8 +112,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 			user: User = User.objects.get(id=self.id)
 
 			if (
-				self.confirm_code and not user.confirm_code or
-				self.confirm_code and user.confirm_code and self.confirm_code != user.confirm_code
+				self.confirm_code
+				and not user.confirm_code
+				or self.confirm_code
+				and user.confirm_code
+				and self.confirm_code != user.confirm_code
 			):
 				self.confirm_code_generation_date = timezone.now()
 			elif not self.confirm_code and user.confirm_code:
