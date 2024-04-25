@@ -17,13 +17,11 @@ class DonationsAPIView(ListAPIView[Donation]):
 	serializer_class = DonationSerializer
 	pagination_class = LimitOffsetPagination
 
-
 class SectionsAPIView(ListAPIView[Section]):
 	authentication_classes = []
 	permission_classes = []
 	queryset = Section.objects.all()
 	serializer_class = SectionSerializer
-
 
 class ButtonsAPIView(ListAPIView[Button]):
 	authentication_classes = []

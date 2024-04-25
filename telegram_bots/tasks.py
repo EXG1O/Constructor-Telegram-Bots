@@ -15,7 +15,6 @@ def start_telegram_bot(telegram_bot_id: int) -> None:
 	telegram_bots_hub = TelegramBotsHub.objects.get_free()
 	telegram_bots_hub.start_telegram_bot(telegram_bot)
 
-
 @shared_task
 def restart_telegram_bot(telegram_bot_id: int) -> None:
 	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
@@ -34,7 +33,6 @@ def restart_telegram_bot(telegram_bot_id: int) -> None:
 		telegram_bot.is_loading = False
 		telegram_bot.save()
 
-
 @shared_task
 def stop_telegram_bot(telegram_bot_id: int) -> None:
 	TelegramBot = apps.get_model('telegram_bots.TelegramBot')
@@ -52,7 +50,6 @@ def stop_telegram_bot(telegram_bot_id: int) -> None:
 		telegram_bot.is_enabled = False
 		telegram_bot.is_loading = False
 		telegram_bot.save()
-
 
 @shared_task
 def start_telegram_bots() -> None:

@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.request import Request
 from rest_framework.authtoken.models import Token

@@ -19,7 +19,6 @@ mypy = "^1.9.0"
 python-dotenv = "^1.0.1"
 redis = "^5.0.3"
 psycopg = "^3.1.18"
-ruff = "^0.4.1"
 
 [tool.mypy]
 check_untyped_defs = true
@@ -40,11 +39,3 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 
 [tool.django-stubs]
 django_settings_module = "constructor_telegram_bots.settings"
-
-[tool.ruff]
-line-length = 120
-target-version = "py311"
-
-[tool.ruff.format]
-quote-style = "single"
-indent-style = "tab"

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from django.contrib.auth import login, logout
 
 from rest_framework.views import APIView
@@ -22,13 +23,12 @@ class StatsAPIView(APIView):
 	def get(self, request: Request) -> Response:
 		return Response({'total': User.objects.count()})
 
-
 class UserAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request: Request) -> Response:
-		return Response(UserSerializer(request.user).data)  # type: ignore [arg-type]
+		return Response(UserSerializer(request.user).data) # type: ignore [arg-type]
 
 	def delete(self, request: Request) -> Response:
 		request.user.delete()
@@ -37,7 +37,6 @@ class UserAPIView(APIView):
 		response.delete_cookie('auth-token')
 
 		return response
-
 
 class UserLoginAPIView(APIView):
 	authentication_classes = []
@@ -71,13 +70,12 @@ class UserLoginAPIView(APIView):
 
 		return response
 
-
 class UserLogoutAPIView(APIView):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request: Request) -> Response:
-		request.user.auth_token.delete()  # type: ignore [arg-type, union-attr]
+		request.user.auth_token.delete() # type: ignore [arg-type, union-attr]
 
 		logout(request)
 

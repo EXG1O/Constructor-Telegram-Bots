@@ -4,21 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-	initial = True
 
-	dependencies = []
+    initial = True
 
-	operations = [
-		migrations.CreateModel(
-			name='TelegramBotsHub',
-			fields=[
-				('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-				('pid', models.PositiveIntegerField(verbose_name='PID')),
-				('port', models.PositiveSmallIntegerField(verbose_name='Порт')),
-				('token', models.CharField(max_length=25, verbose_name='Токен')),
-			],
-			options={
-				'db_table': 'telegram_bots_hub',
-			},
-		),
-	]
+    dependencies = [
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='TelegramBotsHub',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('pid', models.PositiveIntegerField(verbose_name='PID')),
+                ('port', models.PositiveSmallIntegerField(verbose_name='Порт')),
+                ('token', models.CharField(max_length=25, verbose_name='Токен')),
+            ],
+            options={
+                'db_table': 'telegram_bots_hub',
+            },
+        ),
+    ]

@@ -66,8 +66,4 @@ class UserAdmin(admin.ModelAdmin[User]):
 		for user in users:
 			user.generate_confirm_code()
 
-		messages.success(
-			request,
-			_('Успешная генерация кодов подтверждения для %(users_count)s пользователей.')
-			% {'users_count': users.count()},
-		)
+		messages.success(request, _('Успешная генерация кодов подтверждения для %(users_count)s пользователей.') % {'users_count': users.count()})

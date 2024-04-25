@@ -17,7 +17,6 @@ def update_users_first_and_last_name() -> None:
 
 		time.sleep(1)
 
-
 @shared_task
 def check_confirm_code_generation_date() -> None:
 	one_hour_ahead_date: datetime = timezone.now() + timedelta(hours=1)

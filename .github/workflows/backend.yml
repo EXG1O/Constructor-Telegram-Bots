@@ -50,9 +50,6 @@ jobs:
           echo "POSTGRESQL_DATABASE_USER=github" >> .env
           echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
 
-      - name: Run ruff check
-        run: ./env/bin/ruff check .
-
       - name: Run mypy
         run: ./env/bin/mypy .
 

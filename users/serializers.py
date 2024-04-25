@@ -18,7 +18,6 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
 		return representation
 
-
 class UserLoginSerializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	confirm_code = serializers.CharField()
