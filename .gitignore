@@ -1,7 +1,6 @@
 # Папки
 __pycache__/
 node_modules/
-.mypy_cache/
 .vscode/
 /static/
 media/
