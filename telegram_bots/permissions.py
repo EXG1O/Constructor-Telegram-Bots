@@ -1,18 +1,16 @@
-from django.utils.translation import gettext_lazy as _
-
 from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from .models import (
-	TelegramBot,
-	Connection,
+	BackgroundTask,
 	Command,
 	Condition,
-	BackgroundTask,
-	Variable,
-	User,
+	Connection,
 	DatabaseRecord,
+	TelegramBot,
+	User,
+	Variable,
 )
 
 from typing import Any
@@ -26,11 +24,12 @@ class TelegramBotIsFound(BasePermission):
 		telegram_bot_id: int = view.kwargs.pop('telegram_bot_id', 0)
 
 		try:
-			view.kwargs['telegram_bot'] = request.user.telegram_bots.get(id=telegram_bot_id) # type: ignore [union-attr]
+			view.kwargs['telegram_bot'] = request.user.telegram_bots.get(id=telegram_bot_id)  # type: ignore [union-attr]
 		except TelegramBot.DoesNotExist:
 			return False
 
 		return True
+
 
 def get_telegram_bot(view: APIView) -> TelegramBot:
 	telegram_bot: Any = view.kwargs.get('telegram_bot')
@@ -39,6 +38,7 @@ def get_telegram_bot(view: APIView) -> TelegramBot:
 		raise PermissionError('The permission can use only after TelegramBotIsFound permission!')
 
 	return telegram_bot
+
 
 class ConnectionIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
@@ -52,6 +52,7 @@ class ConnectionIsFound(BasePermission):
 
 		return True
 
+
 class CommandIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot = get_telegram_bot(view)
@@ -63,6 +64,7 @@ class CommandIsFound(BasePermission):
 			return False
 
 		return True
+
 
 class ConditionIsIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
@@ -76,6 +78,7 @@ class ConditionIsIsFound(BasePermission):
 
 		return True
 
+
 class BackgroundTaskIsIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot = get_telegram_bot(view)
@@ -87,6 +90,7 @@ class BackgroundTaskIsIsFound(BasePermission):
 			return False
 
 		return True
+
 
 class VariableIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
@@ -100,6 +104,7 @@ class VariableIsFound(BasePermission):
 
 		return True
 
+
 class UserIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:
 		telegram_bot: TelegramBot = get_telegram_bot(view)
@@ -111,6 +116,7 @@ class UserIsFound(BasePermission):
 			return False
 
 		return True
+
 
 class DatabaseRecordIsFound(BasePermission):
 	def has_permission(self, request: Request, view: APIView) -> bool:

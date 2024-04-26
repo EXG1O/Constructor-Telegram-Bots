@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import TelegramBotsHub
 
-from typing import Literal, Any
+from typing import Any, Literal
 
 
 @admin.register(TelegramBotsHub)

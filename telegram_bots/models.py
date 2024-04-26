@@ -1,28 +1,30 @@
-from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from . import tasks
 from .base_models import (
-	AbstractBlock,
 	AbstractAPIRequest,
+	AbstractBlock,
 	AbstractDatabaseRecord,
 )
-from . import tasks
 
-import requests
 from requests import Response
+import requests
 
-from typing import TYPE_CHECKING, Iterable
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 
 def validate_api_token(api_token: str) -> None:
 	if not settings.TEST and not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok:
 		raise ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
+
 
 class TelegramBot(models.Model):
 	owner = models.ForeignKey(
@@ -117,6 +119,7 @@ class TelegramBot(models.Model):
 	def __str__(self) -> str:
 		return f'@{self.username}'
 
+
 class Connection(models.Model):
 	HANDLE_POSITION_CHOICES = (
 		('left', _('Слева')),
@@ -163,6 +166,7 @@ class Connection(models.Model):
 		verbose_name = _('Подключение')
 		verbose_name_plural = _('Подключения')
 
+
 class CommandSettings(models.Model):
 	command = models.OneToOneField(
 		'Command',
@@ -182,6 +186,7 @@ class CommandSettings(models.Model):
 	def __str__(self) -> str:
 		return self.command.name
 
+
 class CommandTrigger(models.Model):
 	command = models.OneToOneField(
 		'Command',
@@ -200,11 +205,14 @@ class CommandTrigger(models.Model):
 	def __str__(self) -> str:
 		return self.command.name
 
+
 def upload_command_image_path(instance: 'CommandImage', file_name: str) -> str:
 	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/images/{file_name}'
 
+
 def upload_command_file_path(instance: 'CommandFile', file_name: str) -> str:
 	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/files/{file_name}'
+
 
 class CommandImage(models.Model):
 	command = models.ForeignKey(
@@ -227,6 +235,7 @@ class CommandImage(models.Model):
 	def __str__(self) -> str:
 		return self.command.name
 
+
 class CommandFile(models.Model):
 	command = models.ForeignKey(
 		'Command',
@@ -248,6 +257,7 @@ class CommandFile(models.Model):
 	def __str__(self) -> str:
 		return self.command.name
 
+
 class CommandMessage(models.Model):
 	command = models.OneToOneField(
 		'Command',
@@ -264,6 +274,7 @@ class CommandMessage(models.Model):
 
 	def __str__(self) -> str:
 		return self.command.name
+
 
 class CommandKeyboardButton(models.Model):
 	keyboard = models.ForeignKey(
@@ -284,6 +295,7 @@ class CommandKeyboardButton(models.Model):
 
 	def __str__(self) -> str:
 		return self.keyboard.command.name
+
 
 class CommandKeyboard(models.Model):
 	TYPE_CHOICES = (
@@ -316,6 +328,7 @@ class CommandKeyboard(models.Model):
 	def __str__(self) -> str:
 		return self.command.name
 
+
 class CommandAPIRequest(AbstractAPIRequest):
 	command = models.OneToOneField(
 		'Command',
@@ -332,6 +345,7 @@ class CommandAPIRequest(AbstractAPIRequest):
 	def __str__(self) -> str:
 		return self.command.name
 
+
 class CommandDatabaseRecord(AbstractDatabaseRecord):
 	command = models.OneToOneField(
 		'Command',
@@ -347,6 +361,7 @@ class CommandDatabaseRecord(AbstractDatabaseRecord):
 
 	def __str__(self) -> str:
 		return self.command.name
+
 
 class Command(AbstractBlock):
 	telegram_bot = models.ForeignKey(
@@ -373,6 +388,7 @@ class Command(AbstractBlock):
 
 	def __str__(self) -> str:
 		return self.name
+
 
 class ConditionPart(models.Model):
 	TYPE_CHOICES = (
@@ -418,6 +434,7 @@ class ConditionPart(models.Model):
 	def __str__(self) -> str:
 		return self.condition.name
 
+
 class Condition(AbstractBlock):
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
@@ -437,6 +454,7 @@ class Condition(AbstractBlock):
 	def __str__(self) -> str:
 		return self.name
 
+
 class BackgroundTaskAPIRequest(AbstractAPIRequest):
 	background_task = models.OneToOneField(
 		'BackgroundTask',
@@ -452,6 +470,7 @@ class BackgroundTaskAPIRequest(AbstractAPIRequest):
 
 	def __str__(self) -> str:
 		return self.url
+
 
 class BackgroundTask(AbstractBlock):
 	INTERVAL_CHOICES = (
@@ -482,6 +501,7 @@ class BackgroundTask(AbstractBlock):
 	def __str__(self) -> str:
 		return self.name
 
+
 class Variable(models.Model):
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
@@ -500,6 +520,7 @@ class Variable(models.Model):
 
 	def __str__(self) -> str:
 		return self.name
+
 
 class User(models.Model):
 	telegram_bot = models.ForeignKey(
@@ -522,6 +543,7 @@ class User(models.Model):
 
 	def __str__(self) -> str:
 		return self.full_name
+
 
 class DatabaseRecord(AbstractDatabaseRecord):
 	telegram_bot = models.ForeignKey(

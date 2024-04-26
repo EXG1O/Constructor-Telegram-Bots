@@ -1,22 +1,23 @@
-from django.db import models
+from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.utils.translation import gettext_lazy as _
+from django.db import models
 from django.utils import timezone
-from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
-from telegram_bots.models import TelegramBot
-
-from utils.shortcuts import generate_random_string
-
-import requests
-from requests import Response
-
-from typing import TYPE_CHECKING, Iterable, Any
 from aiogram.types import Chat
 from pydantic import ValidationError
+
+from telegram_bots.models import TelegramBot
+from utils.shortcuts import generate_random_string
+
+from requests import Response
+import requests
+
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any
 import string
 
 
@@ -24,8 +25,9 @@ class UserManager(BaseUserManager['User']):
 	def create_superuser(self, **fields: Any) -> 'User':
 		return self.create(is_staff=True, is_superuser=True, **fields)
 
+
 class User(AbstractBaseUser, PermissionsMixin):
-	password = None # type: ignore [assignment]
+	password = None  # type: ignore [assignment]
 
 	telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
 	first_name = models.CharField(_('Имя'), max_length=64)
@@ -113,7 +115,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			if (
 				self.confirm_code and not user.confirm_code or
 				self.confirm_code and user.confirm_code and self.confirm_code != user.confirm_code
-			):
+			):  # fmt: skip
 				self.confirm_code_generation_date = timezone.now()
 			elif not self.confirm_code and user.confirm_code:
 				self.confirm_code = None

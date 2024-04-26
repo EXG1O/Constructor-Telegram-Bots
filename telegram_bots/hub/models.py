@@ -1,7 +1,7 @@
+from django.conf import settings
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
 from django_stubs_ext.db.models import TypedModelMeta
 
@@ -9,17 +9,18 @@ from utils.shortcuts import generate_random_string
 
 from ..models import TelegramBot
 
-import requests
 from requests import Response
 from requests.exceptions import ConnectionError, HTTPError, Timeout
+import requests
 
-from typing import Literal, Iterable, Optional, Any
-import subprocess
+from collections.abc import Iterable
+from typing import Any, Literal, Optional
+import os
+import signal
 import socket
 import string
-import signal
+import subprocess
 import time
-import os
 
 
 class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
@@ -41,6 +42,7 @@ class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
 					pass
 
 		return None
+
 
 class TelegramBotsHub(models.Model):
 	pid = models.PositiveIntegerField('PID')
@@ -79,7 +81,7 @@ class TelegramBotsHub(models.Model):
 
 		try:
 			sock.bind(('127.0.0.1', port))
-		except socket.error:
+		except OSError:
 			return False
 		finally:
 			sock.close()
@@ -176,7 +178,7 @@ class TelegramBotsHub(models.Model):
 				self.pid = process.pid
 				self.port = port
 
-				for retry in range(10):
+				for _retry in range(10):
 					if self.is_available:
 						return super().save(
 							force_insert,

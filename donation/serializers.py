@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from utils import filters
 
-from .models import Donation, Section, Button
+from .models import Button, Donation, Section
 
 from typing import Any
 
@@ -18,10 +18,12 @@ class DonationSerializer(serializers.ModelSerializer[Donation]):
 
 		return representation
 
+
 class SectionSerializer(serializers.ModelSerializer[Section]):
 	class Meta:
 		model = Section
 		fields = ('id', 'title', 'text')
+
 
 class ButtonSerializer(serializers.ModelSerializer[Button]):
 	class Meta:

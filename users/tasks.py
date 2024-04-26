@@ -1,6 +1,6 @@
-from celery import shared_task
-
 from django.utils import timezone
+
+from celery import shared_task
 
 from .models import User
 
@@ -16,6 +16,7 @@ def update_users_first_and_last_name() -> None:
 		user.save()
 
 		time.sleep(1)
+
 
 @shared_task
 def check_confirm_code_generation_date() -> None:

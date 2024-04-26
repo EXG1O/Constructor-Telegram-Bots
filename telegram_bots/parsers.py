@@ -1,17 +1,16 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from rest_framework.parsers import MultiPartParser, DataAndFiles
 from rest_framework.exceptions import ParseError
+from rest_framework.parsers import DataAndFiles, MultiPartParser
 
-import json
 from json import JSONDecodeError
-
 from typing import Any
+import json
 
 
 class CommandMultiPartParser(MultiPartParser):
-	def parse(self, *args: Any, **kwargs: Any) -> dict[str, Any]: # type: ignore [override]
-		parsed: DataAndFiles = super().parse(*args, **kwargs) # type: ignore [type-arg]
+	def parse(self, *args: Any, **kwargs: Any) -> dict[str, Any]:  # type: ignore [override]
+		parsed: DataAndFiles = super().parse(*args, **kwargs)  # type: ignore [type-arg]
 
 		try:
 			data: dict[str, Any] = json.loads(parsed.data['data'])

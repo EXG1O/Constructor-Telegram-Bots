@@ -19,6 +19,7 @@ mypy = "^1.9.0"
 python-dotenv = "^1.0.1"
 redis = "^5.0.3"
 psycopg = "^3.1.18"
+ruff = "^0.4.2"
 
 [tool.mypy]
 strict = true
@@ -33,3 +34,52 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 
 [tool.django-stubs]
 django_settings_module = "constructor_telegram_bots.settings"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["frontend", "migrations"]
+
+[tool.ruff.lint]
+select = [
+	"F",  # pyflakes
+	"E",  # pycodestyle errors
+	"W",  # pycodestyle warnings
+	"I",  # isort
+	"N",  # pep8-naming
+	"UP",  # pyupgrade
+	"B",  # flake8-bugbear
+	"C4",  # flake8-comprehensions
+	"T20"  # flake8-print
+]
+ignore = [
+	"E501",  # line too long, handled by black
+	"B008",  # do not perform function calls in argument defaults
+	"C901",  # too complex
+	"W191",  # indentation contains tabs
+	"B904",  # exception handlers that lack a from clause
+]
+
+[tool.ruff.lint.isort]
+section-order = [
+	"future",
+	"django",
+	"django_stubs_ext",
+	"rest_framework",
+	"third-party",
+	"first-party",
+	"local-folder",
+	"requests",
+	"standard-library",
+]
+from-first = true
+
+[tool.ruff.lint.isort.sections]
+django = ["django"]
+django_stubs_ext = ["django_stubs_ext"]
+rest_framework = ["rest_framework"]
+requests = ["requests"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"

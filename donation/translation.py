@@ -1,11 +1,12 @@
-from modeltranslation.translator import register, TranslationOptions
+from modeltranslation.translator import TranslationOptions, register
 
-from .models import Section, Button
+from .models import Button, Section
 
 
 @register(Section)
 class SectionTranslationOptions(TranslationOptions):
 	fields = ('title', 'text')
+
 
 @register(Button)
 class ButtonTranslationOptions(TranslationOptions):

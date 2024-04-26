@@ -1,11 +1,10 @@
 from django.urls import path
 
 from .views import (
-	DonationsAPIView,
 	ButtonsAPIView,
+	DonationsAPIView,
 	SectionsAPIView,
 )
-
 
 app_name = 'donation'
 urlpatterns = [

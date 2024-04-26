@@ -1,13 +1,12 @@
 from django.urls import path
 
 from .views import (
-	TelegramBotAPIView,
-	CommandsAPIView,
 	CommandAPIView,
-	VariablesAPIView,
+	CommandsAPIView,
+	TelegramBotAPIView,
 	UsersAPIView,
+	VariablesAPIView,
 )
-
 
 app_name = 'hub'
 urlpatterns = [

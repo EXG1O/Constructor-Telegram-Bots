@@ -1,6 +1,5 @@
 from constructor_telegram_bots.settings import BASE_DIR
 
-
 workers = 9
 max_requests = 1000
 max_requests_jitter = 100

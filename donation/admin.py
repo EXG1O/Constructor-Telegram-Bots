@@ -7,7 +7,7 @@ from tinymce.widgets import TinyMCE
 
 from utils.html import format_html_link
 
-from .models import Donation, Section, Button
+from .models import Button, Donation, Section
 
 
 @admin.register(Donation)
@@ -24,14 +24,16 @@ class DonationAdmin(admin.ModelAdmin[Donation]):
 	def contact_link_display(self, donation: Donation) -> str:
 		return format_html_link(donation.contact_link)
 
+
 @admin.register(Section)
-class SectionAdmin(TranslationAdmin): # FIXME: Need to add generics support
+class SectionAdmin(TranslationAdmin):  # FIXME: Need to add generics support
 	list_display = ('title', 'position')
 	fields = ('title', 'text', 'position')
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}
 
+
 @admin.register(Button)
-class ButtonAdmin(TranslationAdmin): # FIXME: Need to add generics support
+class ButtonAdmin(TranslationAdmin):  # FIXME: Need to add generics support
 	list_display = ('text', 'url_display', 'position')
 	fields = ('text', 'url', 'position')
 

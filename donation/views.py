@@ -2,11 +2,11 @@ from rest_framework.generics import ListAPIView
 
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 
-from .models import Donation, Section, Button
+from .models import Button, Donation, Section
 from .serializers import (
+	ButtonSerializer,
 	DonationSerializer,
 	SectionSerializer,
-	ButtonSerializer,
 )
 
 
@@ -17,11 +17,13 @@ class DonationsAPIView(ListAPIView[Donation]):
 	serializer_class = DonationSerializer
 	pagination_class = LimitOffsetPagination
 
+
 class SectionsAPIView(ListAPIView[Section]):
 	authentication_classes = []
 	permission_classes = []
 	queryset = Section.objects.all()
 	serializer_class = SectionSerializer
+
 
 class ButtonsAPIView(ListAPIView[Button]):
 	authentication_classes = []
