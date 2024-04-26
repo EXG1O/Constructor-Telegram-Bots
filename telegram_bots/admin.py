@@ -44,7 +44,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'added_date',
 	)
 
-	def get_queryset(self, request: HttpRequest) -> QuerySet:
+	def get_queryset(self, request: HttpRequest) -> QuerySet[TelegramBot]:
 		return super().get_queryset(request).annotate(
 			commands_count=Count('commands'),
 			users_count=Count('users'),

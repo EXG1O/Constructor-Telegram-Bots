@@ -48,7 +48,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'joined_date',
 	)
 
-	def get_queryset(self, request: HttpRequest) -> QuerySet:
+	def get_queryset(self, request: HttpRequest) -> QuerySet[User]:
 		return super().get_queryset(request).annotate(telegram_bots_count=Count('telegram_bots'))
 
 	@admin.display(

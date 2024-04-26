@@ -38,7 +38,7 @@ from typing import  Any
 
 class TelegramBotContextMixin:
 	@property
-	def view(self) -> GenericAPIView:
+	def view(self) -> GenericAPIView[Any]:
 		view: Any = self.context.get('view') # type: ignore [attr-defined]
 
 		if not isinstance(view, GenericAPIView):
@@ -107,7 +107,7 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 		return representation
 
-class TelegramBotActionSerializer(serializers.Serializer):
+class TelegramBotActionSerializer(serializers.Serializer[TelegramBot]):
 	action = serializers.ChoiceField(choices=('start', 'restart', 'stop'))
 
 class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotContextMixin):
@@ -274,7 +274,7 @@ class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabas
 		model = CommandDatabaseRecord
 		fields = ('data',)
 
-class CommandSerializer(serializers.ModelSerializer):
+class CommandSerializer(serializers.ModelSerializer[Command]):
 	settings = CommandSettingsSerializer()
 	trigger = CommandTriggerSerializer(required=False, allow_null=True)
 	images = CommandImageSerializer(many=True)

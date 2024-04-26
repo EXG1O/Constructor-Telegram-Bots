@@ -112,7 +112,7 @@ class TelegramBotsHub(models.Model):
 		self,
 		method: Literal['get', 'post', 'patch', 'put', 'delete'],
 		url: str,
-		data: dict[str, Any] | list | None = None,
+		data: dict[str, Any] | list[Any] | None = None,
 		delete_on_exception: bool = True,
 	) -> Response | None:
 		try:
