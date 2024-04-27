@@ -26,6 +26,7 @@ match sys.argv:
 	case __:
 		TEST = False
 
+FRONTEND_PATH: str | None = os.getenv('FRONTEND_PATH')
 TELEGRAM_BOTS_HUB_PATH: str | None = os.getenv('TELEGRAM_BOTS_HUB_PATH')
 
 CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN: str | None = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -128,10 +129,7 @@ MIDDLEWARE = [
 TEMPLATES = [
 	{
 		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [
-			BASE_DIR / 'constructor_telegram_bots/templates',
-			BASE_DIR / 'frontend/dist',
-		],
+		'DIRS': [FRONTEND_PATH],
 		'APP_DIRS': True,
 		'OPTIONS': {
 			'context_processors': [
@@ -184,10 +182,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [
-	BASE_DIR / 'constructor_telegram_bots/static',
-	BASE_DIR / 'frontend/dist',
-]
+STATICFILES_DIRS = [BASE_DIR / 'constructor_telegram_bots/static', FRONTEND_PATH]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
