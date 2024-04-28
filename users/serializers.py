@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from utils import filters
+from utils.formats import date_time_format
 
 from .models import User
 
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
 	def to_representation(self, instance: User) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['joined_date'] = filters.datetime(instance.joined_date)
+		representation['joined_date'] = date_time_format(instance.joined_date)
 
 		return representation
 

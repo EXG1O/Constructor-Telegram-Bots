@@ -7,7 +7,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 
 from users.models import User as SiteUser
-from utils import filters
+from utils.formats import date_time_format
 
 from .models import (
 	BackgroundTask,
@@ -105,7 +105,7 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 	def to_representation(self, telegram_bot: TelegramBot) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(telegram_bot)
-		representation['added_date'] = filters.datetime(telegram_bot.added_date)
+		representation['added_date'] = date_time_format(telegram_bot.added_date)
 
 		return representation
 
@@ -722,7 +722,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
 	def to_representation(self, user: User) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(user)
-		representation['activated_date'] = filters.datetime(user.activated_date)
+		representation['activated_date'] = date_time_format(user.activated_date)
 
 		return representation
 

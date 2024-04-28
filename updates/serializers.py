@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from utils import filters
+from utils.formats import date_time_format
 
 from .models import Update
 
@@ -14,6 +14,6 @@ class UpdateSerializer(serializers.ModelSerializer[Update]):
 
 	def to_representation(self, instance: Update) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['added_date'] = filters.datetime(instance.added_date)
+		representation['added_date'] = date_time_format(instance.added_date)
 
 		return representation
