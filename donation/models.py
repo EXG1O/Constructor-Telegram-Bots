@@ -11,7 +11,7 @@ class Donation(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'donation'
-		ordering = ('-sum',)
+		ordering = ['-sum']
 		verbose_name = _('Пожертвование')
 		verbose_name_plural = _('Пожертвования')
 
@@ -30,7 +30,7 @@ class Section(models.Model):  # type: ignore [django-manager-missing]
 	position = models.PositiveSmallIntegerField(_('Позиция'), blank=True, default=section_position_default)
 
 	class Meta(TypedModelMeta):
-		ordering = ('position',)
+		ordering = ['position']
 		verbose_name = _('Раздел')
 		verbose_name_plural = _('Разделы')
 
@@ -49,7 +49,7 @@ class Button(models.Model):  # type: ignore [django-manager-missing]
 	position = models.PositiveSmallIntegerField(_('Позиция'), blank=True, default=button_position_default)
 
 	class Meta(TypedModelMeta):
-		ordering = ('position',)
+		ordering = ['position']
 		verbose_name = _('Кнопку')
 		verbose_name_plural = _('Кнопки')
 

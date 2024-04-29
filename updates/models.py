@@ -11,7 +11,7 @@ class Update(models.Model):  # type: ignore [django-manager-missing]
 
 	class Meta(TypedModelMeta):
 		db_table = 'update'
-		ordering = ('-added_date',)
+		ordering = ['-added_date']
 		verbose_name = _('Обновление')
 		verbose_name_plural = _('Обновления')
 

@@ -13,10 +13,10 @@ from typing import Any, Literal
 
 @admin.register(TelegramBot)
 class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
-	search_fields = ('username',)
+	search_fields = ['username']
 	date_hierarchy = 'added_date'
-	list_filter = ('is_enabled', 'added_date')
-	list_display = (
+	list_filter = ['is_enabled', 'added_date']
+	list_display = [
 		'id',
 		'owner',
 		'_username',
@@ -28,8 +28,8 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'is_private',
 		'is_enabled',
 		'added_date',
-	)
-	fields = (
+	]
+	fields = [
 		'id',
 		'owner',
 		'_username',
@@ -42,7 +42,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'is_private',
 		'is_enabled',
 		'added_date',
-	)
+	]
 
 	def get_queryset(self, request: HttpRequest) -> QuerySet[TelegramBot]:
 		return (
@@ -87,15 +87,15 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin[User]):
-	search_fields = ('telegram_id', 'full_name')
+	search_fields = ['telegram_id', 'full_name']
 	date_hierarchy = 'activated_date'
-	list_filter = (
+	list_filter = [
 		'is_allowed',
 		'is_blocked',
 		'last_activity_date',
 		'activated_date',
-	)
-	list_display = (
+	]
+	list_display = [
 		'id',
 		'telegram_bot',
 		'telegram_id',
@@ -104,8 +104,8 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'is_blocked',
 		'last_activity_date',
 		'activated_date',
-	)
-	fields = (
+	]
+	fields = [
 		'id',
 		'telegram_bot',
 		'telegram_id',
@@ -114,7 +114,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'is_blocked',
 		'last_activity_date',
 		'activated_date',
-	)
+	]
 
 	def has_add_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False

@@ -9,4 +9,4 @@ class SetLanguageSerializer(serializers.Serializer[Any]):
 	lang_code = serializers.ChoiceField(settings.LANGUAGES)
 
 	class Meta:
-		fields = ('lang_code',)
+		fields = ['lang_code']

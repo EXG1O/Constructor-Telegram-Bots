@@ -59,7 +59,7 @@ class TelegramBotContextMixin:
 class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 	class Meta:
 		model = TelegramBot
-		fields = (
+		fields = [
 			'id',
 			'username',
 			'api_token',
@@ -69,8 +69,8 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 			'is_private',
 			'is_enabled',
 			'is_loading',
-		)
-		read_only_fields = (
+		]
+		read_only_fields = [
 			'id',
 			'username',
 			'storage_size',
@@ -78,7 +78,7 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 			'remaining_storage_size',
 			'is_enabled',
 			'is_loading',
-		)
+		]
 
 	@property
 	def site_user(self) -> SiteUser:
@@ -111,22 +111,22 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 
 class TelegramBotActionSerializer(serializers.Serializer[TelegramBot]):
-	action = serializers.ChoiceField(choices=('start', 'restart', 'stop'))
+	action = serializers.ChoiceField(choices=['start', 'restart', 'stop'])
 
 
 class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotContextMixin):
 	source_object_type = serializers.ChoiceField(
-		choices=('command', 'command_keyboard_button', 'condition', 'background_task'),
+		choices=['command', 'command_keyboard_button', 'condition', 'background_task'],
 		write_only=True,
 	)
 	target_object_type = serializers.ChoiceField(
-		choices=('command', 'condition'),
+		choices=['command', 'condition'],
 		write_only=True,
 	)
 
 	class Meta:
 		model = Connection
-		fields = (
+		fields = [
 			'id',
 			'source_object_type',
 			'source_object_id',
@@ -134,7 +134,7 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotC
 			'target_object_type',
 			'target_object_id',
 			'target_handle_position',
-		)
+		]
 
 	def get_object(self, object_type: str, object_id: int) -> models.Model:
 		if object_type == 'command':
@@ -211,17 +211,17 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotC
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 	class Meta:
 		model = CommandSettings
-		fields = (
+		fields = [
 			'is_reply_to_user_message',
 			'is_delete_user_message',
 			'is_send_as_new_message',
-		)
+		]
 
 
 class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
 	class Meta:
 		model = CommandTrigger
-		fields = ('text', 'description')
+		fields = ['text', 'description']
 
 
 class CommandImageSerializer(serializers.ModelSerializer[CommandImage]):
@@ -231,7 +231,7 @@ class CommandImageSerializer(serializers.ModelSerializer[CommandImage]):
 
 	class Meta:
 		model = CommandImage
-		fields = ('id', 'name', 'size', 'url')
+		fields = ['id', 'name', 'size', 'url']
 
 	def to_representation(self, instance: CommandImage) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
@@ -247,7 +247,7 @@ class CommandFileSerializer(serializers.ModelSerializer[CommandFile]):
 
 	class Meta:
 		model = CommandFile
-		fields = ('id', 'name', 'size', 'url')
+		fields = ['id', 'name', 'size', 'url']
 
 	def to_representation(self, instance: CommandImage) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
@@ -259,13 +259,13 @@ class CommandFileSerializer(serializers.ModelSerializer[CommandFile]):
 class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
 	class Meta:
 		model = CommandMessage
-		fields = ('text',)
+		fields = ['text']
 
 
 class CommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
 	class Meta:
 		model = CommandKeyboardButton
-		fields = ('id', 'row', 'text', 'url')
+		fields = ['id', 'row', 'text', 'url']
 
 
 class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
@@ -273,19 +273,19 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
 
 	class Meta:
 		model = CommandKeyboard
-		fields = ('type', 'buttons')
+		fields = ['type', 'buttons']
 
 
 class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]):
 	class Meta:
 		model = CommandAPIRequest
-		fields = ('url', 'method', 'headers', 'body')
+		fields = ['url', 'method', 'headers', 'body']
 
 
 class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabaseRecord]):
 	class Meta:
 		model = CommandDatabaseRecord
-		fields = ('data',)
+		fields = ['data']
 
 
 class CommandSerializer(serializers.ModelSerializer[Command]):
@@ -300,7 +300,7 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 
 	class Meta:
 		model = Command
-		fields = (
+		fields = [
 			'id',
 			'name',
 			'settings',
@@ -311,7 +311,7 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 			'keyboard',
 			'api_request',
 			'database_record',
-		)
+		]
 
 
 class CreateCommandSerializer(CommandSerializer, TelegramBotContextMixin):
@@ -380,7 +380,7 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 	files_id = serializers.ListField(child=serializers.IntegerField(), default=[])
 
 	class Meta(CreateCommandSerializer.Meta):
-		fields = (*CreateCommandSerializer.Meta.fields, 'images_id', 'files_id')  # type: ignore [assignment]
+		fields = CreateCommandSerializer.Meta.fields + ['images_id', 'files_id']
 
 	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
 		settings: dict[str, Any] | None = validated_data.get('settings')
@@ -507,7 +507,7 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 class ConditionPartSerializer(serializers.ModelSerializer[ConditionPart]):
 	class Meta:
 		model = ConditionPart
-		fields = ('id', 'type', 'first_value', 'operator', 'second_value', 'next_part_operator')
+		fields = ['id', 'type', 'first_value', 'operator', 'second_value', 'next_part_operator']
 
 
 class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotContextMixin):
@@ -515,7 +515,7 @@ class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotCon
 
 	class Meta:
 		model = Condition
-		fields = ('id', 'name', 'parts')
+		fields = ['id', 'name', 'parts']
 
 	def validate_parts(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
 		if not self.partial and not len(parts):
@@ -564,7 +564,7 @@ class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotCon
 class BackgroundTaskAPIRequestSerializer(serializers.ModelSerializer[BackgroundTaskAPIRequest]):
 	class Meta:
 		model = BackgroundTaskAPIRequest
-		fields = ('url', 'method', 'headers', 'body')
+		fields = ['url', 'method', 'headers', 'body']
 
 
 class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask], TelegramBotContextMixin):
@@ -572,7 +572,7 @@ class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask], Tele
 
 	class Meta:
 		model = BackgroundTask
-		fields = ('id', 'name', 'interval', 'api_request')
+		fields = ['id', 'name', 'interval', 'api_request']
 
 	def create(self, validated_data: dict[str, Any]) -> BackgroundTask:
 		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
@@ -614,7 +614,7 @@ class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[Command
 
 	class Meta:
 		model = CommandKeyboardButton
-		fields = ('id', 'row', 'text', 'url', 'source_connections')
+		fields = ['id', 'row', 'text', 'url', 'source_connections']
 
 
 class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
@@ -622,7 +622,7 @@ class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboa
 
 	class Meta:
 		model = CommandKeyboard
-		fields = ('type', 'buttons')
+		fields = ['type', 'buttons']
 
 
 class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
@@ -635,7 +635,7 @@ class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
 
 	class Meta:
 		model = Command
-		fields = (
+		fields = [
 			'id',
 			'name',
 			'images',
@@ -646,8 +646,8 @@ class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
 			'y',
 			'source_connections',
 			'target_connections',
-		)
-		read_only_fields = ('name',)
+		]
+		read_only_fields = ['name']
 
 	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
 		command.x = validated_data.get('x', command.x)
@@ -663,8 +663,8 @@ class DiagramConditionSerializer(serializers.ModelSerializer[Condition]):
 
 	class Meta:
 		model = Condition
-		fields = ('id', 'name', 'x', 'y', 'source_connections', 'target_connections')
-		read_only_fields = ('name',)
+		fields = ['id', 'name', 'x', 'y', 'source_connections', 'target_connections']
+		read_only_fields = ['name']
 
 	def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
 		condition.x = validated_data.get('x', condition.x)
@@ -679,8 +679,8 @@ class DiagramBackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask
 
 	class Meta:
 		model = BackgroundTask
-		fields = ('id', 'name', 'interval', 'x', 'y', 'target_connections')
-		read_only_fields = ('name', 'interval')
+		fields = ['id', 'name', 'interval', 'x', 'y', 'target_connections']
+		read_only_fields = ['name', 'interval']
 
 	def update(self, background_task: BackgroundTask, validated_data: dict[str, Any]) -> BackgroundTask:
 		background_task.x = validated_data.get('x', background_task.x)
@@ -693,7 +693,7 @@ class DiagramBackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask
 class VariableSerializer(serializers.ModelSerializer[Variable], TelegramBotContextMixin):
 	class Meta:
 		model = Variable
-		fields = ('id', 'name', 'value', 'description')
+		fields = ['id', 'name', 'value', 'description']
 
 	def create(self, validated_data: dict[str, Any]) -> Variable:
 		return self.telegram_bot.variables.create(**validated_data)
@@ -710,8 +710,8 @@ class VariableSerializer(serializers.ModelSerializer[Variable], TelegramBotConte
 class UserSerializer(serializers.ModelSerializer[User]):
 	class Meta:
 		model = User
-		fields = ('id', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked')
-		read_only_fields = ('telegram_id', 'full_name')
+		fields = ['id', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked']
+		read_only_fields = ['telegram_id', 'full_name']
 
 	def update(self, user: User, validated_data: dict[str, Any]) -> User:
 		user.is_allowed = validated_data.get('is_allowed', user.is_allowed)
@@ -730,7 +730,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
 class DatabaseRecordSerializer(serializers.ModelSerializer[DatabaseRecord], TelegramBotContextMixin):
 	class Meta:
 		model = DatabaseRecord
-		fields = ('id', 'data')
+		fields = ['id', 'data']
 
 	def create(self, validated_data: dict[str, Any]) -> DatabaseRecord:
 		return self.telegram_bot.database_records.create(**validated_data)

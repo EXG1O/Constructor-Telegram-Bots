@@ -8,7 +8,7 @@ import django_stubs_ext
 
 from rest_framework.generics import GenericAPIView
 
-django_stubs_ext.monkeypatch(extra_classes=(GenericAPIView,))
+django_stubs_ext.monkeypatch(extra_classes=[GenericAPIView])
 
 
 urlpatterns = [

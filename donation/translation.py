@@ -5,9 +5,9 @@ from .models import Button, Section
 
 @register(Section)
 class SectionTranslationOptions(TranslationOptions):
-	fields = ('title', 'text')
+	fields = ['title', 'text']
 
 
 @register(Button)
 class ButtonTranslationOptions(TranslationOptions):
-	fields = ('text',)
+	fields = ['text']

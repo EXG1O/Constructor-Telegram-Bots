@@ -15,7 +15,7 @@ class Section(models.Model):  # type: ignore [django-manager-missing]
 	position = models.PositiveSmallIntegerField(_('Позиция'), blank=True, default=section_position_default)
 
 	class Meta(TypedModelMeta):
-		ordering = ('position',)
+		ordering = ['position']
 		verbose_name = _('Раздел')
 		verbose_name_plural = _('Разделы')
 

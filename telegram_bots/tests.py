@@ -326,7 +326,7 @@ class ConnectionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -470,7 +470,7 @@ class CommandAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -483,7 +483,7 @@ class CommandAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -524,7 +524,7 @@ class CommandAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -545,7 +545,7 @@ class CommandAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -668,7 +668,7 @@ class ConditionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -681,7 +681,7 @@ class ConditionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -726,7 +726,7 @@ class ConditionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -747,7 +747,7 @@ class ConditionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -849,7 +849,7 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -862,7 +862,7 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -892,7 +892,7 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -913,7 +913,7 @@ class BackgroundTaskAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -987,7 +987,7 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1008,7 +1008,7 @@ class DiagramCommandAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1090,7 +1090,7 @@ class DiagramConditionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1111,7 +1111,7 @@ class DiagramConditionAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1190,7 +1190,7 @@ class DiagramBackgroundTaskAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1211,7 +1211,7 @@ class DiagramBackgroundTaskAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1314,7 +1314,7 @@ class VariableAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1327,7 +1327,7 @@ class VariableAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1355,7 +1355,7 @@ class VariableAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1376,7 +1376,7 @@ class VariableAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1450,7 +1450,7 @@ class UserAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1463,7 +1463,7 @@ class UserAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1488,7 +1488,7 @@ class UserAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1507,7 +1507,7 @@ class UserAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1597,7 +1597,7 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.get(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1610,7 +1610,7 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.put(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1634,7 +1634,7 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.patch(url)
 			self.assertEqual(response.status_code, 403)
 
@@ -1658,7 +1658,7 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in (self.false_url_1, self.false_url_2):
+		for url in [self.false_url_1, self.false_url_2]:
 			response = self.client.delete(url)
 			self.assertEqual(response.status_code, 403)
 

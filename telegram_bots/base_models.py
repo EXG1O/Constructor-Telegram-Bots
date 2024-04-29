@@ -20,13 +20,13 @@ class AbstractBlock(models.Model):
 
 
 class AbstractAPIRequest(models.Model):
-	METHOD_CHOICES = (
+	METHOD_CHOICES = [
 		('get', 'GET'),
 		('post', 'POST'),
 		('put', 'PUT'),
 		('patch', 'PATCH'),
 		('delete', 'DELETE'),
-	)
+	]
 
 	url = models.URLField(_('URL-адрес'))
 	method = models.CharField(_('Метод'), max_length=6, choices=METHOD_CHOICES, default='get')

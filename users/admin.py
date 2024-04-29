@@ -10,10 +10,10 @@ from .models import User
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin[User]):
 	date_hierarchy = 'joined_date'
-	actions = ('generate_confirm_code_action',)
-	search_fields = ('telegram_id', 'first_name', 'last_name')
-	list_filter = ('is_staff', 'last_login', 'joined_date')
-	list_display = (
+	actions = ['generate_confirm_code_action']
+	search_fields = ['telegram_id', 'first_name', 'last_name']
+	list_filter = ['is_staff', 'last_login', 'joined_date']
+	list_display = [
 		'id',
 		'telegram_id',
 		'first_name',
@@ -22,8 +22,8 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'is_staff',
 		'last_login',
 		'joined_date',
-	)
-	fields = (
+	]
+	fields = [
 		'id',
 		'telegram_id',
 		'first_name',
@@ -35,8 +35,8 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'is_staff',
 		'last_login',
 		'joined_date',
-	)
-	readonly_fields = (
+	]
+	readonly_fields = [
 		'id',
 		'telegram_id',
 		'first_name',
@@ -46,7 +46,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'telegram_bots_count',
 		'last_login',
 		'joined_date',
-	)
+	]
 
 	def get_queryset(self, request: HttpRequest) -> QuerySet[User]:
 		return super().get_queryset(request).annotate(telegram_bots_count=Count('telegram_bots'))
@@ -59,7 +59,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		return user.telegram_bots.count()
 
 	@admin.action(
-		permissions=('add', 'change', 'delete'),
+		permissions=['add', 'change', 'delete'],
 		description=_('Сгенерировать код подтверждения'),
 	)
 	def generate_confirm_code_action(self, request: HttpRequest, users: QuerySet[User]) -> None:

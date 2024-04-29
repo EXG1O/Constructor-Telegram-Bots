@@ -254,8 +254,8 @@ class VariablesAPIView(ListCreateAPIView[Variable]):
 	serializer_class = VariableSerializer
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter, OrderingFilter]
-	search_fields = ('id', 'name')
-	ordering = ('-id',)
+	search_fields = ['id', 'name']
+	ordering = ['-id']
 
 	def get_queryset(self) -> QuerySet[Variable]:
 		return self.kwargs['telegram_bot'].variables.all()
@@ -276,9 +276,9 @@ class UsersAPIView(ListAPIView[User]):
 	serializer_class = UserSerializer
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
-	search_fields = ('telegram_id', 'full_name')
-	filterset_fields = ('is_allowed', 'is_blocked')
-	ordering = ('-id',)
+	search_fields = ['telegram_id', 'full_name']
+	filterset_fields = ['is_allowed', 'is_blocked']
+	ordering = ['-id']
 
 	def get_queryset(self) -> QuerySet[User]:
 		return self.kwargs['telegram_bot'].users.all()
@@ -294,20 +294,20 @@ class UserAPIView(RetrieveUpdateDestroyAPIView[User]):
 
 
 class DatabaseRecordsAPIView(ListCreateAPIView[DatabaseRecord]):
-	authentication_classes = (CookiesTokenAuthentication,)
-	permission_classes = (IsAuthenticated & TelegramBotIsFound,)
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound]
 	serializer_class = DatabaseRecordSerializer
 	pagination_class = LimitOffsetPagination
-	filter_backends = (SearchFilter,)
-	search_fields = ('data',)
+	filter_backends = [SearchFilter]
+	search_fields = ['data']
 
 	def get_queryset(self) -> QuerySet[DatabaseRecord]:
 		return self.kwargs['telegram_bot'].database_records.all()
 
 
 class DatabaseRecordAPIView(RetrieveUpdateDestroyAPIView[DatabaseRecord]):
-	authentication_classes = (CookiesTokenAuthentication,)
-	permission_classes = (IsAuthenticated & TelegramBotIsFound & DatabaseRecordIsFound,)
+	authentication_classes = [CookiesTokenAuthentication]
+	permission_classes = [IsAuthenticated & TelegramBotIsFound & DatabaseRecordIsFound]
 	serializer_class = DatabaseRecordSerializer
 
 	def get_object(self) -> DatabaseRecord:

@@ -13,8 +13,8 @@ from .models import Button, Donation, Section
 @admin.register(Donation)
 class DonationAdmin(admin.ModelAdmin[Donation]):
 	date_hierarchy = 'date'
-	list_display = ('sum_display', 'contact_link_display', 'date')
-	fields = ('sum', 'contact_link', 'date')
+	list_display = ['sum_display', 'contact_link_display', 'date']
+	fields = ['sum', 'contact_link', 'date']
 
 	@admin.display(description=_('Сумма'), ordering='sum')
 	def sum_display(self, donation: Donation) -> str:
@@ -27,15 +27,15 @@ class DonationAdmin(admin.ModelAdmin[Donation]):
 
 @admin.register(Section)
 class SectionAdmin(TranslationAdmin):  # FIXME: Need to add generics support
-	list_display = ('title', 'position')
-	fields = ('title', 'text', 'position')
+	list_display = ['title', 'position']
+	fields = ['title', 'text', 'position']
 	formfield_overrides = {models.TextField: {'widget': TinyMCE}}
 
 
 @admin.register(Button)
 class ButtonAdmin(TranslationAdmin):  # FIXME: Need to add generics support
-	list_display = ('text', 'url_display', 'position')
-	fields = ('text', 'url', 'position')
+	list_display = ['text', 'url_display', 'position']
+	fields = ['text', 'url', 'position']
 
 	@admin.display(description=_('Ссылка'), ordering='url')
 	def url_display(self, button: Button) -> str:

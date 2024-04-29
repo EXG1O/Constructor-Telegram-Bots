@@ -34,7 +34,7 @@ class TelegramBot(models.Model):
 		verbose_name=_('Владелец'),
 	)
 	username = models.CharField('@username', max_length=32)
-	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=(validate_api_token,))
+	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=[validate_api_token])
 	storage_size = models.PositiveBigIntegerField(_('Размер хранилища'), default=41943040)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_enabled = models.BooleanField(_('Включён'), default=False)
@@ -121,10 +121,10 @@ class TelegramBot(models.Model):
 
 
 class Connection(models.Model):
-	HANDLE_POSITION_CHOICES = (
+	HANDLE_POSITION_CHOICES = [
 		('left', _('Слева')),
 		('right', _('Справа')),
-	)
+	]
 
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
@@ -298,11 +298,11 @@ class CommandKeyboardButton(models.Model):
 
 
 class CommandKeyboard(models.Model):
-	TYPE_CHOICES = (
+	TYPE_CHOICES = [
 		('default', _('Обычный')),
 		('inline', _('Встроенный')),
 		('payment', _('Платёжный')),
-	)
+	]
 
 	command = models.OneToOneField(
 		'Command',
@@ -391,22 +391,22 @@ class Command(AbstractBlock):
 
 
 class ConditionPart(models.Model):
-	TYPE_CHOICES = (
+	TYPE_CHOICES = [
 		('+', _('Положительный')),
 		('-', _('Отрицательный')),
-	)
-	OPERATOR_CHOICES = (
+	]
+	OPERATOR_CHOICES = [
 		('==', _('Равно')),
 		('!=', _('Не равно')),
 		('>', _('Больше')),
 		('>=', _('Больше или равно')),
 		('<', _('Меньше')),
 		('<=', _('Меньше или равно')),
-	)
-	NEXT_PART_OPERATOR_CHOICES = (
+	]
+	NEXT_PART_OPERATOR_CHOICES = [
 		('&&', _('И')),
 		('||', _('ИЛИ')),
-	)
+	]
 
 	condition = models.ForeignKey(
 		'Condition',
@@ -473,13 +473,13 @@ class BackgroundTaskAPIRequest(AbstractAPIRequest):
 
 
 class BackgroundTask(AbstractBlock):
-	INTERVAL_CHOICES = (
+	INTERVAL_CHOICES = [
 		(1, _('1 день')),
 		(3, _('3 дня')),
 		(7, _('7 дней')),
 		(14, _('14 дней')),
 		(28, _('28 дней')),
-	)
+	]
 
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
