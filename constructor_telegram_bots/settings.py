@@ -88,7 +88,7 @@ INSTALLED_APPS = [
 	'privacy_policy',
 ]  # fmt: skip
 
-if DEBUG:
+if not TEST and DEBUG:
 	INSTALLED_APPS.append('silk')
 
 REST_FRAMEWORK = {
@@ -128,7 +128,7 @@ MIDDLEWARE = [
 	'django.middleware.locale.LocaleMiddleware',
 ]
 
-if DEBUG:
+if not TEST and DEBUG:
 	MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
 
 
