@@ -21,6 +21,9 @@ redis = "^5.0.3"
 psycopg = "^3.1.18"
 ruff = "^0.4.2"
 
+[tool.poetry.group.dev.dependencies]
+django-silk = "^5.1.0"
+
 [tool.mypy]
 strict = true
 ignore_missing_imports = true

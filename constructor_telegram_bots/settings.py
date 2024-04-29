@@ -88,6 +88,9 @@ INSTALLED_APPS = [
 	'privacy_policy',
 ]  # fmt: skip
 
+if DEBUG:
+	INSTALLED_APPS.append('silk')
+
 REST_FRAMEWORK = {
 	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
 }
@@ -124,6 +127,9 @@ MIDDLEWARE = [
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'django.middleware.locale.LocaleMiddleware',
 ]
+
+if DEBUG:
+	MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
 
 
 TEMPLATES = [
