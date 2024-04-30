@@ -23,7 +23,7 @@ urlpatterns = [
 					path('languages/', include('languages.urls')),
 					path('users/', include('users.urls')),
 					path('telegram-bots/', include('telegram_bots.urls')),
-					path('updates/', include('updates.urls')),
+					path('', include('updates.urls')),
 					path('donations/', include('donation.urls')),
 					path('instruction/', include('instruction.urls')),
 					path('privacy-policy/', include('privacy_policy.urls')),

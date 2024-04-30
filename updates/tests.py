@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 
 
 class UpdatesAPIViewTests(TestCase):
-	url: str = reverse('api:updates:list')
+	url: str = reverse('api:updates:update-list')
 
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()

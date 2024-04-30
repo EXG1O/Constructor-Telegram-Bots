@@ -1,8 +1,9 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views import UpdatesAPIView
+from .views import UpdateViewSet
+
+router = SimpleRouter()
+router.register('updates', UpdateViewSet)
 
 app_name = 'updates'
-urlpatterns = [
-	path('', UpdatesAPIView.as_view(), name='list'),
-]
+urlpatterns = router.urls
