@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import IsAuthenticated
@@ -58,6 +60,7 @@ class UserLoginAPIView(APIView):
 			raise AuthenticationFailed()
 
 		user.confirm_code = None
+		user.last_login = timezone.now()
 		user.save()
 
 		auth_token, created = Token.objects.get_or_create(user=user)
