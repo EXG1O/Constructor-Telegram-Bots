@@ -112,12 +112,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		else:
 			user: User = User.objects.get(id=self.id)
 
-			if (
-				self.confirm_code and not user.confirm_code or
-				self.confirm_code and user.confirm_code and self.confirm_code != user.confirm_code
-			):  # fmt: skip
-				self.confirm_code_generation_date = timezone.now()
-			elif not self.confirm_code and user.confirm_code:
+			if self.confirm_code:
+				if not user.confirm_code or self.confirm_code != user.confirm_code:
+					self.confirm_code_generation_date = timezone.now()
+			elif user.confirm_code:
 				self.confirm_code = None
 				self.confirm_code_generation_date = None
 

@@ -1,5 +1,3 @@
-from django.contrib.auth import login, logout
-
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.permissions import IsAuthenticated
@@ -59,8 +57,6 @@ class UserLoginAPIView(APIView):
 		if user.confirm_code != confirm_code:
 			raise AuthenticationFailed()
 
-		login(request, user)
-
 		user.confirm_code = None
 		user.save()
 
@@ -78,8 +74,6 @@ class UserLogoutAPIView(APIView):
 
 	def post(self, request: Request) -> Response:
 		request.user.auth_token.delete()  # type: ignore [arg-type, union-attr]
-
-		logout(request)
 
 		response = Response()
 		response.delete_cookie('auth-token')
