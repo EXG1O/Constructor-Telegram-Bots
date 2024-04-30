@@ -1,4 +1,5 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.mixins import ListModelMixin
+from rest_framework.viewsets import GenericViewSet
 
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 
@@ -10,7 +11,7 @@ from .serializers import (
 )
 
 
-class DonationsAPIView(ListAPIView[Donation]):
+class DonationsViewSet(ListModelMixin, GenericViewSet[Donation]):
 	authentication_classes = []
 	permission_classes = []
 	queryset = Donation.objects.all()
@@ -18,14 +19,14 @@ class DonationsAPIView(ListAPIView[Donation]):
 	pagination_class = LimitOffsetPagination
 
 
-class SectionsAPIView(ListAPIView[Section]):
+class SectionsViewSet(ListModelMixin, GenericViewSet[Section]):
 	authentication_classes = []
 	permission_classes = []
 	queryset = Section.objects.all()
 	serializer_class = SectionSerializer
 
 
-class ButtonsAPIView(ListAPIView[Button]):
+class ButtonsViewSet(ListModelMixin, GenericViewSet[Button]):
 	authentication_classes = []
 	permission_classes = []
 	queryset = Button.objects.all()

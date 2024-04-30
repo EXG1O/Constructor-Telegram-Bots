@@ -11,7 +11,7 @@ class CustomTestCase(TestCase):
 
 
 class DonationsAPIViewTests(CustomTestCase):
-	url: str = reverse('api:donation:index')
+	url: str = reverse('api:donation:donation-list')
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
@@ -19,7 +19,7 @@ class DonationsAPIViewTests(CustomTestCase):
 
 
 class SectionsAPIViewTests(CustomTestCase):
-	url: str = reverse('api:donation:sections')
+	url: str = reverse('api:donation:section-list')
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
@@ -27,7 +27,7 @@ class SectionsAPIViewTests(CustomTestCase):
 
 
 class ButtonsAPIViewTests(CustomTestCase):
-	url: str = reverse('api:donation:buttons')
+	url: str = reverse('api:donation:button-list')
 
 	def test_get_method(self) -> None:
 		response: HttpResponse = self.client.get(self.url)

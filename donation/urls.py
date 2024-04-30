@@ -1,14 +1,11 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views import (
-	ButtonsAPIView,
-	DonationsAPIView,
-	SectionsAPIView,
-)
+from .views import ButtonsViewSet, DonationsViewSet, SectionsViewSet
+
+router = SimpleRouter(use_regex_path=False)  # type: ignore [call-arg]  # use_regex_path param exists
+router.register('donations', DonationsViewSet, basename='donation')
+router.register('sections', SectionsViewSet, basename='section')
+router.register('buttons', ButtonsViewSet, basename='button')
 
 app_name = 'donation'
-urlpatterns = [
-	path('', DonationsAPIView.as_view(), name='index'),
-	path('sections/', SectionsAPIView.as_view(), name='sections'),
-	path('buttons/', ButtonsAPIView.as_view(), name='buttons'),
-]
+urlpatterns = router.urls
