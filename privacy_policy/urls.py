@@ -1,8 +1,9 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views import SectionsAPIView
+from .views import SectionsViewSet
+
+router = SimpleRouter()
+router.register('sections', SectionsViewSet)
 
 app_name = 'privacy-policy'
-urlpatterns = [
-	path('sections/', SectionsAPIView.as_view(), name='sections'),
-]
+urlpatterns = router.urls

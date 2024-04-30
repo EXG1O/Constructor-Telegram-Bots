@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 
 
 class SectionsAPIViewTests(TestCase):
-	url: str = reverse('api:privacy-policy:sections')
+	url: str = reverse('api:privacy-policy:section-list')
 
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
