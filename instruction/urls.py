@@ -1,8 +1,9 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views import SectionsAPIView
+from .views import SectionViewSet
+
+router = SimpleRouter()
+router.register('sections', SectionViewSet, basename='section')
 
 app_name = 'instruction'
-urlpatterns = [
-	path('sections/', SectionsAPIView.as_view(), name='sections'),
-]
+urlpatterns = router.urls

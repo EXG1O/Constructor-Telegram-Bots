@@ -1,10 +1,11 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.mixins import ListModelMixin
+from rest_framework.viewsets import GenericViewSet
 
 from .models import Section
 from .serializers import SectionSerializer
 
 
-class SectionsAPIView(ListAPIView[Section]):
+class SectionViewSet(ListModelMixin, GenericViewSet[Section]):
 	authentication_classes = []
 	permission_classes = []
 	queryset = Section.objects.all()
