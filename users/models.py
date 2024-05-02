@@ -32,7 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
 	first_name = models.CharField(_('Имя'), max_length=64)
 	last_name = models.CharField(_('Фамилия'), max_length=64, null=True)
-	confirm_code = models.CharField(_('Код подтверждения'), max_length=25, null=True)
+	_confirm_code = models.CharField(_('Код подтверждения'), db_column='confirm_code', max_length=25, null=True)
 	confirm_code_generation_date = models.DateTimeField(_('Код подтверждения сгенерирован'), null=True)
 	is_staff = models.BooleanField(_('Сотрудник'), default=False)
 	joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
@@ -52,6 +52,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 	@property
 	def full_name(self) -> str:
 		return f'{self.first_name} {self.last_name}' if self.last_name else self.first_name
+
+	@property
+	def confirm_code(self) -> str | None:
+		return self._confirm_code
+
+	@confirm_code.setter
+	def confirm_code(self, value: str | None) -> None:
+		self._confirm_code = value
+		self.confirm_code_generation_date = timezone.now() if value else None
 
 	def generate_confirm_code(self) -> None:
 		self.confirm_code = generate_random_string(string.ascii_letters + string.digits, 25)
@@ -100,24 +109,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 		using: str | None = None,
 		update_fields: Iterable[str] | None = None,
 	) -> None:
-		if self._state.adding:
-			if not settings.TEST:
-				if not self.first_name:
-					self.update_first_name()
-				if self.last_name is None:
-					self.update_last_name()
-
-			if self.confirm_code:
-				self.confirm_code_generation_date = timezone.now()
-		else:
-			user: User = User.objects.get(id=self.id)
-
-			if self.confirm_code:
-				if not user.confirm_code or self.confirm_code != user.confirm_code:
-					self.confirm_code_generation_date = timezone.now()
-			elif user.confirm_code:
-				self.confirm_code = None
-				self.confirm_code_generation_date = None
+		if self._state.adding and not settings.TEST:
+			if not self.first_name:
+				self.update_first_name()
+			if self.last_name is None:
+				self.update_last_name()
 
 		super().save(force_insert, force_update, using, update_fields)
 
