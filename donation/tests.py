@@ -13,7 +13,7 @@ class CustomTestCase(TestCase):
 class DonationViewSetTests(CustomTestCase):
 	url: str = reverse('api:donation:donation-list')
 
-	def test_get_method(self) -> None:
+	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
@@ -21,7 +21,7 @@ class DonationViewSetTests(CustomTestCase):
 class SectionViewSetTests(CustomTestCase):
 	url: str = reverse('api:donation:section-list')
 
-	def test_get_method(self) -> None:
+	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
 
@@ -29,6 +29,6 @@ class SectionViewSetTests(CustomTestCase):
 class ButtonViewSetTests(CustomTestCase):
 	url: str = reverse('api:donation:button-list')
 
-	def test_get_method(self) -> None:
+	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)

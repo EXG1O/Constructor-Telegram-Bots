@@ -11,6 +11,6 @@ class SectionViewSetTests(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
 
-	def test_get_method(self) -> None:
+	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
 		self.assertEqual(response.status_code, 200)
