@@ -1,6 +1,7 @@
-from django.conf import settings
 from django.db.models import QuerySet
+from django.shortcuts import get_object_or_404
 
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
 	CreateAPIView,
@@ -15,6 +16,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -52,14 +54,11 @@ from .serializers import (
 	DiagramBackgroundTaskSerializer,
 	DiagramCommandSerializer,
 	DiagramConditionSerializer,
-	TelegramBotActionSerializer,
 	TelegramBotSerializer,
 	UpdateCommandSerializer,
 	UserSerializer,
 	VariableSerializer,
 )
-
-from typing import Literal
 
 
 class StatsAPIView(APIView):
@@ -80,38 +79,39 @@ class StatsAPIView(APIView):
 		)
 
 
-class TelegramBotsAPIView(ListCreateAPIView[TelegramBot]):
+class TelegramBotViewSet(ModelViewSet[TelegramBot]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = TelegramBotSerializer
+	lookup_field = 'id'
+	lookup_value_converter = 'int'
 
 	def get_queryset(self) -> QuerySet[TelegramBot]:
 		return self.request.user.telegram_bots.all()  # type: ignore [union-attr]
 
-
-class TelegramBotAPIView(RetrieveUpdateDestroyAPIView[TelegramBot]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
-	serializer_class = TelegramBotSerializer
-
 	def get_object(self) -> TelegramBot:
-		return self.kwargs['telegram_bot']
+		return get_object_or_404(self.request.user.telegram_bots, id=self.kwargs['id'])  # type: ignore [union-attr]
 
-	def post(self, request: Request, telegram_bot: TelegramBot) -> Response:
-		serializer = TelegramBotActionSerializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
+	@action(detail=True, methods=['POST'])
+	def start(self, request: Request, id: int | None = None) -> Response:
+		telegram_bot: TelegramBot = self.get_object()
+		telegram_bot.start()
 
-		if not settings.TEST:
-			action: Literal['start', 'restart', 'stop'] = serializer.validated_data['action']
+		return Response(self.get_serializer(telegram_bot).data)
 
-			if action == 'start':
-				telegram_bot.start()
-			elif action == 'restart':
-				telegram_bot.restart()
-			else:
-				telegram_bot.stop()
+	@action(detail=True, methods=['POST'])
+	def restart(self, request: Request, id: int | None = None) -> Response:
+		telegram_bot: TelegramBot = self.get_object()
+		telegram_bot.restart()
 
-		return Response()
+		return Response(self.get_serializer(telegram_bot).data)
+
+	@action(detail=True, methods=['POST'])
+	def stop(self, request: Request, id: int | None = None) -> Response:
+		telegram_bot: TelegramBot = self.get_object()
+		telegram_bot.stop()
+
+		return Response(self.get_serializer(telegram_bot).data)
 
 
 class ConnectionsAPIView(CreateAPIView[Connection]):

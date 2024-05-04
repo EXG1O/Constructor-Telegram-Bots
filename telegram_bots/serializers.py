@@ -110,10 +110,6 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 		return representation
 
 
-class TelegramBotActionSerializer(serializers.Serializer[TelegramBot]):
-	action = serializers.ChoiceField(choices=['start', 'restart', 'stop'])
-
-
 class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotContextMixin):
 	source_object_type = serializers.ChoiceField(
 		choices=['command', 'command_keyboard_button', 'condition', 'background_task'],

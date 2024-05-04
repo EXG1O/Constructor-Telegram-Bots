@@ -1,5 +1,7 @@
 from django.urls import include, path
 
+from rest_framework.routers import SimpleRouter
+
 from .views import (
 	BackgroundTaskAPIView,
 	BackgroundTasksAPIView,
@@ -18,25 +20,25 @@ from .views import (
 	DiagramConditionAPIView,
 	DiagramConditionsAPIView,
 	StatsAPIView,
-	TelegramBotAPIView,
-	TelegramBotsAPIView,
+	TelegramBotViewSet,
 	UserAPIView,
 	UsersAPIView,
 	VariableAPIView,
 	VariablesAPIView,
 )
 
+router = SimpleRouter(use_regex_path=False)  # type: ignore [call-arg]  # use_regex_path param exists
+router.register('', TelegramBotViewSet, basename='telegram-bot')
+
 app_name = 'telegram-bots'
 urlpatterns = [
 	path('stats/', StatsAPIView.as_view(), name='stats'),
-	path('', TelegramBotsAPIView.as_view(), name='list'),
 	path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
 	path(
 		'<int:telegram_bot_id>/',
 		include(
 			(
 				[
-					path('', TelegramBotAPIView.as_view(), name='index'),
 					path('connections/', ConnectionsAPIView.as_view(), name='connections'),
 					path('connections/<int:connection_id>/', ConnectionAPIView.as_view(), name='connection'),
 					path('commands/', CommandsAPIView.as_view(), name='commands'),
@@ -92,4 +94,4 @@ urlpatterns = [
 			)
 		),
 	),
-]
+] + router.urls

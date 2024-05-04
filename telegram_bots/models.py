@@ -70,13 +70,16 @@ class TelegramBot(models.Model):
 		return self.storage_size - self.used_storage_size
 
 	def start(self) -> None:
-		tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
+		if not settings.TEST:
+			tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def restart(self) -> None:
-		tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
+		if not settings.TEST:
+			tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def stop(self) -> None:
-		tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
+		if not settings.TEST:
+			tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def update_username(self) -> None:
 		if settings.TEST:
