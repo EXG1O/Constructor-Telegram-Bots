@@ -10,7 +10,7 @@ class CustomTestCase(TestCase):
 		self.client: APIClient = APIClient()
 
 
-class DonationsAPIViewTests(CustomTestCase):
+class DonationViewSetTests(CustomTestCase):
 	url: str = reverse('api:donation:donation-list')
 
 	def test_get_method(self) -> None:
@@ -18,7 +18,7 @@ class DonationsAPIViewTests(CustomTestCase):
 		self.assertEqual(response.status_code, 200)
 
 
-class SectionsAPIViewTests(CustomTestCase):
+class SectionViewSetTests(CustomTestCase):
 	url: str = reverse('api:donation:section-list')
 
 	def test_get_method(self) -> None:
@@ -26,7 +26,7 @@ class SectionsAPIViewTests(CustomTestCase):
 		self.assertEqual(response.status_code, 200)
 
 
-class ButtonsAPIViewTests(CustomTestCase):
+class ButtonViewSetTests(CustomTestCase):
 	url: str = reverse('api:donation:button-list')
 
 	def test_get_method(self) -> None:
