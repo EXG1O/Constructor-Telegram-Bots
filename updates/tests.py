@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class UpdatesAPIViewTests(TestCase):
+class UpdateViewSetTests(TestCase):
 	url: str = reverse('api:updates:update-list')
 
 	def setUp(self) -> None:
