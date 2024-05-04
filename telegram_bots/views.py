@@ -89,9 +89,6 @@ class TelegramBotViewSet(ModelViewSet[TelegramBot]):
 	def get_queryset(self) -> QuerySet[TelegramBot]:
 		return self.request.user.telegram_bots.all()  # type: ignore [union-attr]
 
-	def get_object(self) -> TelegramBot:
-		return get_object_or_404(self.request.user.telegram_bots, id=self.kwargs['id'])  # type: ignore [union-attr]
-
 	@action(detail=True, methods=['POST'])
 	def start(self, request: Request, id: int | None = None) -> Response:
 		telegram_bot: TelegramBot = self.get_object()
