@@ -76,7 +76,7 @@ class UserLogoutAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request: Request) -> Response:
-		request.user.auth_token.delete()  # type: ignore [arg-type, union-attr]
+		request.user.auth_token.delete()  # type: ignore [call-overload, union-attr]
 
 		response = Response()
 		response.delete_cookie('auth-token')
