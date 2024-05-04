@@ -665,6 +665,21 @@ coreapi = ["coreapi (>=2.0.0)"]
 markdown = ["types-Markdown (>=0.1.5)"]
 
 [[package]]
+name = "drf-nested-routers"
+version = "0.93.5"
+description = "Nested resources for the Django Rest Framework"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "drf-nested-routers-0.93.5.tar.gz", hash = "sha256:1407565abc7bada37c162c7e11bf214ae71625a17fdec6d9a47a17f4a3627d32"},
+    {file = "drf_nested_routers-0.93.5-py2.py3-none-any.whl", hash = "sha256:9a6813554020134a02e62f8c2934b2047717f7da06f8b801752c521e43735c63"},
+]
+
+[package.dependencies]
+Django = ">=3.2"
+djangorestframework = ">=3.14.0"
+
+[[package]]
 name = "drf-standardized-errors"
 version = "0.13.0"
 description = "Standardize your API error responses."
@@ -1648,4 +1663,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "beba56f50fc4c3c3a122fd38e78ddef1ae74113f75cae8297e075f5bf1d3c2b7"
+content-hash = "eafb9cb5eb53ab8cd4a19367e201cba81d0ce298ce36d278d8ede5a807d7b990"

@@ -20,6 +20,7 @@ python-dotenv = "^1.0.1"
 redis = "^5.0.3"
 psycopg = "^3.1.18"
 ruff = "^0.4.2"
+drf-nested-routers = "^0.93.5"
 
 [tool.poetry.group.dev.dependencies]
 django-silk = "^5.1.0"
