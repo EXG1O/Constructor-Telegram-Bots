@@ -48,31 +48,46 @@ class CustomTestCase(TestCase):
 		self.telegram_bot: TelegramBot = self.site_user.telegram_bots.create(api_token='Hi!')
 
 
-class TelegramBotsAPIViewTests(CustomTestCase):
-	url: str = reverse('api:telegram-bots:telegram-bot-list')
+class TelegramBotViewSetTests(CustomTestCase):
+	list_url: str = reverse('api:telegram-bots:telegram-bot-list')
 
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.url)
+	def setUp(self) -> None:
+		super().setUp()
+
+		true_kwargs: dict[str, Any] = {'id': self.telegram_bot.id}
+		false_kwargs: dict[str, Any] = {'id': 0}
+
+		self.detail_true_url: str = reverse('api:telegram-bots:telegram-bot-detail', kwargs=true_kwargs)
+		self.detail_false_url: str = reverse('api:telegram-bots:telegram-bot-detail', kwargs=false_kwargs)
+		self.start_true_url: str = reverse('api:telegram-bots:telegram-bot-start', kwargs=true_kwargs)
+		self.start_false_url: str = reverse('api:telegram-bots:telegram-bot-start', kwargs=false_kwargs)
+		self.restart_true_url: str = reverse('api:telegram-bots:telegram-bot-restart', kwargs=true_kwargs)
+		self.restart_false_url: str = reverse('api:telegram-bots:telegram-bot-restart', kwargs=false_kwargs)
+		self.stop_true_url: str = reverse('api:telegram-bots:telegram-bot-stop', kwargs=true_kwargs)
+		self.stop_false_url: str = reverse('api:telegram-bots:telegram-bot-stop', kwargs=false_kwargs)
+
+	def test_list(self) -> None:
+		response: HttpResponse = self.client.get(self.list_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.get(self.url)
+		response = self.client.get(self.list_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.url)
+	def test_create(self) -> None:
+		response: HttpResponse = self.client.post(self.list_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.url)
+		response = self.client.post(self.list_url)
 		self.assertEqual(response.status_code, 400)
 
 		old_telegram_bot_count: int = self.site_user.telegram_bots.count()
 
 		response = self.client.post(
-			self.url,
+			self.list_url,
 			{
 				'api_token': 'Bye!',
 				'is_private': False,
@@ -84,98 +99,81 @@ class TelegramBotsAPIViewTests(CustomTestCase):
 			old_telegram_bot_count + 1,
 		)
 
-
-class TelegramBotAPIViewTests(CustomTestCase):
-	def setUp(self) -> None:
-		super().setUp()
-
-		self.true_url: str = reverse('api:telegram-bots:telegram-bot-detail', kwargs={'id': self.telegram_bot.id})
-		self.false_url: str = reverse('api:telegram-bots:telegram-bot-detail', kwargs={'id': 0})
-
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.true_url)
+	def test_retrieve(self) -> None:
+		response: HttpResponse = self.client.get(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.get(self.false_url)
+		response = self.client.get(self.detail_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.true_url)
+		response = self.client.get(self.detail_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_post_method_for_start_action(self) -> None:
-		self.true_url = reverse('api:telegram-bots:telegram-bot-start', kwargs={'id': self.telegram_bot.id})
-		self.false_url = reverse('api:telegram-bots:telegram-bot-start', kwargs={'id': 0})
-
-		response: HttpResponse = self.client.post(self.true_url)
+	def test_start(self) -> None:
+		response: HttpResponse = self.client.post(self.start_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.false_url)
+		response = self.client.post(self.start_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.true_url)
+		response = self.client.post(self.start_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_post_method_for_restart_action(self) -> None:
-		self.true_url = reverse('api:telegram-bots:telegram-bot-restart', kwargs={'id': self.telegram_bot.id})
-		self.false_url = reverse('api:telegram-bots:telegram-bot-restart', kwargs={'id': 0})
-
-		response: HttpResponse = self.client.post(self.true_url)
+	def test_restart(self) -> None:
+		response: HttpResponse = self.client.post(self.restart_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.false_url)
+		response = self.client.post(self.restart_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.true_url)
+		response = self.client.post(self.restart_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_post_method_for_stop_action(self) -> None:
-		self.true_url = reverse('api:telegram-bots:telegram-bot-stop', kwargs={'id': self.telegram_bot.id})
-		self.false_url = reverse('api:telegram-bots:telegram-bot-stop', kwargs={'id': 0})
-
-		response: HttpResponse = self.client.post(self.true_url)
+	def test_stop(self) -> None:
+		response: HttpResponse = self.client.post(self.stop_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.false_url)
+		response = self.client.post(self.stop_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.true_url)
+		response = self.client.post(self.stop_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_put_method(self) -> None:
-		response: HttpResponse = self.client.put(self.true_url)
+	def test_update(self) -> None:
+		response: HttpResponse = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.put(self.false_url)
+		response = self.client.put(self.detail_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.true_url)
+		response = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 400)
 
 		new_api_token_1: str = '123456789:exg1o'
 
-		response = self.client.put(self.true_url, {'api_token': new_api_token_1})
+		response = self.client.put(self.detail_true_url, {'api_token': new_api_token_1})
 		self.assertEqual(response.status_code, 200)
 
 		self.telegram_bot.refresh_from_db()
 		self.assertEqual(self.telegram_bot.api_token, new_api_token_1)
 
-		response = self.client.put(self.true_url, {'is_private': True})
+		response = self.client.put(self.detail_true_url, {'is_private': True})
 		self.assertEqual(response.status_code, 400)
 
 		new_api_token_2: str = '987654321:exg1o'
 
 		response = self.client.put(
-			self.true_url,
+			self.detail_true_url,
 			{
 				'api_token': new_api_token_2,
 				'is_private': True,
@@ -187,42 +185,42 @@ class TelegramBotAPIViewTests(CustomTestCase):
 		self.assertEqual(self.telegram_bot.api_token, new_api_token_2)
 		self.assertTrue(self.telegram_bot.is_private)
 
-	def test_patch_method(self) -> None:
-		response: HttpResponse = self.client.patch(self.true_url)
+	def test_partial_update(self) -> None:
+		response: HttpResponse = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.patch(self.false_url)
+		response = self.client.patch(self.detail_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.true_url)
+		response = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 200)
 
 		new_api_token: str = '123456789:exg1o'
 
-		response = self.client.patch(self.true_url, {'api_token': new_api_token})
+		response = self.client.patch(self.detail_true_url, {'api_token': new_api_token})
 		self.assertEqual(response.status_code, 200)
 
 		self.telegram_bot.refresh_from_db()
 		self.assertEqual(self.telegram_bot.api_token, new_api_token)
 
-		response = self.client.patch(self.true_url, {'is_private': True})
+		response = self.client.patch(self.detail_true_url, {'is_private': True})
 		self.assertEqual(response.status_code, 200)
 
 		self.telegram_bot.refresh_from_db()
 		self.assertTrue(self.telegram_bot.is_private)
 
-	def test_delete_method(self) -> None:
-		response: HttpResponse = self.client.delete(self.true_url)
+	def test_destroy(self) -> None:
+		response: HttpResponse = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.delete(self.false_url)
+		response = self.client.delete(self.detail_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.true_url)
+		response = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 204)
 
 		try:
