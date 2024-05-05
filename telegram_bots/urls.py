@@ -5,8 +5,7 @@ from rest_framework.routers import SimpleRouter
 from .views import (
 	BackgroundTaskAPIView,
 	BackgroundTasksAPIView,
-	CommandAPIView,
-	CommandsAPIView,
+	CommandViewSet,
 	ConditionAPIView,
 	ConditionsAPIView,
 	ConnectionViewSet,
@@ -29,6 +28,7 @@ from .views import (
 router = SimpleRouter(use_regex_path=False)  # type: ignore [call-arg]  # use_regex_path param exists
 router.register('', TelegramBotViewSet, basename='telegram-bot')
 router.register('<int:telegram_bot_id>/connections', ConnectionViewSet, basename='telegram-bot-connection')
+router.register('<int:telegram_bot_id>/commands', CommandViewSet, basename='telegram-bot-command')
 
 app_name = 'telegram-bots'
 urlpatterns = [
@@ -39,8 +39,6 @@ urlpatterns = [
 		include(
 			(
 				[
-					path('commands/', CommandsAPIView.as_view(), name='commands'),
-					path('commands/<int:command_id>/', CommandAPIView.as_view(), name='command'),
 					path('conditions/', ConditionsAPIView.as_view(), name='conditions'),
 					path('conditions/<int:condition_id>/', ConditionAPIView.as_view(), name='condition'),
 					path('background-tasks/', BackgroundTasksAPIView.as_view(), name='background-tasks'),

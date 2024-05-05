@@ -120,31 +120,20 @@ class ConnectionViewSet(TelegramBotMixin, CreateModelMixin, DestroyModelMixin, G
 		return self.telegram_bot.connections.all()
 
 
-class CommandsAPIView(ListCreateAPIView[Command]):
+class CommandViewSet(TelegramBotMixin, ModelViewSet[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	parser_classes = [CommandMultiPartParser]
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.kwargs['telegram_bot'].commands.all()
+		return self.telegram_bot.commands.all()
 
 	def get_serializer_class(self) -> type[BaseSerializer[Command]]:
-		if self.request.method == 'POST':
+		if not self.detail and self.request.method == 'POST':
 			return CreateCommandSerializer
-		else:
-			return CommandSerializer
-
-
-class CommandAPIView(RetrieveUpdateDestroyAPIView[Command]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandIsFound]
-	parser_classes = [CommandMultiPartParser]
-
-	def get_object(self) -> Command:
-		return self.kwargs['command']
-
-	def get_serializer_class(self) -> type[BaseSerializer[Command]]:
-		if self.request.method in ('PUT', 'PATCH'):
+		elif self.detail and self.request.method in ['PUT', 'PATCH']:
 			return UpdateCommandSerializer
 		else:
 			return CommandSerializer
