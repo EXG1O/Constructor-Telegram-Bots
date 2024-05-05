@@ -183,22 +183,21 @@ class DiagramCommandViewSet(
 		return self.telegram_bot.commands.all()
 
 
-class DiagramConditionsAPIView(ListAPIView[Condition]):
+class DiagramConditionViewSet(
+	TelegramBotMixin,
+	ListModelMixin,
+	RetrieveModelMixin,
+	UpdateModelMixin,
+	GenericViewSet[Condition],
+):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramConditionSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Condition]:
-		return self.kwargs['telegram_bot'].conditions.all()
-
-
-class DiagramConditionAPIView(RetrieveUpdateAPIView[Condition]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConditionIsIsFound]
-	serializer_class = DiagramConditionSerializer
-
-	def get_object(self) -> Condition:
-		return self.kwargs['condition']
+		return self.telegram_bot.conditions.all()
 
 
 class DiagramBackgroundTasksAPIView(ListAPIView[BackgroundTask]):

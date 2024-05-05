@@ -12,8 +12,7 @@ from .views import (
 	DiagramBackgroundTaskAPIView,
 	DiagramBackgroundTasksAPIView,
 	DiagramCommandViewSet,
-	DiagramConditionAPIView,
-	DiagramConditionsAPIView,
+	DiagramConditionViewSet,
 	StatsAPIView,
 	TelegramBotViewSet,
 	UserAPIView,
@@ -35,6 +34,7 @@ router.register(f'{base_path}/commands', CommandViewSet, basename=f'{base_name}-
 router.register(f'{base_path}/conditions', ConditionViewSet, basename=f'{base_name}-condition')
 router.register(f'{base_path}/background-tasks', BackgroundTaskViewSet, basename=f'{base_name}-background-task')
 router.register(f'{base_diagram_path}/commands', DiagramCommandViewSet, basename=f'{base_diagram_name}-command')
+router.register(f'{base_diagram_path}/conditions', DiagramConditionViewSet, basename=f'{base_diagram_name}-condition')
 
 app_name = 'telegram-bots'
 urlpatterns = [
@@ -50,12 +50,6 @@ urlpatterns = [
 						include(
 							(
 								[
-									path('conditions/', DiagramConditionsAPIView.as_view(), name='conditions'),
-									path(
-										'conditions/<int:condition_id>/',
-										DiagramConditionAPIView.as_view(),
-										name='condition',
-									),
 									path(
 										'background-tasks/',
 										DiagramBackgroundTasksAPIView.as_view(),
