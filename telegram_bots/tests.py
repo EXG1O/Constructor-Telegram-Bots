@@ -234,11 +234,12 @@ class ConnectionViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.command_1: Command = Command.objects.create(telegram_bot=self.telegram_bot, name='Test name 1')
+		self.command_1: Command = self.telegram_bot.commands.create(name='Test name 1')
 
-		self.command_2: Command = Command.objects.create(telegram_bot=self.telegram_bot, name='Test name 1')
+		self.command_2: Command = self.telegram_bot.commands.create(name='Test name 1')
 		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-			command=self.command_2, type='default'
+			command=self.command_2,
+			type='default',
 		)
 		self.command_2_keyboard_button: CommandKeyboardButton = self.command_2_keyboard.buttons.create(text='Button')
 
@@ -891,6 +892,19 @@ class DiagramCommandViewSetTests(CustomTestCase):
 			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
 		)
 
+	def test_retrieve(self) -> None:
+		response: HttpResponse = self.client.get(self.detail_true_url)
+		self.assertEqual(response.status_code, 401)
+
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
+			response = self.client.get(url)
+			self.assertEqual(response.status_code, 404)
+
+		response = self.client.get(self.detail_true_url)
+		self.assertEqual(response.status_code, 200)
+
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
 		self.assertEqual(response.status_code, 401)
@@ -903,7 +917,7 @@ class DiagramCommandViewSetTests(CustomTestCase):
 		response = self.client.get(self.list_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_retrieve(self) -> None:
+	def test_update(self) -> None:
 		response: HttpResponse = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
@@ -924,7 +938,7 @@ class DiagramCommandViewSetTests(CustomTestCase):
 		self.command.refresh_from_db()
 		self.assertEqual(self.command.x, new_x)
 
-	def test_update(self) -> None:
+	def test_partial_update(self) -> None:
 		response: HttpResponse = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
@@ -1412,7 +1426,7 @@ class UserViewSetTests(CustomTestCase):
 			pass
 
 
-class DatabaseRecordsAPIViewTests(CustomTestCase):
+class DatabaseRecordViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
