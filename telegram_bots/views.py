@@ -2,10 +2,6 @@ from django.db.models import QuerySet
 
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import (
-	ListCreateAPIView,
-	RetrieveUpdateDestroyAPIView,
-)
 from rest_framework.mixins import (
 	CreateModelMixin,
 	DestroyModelMixin,
@@ -37,10 +33,6 @@ from .models import (
 	Variable,
 )
 from .parsers import CommandMultiPartParser
-from .permissions import (
-	DatabaseRecordIsFound,
-	TelegramBotIsFound,
-)
 from .serializers import (
 	BackgroundTaskSerializer,
 	CommandSerializer,
@@ -249,22 +241,15 @@ class UserViewSet(
 		return self.telegram_bot.users.all()
 
 
-class DatabaseRecordsAPIView(ListCreateAPIView[DatabaseRecord]):
+class DatabaseRecordViewSet(TelegramBotMixin, ModelViewSet[DatabaseRecord]):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = DatabaseRecordSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter]
 	search_fields = ['data']
 
 	def get_queryset(self) -> QuerySet[DatabaseRecord]:
-		return self.kwargs['telegram_bot'].database_records.all()
-
-
-class DatabaseRecordAPIView(RetrieveUpdateDestroyAPIView[DatabaseRecord]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & DatabaseRecordIsFound]
-	serializer_class = DatabaseRecordSerializer
-
-	def get_object(self) -> DatabaseRecord:
-		return self.kwargs['database_record']
+		return self.telegram_bot.database_records.all()

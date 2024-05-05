@@ -7,8 +7,7 @@ from .views import (
 	CommandViewSet,
 	ConditionViewSet,
 	ConnectionViewSet,
-	DatabaseRecordAPIView,
-	DatabaseRecordsAPIView,
+	DatabaseRecordViewSet,
 	DiagramBackgroundTaskViewSet,
 	DiagramCommandViewSet,
 	DiagramConditionViewSet,
@@ -39,25 +38,10 @@ router.register(
 )
 router.register(f'{base_path}/variables', VariableViewSet, basename=f'{base_name}-variable')
 router.register(f'{base_path}/users', UserViewSet, basename=f'{base_name}-user')
+router.register(f'{base_path}/database-records', DatabaseRecordViewSet, basename=f'{base_name}-database-record')
 
 app_name = 'telegram-bots'
 urlpatterns = [
 	path('stats/', StatsAPIView.as_view(), name='stats'),
 	path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
-	path(
-		'<int:telegram_bot_id>/',
-		include(
-			(
-				[
-					path('database-records/', DatabaseRecordsAPIView.as_view(), name='database-records'),
-					path(
-						'database-records/<int:database_record_id>/',
-						DatabaseRecordAPIView.as_view(),
-						name='database-record',
-					),
-				],
-				'detail',
-			)
-		),
-	),
 ] + router.urls

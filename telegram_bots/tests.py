@@ -1416,101 +1416,86 @@ class DatabaseRecordsAPIViewTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.true_url: str = reverse(
-			'api:telegram-bots:detail:database-records',
+		self.database_record = self.telegram_bot.database_records.create(data={'key': 'value'})
+
+		self.list_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-database-record-list',
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
-		self.false_url: str = reverse(
-			'api:telegram-bots:detail:database-records',
+		self.list_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-database-record-list',
 			kwargs={'telegram_bot_id': 0},
 		)
+		self.detail_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-database-record-detail',
+			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.database_record.id},
+		)
+		self.detail_false_url_1: str = reverse(
+			'api:telegram-bots:telegram-bot-database-record-detail',
+			kwargs={'telegram_bot_id': 0, 'id': self.database_record.id},
+		)
+		self.detail_false_url_2: str = reverse(
+			'api:telegram-bots:telegram-bot-database-record-detail',
+			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
+		)
 
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.true_url)
+	def test_list(self) -> None:
+		response: HttpResponse = self.client.get(self.list_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.get(self.false_url)
-		self.assertEqual(response.status_code, 403)
+		response = self.client.get(self.list_false_url)
+		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.true_url)
+		response = self.client.get(self.list_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.true_url)
+	def test_create(self) -> None:
+		response: HttpResponse = self.client.post(self.list_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.false_url)
-		self.assertEqual(response.status_code, 403)
+		response = self.client.post(self.list_false_url)
+		self.assertEqual(response.status_code, 404)
 
 		old_database_record_count: int = self.telegram_bot.database_records.count()
 
-		response = self.client.post(self.true_url, {'data': {'key': 'value'}}, format='json')
+		response = self.client.post(self.list_true_url, {'data': {'key': 'value'}}, format='json')
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(self.telegram_bot.database_records.count(), old_database_record_count + 1)
 
-
-class DatabaseRecordAPIViewTests(CustomTestCase):
-	def setUp(self) -> None:
-		super().setUp()
-
-		self.database_record = self.telegram_bot.database_records.create(data={'key': 'value'})
-
-		self.true_url: str = reverse(
-			'api:telegram-bots:detail:database-record',
-			kwargs={
-				'telegram_bot_id': self.telegram_bot.id,
-				'database_record_id': self.database_record.id,
-			},
-		)
-		self.false_url_1: str = reverse(
-			'api:telegram-bots:detail:database-record',
-			kwargs={
-				'telegram_bot_id': 0,
-				'database_record_id': self.database_record.id,
-			},
-		)
-		self.false_url_2: str = reverse(
-			'api:telegram-bots:detail:database-record',
-			kwargs={
-				'telegram_bot_id': self.telegram_bot.id,
-				'database_record_id': 0,
-			},
-		)
-
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.true_url)
+	def test_retrieve(self) -> None:
+		response: HttpResponse = self.client.get(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.true_url)
+		response = self.client.get(self.detail_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_put_method(self) -> None:
-		response: HttpResponse = self.client.put(self.true_url)
+	def test_update(self) -> None:
+		response: HttpResponse = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.put(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.true_url)
+		response = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 400)
 
 		new_data: dict[str, Any] = {'new_key': 'new_value'}
 
-		response = self.client.put(self.true_url, {'data': new_data}, format='json')
+		response = self.client.put(self.detail_true_url, {'data': new_data}, format='json')
 		self.assertEqual(response.status_code, 200)
 
 		self.database_record.refresh_from_db()
@@ -1519,22 +1504,22 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 			self.database_record.id,
 		)
 
-	def test_patch_method(self) -> None:
-		response: HttpResponse = self.client.patch(self.true_url)
+	def test_partial_update(self) -> None:
+		response: HttpResponse = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.patch(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.true_url)
+		response = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 200)
 
 		new_data: dict[str, Any] = {'new_key': 'new_value'}
 
-		response = self.client.patch(self.true_url, {'data': new_data}, format='json')
+		response = self.client.patch(self.detail_true_url, {'data': new_data}, format='json')
 		self.assertEqual(response.status_code, 200)
 
 		self.database_record.refresh_from_db()
@@ -1543,17 +1528,17 @@ class DatabaseRecordAPIViewTests(CustomTestCase):
 			self.database_record.id,
 		)
 
-	def test_delete_method(self) -> None:
-		response: HttpResponse = self.client.delete(self.true_url)
+	def test_destroy(self) -> None:
+		response: HttpResponse = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.delete(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.true_url)
+		response = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 204)
 
 		try:
