@@ -43,5 +43,5 @@ router.register(f'{base_path}/database-records', DatabaseRecordViewSet, basename
 app_name = 'telegram-bots'
 urlpatterns = [
 	path('stats/', StatsAPIView.as_view(), name='stats'),
-	path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
+	# path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
 ] + router.urls
