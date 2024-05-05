@@ -14,8 +14,7 @@ from .views import (
 	DiagramConditionViewSet,
 	StatsAPIView,
 	TelegramBotViewSet,
-	UserAPIView,
-	UsersAPIView,
+	UserViewSet,
 	VariableViewSet,
 )
 
@@ -39,6 +38,7 @@ router.register(
 	basename=f'{base_diagram_name}-background-task',
 )
 router.register(f'{base_path}/variables', VariableViewSet, basename=f'{base_name}-variable')
+router.register(f'{base_path}/users', UserViewSet, basename=f'{base_name}-user')
 
 app_name = 'telegram-bots'
 urlpatterns = [
@@ -49,8 +49,6 @@ urlpatterns = [
 		include(
 			(
 				[
-					path('users/', UsersAPIView.as_view(), name='users'),
-					path('users/<int:user_id>/', UserAPIView.as_view(), name='user'),
 					path('database-records/', DatabaseRecordsAPIView.as_view(), name='database-records'),
 					path(
 						'database-records/<int:database_record_id>/',
