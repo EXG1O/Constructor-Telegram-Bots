@@ -8,7 +8,13 @@ from rest_framework.generics import (
 	RetrieveUpdateAPIView,
 	RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin
+from rest_framework.mixins import (
+	CreateModelMixin,
+	DestroyModelMixin,
+	ListModelMixin,
+	RetrieveModelMixin,
+	UpdateModelMixin,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -35,7 +41,6 @@ from .models import (
 from .parsers import CommandMultiPartParser
 from .permissions import (
 	BackgroundTaskIsIsFound,
-	CommandIsFound,
 	ConditionIsIsFound,
 	DatabaseRecordIsFound,
 	TelegramBotIsFound,
@@ -161,22 +166,21 @@ class BackgroundTaskViewSet(TelegramBotMixin, ModelViewSet[BackgroundTask]):
 		return self.telegram_bot.background_tasks.all()
 
 
-class DiagramCommandsAPIView(ListAPIView[Command]):
+class DiagramCommandViewSet(
+	TelegramBotMixin,
+	ListModelMixin,
+	RetrieveModelMixin,
+	UpdateModelMixin,
+	GenericViewSet[Command],
+):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramCommandSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.kwargs['telegram_bot'].commands.all()
-
-
-class DiagramCommandAPIView(RetrieveUpdateAPIView[Command]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandIsFound]
-	serializer_class = DiagramCommandSerializer
-
-	def get_object(self) -> Command:
-		return self.kwargs['command']
+		return self.telegram_bot.commands.all()
 
 
 class DiagramConditionsAPIView(ListAPIView[Condition]):
