@@ -9,8 +9,7 @@ from .views import (
 	ConnectionViewSet,
 	DatabaseRecordAPIView,
 	DatabaseRecordsAPIView,
-	DiagramBackgroundTaskAPIView,
-	DiagramBackgroundTasksAPIView,
+	DiagramBackgroundTaskViewSet,
 	DiagramCommandViewSet,
 	DiagramConditionViewSet,
 	StatsAPIView,
@@ -35,6 +34,11 @@ router.register(f'{base_path}/conditions', ConditionViewSet, basename=f'{base_na
 router.register(f'{base_path}/background-tasks', BackgroundTaskViewSet, basename=f'{base_name}-background-task')
 router.register(f'{base_diagram_path}/commands', DiagramCommandViewSet, basename=f'{base_diagram_name}-command')
 router.register(f'{base_diagram_path}/conditions', DiagramConditionViewSet, basename=f'{base_diagram_name}-condition')
+router.register(
+	f'{base_diagram_path}/background-tasks',
+	DiagramBackgroundTaskViewSet,
+	basename=f'{base_diagram_name}-background-task',
+)
 
 app_name = 'telegram-bots'
 urlpatterns = [
@@ -45,26 +49,6 @@ urlpatterns = [
 		include(
 			(
 				[
-					path(
-						'diagram/',
-						include(
-							(
-								[
-									path(
-										'background-tasks/',
-										DiagramBackgroundTasksAPIView.as_view(),
-										name='background-tasks',
-									),
-									path(
-										'background-tasks/<int:background_task_id>/',
-										DiagramBackgroundTaskAPIView.as_view(),
-										name='background-task',
-									),
-								],
-								'diagram',
-							)
-						),
-					),
 					path('variables/', VariablesAPIView.as_view(), name='variables'),
 					path('variables/<int:variable_id>/', VariableAPIView.as_view(), name='variable'),
 					path('users/', UsersAPIView.as_view(), name='users'),

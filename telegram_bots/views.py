@@ -5,7 +5,6 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
 	ListAPIView,
 	ListCreateAPIView,
-	RetrieveUpdateAPIView,
 	RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.mixins import (
@@ -40,8 +39,6 @@ from .models import (
 )
 from .parsers import CommandMultiPartParser
 from .permissions import (
-	BackgroundTaskIsIsFound,
-	ConditionIsIsFound,
 	DatabaseRecordIsFound,
 	TelegramBotIsFound,
 	UserIsFound,
@@ -200,22 +197,21 @@ class DiagramConditionViewSet(
 		return self.telegram_bot.conditions.all()
 
 
-class DiagramBackgroundTasksAPIView(ListAPIView[BackgroundTask]):
+class DiagramBackgroundTaskViewSet(
+	TelegramBotMixin,
+	ListModelMixin,
+	RetrieveModelMixin,
+	UpdateModelMixin,
+	GenericViewSet[BackgroundTask],
+):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramBackgroundTaskSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
-		return self.kwargs['telegram_bot'].background_tasks.all()
-
-
-class DiagramBackgroundTaskAPIView(RetrieveUpdateAPIView[BackgroundTask]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & BackgroundTaskIsIsFound]
-	serializer_class = DiagramBackgroundTaskSerializer
-
-	def get_object(self) -> BackgroundTask:
-		return self.kwargs['background_task']
+		return self.telegram_bot.background_tasks.all()
 
 
 class VariablesAPIView(ListCreateAPIView[Variable]):
