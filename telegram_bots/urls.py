@@ -9,8 +9,7 @@ from .views import (
 	CommandsAPIView,
 	ConditionAPIView,
 	ConditionsAPIView,
-	ConnectionAPIView,
-	ConnectionsAPIView,
+	ConnectionViewSet,
 	DatabaseRecordAPIView,
 	DatabaseRecordsAPIView,
 	DiagramBackgroundTaskAPIView,
@@ -29,6 +28,7 @@ from .views import (
 
 router = SimpleRouter(use_regex_path=False)  # type: ignore [call-arg]  # use_regex_path param exists
 router.register('', TelegramBotViewSet, basename='telegram-bot')
+router.register('<int:telegram_bot_id>/connections', ConnectionViewSet, basename='telegram-bot-connection')
 
 app_name = 'telegram-bots'
 urlpatterns = [
@@ -39,8 +39,6 @@ urlpatterns = [
 		include(
 			(
 				[
-					path('connections/', ConnectionsAPIView.as_view(), name='connections'),
-					path('connections/<int:connection_id>/', ConnectionAPIView.as_view(), name='connection'),
 					path('commands/', CommandsAPIView.as_view(), name='commands'),
 					path('commands/<int:command_id>/', CommandAPIView.as_view(), name='command'),
 					path('conditions/', ConditionsAPIView.as_view(), name='conditions'),

@@ -3,25 +3,25 @@ from django.db.models import QuerySet
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
-	CreateAPIView,
-	DestroyAPIView,
 	ListAPIView,
 	ListCreateAPIView,
 	RetrieveUpdateAPIView,
 	RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.mixins import CreateModelMixin, DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 
+from .mixins import TelegramBotMixin
 from .models import (
 	BackgroundTask,
 	Command,
@@ -37,7 +37,6 @@ from .permissions import (
 	BackgroundTaskIsIsFound,
 	CommandIsFound,
 	ConditionIsIsFound,
-	ConnectionIsFound,
 	DatabaseRecordIsFound,
 	TelegramBotIsFound,
 	UserIsFound,
@@ -82,8 +81,8 @@ class TelegramBotViewSet(ModelViewSet[TelegramBot]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = TelegramBotSerializer
-	lookup_field = 'id'
 	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[TelegramBot]:
 		return self.request.user.telegram_bots.all()  # type: ignore [union-attr]
@@ -110,18 +109,15 @@ class TelegramBotViewSet(ModelViewSet[TelegramBot]):
 		return Response(self.get_serializer(telegram_bot).data)
 
 
-class ConnectionsAPIView(CreateAPIView[Connection]):
+class ConnectionViewSet(TelegramBotMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet[Connection]):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = ConnectionSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
-
-class ConnectionAPIView(DestroyAPIView[Connection]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConnectionIsFound]
-
-	def get_object(self) -> Connection:
-		return self.kwargs['connection']
+	def get_queryset(self) -> QuerySet[Connection]:
+		return self.telegram_bot.connections.all()
 
 
 class CommandsAPIView(ListCreateAPIView[Command]):

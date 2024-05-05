@@ -3,7 +3,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 
 from users.models import User as SiteUser
@@ -35,25 +34,19 @@ from typing import Any
 
 
 class TelegramBotContextMixin:
-	@property
-	def view(self) -> GenericAPIView[Any]:
-		view: Any = self.context.get('view')  # type: ignore [attr-defined]
-
-		if not isinstance(view, GenericAPIView):
-			raise TypeError(
-				'You not passed a rest_framework.generics.GenericAPIView instance as view to the serializer context!'
-			)
-
-		return view
+	_telegram_bot: TelegramBot | None = None
 
 	@property
 	def telegram_bot(self) -> TelegramBot:
-		telegram_bot: Any = self.view.kwargs.get('telegram_bot')
+		if self._telegram_bot is None:
+			telegram_bot: Any = self.context.get('telegram_bot')  # type: ignore [attr-defined]
 
-		if not isinstance(telegram_bot, TelegramBot):
-			raise TypeError('The telegram_bot in view.kwargs is not an TelegramBot instance!')
+			if not isinstance(telegram_bot, TelegramBot):
+				raise TypeError('You not passed a TelegramBot instance as telegram_bot to the serializer context!')
 
-		return telegram_bot
+			self._telegram_bot = telegram_bot
+
+		return self._telegram_bot
 
 
 class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):

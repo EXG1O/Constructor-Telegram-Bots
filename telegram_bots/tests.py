@@ -230,39 +230,52 @@ class TelegramBotViewSetTests(CustomTestCase):
 			pass
 
 
-class ConnectionsAPIViewTests(CustomTestCase):
+class ConnectionViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.command_1: Command = Command.objects.create(
-			telegram_bot=self.telegram_bot,
-			name='Test name 1',
-		)
+		self.command_1: Command = Command.objects.create(telegram_bot=self.telegram_bot, name='Test name 1')
 
-		self.command_2: Command = Command.objects.create(
-			telegram_bot=self.telegram_bot,
-			name='Test name 1',
-		)
+		self.command_2: Command = Command.objects.create(telegram_bot=self.telegram_bot, name='Test name 1')
 		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-			command=self.command_2,
-			type='default',
+			command=self.command_2, type='default'
 		)
 		self.command_2_keyboard_button: CommandKeyboardButton = self.command_2_keyboard.buttons.create(text='Button')
 
-		self.true_url: str = reverse(
-			'api:telegram-bots:detail:connections',
+		self.connection: Connection = self.telegram_bot.connections.create(
+			source_object=self.command_2_keyboard_button,
+			target_object=self.command_1,
+		)
+
+		self.list_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-connection-list',
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
-		self.false_url: str = reverse('api:telegram-bots:detail:connections', kwargs={'telegram_bot_id': 0})
+		self.list_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-connection-list',
+			kwargs={'telegram_bot_id': 0},
+		)
+		self.detail_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-connection-detail',
+			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.connection.id},
+		)
+		self.detail_false_url_1: str = reverse(
+			'api:telegram-bots:telegram-bot-connection-detail',
+			kwargs={'telegram_bot_id': 0, 'id': self.connection.id},
+		)
+		self.detail_false_url_2: str = reverse(
+			'api:telegram-bots:telegram-bot-connection-detail',
+			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
+		)
 
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.true_url)
+	def test_create(self) -> None:
+		response: HttpResponse = self.client.post(self.list_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.false_url)
-		self.assertEqual(response.status_code, 403)
+		response = self.client.post(self.list_false_url)
+		self.assertEqual(response.status_code, 404)
 
 		old_command_1_target_connection_count: int = self.command_1.target_connections.count()
 		old_command_2_keyboard_button_source_connection_count: int = (
@@ -270,7 +283,7 @@ class ConnectionsAPIViewTests(CustomTestCase):
 		)
 
 		response = self.client.post(
-			self.true_url,
+			self.list_true_url,
 			{
 				'source_object_type': 'command_keyboard_button',
 				'source_object_id': self.command_2_keyboard_button.id,
@@ -289,64 +302,17 @@ class ConnectionsAPIViewTests(CustomTestCase):
 			old_command_2_keyboard_button_source_connection_count + 1,
 		)
 
-
-class ConnectionAPIViewTests(CustomTestCase):
-	def setUp(self) -> None:
-		super().setUp()
-
-		self.command_1: Command = Command.objects.create(
-			telegram_bot=self.telegram_bot,
-			name='Test name 1',
-		)
-
-		self.command_2: Command = Command.objects.create(
-			telegram_bot=self.telegram_bot,
-			name='Test name 1',
-		)
-		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-			command=self.command_2,
-			type='default',
-		)
-		self.command_2_keyboard_button: CommandKeyboardButton = self.command_2_keyboard.buttons.create(text='Button')
-
-		self.connection: Connection = self.telegram_bot.connections.create(
-			source_object=self.command_2_keyboard_button,
-			target_object=self.command_1,
-		)
-
-		self.true_url: str = reverse(
-			'api:telegram-bots:detail:connection',
-			kwargs={
-				'telegram_bot_id': self.telegram_bot.id,
-				'connection_id': self.connection.id,
-			},
-		)
-		self.false_url_1: str = reverse(
-			'api:telegram-bots:detail:connection',
-			kwargs={
-				'telegram_bot_id': 0,
-				'connection_id': self.connection.id,
-			},
-		)
-		self.false_url_2: str = reverse(
-			'api:telegram-bots:detail:connection',
-			kwargs={
-				'telegram_bot_id': self.telegram_bot.id,
-				'connection_id': 0,
-			},
-		)
-
-	def test_delete_method(self) -> None:
-		response: HttpResponse = self.client.delete(self.true_url)
+	def test_destroy(self) -> None:
+		response: HttpResponse = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.delete(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.true_url)
+		response = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 204)
 
 		try:
