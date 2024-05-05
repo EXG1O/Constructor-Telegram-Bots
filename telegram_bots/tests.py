@@ -526,45 +526,65 @@ class CommandViewSetTests(CustomTestCase):
 			pass
 
 
-class ConditionsAPIViewTests(CustomTestCase):
+class ConditionViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.true_url: str = reverse(
-			'api:telegram-bots:detail:conditions',
+		self.condition: Condition = self.telegram_bot.conditions.create(name='Test name')
+		self.condition.parts.create(
+			type='+',
+			first_value='first_value',
+			operator='==',
+			second_value='second_value',
+		)
+
+		self.list_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-condition-list',
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
-		self.false_url: str = reverse(
-			'api:telegram-bots:detail:conditions',
+		self.list_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-condition-list',
 			kwargs={'telegram_bot_id': 0},
 		)
+		self.detail_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-condition-detail',
+			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.condition.id},
+		)
+		self.detail_false_url_1: str = reverse(
+			'api:telegram-bots:telegram-bot-condition-detail',
+			kwargs={'telegram_bot_id': 0, 'id': self.condition.id},
+		)
+		self.detail_false_url_2: str = reverse(
+			'api:telegram-bots:telegram-bot-condition-detail',
+			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
+		)
 
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.true_url)
+	def test_list(self) -> None:
+		response: HttpResponse = self.client.get(self.list_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.get(self.false_url)
-		self.assertEqual(response.status_code, 403)
+		response = self.client.get(self.list_false_url)
+		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.true_url)
+		response = self.client.get(self.list_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.true_url)
+	def test_create(self) -> None:
+		response: HttpResponse = self.client.post(self.list_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		response = self.client.post(self.false_url)
-		self.assertEqual(response.status_code, 403)
+		response = self.client.post(self.list_false_url)
+		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.true_url)
+		response = self.client.post(self.list_true_url)
 		self.assertEqual(response.status_code, 400)
 
 		response = self.client.post(
-			self.true_url,
+			self.list_true_url,
 			{
 				'name': 'Test name',
 				'parts': [],
@@ -576,7 +596,7 @@ class ConditionsAPIViewTests(CustomTestCase):
 		old_condition_count: int = self.telegram_bot.conditions.count()
 
 		response = self.client.post(
-			self.true_url,
+			self.list_true_url,
 			{
 				'name': 'Test name',
 				'parts': [
@@ -594,71 +614,36 @@ class ConditionsAPIViewTests(CustomTestCase):
 
 		self.assertEqual(self.telegram_bot.conditions.count(), old_condition_count + 1)
 
-
-class ConditionAPIViewTests(CustomTestCase):
-	def setUp(self) -> None:
-		super().setUp()
-
-		self.condition: Condition = self.telegram_bot.conditions.create(name='Test name')
-		self.condition.parts.create(
-			type='+',
-			first_value='first_value',
-			operator='==',
-			second_value='second_value',
-		)
-
-		self.true_url: str = reverse(
-			'api:telegram-bots:detail:condition',
-			kwargs={
-				'telegram_bot_id': self.telegram_bot.id,
-				'condition_id': self.condition.id,
-			},
-		)
-		self.false_url_1: str = reverse(
-			'api:telegram-bots:detail:condition',
-			kwargs={
-				'telegram_bot_id': 0,
-				'condition_id': self.condition.id,
-			},
-		)
-		self.false_url_2: str = reverse(
-			'api:telegram-bots:detail:condition',
-			kwargs={
-				'telegram_bot_id': self.telegram_bot.id,
-				'condition_id': 0,
-			},
-		)
-
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.true_url)
+	def test_retrieve(self) -> None:
+		response: HttpResponse = self.client.get(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.true_url)
+		response = self.client.get(self.detail_true_url)
 		self.assertEqual(response.status_code, 200)
 
-	def test_put_method(self) -> None:
-		response: HttpResponse = self.client.put(self.true_url)
+	def test_update(self) -> None:
+		response: HttpResponse = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.put(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.true_url)
+		response = self.client.put(self.detail_true_url)
 		self.assertEqual(response.status_code, 400)
 
 		new_name: str = 'Test name 2'
 
 		response = self.client.put(
-			self.true_url,
+			self.detail_true_url,
 			{
 				'name': new_name,
 				'parts': [],
@@ -668,7 +653,7 @@ class ConditionAPIViewTests(CustomTestCase):
 		self.assertEqual(response.status_code, 400)
 
 		response = self.client.put(
-			self.true_url,
+			self.detail_true_url,
 			{
 				'name': new_name,
 				'parts': [
@@ -687,38 +672,38 @@ class ConditionAPIViewTests(CustomTestCase):
 		self.condition.refresh_from_db()
 		self.assertEqual(self.condition.name, new_name)
 
-	def test_patch_method(self) -> None:
-		response: HttpResponse = self.client.patch(self.true_url)
+	def test_partial_update(self) -> None:
+		response: HttpResponse = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.patch(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.true_url)
+		response = self.client.patch(self.detail_true_url)
 		self.assertEqual(response.status_code, 200)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.patch(self.true_url, {'name': new_name})
+		response = self.client.patch(self.detail_true_url, {'name': new_name})
 		self.assertEqual(response.status_code, 200)
 
 		self.condition.refresh_from_db()
 		self.assertEqual(self.condition.name, new_name)
 
-	def test_delete_method(self) -> None:
-		response: HttpResponse = self.client.delete(self.true_url)
+	def test_destroy(self) -> None:
+		response: HttpResponse = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 401)
 
 		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
 
-		for url in [self.false_url_1, self.false_url_2]:
+		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.delete(url)
-			self.assertEqual(response.status_code, 403)
+			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.true_url)
+		response = self.client.delete(self.detail_true_url)
 		self.assertEqual(response.status_code, 204)
 
 		try:

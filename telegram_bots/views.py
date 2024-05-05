@@ -139,22 +139,15 @@ class CommandViewSet(TelegramBotMixin, ModelViewSet[Command]):
 			return CommandSerializer
 
 
-class ConditionsAPIView(ListCreateAPIView[Condition]):
+class ConditionViewSet(TelegramBotMixin, ModelViewSet[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = ConditionSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Condition]:
-		return self.kwargs['telegram_bot'].conditions.all()
-
-
-class ConditionAPIView(RetrieveUpdateDestroyAPIView[Condition]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & ConditionIsIsFound]
-	serializer_class = ConditionSerializer
-
-	def get_object(self) -> Condition:
-		return self.kwargs['condition']
+		return self.telegram_bot.conditions.all()
 
 
 class BackgroundTasksAPIView(ListCreateAPIView[BackgroundTask]):
