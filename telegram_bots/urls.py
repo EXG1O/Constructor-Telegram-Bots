@@ -3,8 +3,7 @@ from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
 from .views import (
-	BackgroundTaskAPIView,
-	BackgroundTasksAPIView,
+	BackgroundTaskViewSet,
 	CommandViewSet,
 	ConditionViewSet,
 	ConnectionViewSet,
@@ -29,6 +28,7 @@ router.register('', TelegramBotViewSet, basename='telegram-bot')
 router.register('<int:telegram_bot_id>/connections', ConnectionViewSet, basename='telegram-bot-connection')
 router.register('<int:telegram_bot_id>/commands', CommandViewSet, basename='telegram-bot-command')
 router.register('<int:telegram_bot_id>/conditions', ConditionViewSet, basename='telegram-bot-condition')
+router.register('<int:telegram_bot_id>/background-tasks', BackgroundTaskViewSet, basename='telegram-bot-background-task')  # fmt: skip
 
 app_name = 'telegram-bots'
 urlpatterns = [
@@ -39,12 +39,6 @@ urlpatterns = [
 		include(
 			(
 				[
-					path('background-tasks/', BackgroundTasksAPIView.as_view(), name='background-tasks'),
-					path(
-						'background-tasks/<int:background_task_id>/',
-						BackgroundTaskAPIView.as_view(),
-						name='background-task',
-					),
 					path(
 						'diagram/',
 						include(

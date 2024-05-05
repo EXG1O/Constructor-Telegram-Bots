@@ -150,22 +150,15 @@ class ConditionViewSet(TelegramBotMixin, ModelViewSet[Condition]):
 		return self.telegram_bot.conditions.all()
 
 
-class BackgroundTasksAPIView(ListCreateAPIView[BackgroundTask]):
+class BackgroundTaskViewSet(TelegramBotMixin, ModelViewSet[BackgroundTask]):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = BackgroundTaskSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
-		return self.kwargs['telegram_bot'].background_tasks.all()
-
-
-class BackgroundTaskAPIView(RetrieveUpdateDestroyAPIView[BackgroundTask]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & BackgroundTaskIsIsFound]
-	serializer_class = BackgroundTaskSerializer
-
-	def get_object(self) -> BackgroundTask:
-		return self.kwargs['background_task']
+		return self.telegram_bot.background_tasks.all()
 
 
 class DiagramCommandsAPIView(ListAPIView[Command]):
