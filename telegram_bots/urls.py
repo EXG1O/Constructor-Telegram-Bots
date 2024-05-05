@@ -23,12 +23,15 @@ from .views import (
 	VariablesAPIView,
 )
 
+base_name: str = 'telegram-bot'
+base_path: str = '<int:telegram_bot_id>'
+
 router = SimpleRouter(use_regex_path=False)  # type: ignore [call-arg]  # use_regex_path param exists
-router.register('', TelegramBotViewSet, basename='telegram-bot')
-router.register('<int:telegram_bot_id>/connections', ConnectionViewSet, basename='telegram-bot-connection')
-router.register('<int:telegram_bot_id>/commands', CommandViewSet, basename='telegram-bot-command')
-router.register('<int:telegram_bot_id>/conditions', ConditionViewSet, basename='telegram-bot-condition')
-router.register('<int:telegram_bot_id>/background-tasks', BackgroundTaskViewSet, basename='telegram-bot-background-task')  # fmt: skip
+router.register('', TelegramBotViewSet, basename=base_name)
+router.register(f'{base_path}/connections', ConnectionViewSet, basename=f'{base_name}-connection')
+router.register(f'{base_path}/commands', CommandViewSet, basename=f'{base_name}-command')
+router.register(f'{base_path}/conditions', ConditionViewSet, basename=f'{base_name}-condition')
+router.register(f'{base_path}/background-tasks', BackgroundTaskViewSet, basename=f'{base_name}-background-task')
 
 app_name = 'telegram-bots'
 urlpatterns = [
