@@ -8,6 +8,7 @@ from rest_framework.request import Request
 from users.models import User as SiteUser
 from utils.formats import date_time_format
 
+from .base_serializers import DiagramSerializer
 from .models import (
 	BackgroundTask,
 	BackgroundTaskAPIRequest,
@@ -614,7 +615,7 @@ class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboa
 		fields = ['type', 'buttons']
 
 
-class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
+class DiagramCommandSerializer(DiagramSerializer[Command]):
 	images = CommandImageSerializer(many=True, read_only=True)
 	files = CommandFileSerializer(many=True, read_only=True)
 	message = CommandMessageSerializer(read_only=True)
@@ -631,52 +632,29 @@ class DiagramCommandSerializer(serializers.ModelSerializer[Command]):
 			'files',
 			'message',
 			'keyboard',
-			'x',
-			'y',
 			'source_connections',
 			'target_connections',
-		]
+		] + DiagramSerializer.Meta.fields
 		read_only_fields = ['name']
 
-	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
-		command.x = validated_data.get('x', command.x)
-		command.y = validated_data.get('y', command.y)
-		command.save()
 
-		return command
-
-
-class DiagramConditionSerializer(serializers.ModelSerializer[Condition]):
+class DiagramConditionSerializer(DiagramSerializer[Condition]):
 	source_connections = ConnectionSerializer(many=True, read_only=True)
 	target_connections = ConnectionSerializer(many=True, read_only=True)
 
 	class Meta:
 		model = Condition
-		fields = ['id', 'name', 'x', 'y', 'source_connections', 'target_connections']
+		fields = ['id', 'name', 'source_connections', 'target_connections'] + DiagramSerializer.Meta.fields
 		read_only_fields = ['name']
 
-	def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
-		condition.x = validated_data.get('x', condition.x)
-		condition.y = validated_data.get('y', condition.y)
-		condition.save()
 
-		return condition
-
-
-class DiagramBackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask]):
+class DiagramBackgroundTaskSerializer(DiagramSerializer[BackgroundTask]):
 	target_connections = ConnectionSerializer(many=True, read_only=True)
 
 	class Meta:
 		model = BackgroundTask
-		fields = ['id', 'name', 'interval', 'x', 'y', 'target_connections']
+		fields = ['id', 'name', 'interval', 'target_connections'] + DiagramSerializer.Meta.fields
 		read_only_fields = ['name', 'interval']
-
-	def update(self, background_task: BackgroundTask, validated_data: dict[str, Any]) -> BackgroundTask:
-		background_task.x = validated_data.get('x', background_task.x)
-		background_task.y = validated_data.get('y', background_task.y)
-		background_task.save()
-
-		return background_task
 
 
 class VariableSerializer(serializers.ModelSerializer[Variable], TelegramBotContextMixin):
