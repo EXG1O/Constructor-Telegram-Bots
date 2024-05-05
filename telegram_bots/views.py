@@ -42,7 +42,6 @@ from .permissions import (
 	DatabaseRecordIsFound,
 	TelegramBotIsFound,
 	UserIsFound,
-	VariableIsFound,
 )
 from .serializers import (
 	BackgroundTaskSerializer,
@@ -214,26 +213,19 @@ class DiagramBackgroundTaskViewSet(
 		return self.telegram_bot.background_tasks.all()
 
 
-class VariablesAPIView(ListCreateAPIView[Variable]):
+class VariableViewSet(TelegramBotMixin, ModelViewSet[Variable]):
 	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = VariableSerializer
+	lookup_value_converter = 'int'
+	lookup_field = 'id'
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter, OrderingFilter]
 	search_fields = ['id', 'name']
 	ordering = ['-id']
 
 	def get_queryset(self) -> QuerySet[Variable]:
-		return self.kwargs['telegram_bot'].variables.all()
-
-
-class VariableAPIView(RetrieveUpdateDestroyAPIView[Variable]):
-	authentication_classes = [CookiesTokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & VariableIsFound]
-	serializer_class = VariableSerializer
-
-	def get_object(self) -> Variable:
-		return self.kwargs['variable']
+		return self.telegram_bot.variables.all()
 
 
 class UsersAPIView(ListAPIView[User]):
