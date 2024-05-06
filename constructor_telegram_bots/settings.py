@@ -92,7 +92,7 @@ if not TEST and DEBUG:
 	INSTALLED_APPS.append('silk')
 
 REST_FRAMEWORK = {
-	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler',
+	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler'
 }
 
 TINYMCE_DEFAULT_CONFIG = {

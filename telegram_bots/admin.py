@@ -19,10 +19,10 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	list_display = [
 		'id',
 		'owner',
-		'_username',
-		'_storage_size',
-		'_used_storage_size',
-		'_remaining_storage_size',
+		'username_display',
+		'storage_size_display',
+		'used_storage_size_display',
+		'remaining_storage_size_display',
 		'commands_count',
 		'users_count',
 		'is_private',
@@ -32,11 +32,11 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	fields = [
 		'id',
 		'owner',
-		'_username',
+		'username_display',
 		'api_token',
-		'_storage_size',
-		'_used_storage_size',
-		'_remaining_storage_size',
+		'storage_size_display',
+		'used_storage_size_display',
+		'remaining_storage_size_display',
 		'commands_count',
 		'users_count',
 		'is_private',
@@ -48,26 +48,25 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		return (
 			super()
 			.get_queryset(request)
-			.annotate(
-				commands_count=Count('commands'),
-				users_count=Count('users'),
-			)
+			.annotate(commands_count=Count('commands'), users_count=Count('users'))
 		)
 
 	@admin.display(description='@username', ordering='username')
-	def _username(self, telegram_bot: TelegramBot) -> str:
-		return format_html_link(f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}')
+	def username_display(self, telegram_bot: TelegramBot) -> str:
+		return format_html_link(
+			f'tg://resolve?domain={telegram_bot.username}', f'@{telegram_bot.username}'
+		)
 
 	@admin.display(description=_('Размер хранилища'))
-	def _storage_size(self, telegram_bot: TelegramBot) -> str:
+	def storage_size_display(self, telegram_bot: TelegramBot) -> str:
 		return f'{(telegram_bot.storage_size / 1024 ** 2):.2f}MB'
 
 	@admin.display(description=_('Используемый размер хранилища'))
-	def _used_storage_size(self, telegram_bot: TelegramBot) -> str:
+	def used_storage_size_display(self, telegram_bot: TelegramBot) -> str:
 		return f'{(telegram_bot.used_storage_size / 1024 ** 2):.2f}MB'
 
 	@admin.display(description=_('Оставшийся размер хранилища'))
-	def _remaining_storage_size(self, telegram_bot: TelegramBot) -> str:
+	def remaining_storage_size_display(self, telegram_bot: TelegramBot) -> str:
 		return f'{(telegram_bot.remaining_storage_size / 1024 ** 2):.2f}MB'
 
 	@admin.display(description=_('Команд'), ordering='commands_count')
@@ -89,12 +88,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 class UserAdmin(admin.ModelAdmin[User]):
 	search_fields = ['telegram_id', 'full_name']
 	date_hierarchy = 'activated_date'
-	list_filter = [
-		'is_allowed',
-		'is_blocked',
-		'last_activity_date',
-		'activated_date',
-	]
+	list_filter = ['is_allowed', 'is_blocked', 'last_activity_date', 'activated_date']
 	list_display = [
 		'id',
 		'telegram_bot',

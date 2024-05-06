@@ -39,9 +39,8 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 django_settings_module = "constructor_telegram_bots.settings"
 
 [tool.ruff]
-line-length = 120
 target-version = "py311"
-extend-exclude = ["frontend", "migrations"]
+extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = [
@@ -53,7 +52,8 @@ select = [
 	"UP",  # pyupgrade
 	"B",  # flake8-bugbear
 	"C4",  # flake8-comprehensions
-	"T20"  # flake8-print
+	"T20",  # flake8-print
+	"INT",  # flake8-gettext
 ]
 ignore = [
 	"E501",  # line too long, handled by black

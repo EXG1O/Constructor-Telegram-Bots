@@ -22,10 +22,7 @@ class StatsAPIViewTests(TestCase):
 class CustomTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
-		self.user: User = User.objects.create(
-			telegram_id=123456789,
-			first_name='exg1o',
-		)
+		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
 		self.token: Token = Token.objects.create(user=self.user)
 
 
@@ -71,29 +68,17 @@ class UserLoginAPIViewTests(CustomTestCase):
 		self.assertEqual(response.status_code, 400)
 
 		response = self.client.post(
-			self.url,
-			{
-				'user_id': 0,
-				'confirm_code': self.user.confirm_code,
-			},
+			self.url, {'user_id': 0, 'confirm_code': self.user.confirm_code}
 		)
 		self.assertEqual(response.status_code, 404)
 
 		response = self.client.post(
-			self.url,
-			{
-				'user_id': self.user.id,
-				'confirm_code': 'Yes, I love Python <3',
-			},
+			self.url, {'user_id': self.user.id, 'confirm_code': 'Yes, I love Python <3'}
 		)
 		self.assertEqual(response.status_code, 403)
 
 		response = self.client.post(
-			self.url,
-			{
-				'user_id': self.user.id,
-				'confirm_code': self.user.confirm_code,
-			},
+			self.url, {'user_id': self.user.id, 'confirm_code': self.user.confirm_code}
 		)
 		self.assertEqual(response.status_code, 200)
 

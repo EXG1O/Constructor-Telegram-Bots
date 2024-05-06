@@ -43,7 +43,9 @@ class TelegramBotContextMixin:
 			telegram_bot: Any = self.context.get('telegram_bot')  # type: ignore [attr-defined]
 
 			if not isinstance(telegram_bot, TelegramBot):
-				raise TypeError('You not passed a TelegramBot instance as telegram_bot to the serializer context!')
+				raise TypeError(
+					'You not passed a TelegramBot instance as telegram_bot to the serializer context!'
+				)
 
 			self._telegram_bot = telegram_bot
 
@@ -83,16 +85,22 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 				'You not passed a rest_framework.request.Request instance as request to the serializer context!'
 			)
 		elif not isinstance(request.user, SiteUser):
-			raise TypeError('The request.user instance is not an users.models.User instance!')
+			raise TypeError(
+				'The request.user instance is not an users.models.User instance!'
+			)
 
 		return request.user
 
 	def create(self, validated_data: dict[str, Any]) -> TelegramBot:
 		return self.site_user.telegram_bots.create(**validated_data)
 
-	def update(self, telegram_bot: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
+	def update(
+		self, telegram_bot: TelegramBot, validated_data: dict[str, Any]
+	) -> TelegramBot:
 		telegram_bot.api_token = validated_data.get('api_token', telegram_bot.api_token)
-		telegram_bot.is_private = validated_data.get('is_private', telegram_bot.is_private)
+		telegram_bot.is_private = validated_data.get(
+			'is_private', telegram_bot.is_private
+		)
 		telegram_bot.save()
 
 		return telegram_bot
@@ -104,7 +112,9 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 		return representation
 
 
-class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotContextMixin):
+class ConnectionSerializer(
+	TelegramBotContextMixin, serializers.ModelSerializer[Connection]
+):
 	source_object_type = serializers.ChoiceField(
 		choices=['command', 'command_keyboard_button', 'condition', 'background_task'],
 		write_only=True,
@@ -135,11 +145,12 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotC
 		elif object_type == 'command_keyboard_button':
 			try:
 				return CommandKeyboardButton.objects.get(
-					keyboard__command__telegram_bot=self.telegram_bot,
-					id=object_id,
+					keyboard__command__telegram_bot=self.telegram_bot, id=object_id
 				)
 			except CommandKeyboardButton.DoesNotExist:
-				raise serializers.ValidationError(_('Кнопка клавиатуры команды не найдена!'))
+				raise serializers.ValidationError(
+					_('Кнопка клавиатуры команды не найдена!')
+				)
 		elif object_type == 'condition':
 			try:
 				return self.telegram_bot.conditions.get(id=object_id)
@@ -170,10 +181,16 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotC
 		target_object_type: str = data['target_object_type']
 
 		if source_object_type == 'command' and target_object_type == 'command':
-			raise serializers.ValidationError(_('Нельзя подключить команду к другой команде!'))
+			raise serializers.ValidationError(
+				_('Нельзя подключить команду к другой команде!')
+			)
 
-		self.source_object = self.get_object(source_object_type, data['source_object_id'])
-		self.target_object = self.get_object(target_object_type, data['target_object_id'])
+		self.source_object = self.get_object(
+			source_object_type, data['source_object_id']
+		)
+		self.target_object = self.get_object(
+			target_object_type, data['target_object_id']
+		)
 
 		return data
 
@@ -192,8 +209,12 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection], TelegramBotC
 
 	def to_representation(self, instance: Connection) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
-		representation['source_object_type'] = self.get_object_type(instance.source_object)  # type: ignore [arg-type]
-		representation['target_object_type'] = self.get_object_type(instance.target_object)  # type: ignore [arg-type]
+		representation['source_object_type'] = self.get_object_type(
+			instance.source_object  # type: ignore [arg-type]
+		)
+		representation['target_object_type'] = self.get_object_type(
+			instance.target_object  # type: ignore [arg-type]
+		)
 
 		return representation
 
@@ -252,7 +273,9 @@ class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
 		fields = ['text']
 
 
-class CommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
+class CommandKeyboardButtonSerializer(
+	serializers.ModelSerializer[CommandKeyboardButton]
+):
 	class Meta:
 		model = CommandKeyboardButton
 		fields = ['id', 'row', 'text', 'url']
@@ -272,7 +295,9 @@ class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]
 		fields = ['url', 'method', 'headers', 'body']
 
 
-class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabaseRecord]):
+class CommandDatabaseRecordSerializer(
+	serializers.ModelSerializer[CommandDatabaseRecord]
+):
 	class Meta:
 		model = CommandDatabaseRecord
 		fields = ['data']
@@ -312,7 +337,10 @@ class CreateCommandSerializer(CommandSerializer, TelegramBotContextMixin):
 		images: list[InMemoryUploadedFile] = data.get('images', [])
 		files: list[InMemoryUploadedFile] = data.get('files', [])
 
-		size: int = sum(image.size for image in images) + sum(file.size for file in files)  # type: ignore [misc]
+		size: int = sum(image.size for image in images) + sum(  # type: ignore [misc]
+			file.size  # type: ignore [misc]
+			for file in files
+		)
 
 		if self.telegram_bot.remaining_storage_size - size < 0:
 			raise serializers.ValidationError(_('Вы превысили лимит хранилища!'))
@@ -327,7 +355,9 @@ class CreateCommandSerializer(CommandSerializer, TelegramBotContextMixin):
 		message: dict[str, Any] = validated_data.pop('message')
 		keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
 		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
-		database_record: dict[str, Any] | None = validated_data.pop('database_record', None)
+		database_record: dict[str, Any] | None = validated_data.pop(
+			'database_record', None
+		)
 
 		command: Command = self.telegram_bot.commands.create(**validated_data)
 
@@ -348,7 +378,9 @@ class CreateCommandSerializer(CommandSerializer, TelegramBotContextMixin):
 			buttons: list[dict[str, Any]] = keyboard.pop('buttons', [])
 
 			if buttons:
-				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(command=command, **keyboard)
+				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
+					command=command, **keyboard
+				)
 
 				for button in buttons:
 					_keyboard.buttons.create(**button)
@@ -389,23 +421,22 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 
 		if settings:
 			command.settings.is_reply_to_user_message = settings.get(
-				'is_reply_to_user_message',
-				command.settings.is_reply_to_user_message,
+				'is_reply_to_user_message', command.settings.is_reply_to_user_message
 			)
 			command.settings.is_delete_user_message = settings.get(
-				'is_delete_user_message',
-				command.settings.is_delete_user_message,
+				'is_delete_user_message', command.settings.is_delete_user_message
 			)
 			command.settings.is_send_as_new_message = settings.get(
-				'is_send_as_new_message',
-				command.settings.is_send_as_new_message,
+				'is_send_as_new_message', command.settings.is_send_as_new_message
 			)
 			command.settings.save()
 
 		if trigger:
 			try:
 				command.trigger.text = trigger.get('text', command.trigger.text)
-				command.trigger.description = trigger.get('description', command.trigger.description)
+				command.trigger.description = trigger.get(
+					'description', command.trigger.description
+				)
 				command.trigger.save()
 			except CommandTrigger.DoesNotExist:
 				CommandTrigger.objects.create(command=command, **trigger)
@@ -455,7 +486,9 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 			except CommandKeyboard.DoesNotExist:
 				buttons: list[dict[str, Any]] = keyboard.pop('buttons')
 
-				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(command=command, **keyboard)
+				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
+					command=command, **keyboard
+				)
 
 				for button in buttons:
 					_keyboard.buttons.create(**button)
@@ -467,10 +500,18 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 
 		if api_request:
 			try:
-				command.api_request.url = api_request.get('url', command.api_request.url)
-				command.api_request.method = api_request.get('method', command.api_request.method)
-				command.api_request.headers = api_request.get('headers', command.api_request.headers)
-				command.api_request.body = api_request.get('body', command.api_request.body)
+				command.api_request.url = api_request.get(
+					'url', command.api_request.url
+				)
+				command.api_request.method = api_request.get(
+					'method', command.api_request.method
+				)
+				command.api_request.headers = api_request.get(
+					'headers', command.api_request.headers
+				)
+				command.api_request.body = api_request.get(
+					'body', command.api_request.body
+				)
 				command.api_request.save()
 			except CommandAPIRequest.DoesNotExist:
 				CommandAPIRequest.objects.create(command=command, **api_request)
@@ -482,7 +523,9 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 
 		if database_record:
 			try:
-				command.database_record.data = database_record.get('data', command.database_record.data)
+				command.database_record.data = database_record.get(
+					'data', command.database_record.data
+				)
 			except CommandDatabaseRecord.DoesNotExist:
 				CommandDatabaseRecord.objects.create(command=command, **database_record)
 		elif not self.partial:
@@ -497,10 +540,19 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 class ConditionPartSerializer(serializers.ModelSerializer[ConditionPart]):
 	class Meta:
 		model = ConditionPart
-		fields = ['id', 'type', 'first_value', 'operator', 'second_value', 'next_part_operator']
+		fields = [
+			'id',
+			'type',
+			'first_value',
+			'operator',
+			'second_value',
+			'next_part_operator',
+		]
 
 
-class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotContextMixin):
+class ConditionSerializer(
+	TelegramBotContextMixin, serializers.ModelSerializer[Condition]
+):
 	parts = ConditionPartSerializer(many=True)
 
 	class Meta:
@@ -509,7 +561,9 @@ class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotCon
 
 	def validate_parts(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
 		if not self.partial and not len(parts):
-			raise serializers.ValidationError(_('Условие должно содержать хотя бы одну часть.'))
+			raise serializers.ValidationError(
+				_('Условие должно содержать хотя бы одну часть.')
+			)
 
 		return parts
 
@@ -538,7 +592,9 @@ class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotCon
 				_part.first_value = part.get('first_value', _part.first_value)
 				_part.operator = part.get('operator', _part.operator)
 				_part.second_value = part.get('second_value', _part.second_value)
-				_part.next_part_operator = part.get('next_part_operator', _part.next_part_operator)
+				_part.next_part_operator = part.get(
+					'next_part_operator', _part.next_part_operator
+				)
 				_part.save()
 			except ConditionPart.DoesNotExist:
 				_part = condition.parts.create(**part)
@@ -551,13 +607,17 @@ class ConditionSerializer(serializers.ModelSerializer[Condition], TelegramBotCon
 		return condition
 
 
-class BackgroundTaskAPIRequestSerializer(serializers.ModelSerializer[BackgroundTaskAPIRequest]):
+class BackgroundTaskAPIRequestSerializer(
+	serializers.ModelSerializer[BackgroundTaskAPIRequest]
+):
 	class Meta:
 		model = BackgroundTaskAPIRequest
 		fields = ['url', 'method', 'headers', 'body']
 
 
-class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask], TelegramBotContextMixin):
+class BackgroundTaskSerializer(
+	TelegramBotContextMixin, serializers.ModelSerializer[BackgroundTask]
+):
 	api_request = BackgroundTaskAPIRequestSerializer(required=False)
 
 	class Meta:
@@ -567,29 +627,47 @@ class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask], Tele
 	def create(self, validated_data: dict[str, Any]) -> BackgroundTask:
 		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
 
-		background_task: BackgroundTask = self.telegram_bot.background_tasks.create(**validated_data)
+		background_task: BackgroundTask = self.telegram_bot.background_tasks.create(
+			**validated_data
+		)
 
 		if api_request:
-			BackgroundTaskAPIRequest.objects.create(background_task=background_task, **api_request)
+			BackgroundTaskAPIRequest.objects.create(
+				background_task=background_task, **api_request
+			)
 
 		return background_task
 
-	def update(self, background_task: BackgroundTask, validated_data: dict[str, Any]) -> BackgroundTask:
+	def update(
+		self, background_task: BackgroundTask, validated_data: dict[str, Any]
+	) -> BackgroundTask:
 		api_request: dict[str, Any] | None = validated_data.get('api_request')
 
 		background_task.name = validated_data.get('name', background_task.name)
-		background_task.interval = validated_data.get('interval', background_task.interval)
+		background_task.interval = validated_data.get(
+			'interval', background_task.interval
+		)
 		background_task.save()
 
 		if api_request:
 			try:
-				background_task.api_request.url = api_request.get('url', background_task.api_request.url)
-				background_task.api_request.method = api_request.get('method', background_task.api_request.method)
-				background_task.api_request.headers = api_request.get('headers', background_task.api_request.headers)
-				background_task.api_request.body = api_request.get('body', background_task.api_request.body)
+				background_task.api_request.url = api_request.get(
+					'url', background_task.api_request.url
+				)
+				background_task.api_request.method = api_request.get(
+					'method', background_task.api_request.method
+				)
+				background_task.api_request.headers = api_request.get(
+					'headers', background_task.api_request.headers
+				)
+				background_task.api_request.body = api_request.get(
+					'body', background_task.api_request.body
+				)
 				background_task.api_request.save()
 			except BackgroundTaskAPIRequest.DoesNotExist:
-				BackgroundTaskAPIRequest.objects.create(background_task=background_task, **api_request)
+				BackgroundTaskAPIRequest.objects.create(
+					background_task=background_task, **api_request
+				)
 		elif not self.partial:
 			try:
 				background_task.api_request.delete()
@@ -599,7 +677,9 @@ class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask], Tele
 		return background_task
 
 
-class DiagramCommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
+class DiagramCommandKeyboardButtonSerializer(
+	serializers.ModelSerializer[CommandKeyboardButton]
+):
 	source_connections = ConnectionSerializer(many=True)
 
 	class Meta:
@@ -644,7 +724,12 @@ class DiagramConditionSerializer(DiagramSerializer[Condition]):
 
 	class Meta:
 		model = Condition
-		fields = ['id', 'name', 'source_connections', 'target_connections'] + DiagramSerializer.Meta.fields
+		fields = [
+			'id',
+			'name',
+			'source_connections',
+			'target_connections',
+		] + DiagramSerializer.Meta.fields
 		read_only_fields = ['name']
 
 
@@ -653,11 +738,18 @@ class DiagramBackgroundTaskSerializer(DiagramSerializer[BackgroundTask]):
 
 	class Meta:
 		model = BackgroundTask
-		fields = ['id', 'name', 'interval', 'target_connections'] + DiagramSerializer.Meta.fields
+		fields = [
+			'id',
+			'name',
+			'interval',
+			'target_connections',
+		] + DiagramSerializer.Meta.fields
 		read_only_fields = ['name', 'interval']
 
 
-class VariableSerializer(serializers.ModelSerializer[Variable], TelegramBotContextMixin):
+class VariableSerializer(
+	TelegramBotContextMixin, serializers.ModelSerializer[Variable]
+):
 	class Meta:
 		model = Variable
 		fields = ['id', 'name', 'value', 'description']
@@ -694,7 +786,9 @@ class UserSerializer(serializers.ModelSerializer[User]):
 		return representation
 
 
-class DatabaseRecordSerializer(serializers.ModelSerializer[DatabaseRecord], TelegramBotContextMixin):
+class DatabaseRecordSerializer(
+	TelegramBotContextMixin, serializers.ModelSerializer[DatabaseRecord]
+):
 	class Meta:
 		model = DatabaseRecord
 		fields = ['id', 'data']
@@ -702,7 +796,9 @@ class DatabaseRecordSerializer(serializers.ModelSerializer[DatabaseRecord], Tele
 	def create(self, validated_data: dict[str, Any]) -> DatabaseRecord:
 		return self.telegram_bot.database_records.create(**validated_data)
 
-	def update(self, database_record: DatabaseRecord, validated_data: dict[str, Any]) -> DatabaseRecord:
+	def update(
+		self, database_record: DatabaseRecord, validated_data: dict[str, Any]
+	) -> DatabaseRecord:
 		database_record.data = validated_data.get('data', database_record.data)
 		database_record.save()
 

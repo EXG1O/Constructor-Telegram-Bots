@@ -100,7 +100,9 @@ class TelegramBotViewSet(ModelViewSet[TelegramBot]):
 		return Response(self.get_serializer(telegram_bot).data)
 
 
-class ConnectionViewSet(TelegramBotMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet[Connection]):
+class ConnectionViewSet(
+	TelegramBotMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet[Connection]
+):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = ConnectionSerializer

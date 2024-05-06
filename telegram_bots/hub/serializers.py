@@ -25,7 +25,9 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 		fields = ('id', 'is_private', 'is_enabled', 'is_loading')
 		read_only_fields = ('id', 'is_private')
 
-	def update(self, instance: TelegramBot, validated_data: dict[str, Any]) -> TelegramBot:
+	def update(
+		self, instance: TelegramBot, validated_data: dict[str, Any]
+	) -> TelegramBot:
 		instance.is_enabled = validated_data.get('is_enabled', instance.is_enabled)
 		instance.is_loading = validated_data.get('is_loading', instance.is_loading)
 		instance.save()
@@ -36,7 +38,11 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 	class Meta:
 		model = CommandSettings
-		fields = ('is_reply_to_user_message', 'is_delete_user_message', 'is_send_as_new_message')
+		fields = (
+			'is_reply_to_user_message',
+			'is_delete_user_message',
+			'is_send_as_new_message',
+		)
 
 
 class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
@@ -81,7 +87,9 @@ class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
 		fields = ('text',)
 
 
-class CommandKeyboardButtonSerializer(serializers.ModelSerializer[CommandKeyboardButton]):
+class CommandKeyboardButtonSerializer(
+	serializers.ModelSerializer[CommandKeyboardButton]
+):
 	telegram_bot_command_id = serializers.IntegerField(source='telegram_bot_command.id')
 
 	class Meta:
@@ -103,7 +111,9 @@ class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]
 		fields = ('url', 'method', 'headers', 'body')
 
 
-class CommandDatabaseRecordSerializer(serializers.ModelSerializer[CommandDatabaseRecord]):
+class CommandDatabaseRecordSerializer(
+	serializers.ModelSerializer[CommandDatabaseRecord]
+):
 	class Meta:
 		model = CommandDatabaseRecord
 		fields = ('data',)
@@ -152,7 +162,9 @@ class UserSerializer(serializers.ModelSerializer[User]):
 		telegram_bot: TelegramBot | None = self.context.get('telegram_bot')
 
 		if not isinstance(telegram_bot, TelegramBot):
-			raise TypeError('You not passed a TelegramBot instance to the serializer context!')
+			raise TypeError(
+				'You not passed a TelegramBot instance to the serializer context!'
+			)
 
 		return telegram_bot
 

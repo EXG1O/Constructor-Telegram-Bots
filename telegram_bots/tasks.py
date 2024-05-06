@@ -60,7 +60,9 @@ def start_telegram_bots() -> None:
 	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')  # noqa: N806
 
 	for telegram_bot in TelegramBot.objects.filter(is_enabled=True):
-		telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
+		telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(
+			id=telegram_bot.id
+		)
 
 		if not telegram_bots_hub:
 			telegram_bot.start()

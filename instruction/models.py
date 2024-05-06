@@ -12,7 +12,9 @@ def section_position_default() -> int:
 class Section(models.Model):  # type: ignore [django-manager-missing]
 	title = models.CharField(_('Заголовок'), max_length=255)
 	text = models.TextField(_('Текст'))
-	position = models.PositiveSmallIntegerField(_('Позиция'), blank=True, default=section_position_default)
+	position = models.PositiveSmallIntegerField(
+		_('Позиция'), blank=True, default=section_position_default
+	)
 
 	class Meta(TypedModelMeta):
 		ordering = ['position']

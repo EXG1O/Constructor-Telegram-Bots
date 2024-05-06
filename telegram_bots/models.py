@@ -8,11 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django_stubs_ext.db.models import TypedModelMeta
 
 from . import tasks
-from .base_models import (
-	AbstractAPIRequest,
-	AbstractBlock,
-	AbstractDatabaseRecord,
-)
+from .base_models import AbstractAPIRequest, AbstractBlock, AbstractDatabaseRecord
 
 from requests import Response
 import requests
@@ -22,8 +18,13 @@ from typing import TYPE_CHECKING
 
 
 def validate_api_token(api_token: str) -> None:
-	if not settings.TEST and not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok:
-		raise ValidationError(_('Ваш API-токен Telegram бота является недействительным!'))
+	if (
+		not settings.TEST
+		and not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
+	):
+		raise ValidationError(
+			_('Ваш API-токен Telegram бота является недействительным!')
+		)
 
 
 class TelegramBot(models.Model):
@@ -34,8 +35,12 @@ class TelegramBot(models.Model):
 		verbose_name=_('Владелец'),
 	)
 	username = models.CharField('@username', max_length=32)
-	api_token = models.CharField(_('API-токен'), max_length=50, unique=True, validators=[validate_api_token])
-	storage_size = models.PositiveBigIntegerField(_('Размер хранилища'), default=41943040)
+	api_token = models.CharField(
+		_('API-токен'), max_length=50, unique=True, validators=[validate_api_token]
+	)
+	storage_size = models.PositiveBigIntegerField(
+		_('Размер хранилища'), default=41943040
+	)
 	is_private = models.BooleanField(_('Приватный'), default=False)
 	is_enabled = models.BooleanField(_('Включён'), default=False)
 	is_loading = models.BooleanField(_('Загружается'), default=False)
@@ -85,7 +90,9 @@ class TelegramBot(models.Model):
 		if settings.TEST:
 			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
 		else:
-			response: Response = requests.get(f'https://api.telegram.org/bot{self.api_token}/getMe')
+			response: Response = requests.get(
+				f'https://api.telegram.org/bot{self.api_token}/getMe'
+			)
 
 			if response.ok:
 				self.username = response.json()['result']['username']
@@ -110,7 +117,9 @@ class TelegramBot(models.Model):
 
 		super().save(force_insert, force_update, using, update_fields)
 
-	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+	def delete(
+		self, using: str | None = None, keep_parents: bool = False
+	) -> tuple[int, dict[str, int]]:
 		if not self._state.adding:
 			telegram_bot: TelegramBot = TelegramBot.objects.get(id=self.id)
 
@@ -137,9 +146,7 @@ class Connection(models.Model):
 	)
 
 	source_content_type = models.ForeignKey(
-		ContentType,
-		on_delete=models.CASCADE,
-		related_name='source_connections',
+		ContentType, on_delete=models.CASCADE, related_name='source_connections'
 	)
 	source_object_id = models.PositiveBigIntegerField()
 	source_object = GenericForeignKey('source_content_type', 'source_object_id')
@@ -151,9 +158,7 @@ class Connection(models.Model):
 	)
 
 	target_content_type = models.ForeignKey(
-		ContentType,
-		on_delete=models.CASCADE,
-		related_name='target_connections',
+		ContentType, on_delete=models.CASCADE, related_name='target_connections'
 	)
 	target_object_id = models.PositiveBigIntegerField()
 	target_object = GenericForeignKey('target_content_type', 'target_object_id')
@@ -177,9 +182,15 @@ class CommandSettings(models.Model):
 		related_name='settings',
 		verbose_name=_('Команда'),
 	)
-	is_reply_to_user_message = models.BooleanField(_('Ответить на сообщение пользователя'), default=False)
-	is_delete_user_message = models.BooleanField(_('Удалить сообщение пользователя'), default=False)
-	is_send_as_new_message = models.BooleanField(_('Отправить сообщение как новое'), default=False)
+	is_reply_to_user_message = models.BooleanField(
+		_('Ответить на сообщение пользователя'), default=False
+	)
+	is_delete_user_message = models.BooleanField(
+		_('Удалить сообщение пользователя'), default=False
+	)
+	is_send_as_new_message = models.BooleanField(
+		_('Отправить сообщение как новое'), default=False
+	)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_settings'
@@ -231,7 +242,9 @@ class CommandImage(models.Model):
 		verbose_name = _('Изображение команды')
 		verbose_name_plural = _('Изображения команд')
 
-	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+	def delete(
+		self, using: str | None = None, keep_parents: bool = False
+	) -> tuple[int, dict[str, int]]:
 		self.image.delete(save=False)
 		return super().delete(using, keep_parents)
 
@@ -253,7 +266,9 @@ class CommandFile(models.Model):
 		verbose_name = _('Файл команды')
 		verbose_name_plural = _('Файлы команд')
 
-	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+	def delete(
+		self, using: str | None = None, keep_parents: bool = False
+	) -> tuple[int, dict[str, int]]:
 		self.file.delete(save=False)
 		return super().delete(using, keep_parents)
 
@@ -289,7 +304,9 @@ class CommandKeyboardButton(models.Model):
 	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
 	text = models.TextField(_('Текст'), max_length=512)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
-	source_connections = GenericRelation('Connection', 'source_object_id', 'source_content_type')
+	source_connections = GenericRelation(
+		'Connection', 'source_object_id', 'source_content_type'
+	)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_keyboard_button'
@@ -314,10 +331,7 @@ class CommandKeyboard(models.Model):
 		verbose_name=_('Команда'),
 	)
 	type = models.CharField(
-		_('Режим'),
-		max_length=7,
-		choices=TYPE_CHOICES,
-		default='default',
+		_('Режим'), max_length=7, choices=TYPE_CHOICES, default='default'
 	)
 
 	if TYPE_CHECKING:
@@ -536,7 +550,9 @@ class User(models.Model):
 	full_name = models.CharField(_('Имя и фамилия'), max_length=129)
 	is_allowed = models.BooleanField(_('Разрешён'), default=False)
 	is_blocked = models.BooleanField(_('Заблокирован'), default=False)
-	last_activity_date = models.DateTimeField(_('Дата последней активности'), auto_now_add=True)
+	last_activity_date = models.DateTimeField(
+		_('Дата последней активности'), auto_now_add=True
+	)
 	activated_date = models.DateTimeField(_('Дата активации'), auto_now_add=True)
 
 	class Meta(TypedModelMeta):

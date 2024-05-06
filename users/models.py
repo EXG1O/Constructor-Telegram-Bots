@@ -32,8 +32,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 	telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
 	first_name = models.CharField(_('Имя'), max_length=64)
 	last_name = models.CharField(_('Фамилия'), max_length=64, null=True)
-	_confirm_code = models.CharField(_('Код подтверждения'), db_column='confirm_code', max_length=25, null=True)
-	confirm_code_generation_date = models.DateTimeField(_('Код подтверждения сгенерирован'), null=True)
+	_confirm_code = models.CharField(
+		_('Код подтверждения'), db_column='confirm_code', max_length=25, null=True
+	)
+	confirm_code_generation_date = models.DateTimeField(
+		_('Код подтверждения сгенерирован'), null=True
+	)
 	is_staff = models.BooleanField(_('Сотрудник'), default=False)
 	joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
 
@@ -51,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	@property
 	def full_name(self) -> str:
-		return f'{self.first_name} {self.last_name}' if self.last_name else self.first_name
+		return f"{self.first_name} {self.last_name or ''}".strip()
 
 	@property
 	def confirm_code(self) -> str | None:
@@ -63,7 +67,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 		self.confirm_code_generation_date = timezone.now() if value else None
 
 	def generate_confirm_code(self) -> None:
-		self.confirm_code = generate_random_string(string.ascii_letters + string.digits, 25)
+		self.confirm_code = generate_random_string(
+			string.ascii_letters + string.digits, 25
+		)
 		self.save()
 
 	@property

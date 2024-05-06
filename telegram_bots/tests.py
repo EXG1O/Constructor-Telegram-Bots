@@ -41,11 +41,12 @@ class CustomTestCase(TestCase):
 	def setUp(self) -> None:
 		self.client: APIClient = APIClient()
 		self.site_user: SiteUser = SiteUser.objects.create(
-			telegram_id=123456789,
-			first_name='exg1o',
+			telegram_id=123456789, first_name='exg1o'
 		)
 		self.token: Token = Token.objects.create(user=self.site_user)
-		self.telegram_bot: TelegramBot = self.site_user.telegram_bots.create(api_token='Hi!')
+		self.telegram_bot: TelegramBot = self.site_user.telegram_bots.create(
+			api_token='Hi!'
+		)
 
 
 class TelegramBotViewSetTests(CustomTestCase):
@@ -57,14 +58,30 @@ class TelegramBotViewSetTests(CustomTestCase):
 		true_kwargs: dict[str, Any] = {'id': self.telegram_bot.id}
 		false_kwargs: dict[str, Any] = {'id': 0}
 
-		self.detail_true_url: str = reverse('api:telegram-bots:telegram-bot-detail', kwargs=true_kwargs)
-		self.detail_false_url: str = reverse('api:telegram-bots:telegram-bot-detail', kwargs=false_kwargs)
-		self.start_true_url: str = reverse('api:telegram-bots:telegram-bot-start', kwargs=true_kwargs)
-		self.start_false_url: str = reverse('api:telegram-bots:telegram-bot-start', kwargs=false_kwargs)
-		self.restart_true_url: str = reverse('api:telegram-bots:telegram-bot-restart', kwargs=true_kwargs)
-		self.restart_false_url: str = reverse('api:telegram-bots:telegram-bot-restart', kwargs=false_kwargs)
-		self.stop_true_url: str = reverse('api:telegram-bots:telegram-bot-stop', kwargs=true_kwargs)
-		self.stop_false_url: str = reverse('api:telegram-bots:telegram-bot-stop', kwargs=false_kwargs)
+		self.detail_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-detail', kwargs=true_kwargs
+		)
+		self.detail_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-detail', kwargs=false_kwargs
+		)
+		self.start_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-start', kwargs=true_kwargs
+		)
+		self.start_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-start', kwargs=false_kwargs
+		)
+		self.restart_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-restart', kwargs=true_kwargs
+		)
+		self.restart_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-restart', kwargs=false_kwargs
+		)
+		self.stop_true_url: str = reverse(
+			'api:telegram-bots:telegram-bot-stop', kwargs=true_kwargs
+		)
+		self.stop_false_url: str = reverse(
+			'api:telegram-bots:telegram-bot-stop', kwargs=false_kwargs
+		)
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_url)
@@ -87,16 +104,11 @@ class TelegramBotViewSetTests(CustomTestCase):
 		old_telegram_bot_count: int = self.site_user.telegram_bots.count()
 
 		response = self.client.post(
-			self.list_url,
-			{
-				'api_token': 'Bye!',
-				'is_private': False,
-			},
+			self.list_url, {'api_token': 'Bye!', 'is_private': False}
 		)
 		self.assertEqual(response.status_code, 201)
 		self.assertEqual(
-			self.site_user.telegram_bots.count(),
-			old_telegram_bot_count + 1,
+			self.site_user.telegram_bots.count(), old_telegram_bot_count + 1
 		)
 
 	def test_retrieve(self) -> None:
@@ -173,11 +185,7 @@ class TelegramBotViewSetTests(CustomTestCase):
 		new_api_token_2: str = '987654321:exg1o'
 
 		response = self.client.put(
-			self.detail_true_url,
-			{
-				'api_token': new_api_token_2,
-				'is_private': True,
-			},
+			self.detail_true_url, {'api_token': new_api_token_2, 'is_private': True}
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -225,7 +233,9 @@ class TelegramBotViewSetTests(CustomTestCase):
 
 		try:
 			self.telegram_bot.refresh_from_db()
-			raise self.failureException('Telegram bot has not been deleted from database!')
+			raise self.failureException(
+				'Telegram bot has not been deleted from database!'
+			)
 		except TelegramBot.DoesNotExist:
 			pass
 
@@ -238,14 +248,14 @@ class ConnectionViewSetTests(CustomTestCase):
 
 		self.command_2: Command = self.telegram_bot.commands.create(name='Test name 1')
 		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-			command=self.command_2,
-			type='default',
+			command=self.command_2, type='default'
 		)
-		self.command_2_keyboard_button: CommandKeyboardButton = self.command_2_keyboard.buttons.create(text='Button')
+		self.command_2_keyboard_button: CommandKeyboardButton = (
+			self.command_2_keyboard.buttons.create(text='Button')
+		)
 
 		self.connection: Connection = self.telegram_bot.connections.create(
-			source_object=self.command_2_keyboard_button,
-			target_object=self.command_1,
+			source_object=self.command_2_keyboard_button, target_object=self.command_1
 		)
 
 		self.list_true_url: str = reverse(
@@ -278,7 +288,9 @@ class ConnectionViewSetTests(CustomTestCase):
 		response = self.client.post(self.list_false_url)
 		self.assertEqual(response.status_code, 404)
 
-		old_command_1_target_connection_count: int = self.command_1.target_connections.count()
+		old_command_1_target_connection_count: int = (
+			self.command_1.target_connections.count()
+		)
 		old_command_2_keyboard_button_source_connection_count: int = (
 			self.command_2_keyboard_button.source_connections.count()
 		)
@@ -318,7 +330,9 @@ class ConnectionViewSetTests(CustomTestCase):
 
 		try:
 			self.connection.refresh_from_db()
-			raise self.failureException('Connection has not been deleted from database!')
+			raise self.failureException(
+				'Connection has not been deleted from database!'
+			)
 		except Connection.DoesNotExist:
 			pass
 
@@ -336,8 +350,7 @@ class CommandViewSetTests(CustomTestCase):
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
 		self.list_false_url: str = reverse(
-			'api:telegram-bots:telegram-bot-command-list',
-			kwargs={'telegram_bot_id': 0},
+			'api:telegram-bots:telegram-bot-command-list', kwargs={'telegram_bot_id': 0}
 		)
 		self.detail_true_url: str = reverse(
 			'api:telegram-bots:telegram-bot-command-detail',
@@ -380,13 +393,8 @@ class CommandViewSetTests(CustomTestCase):
 			self.list_true_url,
 			{
 				'data': json.dumps(
-					{
-						'name': 'Test name',
-						'message': {
-							'text': 'The test message :)',
-						},
-					}
-				),
+					{'name': 'Test name', 'message': {'text': 'The test message :)'}}
+				)
 			},
 		)
 		self.assertEqual(response.status_code, 400)
@@ -403,7 +411,7 @@ class CommandViewSetTests(CustomTestCase):
 							'is_send_as_new_message': False,
 						},
 					}
-				),
+				)
 			},
 		)
 		self.assertEqual(response.status_code, 400)
@@ -421,11 +429,9 @@ class CommandViewSetTests(CustomTestCase):
 							'is_delete_user_message': False,
 							'is_send_as_new_message': False,
 						},
-						'message': {
-							'text': 'The test message :)',
-						},
+						'message': {'text': 'The test message :)'},
 					}
-				),
+				)
 			},
 		)
 		self.assertEqual(response.status_code, 201)
@@ -460,7 +466,9 @@ class CommandViewSetTests(CustomTestCase):
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(self.detail_true_url, {'data': json.dumps({'name': new_name})})
+		response = self.client.put(
+			self.detail_true_url, {'data': json.dumps({'name': new_name})}
+		)
 		self.assertEqual(response.status_code, 400)
 
 		response = self.client.put(
@@ -474,11 +482,9 @@ class CommandViewSetTests(CustomTestCase):
 							'is_delete_user_message': False,
 							'is_send_as_new_message': False,
 						},
-						'message': {
-							'text': 'The test message :)',
-						},
+						'message': {'text': 'The test message :)'},
 					}
-				),
+				)
 			},
 		)
 		self.assertEqual(response.status_code, 200)
@@ -501,7 +507,9 @@ class CommandViewSetTests(CustomTestCase):
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.patch(self.detail_true_url, {'data': json.dumps({'name': new_name})})
+		response = self.client.patch(
+			self.detail_true_url, {'data': json.dumps({'name': new_name})}
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.command.refresh_from_db()
@@ -531,7 +539,9 @@ class ConditionViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.condition: Condition = self.telegram_bot.conditions.create(name='Test name')
+		self.condition: Condition = self.telegram_bot.conditions.create(
+			name='Test name'
+		)
 		self.condition.parts.create(
 			type='+',
 			first_value='first_value',
@@ -585,12 +595,7 @@ class ConditionViewSetTests(CustomTestCase):
 		self.assertEqual(response.status_code, 400)
 
 		response = self.client.post(
-			self.list_true_url,
-			{
-				'name': 'Test name',
-				'parts': [],
-			},
-			format='json',
+			self.list_true_url, {'name': 'Test name', 'parts': []}, format='json'
 		)
 		self.assertEqual(response.status_code, 400)
 
@@ -644,12 +649,7 @@ class ConditionViewSetTests(CustomTestCase):
 		new_name: str = 'Test name 2'
 
 		response = self.client.put(
-			self.detail_true_url,
-			{
-				'name': new_name,
-				'parts': [],
-			},
-			format='json',
+			self.detail_true_url, {'name': new_name, 'parts': []}, format='json'
 		)
 		self.assertEqual(response.status_code, 400)
 
@@ -718,9 +718,8 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.background_task: BackgroundTask = self.telegram_bot.background_tasks.create(
-			name='Test name',
-			interval=1,
+		self.background_task: BackgroundTask = (
+			self.telegram_bot.background_tasks.create(name='Test name', interval=1)
 		)
 
 		self.list_true_url: str = reverse(
@@ -733,7 +732,10 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 		)
 		self.detail_true_url: str = reverse(
 			'api:telegram-bots:telegram-bot-background-task-detail',
-			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.background_task.id},
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'id': self.background_task.id,
+			},
 		)
 		self.detail_false_url_1: str = reverse(
 			'api:telegram-bots:telegram-bot-background-task-detail',
@@ -771,15 +773,13 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 		old_background_task_count: int = self.telegram_bot.background_tasks.count()
 
 		response = self.client.post(
-			self.list_true_url,
-			{
-				'name': 'Test name',
-				'interval': 1,
-			},
+			self.list_true_url, {'name': 'Test name', 'interval': 1}
 		)
 		self.assertEqual(response.status_code, 201)
 
-		self.assertEqual(self.telegram_bot.background_tasks.count(), old_background_task_count + 1)
+		self.assertEqual(
+			self.telegram_bot.background_tasks.count(), old_background_task_count + 1
+		)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
@@ -813,11 +813,7 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 		self.assertEqual(response.status_code, 400)
 
 		response = self.client.put(
-			self.detail_true_url,
-			{
-				'name': new_name,
-				'interval': 1,
-			},
+			self.detail_true_url, {'name': new_name, 'interval': 1}
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -860,7 +856,9 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 
 		try:
 			self.background_task.refresh_from_db()
-			raise self.failureException('Background task has not been deleted from database!')
+			raise self.failureException(
+				'Background task has not been deleted from database!'
+			)
 		except BackgroundTask.DoesNotExist:
 			pass
 
@@ -964,7 +962,9 @@ class DiagramConditionViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.condition: Condition = self.telegram_bot.conditions.create(name='Test name')
+		self.condition: Condition = self.telegram_bot.conditions.create(
+			name='Test name'
+		)
 		self.condition.parts.create(
 			type='+',
 			first_value='first_value',
@@ -1065,9 +1065,8 @@ class DiagramBackgroundTaskViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.background_task: BackgroundTask = self.telegram_bot.background_tasks.create(
-			name='Test name',
-			interval=1,
+		self.background_task: BackgroundTask = (
+			self.telegram_bot.background_tasks.create(name='Test name', interval=1)
 		)
 
 		self.list_true_url: str = reverse(
@@ -1080,7 +1079,10 @@ class DiagramBackgroundTaskViewSetTests(CustomTestCase):
 		)
 		self.detail_true_url: str = reverse(
 			'api:telegram-bots:telegram-bot-diagram-background-task-detail',
-			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.background_task.id},
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'id': self.background_task.id,
+			},
 		)
 		self.detail_false_url_1: str = reverse(
 			'api:telegram-bots:telegram-bot-diagram-background-task-detail',
@@ -1164,9 +1166,7 @@ class VariablesAPIViewTests(CustomTestCase):
 		super().setUp()
 
 		self.variable: Variable = self.telegram_bot.variables.create(
-			name='Test name',
-			value='The test value :)',
-			description='The test variable',
+			name='Test name', value='The test value :)', description='The test variable'
 		)
 
 		self.list_true_url: str = reverse(
@@ -1321,8 +1321,7 @@ class UserViewSetTests(CustomTestCase):
 			kwargs={'telegram_bot_id': self.telegram_bot.id},
 		)
 		self.list_false_url: str = reverse(
-			'api:telegram-bots:telegram-bot-user-list',
-			kwargs={'telegram_bot_id': 0},
+			'api:telegram-bots:telegram-bot-user-list', kwargs={'telegram_bot_id': 0}
 		)
 		self.detail_true_url: str = reverse(
 			'api:telegram-bots:telegram-bot-user-detail',
@@ -1376,11 +1375,7 @@ class UserViewSetTests(CustomTestCase):
 		self.assertEqual(response.status_code, 200)
 
 		response = self.client.put(
-			self.detail_true_url,
-			{
-				'is_allowed': False,
-				'is_blocked': True,
-			},
+			self.detail_true_url, {'is_allowed': False, 'is_blocked': True}
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1430,7 +1425,9 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
-		self.database_record = self.telegram_bot.database_records.create(data={'key': 'value'})
+		self.database_record = self.telegram_bot.database_records.create(
+			data={'key': 'value'}
+		)
 
 		self.list_true_url: str = reverse(
 			'api:telegram-bots:telegram-bot-database-record-list',
@@ -1442,7 +1439,10 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 		)
 		self.detail_true_url: str = reverse(
 			'api:telegram-bots:telegram-bot-database-record-detail',
-			kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.database_record.id},
+			kwargs={
+				'telegram_bot_id': self.telegram_bot.id,
+				'id': self.database_record.id,
+			},
 		)
 		self.detail_false_url_1: str = reverse(
 			'api:telegram-bots:telegram-bot-database-record-detail',
@@ -1476,10 +1476,14 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 
 		old_database_record_count: int = self.telegram_bot.database_records.count()
 
-		response = self.client.post(self.list_true_url, {'data': {'key': 'value'}}, format='json')
+		response = self.client.post(
+			self.list_true_url, {'data': {'key': 'value'}}, format='json'
+		)
 		self.assertEqual(response.status_code, 201)
 
-		self.assertEqual(self.telegram_bot.database_records.count(), old_database_record_count + 1)
+		self.assertEqual(
+			self.telegram_bot.database_records.count(), old_database_record_count + 1
+		)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
@@ -1509,7 +1513,9 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 
 		new_data: dict[str, Any] = {'new_key': 'new_value'}
 
-		response = self.client.put(self.detail_true_url, {'data': new_data}, format='json')
+		response = self.client.put(
+			self.detail_true_url, {'data': new_data}, format='json'
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.database_record.refresh_from_db()
@@ -1533,7 +1539,9 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 
 		new_data: dict[str, Any] = {'new_key': 'new_value'}
 
-		response = self.client.patch(self.detail_true_url, {'data': new_data}, format='json')
+		response = self.client.patch(
+			self.detail_true_url, {'data': new_data}, format='json'
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.database_record.refresh_from_db()
@@ -1557,6 +1565,8 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 
 		try:
 			self.database_record.refresh_from_db()
-			raise self.failureException('Database record has not been deleted from database!')
+			raise self.failureException(
+				'Database record has not been deleted from database!'
+			)
 		except DatabaseRecord.DoesNotExist:
 			pass

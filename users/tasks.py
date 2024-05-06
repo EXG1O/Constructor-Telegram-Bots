@@ -22,6 +22,8 @@ def update_users_first_and_last_name() -> None:
 def check_confirm_code_generation_date() -> None:
 	one_hour_ahead_date: datetime = timezone.now() + timedelta(hours=1)
 
-	for user in User.objects.filter(confirm_code_generation_date__gt=one_hour_ahead_date):
+	for user in User.objects.filter(
+		confirm_code_generation_date__gt=one_hour_ahead_date
+	):
 		user.confirm_code = None
 		user.save()

@@ -90,7 +90,9 @@ class TelegramBotsHub(models.Model):
 
 	@property
 	def is_available(self) -> bool:
-		response: Response | None = self.make_api_request('get', '/', delete_on_exception=False)
+		response: Response | None = self.make_api_request(
+			'get', '/', delete_on_exception=False
+		)
 
 		if response:
 			data: dict[str, Any] = response.json()
@@ -181,10 +183,7 @@ class TelegramBotsHub(models.Model):
 				for _retry in range(10):
 					if self.is_available:
 						return super().save(
-							force_insert,
-							force_update,
-							using,
-							update_fields,
+							force_insert, force_update, using, update_fields
 						)
 
 					time.sleep(6)
@@ -193,7 +192,9 @@ class TelegramBotsHub(models.Model):
 				except ProcessLookupError:
 					pass
 
-	def delete(self, using: str | None = None, keep_parents: bool = False) -> tuple[int, dict[str, int]]:
+	def delete(
+		self, using: str | None = None, keep_parents: bool = False
+	) -> tuple[int, dict[str, int]]:
 		if self.is_available:
 			os.kill(self.pid, signal.SIGTERM)
 
