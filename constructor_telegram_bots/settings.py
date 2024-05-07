@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from utils.shortcuts import generate_random_string
 
 from pathlib import Path
+from typing import Any
 import os
 import string
 import sys
@@ -17,7 +18,13 @@ load_dotenv()
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
-SECRET_KEY: str = os.getenv('SECRET_KEY', f'django-insecure-{generate_random_string(string.ascii_letters + string.digits, 50)}')  # fmt: skip
+SECRET_KEY: str = os.getenv(
+	'SECRET_KEY',
+	(
+		'django-insecure-'
+		+ generate_random_string(string.ascii_letters + string.digits, 50)
+	),
+)
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
 
 match sys.argv:
@@ -26,58 +33,53 @@ match sys.argv:
 	case __:
 		TEST = False
 
-FRONTEND_PATH: str | None = os.getenv('FRONTEND_PATH')
-TELEGRAM_BOTS_HUB_PATH: str | None = os.getenv('TELEGRAM_BOTS_HUB_PATH')
+FRONTEND_PATH: str = os.environ['FRONTEND_PATH']
+TELEGRAM_BOTS_HUB_PATH: str = os.environ['TELEGRAM_BOTS_HUB_PATH']
 
-CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN: str | None = os.getenv('TELEGRAM_BOT_TOKEN')
-CONSTRUCTOR_TELEGRAM_BOT_USERNAME: str | None = os.getenv('TELEGRAM_BOT_USERNAME')
+TELEGRAM_BOT_TOKEN: str = os.environ['TELEGRAM_BOT_TOKEN']
+TELEGRAM_BOT_USERNAME: str = os.environ['TELEGRAM_BOT_USERNAME']
 
-POSTGRESQL_DATABASE_NAME: str | None = os.getenv('POSTGRESQL_DATABASE_NAME')
-POSTGRESQL_DATABASE_USER: str | None = os.getenv('POSTGRESQL_DATABASE_USER')
-POSTGRESQL_DATABASE_PASSWORD: str | None = os.getenv('POSTGRESQL_DATABASE_PASSWORD')
-
-
-SITE_DOMAIN = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
-ALLOWED_HOSTS = ['127.0.0.1', 'constructor.exg1o.org']
+POSTGRESQL_DATABASE_NAME: str = os.environ['POSTGRESQL_DATABASE_NAME']
+POSTGRESQL_DATABASE_USER: str = os.environ['POSTGRESQL_DATABASE_USER']
+POSTGRESQL_DATABASE_PASSWORD: str = os.environ['POSTGRESQL_DATABASE_PASSWORD']
 
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_BEAT_SCHEDULE = {
+SITE_DOMAIN: str = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
+ALLOWED_HOSTS: list[str] = ['127.0.0.1', 'constructor.exg1o.org']
+
+
+CELERY_BROKER_URL: str = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND: str = 'redis://127.0.0.1:6379'
+CELERY_ACCEPT_CONTENT: list[str] = ['application/json']
+CELERY_RESULT_SERIALIZER: str = 'json'
+CELERY_TASK_SERIALIZER: str = 'json'
+CELERY_BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
 	'update_users_first_and_last_name_schedule': {
 		'task': 'users.tasks.update_users_first_and_last_name',
-		'schedule': 86400,  # 24 ч.
+		'schedule': 86400,  # 24h
 	},
 	'check_confirm_code_generation_date_schedule': {
 		'task': 'users.tasks.check_confirm_code_generation_date',
-		'schedule': 3600,  # 1 ч.
+		'schedule': 3600,  # 1h
 	},
 }
 
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
 	'rest_framework',
 	'rest_framework.authtoken',
-
 	'django_filters',
 	'drf_standardized_errors',
-
 	'admin_interface',
 	'colorfield',
-
 	'modeltranslation',
 	'tinymce',
-
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-
 	'languages',
 	'users',
 	'telegram_bots',
@@ -86,16 +88,16 @@ INSTALLED_APPS = [
 	'instruction',
 	'donation',
 	'privacy_policy',
-]  # fmt: skip
+]
 
 if not TEST and DEBUG:
 	INSTALLED_APPS.append('silk')
 
-REST_FRAMEWORK = {
+REST_FRAMEWORK: dict[str, Any] = {
 	'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler'
 }
 
-TINYMCE_DEFAULT_CONFIG = {
+TINYMCE_DEFAULT_CONFIG: dict[str, Any] = {
 	'theme': 'silver',
 	'menubar': True,
 	'height': 420,
@@ -117,7 +119,7 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
@@ -132,7 +134,7 @@ if not TEST and DEBUG:
 	MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
 
 
-TEMPLATES = [
+TEMPLATES: list[dict[str, Any]] = [
 	{
 		'BACKEND': 'django.template.backends.django.DjangoTemplates',
 		'DIRS': [FRONTEND_PATH],
@@ -149,12 +151,12 @@ TEMPLATES = [
 ]
 
 
-AUTH_USER_MODEL = 'users.User'
-ROOT_URLCONF = 'constructor_telegram_bots.urls'
-WSGI_APPLICATION = 'constructor_telegram_bots.wsgi.application'
+AUTH_USER_MODEL: str = 'users.User'
+ROOT_URLCONF: str = 'constructor_telegram_bots.urls'
+WSGI_APPLICATION: str = 'constructor_telegram_bots.wsgi.application'
 
 
-DATABASES = {
+DATABASES: dict[str, dict[str, Any]] = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',
 		'NAME': POSTGRESQL_DATABASE_NAME,
@@ -164,39 +166,42 @@ DATABASES = {
 		'PORT': '5432',
 	},
 }
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'
 
 
-USE_I18N = True
-USE_L10N = True
+USE_I18N: bool = True
+USE_L10N: bool = True
 
-LANGUAGE_COOKIE_NAME = 'lang'
+LANGUAGE_COOKIE_NAME: str = 'lang'
 
-LANGUAGES = [
+LANGUAGES: list[tuple[str, Any]] = [
 	('en', _('Английский')),
 	('uk', _('Украинский')),
 	('ru', _('Русский')),
 ]
-LANGUAGE_CODE = 'ru-ru'
-MODELTRANSLATION_DEFAULT_LANGUAGE = 'ru'
-LOCALE_PATHS = [BASE_DIR / 'locale']
+LANGUAGE_CODE: str = 'ru-ru'
+MODELTRANSLATION_DEFAULT_LANGUAGE: str = 'ru'
+LOCALE_PATHS: list[Path] = [BASE_DIR / 'locale']
 
 
-TIME_ZONE = 'UTC'
-USE_TZ = True
+TIME_ZONE: str = 'UTC'
+USE_TZ: bool = True
 
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [BASE_DIR / 'constructor_telegram_bots/static', FRONTEND_PATH]
+STATIC_URL: str = '/static/'
+STATIC_ROOT: Path = BASE_DIR / 'static'
+STATICFILES_DIRS: list[Path | str] = [
+	BASE_DIR / 'constructor_telegram_bots/static',
+	FRONTEND_PATH,
+]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL: str = '/media/'
+MEDIA_ROOT: Path = BASE_DIR / 'media'
 
 
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
-LOGGING = {
+LOGGING: dict[str, Any] = {
 	'version': 1,
 	'disable_existing_loggers': False,
 	'formatters': {

@@ -81,7 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	def get_telegram_user(self) -> Chat | None:
 		response: Response = requests.get(
-			f'https://api.telegram.org/bot{settings.CONSTRUCTOR_TELEGRAM_BOT_API_TOKEN}/getChat',
+			f'https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getChat',
 			{'chat_id': self.telegram_id},
 		)
 
