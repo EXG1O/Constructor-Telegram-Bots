@@ -13,8 +13,8 @@ from .base_models import AbstractAPIRequest, AbstractBlock, AbstractDatabaseReco
 from requests import Response
 import requests
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING
+from collections.abc import Collection, Iterable
+from typing import TYPE_CHECKING, Any
 
 
 def validate_api_token(api_token: str) -> None:
@@ -47,6 +47,7 @@ class TelegramBot(models.Model):
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
 	if TYPE_CHECKING:
+		_loaded_values: dict[str, Any]
 		connections: models.Manager['Connection']
 		commands: models.Manager['Command']
 		conditions: models.Manager['Condition']
@@ -65,8 +66,9 @@ class TelegramBot(models.Model):
 		size: int = 0
 
 		for command in self.commands.all():
-			size += sum(file.file.size for file in command.files.all())
-			size += sum(image.image.size for image in command.images.all())
+			size += sum(file.file.size for file in command.files.all()) + sum(
+				image.image.size for image in command.images.all()
+			)
 
 		return size
 
@@ -89,13 +91,32 @@ class TelegramBot(models.Model):
 	def update_username(self) -> None:
 		if settings.TEST:
 			self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
-		else:
-			response: Response = requests.get(
-				f'https://api.telegram.org/bot{self.api_token}/getMe'
-			)
+			return
 
-			if response.ok:
+		response: Response = requests.get(
+			f'https://api.telegram.org/bot{self.api_token}/getMe'
+		)
+
+		if response.ok:
+			try:
 				self.username = response.json()['result']['username']
+			except KeyError:
+				pass
+
+	@classmethod
+	def from_db(
+		cls, db: str | None, field_names: Collection[str], values: Collection[Any]
+	) -> 'TelegramBot':
+		telegram_bot: TelegramBot = super().from_db(db, field_names, values)
+		telegram_bot._loaded_values = dict(
+			zip(
+				field_names,
+				(value for value in values if value is not models.DEFERRED),  # type: ignore [attr-defined]
+				strict=False,
+			)
+		)
+
+		return telegram_bot
 
 	def save(
 		self,
@@ -104,27 +125,22 @@ class TelegramBot(models.Model):
 		using: str | None = None,
 		update_fields: Iterable[str] | None = None,
 	) -> None:
-		if not self._state.adding:
-			telegram_bot: TelegramBot = TelegramBot.objects.get(id=self.id)
-
-			if self.api_token != telegram_bot.api_token:
-				self.update_username()
-
-				if self.is_enabled and telegram_bot.is_enabled:
-					self.restart()
-		else:
+		if (
+			not self._state.adding
+			and self.api_token != self._loaded_values['api_token']
+		):
 			self.update_username()
+
+			if self._loaded_values['is_enabled']:
+				self.restart()
 
 		super().save(force_insert, force_update, using, update_fields)
 
 	def delete(
 		self, using: str | None = None, keep_parents: bool = False
 	) -> tuple[int, dict[str, int]]:
-		if not self._state.adding:
-			telegram_bot: TelegramBot = TelegramBot.objects.get(id=self.id)
-
-			if self.is_enabled and telegram_bot.is_enabled:
-				self.stop()
+		if not self._state.adding and self._loaded_values['is_enabled']:
+			self.stop()
 
 		return super().delete(using, keep_parents)
 
