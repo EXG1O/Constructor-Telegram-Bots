@@ -8,7 +8,9 @@ from typing import Any
 import json
 
 
-class CommandMultiPartParser(MultiPartParser):
+class MultiPartJSONParser(MultiPartParser):
+	"""Parser for JSON data in multipart form data with support for files."""
+
 	def parse(self, *args: Any, **kwargs: Any) -> dict[str, Any]:  # type: ignore [override]
 		parsed: DataAndFiles = super().parse(*args, **kwargs)  # type: ignore [type-arg]
 
@@ -17,22 +19,18 @@ class CommandMultiPartParser(MultiPartParser):
 		except (KeyError, JSONDecodeError):
 			raise ParseError()
 
-		sorted_files: dict[str, list[InMemoryUploadedFile | int]] = {
-			'images': [],
-			'images_id': [],
-			'files': [],
-			'files_id': [],
-		}
+		data.update({'images': [], 'images_id': [], 'files': [], 'files_id': []})
 
-		for key, value in parsed.files:
-			name: str = key.split(':')[0] + 's'
+		for key, value in parsed.files.items():
+			try:
+				name: str = key.split(':')[0]
+			except IndexError:
+				continue
 
-			if name in sorted_files:
+			if name in ['image', 'file']:
 				if isinstance(value, InMemoryUploadedFile):
-					sorted_files[name].append(value)
+					data[f'{name}s'].append(value)
 				elif isinstance(value, str) and value.isdigit():
-					sorted_files[f'{name}_id'].append(int(value))
-
-		data.update(sorted_files)
+					data[f'{name}s_id'].append(int(value))
 
 		return data

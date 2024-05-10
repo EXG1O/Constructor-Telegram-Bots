@@ -20,6 +20,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from constructor_telegram_bots.pagination import LimitOffsetPagination
+from constructor_telegram_bots.parsers import MultiPartJSONParser
 
 from .mixins import TelegramBotMixin
 from .models import (
@@ -32,7 +33,6 @@ from .models import (
 	User,
 	Variable,
 )
-from .parsers import CommandMultiPartParser
 from .serializers import (
 	BackgroundTaskSerializer,
 	CommandSerializer,
@@ -116,7 +116,7 @@ class ConnectionViewSet(
 class CommandViewSet(TelegramBotMixin, ModelViewSet[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
-	parser_classes = [CommandMultiPartParser]
+	parser_classes = [MultiPartJSONParser]
 	lookup_value_converter = 'int'
 	lookup_field = 'id'
 
