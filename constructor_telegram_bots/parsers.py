@@ -16,7 +16,7 @@ class MultiPartJSONParser(MultiPartParser):
 		parsed: DataAndFiles = super().parse(*args, **kwargs)  # type: ignore [type-arg]
 
 		try:
-			data: dict[str, Any] = json.loads(parsed.data.pop('data'))
+			data: dict[str, Any] = json.loads(parsed.data['data'])
 		except (KeyError, JSONDecodeError):
 			raise ParseError()
 
