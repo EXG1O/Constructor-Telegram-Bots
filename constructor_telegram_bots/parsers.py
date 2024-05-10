@@ -3,6 +3,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import DataAndFiles, MultiPartParser
 
+from itertools import chain
 from json import JSONDecodeError
 from typing import Any
 import json
@@ -15,13 +16,13 @@ class MultiPartJSONParser(MultiPartParser):
 		parsed: DataAndFiles = super().parse(*args, **kwargs)  # type: ignore [type-arg]
 
 		try:
-			data: dict[str, Any] = json.loads(parsed.data['data'])
+			data: dict[str, Any] = json.loads(parsed.data.pop('data'))
 		except (KeyError, JSONDecodeError):
 			raise ParseError()
 
 		data.update({'images': [], 'images_id': [], 'files': [], 'files_id': []})
 
-		for key, value in parsed.files.items():
+		for key, value in chain(parsed.data.items(), parsed.files.items()):
 			try:
 				name: str = key.split(':')[0]
 			except IndexError:
