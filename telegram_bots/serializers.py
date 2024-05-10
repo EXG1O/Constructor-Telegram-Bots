@@ -1,5 +1,5 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db import models
+from django.db.models import Model
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
@@ -44,7 +44,8 @@ class TelegramBotContextMixin:
 
 			if not isinstance(telegram_bot, TelegramBot):
 				raise TypeError(
-					'You not passed a TelegramBot instance as telegram_bot to the serializer context!'
+					'You not passed a TelegramBot instance as '
+					'telegram_bot to the serializer context.'
 				)
 
 			self._telegram_bot = telegram_bot
@@ -82,11 +83,12 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 		if not isinstance(request, Request):
 			raise TypeError(
-				'You not passed a rest_framework.request.Request instance as request to the serializer context!'
+				'You not passed a rest_framework.request.Request instance '
+				'as request to the serializer context.'
 			)
 		elif not isinstance(request.user, SiteUser):
 			raise TypeError(
-				'The request.user instance is not an users.models.User instance!'
+				'The request.user instance is not an users.models.User instance.'
 			)
 
 		return request.user
@@ -101,7 +103,7 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 		telegram_bot.is_private = validated_data.get(
 			'is_private', telegram_bot.is_private
 		)
-		telegram_bot.save()
+		telegram_bot.save(update_fields=['api_token', 'is_private'])
 
 		return telegram_bot
 
@@ -136,7 +138,7 @@ class ConnectionSerializer(
 			'target_handle_position',
 		]
 
-	def get_object(self, object_type: str, object_id: int) -> models.Model:
+	def get_object(self, object_type: str, object_id: int) -> Model:
 		if object_type == 'command':
 			try:
 				return self.telegram_bot.commands.get(id=object_id)
@@ -164,7 +166,7 @@ class ConnectionSerializer(
 
 		raise ValueError('Unknown object type!')
 
-	def get_object_type(self, object: models.Model) -> str:
+	def get_object_type(self, object: Model) -> str:
 		if isinstance(object, Command):
 			return 'command'
 		elif isinstance(object, CommandKeyboardButton):
@@ -177,35 +179,25 @@ class ConnectionSerializer(
 		raise ValueError('Unknown object!')
 
 	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-		source_object_type: str = data['source_object_type']
-		target_object_type: str = data['target_object_type']
+		source_object_type: str = data.pop('source_object_type')
+		target_object_type: str = data.pop('target_object_type')
 
 		if source_object_type == 'command' and target_object_type == 'command':
 			raise serializers.ValidationError(
 				_('Нельзя подключить команду к другой команде!')
 			)
 
-		self.source_object = self.get_object(
-			source_object_type, data['source_object_id']
+		data['source_object'] = self.get_object(
+			source_object_type, data.pop('source_object_id')
 		)
-		self.target_object = self.get_object(
-			target_object_type, data['target_object_id']
+		data['target_object'] = self.get_object(
+			target_object_type, data.pop('target_object_id')
 		)
 
 		return data
 
 	def create(self, validated_data: dict[str, Any]) -> Connection:
-		del validated_data['source_object_type']
-		del validated_data['source_object_id']
-		del validated_data['target_object_type']
-		del validated_data['target_object_id']
-
-		return Connection.objects.create(
-			telegram_bot=self.telegram_bot,
-			source_object=self.source_object,
-			target_object=self.target_object,
-			**validated_data,
-		)
+		return self.telegram_bot.connections.create(**validated_data)
 
 	def to_representation(self, instance: Connection) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)
@@ -329,29 +321,41 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 		]
 
 
-class CreateCommandSerializer(CommandSerializer, TelegramBotContextMixin):
-	images = serializers.ListField(child=serializers.ImageField(), default=[])  # type: ignore [assignment]
-	files = serializers.ListField(child=serializers.FileField(), default=[])  # type: ignore [assignment]
+class BaseOperationCommandSerialization(CommandSerializer, TelegramBotContextMixin):
+	images = serializers.ListField(  # type: ignore [assignment]
+		child=serializers.ImageField(), required=False, allow_null=True
+	)
+	files = serializers.ListField(  # type: ignore [assignment]
+		child=serializers.FileField(), required=False, allow_null=True
+	)
 
 	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
 		images: list[InMemoryUploadedFile] = data.get('images', [])
 		files: list[InMemoryUploadedFile] = data.get('files', [])
 
-		size: int = sum(image.size for image in images) + sum(  # type: ignore [misc]
-			file.size  # type: ignore [misc]
-			for file in files
-		)
+		if images or files:
+			extra_size: int = sum(image.size or 0 for image in images) + sum(
+				file.size or 0 for file in files
+			)
 
-		if self.telegram_bot.remaining_storage_size - size < 0:
-			raise serializers.ValidationError(_('Вы превысили лимит хранилища!'))
+			if self.telegram_bot.remaining_storage_size - extra_size < 0:
+				raise serializers.ValidationError(
+					_('Превышен лимит хранилища.'), code='storage_size'
+				)
 
 		return data
 
+	def to_representation(self, command: Command) -> dict[str, Any]:
+		return CommandSerializer(command).data
+
+
+class CreateCommandSerializer(BaseOperationCommandSerialization):
+	# TODO: In the future, it can be split into separate methods.
 	def create(self, validated_data: dict[str, Any]) -> Command:
 		settings: dict[str, Any] = validated_data.pop('settings')
 		trigger: dict[str, Any] | None = validated_data.pop('trigger', None)
-		images: list[InMemoryUploadedFile] = validated_data.pop('images')
-		files: list[InMemoryUploadedFile] = validated_data.pop('files')
+		images: list[InMemoryUploadedFile] | None = validated_data.pop('images', None)
+		files: list[InMemoryUploadedFile] | None = validated_data.pop('files', None)
 		message: dict[str, Any] = validated_data.pop('message')
 		keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
 		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
@@ -361,49 +365,58 @@ class CreateCommandSerializer(CommandSerializer, TelegramBotContextMixin):
 
 		command: Command = self.telegram_bot.commands.create(**validated_data)
 
-		CommandSettings.objects.create(command=command, **settings)
+		kwargs: dict[str, Any] = {'command': command}
+
+		CommandSettings.objects.create(**kwargs, **settings)
 
 		if trigger:
-			CommandTrigger.objects.create(command=command, **trigger)
+			CommandTrigger.objects.create(**kwargs, **trigger)
 
-		for image in images:
-			command.images.create(image=image)
+		if images:
+			CommandImage.objects.bulk_create(
+				CommandImage(**kwargs, image=image) for image in images
+			)
 
-		for file in files:
-			command.files.create(file=file)
+		if files:
+			CommandFile.objects.bulk_create(
+				CommandFile(**kwargs, file=file) for file in files
+			)
 
-		CommandMessage.objects.create(command=command, **message)
+		CommandMessage.objects.create(**kwargs, **message)
 
 		if keyboard:
 			buttons: list[dict[str, Any]] = keyboard.pop('buttons', [])
 
 			if buttons:
 				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-					command=command, **keyboard
+					**kwargs, **keyboard
 				)
 
-				for button in buttons:
-					_keyboard.buttons.create(**button)
+				CommandKeyboardButton.objects.bulk_create(
+					CommandKeyboardButton(keyboard=_keyboard, **button)
+					for button in buttons
+				)
 
 		if api_request:
-			CommandAPIRequest.objects.create(command=command, **api_request)
+			CommandAPIRequest.objects.create(**kwargs, **api_request)
 
 		if database_record:
-			CommandDatabaseRecord.objects.create(command=command, **database_record)
+			CommandDatabaseRecord.objects.create(**kwargs, **database_record)
 
 		return command
 
-	def to_representation(self, instance: Command) -> dict[str, Any]:
-		return CommandSerializer(instance).data
 
-
-class UpdateCommandSerializer(CreateCommandSerializer):
+class UpdateCommandSerializer(BaseOperationCommandSerialization):
 	images_id = serializers.ListField(child=serializers.IntegerField(), default=[])
 	files_id = serializers.ListField(child=serializers.IntegerField(), default=[])
 
-	class Meta(CreateCommandSerializer.Meta):
-		fields = CreateCommandSerializer.Meta.fields + ['images_id', 'files_id']
+	class Meta(BaseOperationCommandSerialization.Meta):
+		fields = BaseOperationCommandSerialization.Meta.fields + [
+			'images_id',
+			'files_id',
+		]
 
+	# TODO: In the future, it can be split into separate methods.
 	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
 		settings: dict[str, Any] | None = validated_data.get('settings')
 		trigger: dict[str, Any] | None = validated_data.get('trigger')
@@ -417,7 +430,7 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 		database_record: dict[str, Any] | None = validated_data.get('database_record')
 
 		command.name = validated_data.get('name', command.name)
-		command.save()
+		command.save(update_fields=['name'])
 
 		if settings:
 			command.settings.is_reply_to_user_message = settings.get(
@@ -429,7 +442,13 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 			command.settings.is_send_as_new_message = settings.get(
 				'is_send_as_new_message', command.settings.is_send_as_new_message
 			)
-			command.settings.save()
+			command.settings.save(
+				update_fields=[
+					'is_reply_to_user_message',
+					'is_delete_user_message',
+					'is_send_as_new_message',
+				]
+			)
 
 		if trigger:
 			try:
@@ -437,7 +456,7 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 				command.trigger.description = trigger.get(
 					'description', command.trigger.description
 				)
-				command.trigger.save()
+				command.trigger.save(update_fields=['text', 'description'])
 			except CommandTrigger.DoesNotExist:
 				CommandTrigger.objects.create(command=command, **trigger)
 		elif not self.partial:
@@ -447,42 +466,61 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 				pass
 
 		if not self.partial:
-			command.images.exclude(id__in=images_id).delete()
-			command.files.exclude(id__in=files_id).delete()
+			if images_id:
+				command.images.exclude(id__in=images_id).delete()
 
-		for image in images:
-			command.images.create(image=image)
+			if files_id:
+				command.files.exclude(id__in=files_id).delete()
 
-		for file in files:
-			command.files.create(file=file)
+		if images:
+			CommandImage.objects.bulk_create(
+				CommandImage(command=command, image=image) for image in images
+			)
+
+		if files:
+			CommandFile.objects.bulk_create(
+				CommandFile(command=command, file=file) for file in files
+			)
 
 		if message:
 			command.message.text = message.get('text', command.message.text)
-			command.message.save()
+			command.message.save(update_fields=['text'])
 
 		if keyboard:
 			try:
 				command.keyboard.type = keyboard.get('type', command.keyboard.type)
-				command.keyboard.save()
+				command.keyboard.save(update_fields=['type'])
 
-				buttons_id: list[int] = []
+				create_buttons: list[CommandKeyboardButton] = []
+				update_buttons: list[CommandKeyboardButton] = []
 
 				for button in keyboard.get('buttons', []):
-					_button: CommandKeyboardButton
-
 					try:
-						_button = command.keyboard.buttons.get(id=button.get('id', 0))
+						_button: CommandKeyboardButton = command.keyboard.buttons.get(
+							id=button['id']
+						)
 						_button.row = button.get('row', _button.row)
 						_button.text = button.get('text', _button.text)
 						_button.url = button.get('url', _button.url)
-						_button.save()
-					except CommandKeyboardButton.DoesNotExist:
-						_button = command.keyboard.buttons.create(**button)
 
-					buttons_id.append(_button.id)
+						update_buttons.append(_button)
+					except (KeyError, CommandKeyboardButton.DoesNotExist):
+						create_buttons.append(
+							CommandKeyboardButton(keyboard=command.keyboard, **button)
+						)
+
+				new_buttons: list[CommandKeyboardButton] = (
+					CommandKeyboardButton.objects.bulk_create(create_buttons)
+				)
+				CommandKeyboardButton.objects.bulk_update(
+					update_buttons, fields=['row', 'text', 'url']
+				)
 
 				if not self.partial:
-					command.keyboard.buttons.exclude(id__in=buttons_id).delete()
+					command.keyboard.buttons.exclude(
+						id__in=[new_button.id for new_button in new_buttons]
+						+ [update_button.id for update_button in update_buttons]
+					).delete()
 			except CommandKeyboard.DoesNotExist:
 				buttons: list[dict[str, Any]] = keyboard.pop('buttons')
 
@@ -490,8 +528,10 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 					command=command, **keyboard
 				)
 
-				for button in buttons:
-					_keyboard.buttons.create(**button)
+				CommandKeyboardButton.objects.bulk_create(
+					CommandKeyboardButton(keyboard=_keyboard, **button)
+					for button in buttons
+				)
 		elif not self.partial:
 			try:
 				command.keyboard.delete()
@@ -512,7 +552,9 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 				command.api_request.body = api_request.get(
 					'body', command.api_request.body
 				)
-				command.api_request.save()
+				command.api_request.save(
+					update_fields=['url', 'method', 'headers', 'body']
+				)
 			except CommandAPIRequest.DoesNotExist:
 				CommandAPIRequest.objects.create(command=command, **api_request)
 		elif not self.partial:
@@ -526,6 +568,7 @@ class UpdateCommandSerializer(CreateCommandSerializer):
 				command.database_record.data = database_record.get(
 					'data', command.database_record.data
 				)
+				command.database_record.save(update_fields=['data'])
 			except CommandDatabaseRecord.DoesNotExist:
 				CommandDatabaseRecord.objects.create(command=command, **database_record)
 		elif not self.partial:
@@ -560,7 +603,7 @@ class ConditionSerializer(
 		fields = ['id', 'name', 'parts']
 
 	def validate_parts(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
-		if not self.partial and not len(parts):
+		if not self.partial and not parts:
 			raise serializers.ValidationError(
 				_('Условие должно содержать хотя бы одну часть.')
 			)
@@ -572,22 +615,22 @@ class ConditionSerializer(
 
 		condition: Condition = self.telegram_bot.conditions.create(**validated_data)
 
-		for part in parts:
-			condition.parts.create(**part)
+		ConditionPart.objects.bulk_create(
+			ConditionPart(condition=condition, **part) for part in parts
+		)
 
 		return condition
 
 	def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
 		condition.name = validated_data.get('name', condition.name)
-		condition.save()
+		condition.save(update_fields=['name'])
 
-		parts_id: list[int] = []
+		create_parts: list[ConditionPart] = []
+		update_parts: list[ConditionPart] = []
 
 		for part in validated_data.get('parts', []):
-			_part: ConditionPart
-
 			try:
-				_part = condition.parts.get(id=part.get('id', 0))
+				_part: ConditionPart = condition.parts.get(id=part['id'])
 				_part.type = part.get('type', _part.type)
 				_part.first_value = part.get('first_value', _part.first_value)
 				_part.operator = part.get('operator', _part.operator)
@@ -595,14 +638,28 @@ class ConditionSerializer(
 				_part.next_part_operator = part.get(
 					'next_part_operator', _part.next_part_operator
 				)
-				_part.save()
-			except ConditionPart.DoesNotExist:
-				_part = condition.parts.create(**part)
 
-			parts_id.append(_part.id)
+				update_parts.append(_part)
+			except (KeyError, ConditionPart.DoesNotExist):
+				create_parts.append(ConditionPart(condition=condition, **part))
+
+		new_parts: list[ConditionPart] = ConditionPart.objects.bulk_create(create_parts)
+		ConditionPart.objects.bulk_update(
+			update_parts,
+			fields=[
+				'type',
+				'first_value',
+				'operator',
+				'second_value',
+				'next_part_operator',
+			],
+		)
 
 		if not self.partial:
-			condition.parts.exclude(id__in=parts_id).delete()
+			condition.parts.exclude(
+				id__in=[new_part.id for new_part in new_parts]
+				+ [update_part.id for update_part in update_parts]
+			).delete()
 
 		return condition
 
@@ -647,7 +704,7 @@ class BackgroundTaskSerializer(
 		background_task.interval = validated_data.get(
 			'interval', background_task.interval
 		)
-		background_task.save()
+		background_task.save(update_fields=['name', 'interval'])
 
 		if api_request:
 			try:
@@ -663,7 +720,9 @@ class BackgroundTaskSerializer(
 				background_task.api_request.body = api_request.get(
 					'body', background_task.api_request.body
 				)
-				background_task.api_request.save()
+				background_task.api_request.save(
+					update_fields=['url', 'method', 'headers', 'body']
+				)
 			except BackgroundTaskAPIRequest.DoesNotExist:
 				BackgroundTaskAPIRequest.objects.create(
 					background_task=background_task, **api_request
@@ -761,7 +820,7 @@ class VariableSerializer(
 		variable.name = validated_data.get('name', variable.name)
 		variable.value = validated_data.get('value', variable.value)
 		variable.description = validated_data.get('description', variable.description)
-		variable.save()
+		variable.save(update_fields=['name', 'value', 'description'])
 
 		return variable
 
@@ -775,7 +834,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
 	def update(self, user: User, validated_data: dict[str, Any]) -> User:
 		user.is_allowed = validated_data.get('is_allowed', user.is_allowed)
 		user.is_blocked = validated_data.get('is_blocked', user.is_blocked)
-		user.save()
+		user.save(update_fields=['is_allowed', 'is_blocked'])
 
 		return user
 
@@ -800,6 +859,6 @@ class DatabaseRecordSerializer(
 		self, database_record: DatabaseRecord, validated_data: dict[str, Any]
 	) -> DatabaseRecord:
 		database_record.data = validated_data.get('data', database_record.data)
-		database_record.save()
+		database_record.save(update_fields=['data'])
 
 		return database_record
