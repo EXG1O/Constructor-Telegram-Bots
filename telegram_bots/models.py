@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
@@ -61,32 +62,39 @@ class TelegramBot(models.Model):
 		verbose_name = _('Telegram бота')
 		verbose_name_plural = _('Telegram боты')
 
-	@property
+	@cached_property
 	def used_storage_size(self) -> int:
-		size: int = 0
+		"""The property is cached, because it make heavy query to database."""
 
-		for command in self.commands.all():
-			size += sum(file.file.size for file in command.files.all()) + sum(
-				image.image.size for image in command.images.all()
-			)
-
-		return size
+		return sum(
+			image.image.size
+			for image in CommandImage.objects.filter(command__telegram_bot=self)
+		) + sum(
+			file.file.size
+			for file in CommandFile.objects.filter(command__telegram_bot=self)
+		)
 
 	@property
 	def remaining_storage_size(self) -> int:
 		return self.storage_size - self.used_storage_size
 
 	def start(self) -> None:
-		if not settings.TEST:
-			tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
+		if settings.TEST:
+			return
+
+		tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def restart(self) -> None:
-		if not settings.TEST:
-			tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
+		if settings.TEST:
+			return
+
+		tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def stop(self) -> None:
-		if not settings.TEST:
-			tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
+		if settings.TEST:
+			return
+
+		tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def update_username(self) -> None:
 		if settings.TEST:
@@ -126,7 +134,8 @@ class TelegramBot(models.Model):
 		update_fields: Iterable[str] | None = None,
 	) -> None:
 		if (
-			not self._state.adding
+			not settings.TEST
+			and not self._state.adding
 			and self.api_token != self._loaded_values['api_token']
 		):
 			self.update_username()
@@ -139,7 +148,11 @@ class TelegramBot(models.Model):
 	def delete(
 		self, using: str | None = None, keep_parents: bool = False
 	) -> tuple[int, dict[str, int]]:
-		if not self._state.adding and self._loaded_values['is_enabled']:
+		if (
+			not settings.TEST
+			and not self._state.adding
+			and self._loaded_values['is_enabled']
+		):
 			self.stop()
 
 		return super().delete(using, keep_parents)
@@ -187,6 +200,16 @@ class Connection(models.Model):
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_connection'
+		indexes = [
+			models.Index(
+				fields=[
+					'source_content_type',
+					'source_object_id',
+					'target_content_type',
+					'target_object_id',
+				]
+			)
+		]
 		verbose_name = _('Подключение')
 		verbose_name_plural = _('Подключения')
 
