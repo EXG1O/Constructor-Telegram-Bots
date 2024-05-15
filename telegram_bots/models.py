@@ -133,14 +133,12 @@ class TelegramBot(models.Model):
 		using: str | None = None,
 		update_fields: Iterable[str] | None = None,
 	) -> None:
-		if (
-			not settings.TEST
-			and not self._state.adding
-			and self.api_token != self._loaded_values['api_token']
+		if not settings.TEST and (
+			self._state.adding or self.api_token != self._loaded_values['api_token']
 		):
 			self.update_username()
 
-			if self._loaded_values['is_enabled']:
+			if not self._state.adding and self._loaded_values['is_enabled']:
 				self.restart()
 
 		super().save(force_insert, force_update, using, update_fields)
