@@ -23,7 +23,7 @@ base_name: str = 'telegram-bot'
 base_diagram_path: str = f'{base_path}/diagram'
 base_diagram_name: str = f'{base_name}-diagram'
 
-router = SimpleRouter(use_regex_path=False)  # type: ignore [call-arg]  # use_regex_path param exists
+router = SimpleRouter(use_regex_path=False)
 router.register('', TelegramBotViewSet, basename=base_name)
 router.register(
 	f'{base_path}/connections',

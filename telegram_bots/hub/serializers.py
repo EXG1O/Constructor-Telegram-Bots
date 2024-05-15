@@ -121,13 +121,13 @@ class CommandDatabaseRecordSerializer(
 
 class CommandSerializer(serializers.ModelSerializer[Command]):
 	settings = CommandSettingsSerializer()
-	trigger = CommandTriggerSerializer(default=None)  # type: ignore [arg-type]
+	trigger = CommandTriggerSerializer(default=None)
 	images = CommandImageSerializer(many=True)
 	files = CommandFileSerializer(many=True)
 	message = CommandMessageSerializer()
-	keyboard = CommandKeyboardSerializer(default=None)  # type: ignore [arg-type]
-	api_request = CommandAPIRequestSerializer(default=None)  # type: ignore [arg-type]
-	database_record = CommandDatabaseRecordSerializer(default=None)  # type: ignore [arg-type]
+	keyboard = CommandKeyboardSerializer(default=None)
+	api_request = CommandAPIRequestSerializer(default=None)
+	database_record = CommandDatabaseRecordSerializer(default=None)
 
 	class Meta:
 		model = Command

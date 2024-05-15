@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.base import ModelBase
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -128,7 +129,7 @@ class TelegramBot(models.Model):
 
 	def save(
 		self,
-		force_insert: bool = False,
+		force_insert: bool | tuple[ModelBase, ...] = False,
 		force_update: bool = False,
 		using: str | None = None,
 		update_fields: Iterable[str] | None = None,
