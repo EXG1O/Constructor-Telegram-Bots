@@ -17,16 +17,15 @@ import requests
 
 from collections.abc import Collection, Iterable
 from typing import TYPE_CHECKING, Any
+import re
 
 
 def validate_api_token(api_token: str) -> None:
-	if (
-		not settings.TEST
-		and not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
+	if not settings.TEST and (
+		not re.fullmatch(r'\d+:[A-Za-z0-9]+', api_token)
+		or not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
 	):
-		raise ValidationError(
-			_('Ваш API-токен Telegram бота является недействительным!')
-		)
+		raise ValidationError(_('Этот API-токен является недействительным!'))
 
 
 class TelegramBot(models.Model):
@@ -38,7 +37,13 @@ class TelegramBot(models.Model):
 	)
 	username = models.CharField('@username', max_length=32)
 	api_token = models.CharField(
-		_('API-токен'), max_length=50, unique=True, validators=[validate_api_token]
+		_('API-токен'),
+		max_length=50,
+		unique=True,
+		validators=[validate_api_token],
+		error_messages={
+			'unique': _('Telegram бот с таким API-токеном уже существует.')
+		},
 	)
 	storage_size = models.PositiveBigIntegerField(
 		_('Размер хранилища'), default=41943040
