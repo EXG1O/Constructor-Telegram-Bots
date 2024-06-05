@@ -251,7 +251,7 @@ class ConnectionViewSetTests(CustomTestCase):
 			command=self.command_2, type='default'
 		)
 		self.command_2_keyboard_button: CommandKeyboardButton = (
-			self.command_2_keyboard.buttons.create(text='Button')
+			self.command_2_keyboard.buttons.create(row=0, position=0, text='Button')
 		)
 
 		self.connection: Connection = self.telegram_bot.connections.create(
