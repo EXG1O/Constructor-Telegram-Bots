@@ -344,7 +344,8 @@ class CommandKeyboardButton(models.Model):
 		related_name='buttons',
 		verbose_name=_('Клавиатура'),
 	)
-	row = models.PositiveSmallIntegerField(_('Ряд'), blank=True, null=True)
+	row = models.PositiveSmallIntegerField(_('Ряд'))
+	position = models.PositiveSmallIntegerField(_('Позиция'))
 	text = models.TextField(_('Текст'), max_length=512)
 	url = models.URLField(_('URL-адрес'), blank=True, null=True)
 	source_connections = GenericRelation(

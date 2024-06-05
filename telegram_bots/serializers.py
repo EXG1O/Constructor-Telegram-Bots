@@ -270,7 +270,7 @@ class CommandKeyboardButtonSerializer(
 ):
 	class Meta:
 		model = CommandKeyboardButton
-		fields = ['id', 'row', 'text', 'url']
+		fields = ['id', 'row', 'position', 'text', 'url']
 
 
 class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
@@ -500,6 +500,7 @@ class UpdateCommandSerializer(BaseOperationCommandSerialization):
 							id=button['id']
 						)
 						_button.row = button.get('row', _button.row)
+						_button.position = button.get('position', _button.position)
 						_button.text = button.get('text', _button.text)
 						_button.url = button.get('url', _button.url)
 
@@ -743,7 +744,7 @@ class DiagramCommandKeyboardButtonSerializer(
 
 	class Meta:
 		model = CommandKeyboardButton
-		fields = ['id', 'row', 'text', 'url', 'source_connections']
+		fields = ['id', 'row', 'position', 'text', 'url', 'source_connections']
 
 
 class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
