@@ -391,7 +391,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 	def create_keyboard(
 		self, command: Command, keyboard_data: dict[str, Any] | None
 	) -> None:
-		if not keyboard_data or 'buttons' in keyboard_data:
+		if not keyboard_data or 'buttons' not in keyboard_data:
 			return
 
 		buttons_data: list[dict[str, Any]] = keyboard_data.pop('buttons')
