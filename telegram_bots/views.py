@@ -12,7 +12,6 @@ from rest_framework.mixins import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -38,13 +37,11 @@ from .serializers import (
 	CommandSerializer,
 	ConditionSerializer,
 	ConnectionSerializer,
-	CreateCommandSerializer,
 	DatabaseRecordSerializer,
 	DiagramBackgroundTaskSerializer,
 	DiagramCommandSerializer,
 	DiagramConditionSerializer,
 	TelegramBotSerializer,
-	UpdateCommandSerializer,
 	UserSerializer,
 	VariableSerializer,
 )
@@ -117,19 +114,12 @@ class CommandViewSet(TelegramBotMixin, ModelViewSet[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	parser_classes = [MultiPartJSONParser]
+	serializer_class = CommandSerializer
 	lookup_value_converter = 'int'
 	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Command]:
 		return self.telegram_bot.commands.all()
-
-	def get_serializer_class(self) -> type[BaseSerializer[Command]]:
-		if not self.detail and self.request.method == 'POST':
-			return CreateCommandSerializer
-		elif self.detail and self.request.method in ['PUT', 'PATCH']:
-			return UpdateCommandSerializer
-		else:
-			return CommandSerializer
 
 
 class ConditionViewSet(TelegramBotMixin, ModelViewSet[Condition]):

@@ -1,5 +1,6 @@
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import Model
+from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
+from django.db.models import Model, QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
@@ -8,7 +9,8 @@ from rest_framework.request import Request
 from users.models import User as SiteUser
 from utils.formats import date_time_format
 
-from .base_serializers import DiagramSerializer
+from .base_models import AbstractCommandMedia
+from .base_serializers import CommandMediaSerializer, DiagramSerializer
 from .models import (
 	BackgroundTask,
 	BackgroundTaskAPIRequest,
@@ -32,6 +34,7 @@ from .models import (
 )
 
 from typing import Any
+import os
 
 
 class TelegramBotContextMixin:
@@ -227,36 +230,18 @@ class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
 		fields = ['text', 'description']
 
 
-class CommandImageSerializer(serializers.ModelSerializer[CommandImage]):
-	name = serializers.CharField(source='image.name')
-	size = serializers.IntegerField(source='image.size')
-	url = serializers.CharField(source='image.url')
+class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
+	file_field_name = 'image'
 
 	class Meta:
 		model = CommandImage
-		fields = ['id', 'name', 'size', 'url']
-
-	def to_representation(self, instance: CommandImage) -> dict[str, Any]:
-		representation: dict[str, Any] = super().to_representation(instance)
-		representation['name'] = representation['name'].split('images/')[-1]
-
-		return representation
 
 
-class CommandFileSerializer(serializers.ModelSerializer[CommandFile]):
-	name = serializers.CharField(source='file.name')
-	size = serializers.IntegerField(source='file.size')
-	url = serializers.CharField(source='file.url')
+class CommandFileSerializer(CommandMediaSerializer[CommandFile]):
+	file_field_name = 'file'
 
 	class Meta:
 		model = CommandFile
-		fields = ['id', 'name', 'size', 'url']
-
-	def to_representation(self, instance: CommandImage) -> dict[str, Any]:
-		representation: dict[str, Any] = super().to_representation(instance)
-		representation['name'] = representation['name'].split('files/')[-1]
-
-		return representation
 
 
 class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
@@ -271,6 +256,7 @@ class CommandKeyboardButtonSerializer(
 	class Meta:
 		model = CommandKeyboardButton
 		fields = ['id', 'row', 'position', 'text', 'url']
+		extra_kwargs = {'id': {'read_only': False, 'required': False}}
 
 
 class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
@@ -295,11 +281,11 @@ class CommandDatabaseRecordSerializer(
 		fields = ['data']
 
 
-class CommandSerializer(serializers.ModelSerializer[Command]):
+class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContextMixin):
 	settings = CommandSettingsSerializer()
 	trigger = CommandTriggerSerializer(required=False, allow_null=True)
-	images = CommandImageSerializer(many=True)
-	files = CommandFileSerializer(many=True)
+	images = CommandImageSerializer(many=True, required=False, allow_null=True)
+	files = CommandFileSerializer(many=True, required=False, allow_null=True)
 	message = CommandMessageSerializer()
 	keyboard = CommandKeyboardSerializer(required=False, allow_null=True)
 	api_request = CommandAPIRequestSerializer(required=False, allow_null=True)
@@ -320,23 +306,46 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 			'database_record',
 		]
 
+	def _validate_media(
+		self, media: list[dict[str, Any]], file_key: str
+	) -> list[dict[str, Any]]:
+		for data in media:
+			if 'id' not in data and (file_key in data) is ('from_url' in data):
+				raise serializers.ValidationError(
+					_(
+						'Необходимо указать только одно из полей '
+						"'%(key)s' или 'from_url'."
+					)
+					% {'key': file_key},
+					code='media',
+				)
 
-class BaseOperationCommandSerialization(CommandSerializer, TelegramBotContextMixin):
-	images = serializers.ListField(  # type: ignore [assignment]
-		child=serializers.ImageField(), required=False, allow_null=True
-	)
-	files = serializers.ListField(  # type: ignore [assignment]
-		child=serializers.FileField(), required=False, allow_null=True
-	)
+		return media
+
+	def validate_images(self, images: list[dict[str, Any]]) -> list[dict[str, Any]]:
+		return self._validate_media(images, 'image')
+
+	def validate_files(self, files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+		return self._validate_media(files, 'file')
 
 	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-		images: list[InMemoryUploadedFile] = data.get('images', [])
-		files: list[InMemoryUploadedFile] = data.get('files', [])
+		images: list[dict[str, Any]] = data.get('images', [])
+		files: list[dict[str, Any]] = data.get('files', [])
 
 		if images or files:
-			extra_size: int = sum(image.size or 0 for image in images) + sum(
-				file.size or 0 for file in files
-			)
+			extra_size: int = 0
+
+			for image in images:
+				_image: Any | None = image.get('image')
+
+				if isinstance(_image, UploadedFile):
+					extra_size += _image.size or 0
+
+			for file in files:
+				_file: Any | None = file.get('file')
+
+				if isinstance(_file, UploadedFile):
+					extra_size += _file.size or 0
 
 			if self.telegram_bot.remaining_storage_size - extra_size < 0:
 				raise serializers.ValidationError(
@@ -345,17 +354,78 @@ class BaseOperationCommandSerialization(CommandSerializer, TelegramBotContextMix
 
 		return data
 
-	def to_representation(self, command: Command) -> dict[str, Any]:
-		return CommandSerializer(command).data
+	def create_settings(self, command: Command, settings_data: dict[str, Any]) -> None:
+		CommandSettings.objects.create(command=command, **settings_data)
 
+	def create_trigger(
+		self, command: Command, trigger_data: dict[str, Any] | None
+	) -> None:
+		if not trigger_data:
+			return
 
-class CreateCommandSerializer(BaseOperationCommandSerialization):
-	# TODO: In the future, it can be split into separate methods.
+		CommandTrigger.objects.create(command=command, **trigger_data)
+
+	def create_images(
+		self, command: Command, images_data: list[dict[str, Any]] | None
+	) -> None:
+		if not images_data:
+			return
+
+		CommandImage.objects.bulk_create(
+			CommandImage(command=command, **image_data) for image_data in images_data
+		)
+
+	def create_files(
+		self, command: Command, files_data: list[dict[str, Any]] | None
+	) -> None:
+		if not files_data:
+			return
+
+		CommandFile.objects.bulk_create(
+			CommandFile(command=command, **file_data) for file_data in files_data
+		)
+
+	def create_message(self, command: Command, message_data: dict[str, Any]) -> None:
+		CommandMessage.objects.create(command=command, **message_data)
+
+	def create_keyboard(
+		self, command: Command, keyboard_data: dict[str, Any] | None
+	) -> None:
+		if not keyboard_data or 'buttons' in keyboard_data:
+			return
+
+		buttons_data: list[dict[str, Any]] = keyboard_data.pop('buttons')
+
+		keyboard: CommandKeyboard = CommandKeyboard.objects.create(
+			command=command, **keyboard_data
+		)
+
+		CommandKeyboardButton.objects.bulk_create(
+			CommandKeyboardButton(keyboard=keyboard, **button_data)
+			for button_data in buttons_data
+		)
+
+	def create_api_request(
+		self, command: Command, api_request_data: dict[str, Any] | None
+	) -> None:
+		if not api_request_data:
+			return
+
+		CommandAPIRequest.objects.create(command=command, **api_request_data)
+
+	def create_database_record(
+		self, command: Command, database_record_data: dict[str, Any] | None
+	) -> None:
+		if not database_record_data:
+			return
+
+		CommandDatabaseRecord.objects.create(command=command, **database_record_data)
+
 	def create(self, validated_data: dict[str, Any]) -> Command:
 		settings: dict[str, Any] = validated_data.pop('settings')
 		trigger: dict[str, Any] | None = validated_data.pop('trigger', None)
-		images: list[InMemoryUploadedFile] | None = validated_data.pop('images', None)
-		files: list[InMemoryUploadedFile] | None = validated_data.pop('files', None)
+		images: list[dict[str, Any]] | None = validated_data.pop('images', None)
+		files: list[dict[str, Any]] | None = validated_data.pop('files', None)
 		message: dict[str, Any] = validated_data.pop('message')
 		keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
 		api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
@@ -365,149 +435,162 @@ class CreateCommandSerializer(BaseOperationCommandSerialization):
 
 		command: Command = self.telegram_bot.commands.create(**validated_data)
 
-		kwargs: dict[str, Any] = {'command': command}
-
-		CommandSettings.objects.create(**kwargs, **settings)
-
-		if trigger:
-			CommandTrigger.objects.create(**kwargs, **trigger)
-
-		if images:
-			CommandImage.objects.bulk_create(
-				CommandImage(**kwargs, image=image) for image in images
-			)
-
-		if files:
-			CommandFile.objects.bulk_create(
-				CommandFile(**kwargs, file=file) for file in files
-			)
-
-		CommandMessage.objects.create(**kwargs, **message)
-
-		if keyboard:
-			buttons: list[dict[str, Any]] = keyboard.pop('buttons', [])
-
-			if buttons:
-				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-					**kwargs, **keyboard
-				)
-
-				CommandKeyboardButton.objects.bulk_create(
-					CommandKeyboardButton(keyboard=_keyboard, **button)
-					for button in buttons
-				)
-
-		if api_request:
-			CommandAPIRequest.objects.create(**kwargs, **api_request)
-
-		if database_record:
-			CommandDatabaseRecord.objects.create(**kwargs, **database_record)
+		self.create_settings(command, settings)
+		self.create_trigger(command, trigger)
+		self.create_images(command, images)
+		self.create_files(command, files)
+		self.create_message(command, message)
+		self.create_keyboard(command, keyboard)
+		self.create_api_request(command, api_request)
+		self.create_database_record(command, database_record)
 
 		return command
 
+	def update_settings(
+		self, command: Command, settings_data: dict[str, Any] | None
+	) -> None:
+		if not settings_data:
+			return
 
-class UpdateCommandSerializer(BaseOperationCommandSerialization):
-	images_id = serializers.ListField(child=serializers.IntegerField(), default=[])
-	files_id = serializers.ListField(child=serializers.IntegerField(), default=[])
+		command.settings.is_reply_to_user_message = settings_data.get(
+			'is_reply_to_user_message', command.settings.is_reply_to_user_message
+		)
+		command.settings.is_delete_user_message = settings_data.get(
+			'is_delete_user_message', command.settings.is_delete_user_message
+		)
+		command.settings.is_send_as_new_message = settings_data.get(
+			'is_send_as_new_message', command.settings.is_send_as_new_message
+		)
+		command.settings.save(
+			update_fields=[
+				'is_reply_to_user_message',
+				'is_delete_user_message',
+				'is_send_as_new_message',
+			]
+		)
 
-	class Meta(BaseOperationCommandSerialization.Meta):
-		fields = BaseOperationCommandSerialization.Meta.fields + [
-			'images_id',
-			'files_id',
-		]
-
-	# TODO: In the future, it can be split into separate methods.
-	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
-		settings: dict[str, Any] | None = validated_data.get('settings')
-		trigger: dict[str, Any] | None = validated_data.get('trigger')
-		images: list[InMemoryUploadedFile] = validated_data.get('images', [])
-		images_id: list[int] = validated_data.get('images_id', [])
-		files: list[InMemoryUploadedFile] = validated_data.get('files', [])
-		files_id: list[int] = validated_data.get('files_id', [])
-		message: dict[str, Any] | None = validated_data.get('message')
-		keyboard: dict[str, Any] | None = validated_data.get('keyboard')
-		api_request: dict[str, Any] | None = validated_data.get('api_request')
-		database_record: dict[str, Any] | None = validated_data.get('database_record')
-
-		command.name = validated_data.get('name', command.name)
-		command.save(update_fields=['name'])
-
-		if settings:
-			command.settings.is_reply_to_user_message = settings.get(
-				'is_reply_to_user_message', command.settings.is_reply_to_user_message
-			)
-			command.settings.is_delete_user_message = settings.get(
-				'is_delete_user_message', command.settings.is_delete_user_message
-			)
-			command.settings.is_send_as_new_message = settings.get(
-				'is_send_as_new_message', command.settings.is_send_as_new_message
-			)
-			command.settings.save(
-				update_fields=[
-					'is_reply_to_user_message',
-					'is_delete_user_message',
-					'is_send_as_new_message',
-				]
-			)
-
-		if trigger:
+	def update_trigger(
+		self, command: Command, trigger_data: dict[str, Any] | None
+	) -> None:
+		if trigger_data:
 			try:
-				command.trigger.text = trigger.get('text', command.trigger.text)
-				command.trigger.description = trigger.get(
+				command.trigger.text = trigger_data.get('text', command.trigger.text)
+				command.trigger.description = trigger_data.get(
 					'description', command.trigger.description
 				)
 				command.trigger.save(update_fields=['text', 'description'])
 			except CommandTrigger.DoesNotExist:
-				CommandTrigger.objects.create(command=command, **trigger)
+				self.create_trigger(command, trigger_data)
 		elif not self.partial:
 			try:
 				command.trigger.delete()
 			except CommandTrigger.DoesNotExist:
 				pass
 
-		if not self.partial:
-			if images_id:
-				command.images.exclude(id__in=images_id).delete()
+	def update_media(
+		self,
+		command: Command,
+		media_class: type[AbstractCommandMedia],
+		media_data: list[dict[str, Any]] | None,
+	) -> None:
+		file_field_name: str = media_class.file_field_name
+		queryset: QuerySet[AbstractCommandMedia] = getattr(
+			command, media_class.related_name
+		)
 
-			if files_id:
-				command.files.exclude(id__in=files_id).delete()
+		if media_data:
+			create_media: list[AbstractCommandMedia] = []
+			update_media: list[AbstractCommandMedia] = []
 
-		if images:
-			CommandImage.objects.bulk_create(
-				CommandImage(command=command, image=image) for image in images
+			for data in media_data:
+				file: UploadedFile | None = data.get(file_field_name)
+				from_url: str | None = data.get('from_url')
+
+				try:
+					media: AbstractCommandMedia = queryset.get(id=data['id'])
+					media.position = data.get('position', media.position)
+
+					if file or from_url:
+						if media.file_field:
+							media.file_field.delete()
+
+						media.file_field = file
+						media.from_url = from_url
+
+					update_media.append(media)
+				except (KeyError, media_class.DoesNotExist):
+					create_media.append(media_class(command=command, **data))  # type: ignore [misc]
+
+			new_media: list[AbstractCommandMedia] = media_class.objects.bulk_create(  # type: ignore [attr-defined]
+				create_media
+			)
+			media_class.objects.bulk_update(  # type: ignore [attr-defined]
+				update_media, fields=['position', file_field_name, 'from_url']
 			)
 
-		if files:
-			CommandFile.objects.bulk_create(
-				CommandFile(command=command, file=file) for file in files
-			)
+			if not self.partial:
+				new_queryset: QuerySet[AbstractCommandMedia] = queryset.exclude(
+					id__in=[media.id for media in new_media + update_media]  # type: ignore [attr-defined]
+				)
 
-		if message:
-			command.message.text = message.get('text', command.message.text)
-			command.message.save(update_fields=['text'])
+				for file_path in new_queryset.values_list(file_field_name, flat=True):
+					os.remove(settings.MEDIA_ROOT / file_path)
 
-		if keyboard:
+				new_queryset.delete()
+		elif not self.partial:
+			for file_path in queryset.exclude(**{file_field_name: None}).values_list(
+				file_field_name, flat=True
+			):
+				os.remove(settings.MEDIA_ROOT / file_path)
+
+			queryset.all().delete()
+
+	def update_images(
+		self, command: Command, images_data: list[dict[str, Any]] | None
+	) -> None:
+		self.update_media(command, CommandImage, images_data)
+
+	def update_files(
+		self, command: Command, files_data: list[dict[str, Any]] | None
+	) -> None:
+		self.update_media(command, CommandFile, files_data)
+
+	def update_message(
+		self, command: Command, message_data: dict[str, Any] | None
+	) -> None:
+		if not message_data:
+			return
+
+		command.message.text = message_data.get('text', command.message.text)
+		command.message.save(update_fields=['text'])
+
+	def update_keyboard(
+		self, command: Command, keyboard_data: dict[str, Any] | None
+	) -> None:
+		if keyboard_data:
 			try:
-				command.keyboard.type = keyboard.get('type', command.keyboard.type)
+				command.keyboard.type = keyboard_data.get('type', command.keyboard.type)
 				command.keyboard.save(update_fields=['type'])
 
 				create_buttons: list[CommandKeyboardButton] = []
 				update_buttons: list[CommandKeyboardButton] = []
 
-				for button in keyboard.get('buttons', []):
+				for button_data in keyboard_data.get('buttons', []):
 					try:
-						_button: CommandKeyboardButton = command.keyboard.buttons.get(
-							id=button['id']
+						button: CommandKeyboardButton = command.keyboard.buttons.get(
+							id=button_data['id']
 						)
-						_button.row = button.get('row', _button.row)
-						_button.position = button.get('position', _button.position)
-						_button.text = button.get('text', _button.text)
-						_button.url = button.get('url', _button.url)
+						button.row = button_data.get('row', button.row)
+						button.position = button_data.get('position', button.position)
+						button.text = button_data.get('text', button.text)
+						button.url = button_data.get('url', button.url)
 
-						update_buttons.append(_button)
+						update_buttons.append(button)
 					except (KeyError, CommandKeyboardButton.DoesNotExist):
 						create_buttons.append(
-							CommandKeyboardButton(keyboard=command.keyboard, **button)
+							CommandKeyboardButton(
+								keyboard=command.keyboard, **button_data
+							)
 						)
 
 				new_buttons: list[CommandKeyboardButton] = (
@@ -523,60 +606,70 @@ class UpdateCommandSerializer(BaseOperationCommandSerialization):
 						+ [update_button.id for update_button in update_buttons]
 					).delete()
 			except CommandKeyboard.DoesNotExist:
-				buttons: list[dict[str, Any]] = keyboard.pop('buttons')
-
-				_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-					command=command, **keyboard
-				)
-
-				CommandKeyboardButton.objects.bulk_create(
-					CommandKeyboardButton(keyboard=_keyboard, **button)
-					for button in buttons
-				)
+				self.create_keyboard(command, keyboard_data)
 		elif not self.partial:
 			try:
 				command.keyboard.delete()
 			except CommandKeyboard.DoesNotExist:
 				pass
 
-		if api_request:
+	def update_api_request(
+		self, command: Command, api_request_data: dict[str, Any] | None
+	) -> None:
+		if api_request_data:
 			try:
-				command.api_request.url = api_request.get(
+				command.api_request.url = api_request_data.get(
 					'url', command.api_request.url
 				)
-				command.api_request.method = api_request.get(
+				command.api_request.method = api_request_data.get(
 					'method', command.api_request.method
 				)
-				command.api_request.headers = api_request.get(
+				command.api_request.headers = api_request_data.get(
 					'headers', command.api_request.headers
 				)
-				command.api_request.body = api_request.get(
+				command.api_request.body = api_request_data.get(
 					'body', command.api_request.body
 				)
 				command.api_request.save(
 					update_fields=['url', 'method', 'headers', 'body']
 				)
 			except CommandAPIRequest.DoesNotExist:
-				CommandAPIRequest.objects.create(command=command, **api_request)
+				self.create_api_request(command, api_request_data)
 		elif not self.partial:
 			try:
 				command.api_request.delete()
 			except CommandAPIRequest.DoesNotExist:
 				pass
 
-		if database_record:
+	def update_database_record(
+		self, command: Command, database_record_data: dict[str, Any] | None
+	) -> None:
+		if database_record_data:
 			try:
-				command.database_record.data = database_record.get(
+				command.database_record.data = database_record_data.get(
 					'data', command.database_record.data
 				)
 				command.database_record.save(update_fields=['data'])
 			except CommandDatabaseRecord.DoesNotExist:
-				CommandDatabaseRecord.objects.create(command=command, **database_record)
+				self.create_database_record(command, database_record_data)
 		elif not self.partial:
 			try:
 				command.database_record.delete()
 			except CommandDatabaseRecord.DoesNotExist:
 				pass
+
+	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
+		command.name = validated_data.get('name', command.name)
+		command.save(update_fields=['name'])
+
+		self.update_settings(command, validated_data.get('settings'))
+		self.update_trigger(command, validated_data.get('trigger'))
+		self.update_images(command, validated_data.get('images'))
+		self.update_files(command, validated_data.get('files'))
+		self.update_message(command, validated_data.get('message'))
+		self.update_keyboard(command, validated_data.get('keyboard'))
+		self.update_api_request(command, validated_data.get('api_request'))
+		self.update_database_record(command, validated_data.get('database_record'))
 
 		return command
 

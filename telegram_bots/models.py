@@ -9,15 +9,26 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from utils.shortcuts import generate_random_string
+
 from . import tasks
-from .base_models import AbstractAPIRequest, AbstractBlock, AbstractDatabaseRecord
+from .base_models import (
+	AbstractAPIRequest,
+	AbstractBlock,
+	AbstractCommandMedia,
+	AbstractDatabaseRecord,
+)
 
 from requests import Response
 import requests
 
 from collections.abc import Collection, Iterable
+from itertools import chain
 from typing import TYPE_CHECKING, Any
+import hashlib
+import os
 import re
+import string
 
 
 def validate_api_token(api_token: str) -> None:
@@ -73,11 +84,15 @@ class TelegramBot(models.Model):
 		"""The property is cached, because it make heavy query to database."""
 
 		return sum(
-			image.image.size
-			for image in CommandImage.objects.filter(command__telegram_bot=self)
-		) + sum(
-			file.file.size
-			for file in CommandFile.objects.filter(command__telegram_bot=self)
+			media.file_field.size  # type: ignore [union-attr, misc]
+			for media in chain(
+				CommandImage.objects.filter(command__telegram_bot=self).exclude(
+					image=None
+				),
+				CommandFile.objects.filter(command__telegram_bot=self).exclude(
+					file=None
+				),
+			)
 		)
 
 	@property
@@ -263,57 +278,64 @@ class CommandTrigger(models.Model):
 		return self.command.name
 
 
-def upload_command_image_path(instance: 'CommandImage', file_name: str) -> str:
-	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/images/{file_name}'
+def upload_command_media_path(instance: AbstractCommandMedia, file_name: str) -> str:
+	name, ext = os.path.splitext(file_name)
+
+	salt: str = generate_random_string(string.ascii_letters + string.digits, 15)
+	hash: str = hashlib.sha256((name + salt).encode()).hexdigest()
+
+	return f'telegram_bots/{name}_{hash}{ext}'
 
 
-def upload_command_file_path(instance: 'CommandFile', file_name: str) -> str:
-	return f'telegram_bots/{instance.command.telegram_bot.id}/commands/{instance.command.id}/files/{file_name}'
+class CommandImage(AbstractCommandMedia):
+	related_name = 'images'
+	file_field_name = 'image'
 
-
-class CommandImage(models.Model):
 	command = models.ForeignKey(
 		'Command',
 		on_delete=models.CASCADE,
-		related_name='images',
+		related_name=related_name,
 		verbose_name=_('Команда'),
 	)
-	image = models.ImageField(_('Изображение'), upload_to=upload_command_image_path)
+	image = models.ImageField(
+		_('Изображение'),
+		upload_to=upload_command_media_path,
+		max_length=500,
+		blank=True,
+		null=True,
+	)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_image'
 		verbose_name = _('Изображение команды')
 		verbose_name_plural = _('Изображения команд')
 
-	def delete(
-		self, using: str | None = None, keep_parents: bool = False
-	) -> tuple[int, dict[str, int]]:
-		self.image.delete(save=False)
-		return super().delete(using, keep_parents)
-
 	def __str__(self) -> str:
 		return self.command.name
 
 
-class CommandFile(models.Model):
+class CommandFile(AbstractCommandMedia):
+	related_name = 'files'
+	file_field_name = 'file'
+
 	command = models.ForeignKey(
 		'Command',
 		on_delete=models.CASCADE,
-		related_name='files',
+		related_name=related_name,
 		verbose_name=_('Команда'),
 	)
-	file = models.ImageField(_('Файл'), upload_to=upload_command_file_path)
+	file = models.FileField(
+		_('Файл'),
+		upload_to=upload_command_media_path,
+		max_length=500,
+		blank=True,
+		null=True,
+	)
 
 	class Meta(TypedModelMeta):
 		db_table = 'telegram_bot_command_file'
 		verbose_name = _('Файл команды')
 		verbose_name_plural = _('Файлы команд')
-
-	def delete(
-		self, using: str | None = None, keep_parents: bool = False
-	) -> tuple[int, dict[str, int]]:
-		self.file.delete(save=False)
-		return super().delete(using, keep_parents)
 
 	def __str__(self) -> str:
 		return self.command.name
@@ -446,6 +468,20 @@ class Command(AbstractBlock):
 		db_table = 'telegram_bot_command'
 		verbose_name = _('Команда')
 		verbose_name_plural = _('Команды')
+
+	def delete(
+		self, using: str | None = None, keep_parents: bool = False
+	) -> tuple[int, dict[str, int]]:
+		for file_path in chain(
+			self.images.exclude(image=None).values_list('image', flat=True),
+			self.files.exclude(file=None).values_list('file', flat=True),
+		):
+			try:
+				os.remove(settings.MEDIA_ROOT / file_path)  # type: ignore [operator]
+			except FileNotFoundError:
+				pass
+
+		return super().delete(using, keep_parents)
 
 	def __str__(self) -> str:
 		return self.name
