@@ -487,6 +487,21 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 			except CommandTrigger.DoesNotExist:
 				pass
 
+	def _delete_media_files(
+		self,
+		queryset: QuerySet[AbstractCommandMedia],
+		media_class: type[AbstractCommandMedia],
+	) -> None:
+		file_field_name: str = media_class.file_field_name
+
+		for file_path in queryset.exclude(**{file_field_name: None}).values_list(
+			file_field_name, flat=True
+		):
+			try:
+				os.remove(settings.MEDIA_ROOT / file_path)
+			except OSError:
+				pass
+
 	def update_media(
 		self,
 		command: Command,
@@ -533,15 +548,11 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 					id__in=[media.id for media in new_media + update_media]  # type: ignore [attr-defined]
 				)
 
-				for file_path in new_queryset.values_list(file_field_name, flat=True):
-					os.remove(settings.MEDIA_ROOT / file_path)
+				self._delete_media_files(new_queryset, media_class)
 
 				new_queryset.delete()
 		elif not self.partial:
-			for file_path in queryset.exclude(**{file_field_name: None}).values_list(
-				file_field_name, flat=True
-			):
-				os.remove(settings.MEDIA_ROOT / file_path)
+			self._delete_media_files(queryset, media_class)
 
 			queryset.all().delete()
 
