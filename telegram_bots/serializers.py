@@ -602,8 +602,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 
 				if not self.partial:
 					command.keyboard.buttons.exclude(
-						id__in=[new_button.id for new_button in new_buttons]
-						+ [update_button.id for update_button in update_buttons]
+						id__in=[button.id for button in new_buttons + update_buttons]
 					).delete()
 			except CommandKeyboard.DoesNotExist:
 				self.create_keyboard(command, keyboard_data)
@@ -751,8 +750,7 @@ class ConditionSerializer(
 
 		if not self.partial:
 			condition.parts.exclude(
-				id__in=[new_part.id for new_part in new_parts]
-				+ [update_part.id for update_part in update_parts]
+				id__in=[part.id for part in new_parts + update_parts]
 			).delete()
 
 		return condition
