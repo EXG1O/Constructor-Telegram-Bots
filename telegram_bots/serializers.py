@@ -329,23 +329,23 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 		return self._validate_media(files, 'file')
 
 	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-		images: list[dict[str, Any]] = data.get('images', [])
-		files: list[dict[str, Any]] = data.get('files', [])
+		images_data: list[dict[str, Any]] = data.get('images', [])
+		files_data: list[dict[str, Any]] = data.get('files', [])
 
-		if images or files:
+		if images_data or files_data:
 			extra_size: int = 0
 
-			for image in images:
-				_image: Any | None = image.get('image')
+			for image_data in images_data:
+				image: Any | None = image_data.get('image')
 
-				if isinstance(_image, UploadedFile):
-					extra_size += _image.size or 0
+				if isinstance(image, UploadedFile):
+					extra_size += image.size or 0
 
-			for file in files:
-				_file: Any | None = file.get('file')
+			for file_data in files_data:
+				file: Any | None = file_data.get('file')
 
-				if isinstance(_file, UploadedFile):
-					extra_size += _file.size or 0
+				if isinstance(file, UploadedFile):
+					extra_size += file.size or 0
 
 			if self.telegram_bot.remaining_storage_size - extra_size < 0:
 				raise serializers.ValidationError(
@@ -705,12 +705,12 @@ class ConditionSerializer(
 		return parts
 
 	def create(self, validated_data: dict[str, Any]) -> Condition:
-		parts: list[dict[str, Any]] = validated_data.pop('parts')
+		parts_data: list[dict[str, Any]] = validated_data.pop('parts')
 
 		condition: Condition = self.telegram_bot.conditions.create(**validated_data)
 
 		ConditionPart.objects.bulk_create(
-			ConditionPart(condition=condition, **part) for part in parts
+			ConditionPart(condition=condition, **part_data) for part_data in parts_data
 		)
 
 		return condition
@@ -722,20 +722,20 @@ class ConditionSerializer(
 		create_parts: list[ConditionPart] = []
 		update_parts: list[ConditionPart] = []
 
-		for part in validated_data.get('parts', []):
+		for part_data in validated_data.get('parts', []):
 			try:
-				_part: ConditionPart = condition.parts.get(id=part['id'])
-				_part.type = part.get('type', _part.type)
-				_part.first_value = part.get('first_value', _part.first_value)
-				_part.operator = part.get('operator', _part.operator)
-				_part.second_value = part.get('second_value', _part.second_value)
-				_part.next_part_operator = part.get(
-					'next_part_operator', _part.next_part_operator
+				part: ConditionPart = condition.parts.get(id=part_data['id'])
+				part.type = part_data.get('type', part.type)
+				part.first_value = part_data.get('first_value', part.first_value)
+				part.operator = part_data.get('operator', part.operator)
+				part.second_value = part_data.get('second_value', part.second_value)
+				part.next_part_operator = part_data.get(
+					'next_part_operator', part.next_part_operator
 				)
 
-				update_parts.append(_part)
+				update_parts.append(part)
 			except (KeyError, ConditionPart.DoesNotExist):
-				create_parts.append(ConditionPart(condition=condition, **part))
+				create_parts.append(ConditionPart(condition=condition, **part_data))
 
 		new_parts: list[ConditionPart] = ConditionPart.objects.bulk_create(create_parts)
 		ConditionPart.objects.bulk_update(
