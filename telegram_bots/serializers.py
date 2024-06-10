@@ -681,6 +681,10 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 		self.update_api_request(command, validated_data.get('api_request'))
 		self.update_database_record(command, validated_data.get('database_record'))
 
+		command.refresh_from_db(
+			fields=['trigger', 'keyboard', 'api_request', 'database_record']
+		)
+
 		return command
 
 
