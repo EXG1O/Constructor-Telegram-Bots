@@ -153,6 +153,14 @@ ROOT_URLCONF: str = 'constructor_telegram_bots.urls'
 WSGI_APPLICATION: str = 'constructor_telegram_bots.wsgi.application'
 
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+		'LOCATION': 'redis://127.0.0.1:6379',
+	}
+}
+
+
 DATABASES: dict[str, dict[str, Any]] = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',

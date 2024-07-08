@@ -1,4 +1,6 @@
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed, NotFound
@@ -19,6 +21,7 @@ class StatsAPIView(APIView):
 	authentication_classes = []
 	permission_classes = []
 
+	@method_decorator(cache_page(3600))
 	def get(self, request: Request) -> Response:
 		return Response({'total': User.objects.count()})
 

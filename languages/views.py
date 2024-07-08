@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ class LanguagesAPIView(APIView):
 	authentication_classes = []
 	permission_classes = []
 
+	@method_decorator(cache_page(3600))
 	def get(self, request: Request) -> Response:
 		return Response({language[0]: language[1] for language in settings.LANGUAGES})
 

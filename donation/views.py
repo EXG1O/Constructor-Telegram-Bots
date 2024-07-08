@@ -1,3 +1,6 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 from rest_framework.mixins import ListModelMixin
 from rest_framework.viewsets import GenericViewSet
 
@@ -7,6 +10,7 @@ from .models import Button, Donation, Section
 from .serializers import ButtonSerializer, DonationSerializer, SectionSerializer
 
 
+@method_decorator(cache_page(3600), name='dispatch')
 class DonationViewSet(ListModelMixin, GenericViewSet[Donation]):
 	authentication_classes = []
 	permission_classes = []
@@ -15,6 +19,7 @@ class DonationViewSet(ListModelMixin, GenericViewSet[Donation]):
 	pagination_class = LimitOffsetPagination
 
 
+@method_decorator(cache_page(3600), name='dispatch')
 class SectionViewSet(ListModelMixin, GenericViewSet[Section]):
 	authentication_classes = []
 	permission_classes = []
@@ -22,6 +27,7 @@ class SectionViewSet(ListModelMixin, GenericViewSet[Section]):
 	serializer_class = SectionSerializer
 
 
+@method_decorator(cache_page(3600), name='dispatch')
 class ButtonViewSet(ListModelMixin, GenericViewSet[Button]):
 	authentication_classes = []
 	permission_classes = []

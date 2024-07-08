@@ -1,4 +1,6 @@
 from django.db.models import QuerySet
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -51,6 +53,7 @@ class StatsAPIView(APIView):
 	authentication_classes = []
 	permission_classes = []
 
+	@method_decorator(cache_page(3600))
 	def get(self, request: Request) -> Response:
 		return Response(
 			{
