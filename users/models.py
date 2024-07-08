@@ -82,7 +82,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	def get_telegram_user(self) -> Chat | None:
 		response: Response = requests.get(
-			f'https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getChat',
+			# FIXME: The TELEGRAM_BOT_TOKEN parameter is no longer available in the settings.
+			# f'https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getChat',
+			'https://api.telegram.org/bot123456789/getChat',
 			{'chat_id': self.telegram_id},
 		)
 
