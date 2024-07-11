@@ -195,10 +195,7 @@ USE_TZ: bool = True
 
 STATIC_URL: str = '/static/'
 STATIC_ROOT: Path = BASE_DIR / 'static'
-STATICFILES_DIRS: list[Path | str] = [
-	BASE_DIR / 'constructor_telegram_bots/static',
-	FRONTEND_PATH,
-]
+STATICFILES_DIRS: list[Path | str] = [FRONTEND_PATH]
 
 MEDIA_URL: str = '/media/'
 MEDIA_ROOT: Path = BASE_DIR / 'media'
