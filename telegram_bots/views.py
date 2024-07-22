@@ -20,6 +20,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
 from constructor_telegram_bots.authentication import CookiesTokenAuthentication
+from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 from constructor_telegram_bots.parsers import MultiPartJSONParser
 
@@ -68,12 +69,10 @@ class StatsAPIView(APIView):
 		)
 
 
-class TelegramBotViewSet(ModelViewSet[TelegramBot]):
+class TelegramBotViewSet(IDLookupMixin, ModelViewSet[TelegramBot]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = TelegramBotSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[TelegramBot]:
 		return self.request.user.telegram_bots.all()  # type: ignore [union-attr]
@@ -101,53 +100,52 @@ class TelegramBotViewSet(ModelViewSet[TelegramBot]):
 
 
 class ConnectionViewSet(
-	TelegramBotMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet[Connection]
+	IDLookupMixin,
+	TelegramBotMixin,
+	CreateModelMixin,
+	DestroyModelMixin,
+	GenericViewSet[Connection],
 ):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = ConnectionSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Connection]:
 		return self.telegram_bot.connections.all()
 
 
-class CommandViewSet(TelegramBotMixin, ModelViewSet[Command]):
+class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	parser_classes = [MultiPartJSONParser]
 	serializer_class = CommandSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Command]:
 		return self.telegram_bot.commands.all()
 
 
-class ConditionViewSet(TelegramBotMixin, ModelViewSet[Condition]):
+class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = ConditionSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Condition]:
 		return self.telegram_bot.conditions.all()
 
 
-class BackgroundTaskViewSet(TelegramBotMixin, ModelViewSet[BackgroundTask]):
+class BackgroundTaskViewSet(
+	IDLookupMixin, TelegramBotMixin, ModelViewSet[BackgroundTask]
+):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = BackgroundTaskSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
 		return self.telegram_bot.background_tasks.all()
 
 
 class DiagramCommandViewSet(
+	IDLookupMixin,
 	TelegramBotMixin,
 	ListModelMixin,
 	RetrieveModelMixin,
@@ -157,14 +155,13 @@ class DiagramCommandViewSet(
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramCommandSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Command]:
 		return self.telegram_bot.commands.all()
 
 
 class DiagramConditionViewSet(
+	IDLookupMixin,
 	TelegramBotMixin,
 	ListModelMixin,
 	RetrieveModelMixin,
@@ -174,14 +171,13 @@ class DiagramConditionViewSet(
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramConditionSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[Condition]:
 		return self.telegram_bot.conditions.all()
 
 
 class DiagramBackgroundTaskViewSet(
+	IDLookupMixin,
 	TelegramBotMixin,
 	ListModelMixin,
 	RetrieveModelMixin,
@@ -191,19 +187,15 @@ class DiagramBackgroundTaskViewSet(
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramBackgroundTaskSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
 		return self.telegram_bot.background_tasks.all()
 
 
-class VariableViewSet(TelegramBotMixin, ModelViewSet[Variable]):
+class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = VariableSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter, OrderingFilter]
 	search_fields = ['id', 'name']
@@ -214,6 +206,7 @@ class VariableViewSet(TelegramBotMixin, ModelViewSet[Variable]):
 
 
 class UserViewSet(
+	IDLookupMixin,
 	TelegramBotMixin,
 	ListModelMixin,
 	RetrieveModelMixin,
@@ -224,8 +217,6 @@ class UserViewSet(
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = UserSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
 	search_fields = ['telegram_id', 'full_name']
@@ -236,12 +227,12 @@ class UserViewSet(
 		return self.telegram_bot.users.all()
 
 
-class DatabaseRecordViewSet(TelegramBotMixin, ModelViewSet[DatabaseRecord]):
+class DatabaseRecordViewSet(
+	IDLookupMixin, TelegramBotMixin, ModelViewSet[DatabaseRecord]
+):
 	authentication_classes = [CookiesTokenAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DatabaseRecordSerializer
-	lookup_value_converter = 'int'
-	lookup_field = 'id'
 	pagination_class = LimitOffsetPagination
 	filter_backends = [SearchFilter]
 	search_fields = ['data']
