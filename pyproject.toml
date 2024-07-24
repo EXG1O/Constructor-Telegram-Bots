@@ -17,6 +17,7 @@ python-dotenv = "^1.0.1"
 redis = "^5.0.3"
 psycopg = "^3.1.18"
 django-stubs-ext = "^5.0.0"
+yarl = "^1.9.4"
 
 [tool.poetry.group.dev.dependencies]
 django-silk = "^5.1.0"

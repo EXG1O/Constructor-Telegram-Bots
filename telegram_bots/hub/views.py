@@ -1,69 +1,99 @@
-from django.db.models.query import QuerySet
+from django.db.models import QuerySet
 
-from rest_framework.generics import (
-	CreateAPIView,
-	ListAPIView,
-	RetrieveAPIView,
-	RetrieveUpdateAPIView,
-)
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from ..models import Command, TelegramBot, User, Variable
-from ..permissions import CommandIsFound, TelegramBotIsFound
+from constructor_telegram_bots.mixins import IDLookupMixin
+
+from ..models import (
+	BackgroundTask,
+	Command,
+	Condition,
+	DatabaseRecord,
+	TelegramBot,
+	User,
+	Variable,
+)
 from .authentication import TokenAuthentication
+from .mixins import TelegramBotMixin
 from .serializers import (
+	BackgroundTaskSerializer,
 	CommandSerializer,
+	ConditionSerializer,
+	DatabaseRecordSerializer,
 	TelegramBotSerializer,
 	UserSerializer,
 	VariableSerializer,
 )
 
-from typing import Any
 
-
-class TelegramBotAPIView(RetrieveUpdateAPIView[TelegramBot]):
+class TelegramBotViewSet(IDLookupMixin, ReadOnlyModelViewSet[TelegramBot]):
 	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = TelegramBotSerializer
 
-	def get_object(self) -> TelegramBot:
-		return self.kwargs['telegram_bot']
+	def get_queryset(self) -> QuerySet[TelegramBot]:
+		return TelegramBot.objects.all()
 
 
-class CommandsAPIView(ListAPIView[Command]):
+class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Command]):
 	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = CommandSerializer
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.kwargs['telegram_bot'].commands.all()
+		return self.telegram_bot.commands.all()
 
 
-class CommandAPIView(RetrieveAPIView[Command]):
+class ConditionViewSet(
+	IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Condition]
+):
 	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound & CommandIsFound]
-	serializer_class = CommandSerializer
+	permission_classes = [IsAuthenticated]
+	serializer_class = ConditionSerializer
 
-	def get_object(self) -> Command:
-		return self.kwargs['telegram_bot_command']
+	def get_queryset(self) -> QuerySet[Condition]:
+		return self.telegram_bot.conditions.all()
 
 
-class VariablesAPIView(ListAPIView[Variable]):
+class BackgroundTaskViewSet(
+	IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[BackgroundTask]
+):
 	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
+	serializer_class = BackgroundTaskSerializer
+
+	def get_queryset(self) -> QuerySet[BackgroundTask]:
+		return self.telegram_bot.background_tasks.all()
+
+
+class VariableViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Variable]):
+	authentication_classes = [TokenAuthentication]
+	permission_classes = [IsAuthenticated]
 	serializer_class = VariableSerializer
 
 	def get_queryset(self) -> QuerySet[Variable]:
-		return self.kwargs['telegram_bot'].variables.all()
+		return self.telegram_bot.variables.all()
 
 
-class UsersAPIView(CreateAPIView[User]):
+class UserViewSet(
+	IDLookupMixin, TelegramBotMixin, CreateModelMixin, ReadOnlyModelViewSet[User]
+):
 	authentication_classes = [TokenAuthentication]
-	permission_classes = [IsAuthenticated & TelegramBotIsFound]
+	permission_classes = [IsAuthenticated]
 	serializer_class = UserSerializer
 
-	def get_serializer_context(self) -> dict[str, Any]:
-		context: dict[str, Any] = super().get_serializer_context()
-		context['telegram_bot'] = self.kwargs['telegram_bot']
+	def get_queryset(self) -> QuerySet[User]:
+		return self.telegram_bot.users.all()
 
-		return context
+
+class DatabaseRecordViewSet(
+	IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[DatabaseRecord]
+):
+	authentication_classes = [TokenAuthentication]
+	permission_classes = [IsAuthenticated]
+	serializer_class = DatabaseRecordSerializer
+
+	def get_queryset(self) -> QuerySet[DatabaseRecord]:
+		return self.telegram_bot.database_records.all()

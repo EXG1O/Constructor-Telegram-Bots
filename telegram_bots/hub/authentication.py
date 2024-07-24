@@ -9,10 +9,8 @@ from .models import TelegramBotsHub
 class TokenAuthentication(BaseTokenAuthentication):
 	def authenticate_credentials(self, token: str) -> tuple[TelegramBotsHub, str]:
 		try:
-			telegram_bots_hub: TelegramBotsHub = TelegramBotsHub.objects.get(
-				token=token
-			)
+			hub: TelegramBotsHub = TelegramBotsHub.objects.get(service_token=token)
 		except TelegramBotsHub.DoesNotExist:
-			raise AuthenticationFailed(_('Неверный токен!'))
+			raise AuthenticationFailed(_('Недействительный токен.'))
 
-		return telegram_bots_hub, token
+		return hub, token

@@ -60,7 +60,7 @@ class StatsAPIView(APIView):
 			{
 				'telegram_bots': {
 					'total': TelegramBot.objects.count(),
-					'enabled': TelegramBot.objects.filter(is_enabled=True).count(),
+					'enabled': TelegramBot.objects.filter(must_be_enabled=True).count(),
 				},
 				'users': {
 					'total': User.objects.count(),

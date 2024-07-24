@@ -1,68 +1,70 @@
-from django.apps import apps
-
 from celery import shared_task
 
+from .hub.utils import get_telegram_bots_hub_modal
+from .utils import get_telegram_bot_modal
+
+from collections.abc import Callable
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, TypeVar
+
+if TYPE_CHECKING:
+	from .hub.models import TelegramBotsHub
+	from .models import TelegramBot
+else:
+	TelegramBot = Any
+	TelegramBotsHub = Any
+
+
+P = ParamSpec('P')
+R = TypeVar('R')
+
+
+def execute_task(func: Callable[Concatenate[TelegramBot, P], R]) -> Callable[P, R]:
+	@wraps(func)
+	def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+		telegram_bot_id = kwargs['telegram_bot_id']
+		assert isinstance(telegram_bot_id, int)
+
+		telegram_bot: TelegramBot = get_telegram_bot_modal().objects.get(
+			id=telegram_bot_id
+		)
+
+		try:
+			return func(telegram_bot, *args, **kwargs)
+		finally:
+			telegram_bot.is_loading = True
+			telegram_bot.save(update_fields=['is_loading'])
+
+	return wrapper
+
 
 @shared_task
-def start_telegram_bot(telegram_bot_id: int) -> None:
-	TelegramBot = apps.get_model('telegram_bots.TelegramBot')  # noqa: N806
-	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')  # noqa: N806
-
-	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
-	telegram_bot.is_loading = True
-	telegram_bot.save()
-
-	telegram_bots_hub = TelegramBotsHub.objects.get_free()
-	telegram_bots_hub.start_telegram_bot(telegram_bot)
+@execute_task
+def start_telegram_bot(telegram_bot: TelegramBot) -> None:
+	hub: TelegramBotsHub = get_telegram_bots_hub_modal().objects.get_freest()
+	hub.api.start_telegram_bot(telegram_bot.id, {'bot_token': telegram_bot.api_token})
 
 
 @shared_task
-def restart_telegram_bot(telegram_bot_id: int) -> None:
-	TelegramBot = apps.get_model('telegram_bots.TelegramBot')  # noqa: N806
-	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')  # noqa: N806
+@execute_task
+def restart_telegram_bot(telegram_bot: TelegramBot) -> None:
+	if not telegram_bot.hub:
+		return
 
-	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
-	telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
-
-	if telegram_bots_hub:
-		telegram_bot.is_loading = True
-		telegram_bot.save()
-
-		telegram_bots_hub.restart_telegram_bot(telegram_bot)
-	else:
-		telegram_bot.is_enabled = False
-		telegram_bot.is_loading = False
-		telegram_bot.save()
+	telegram_bot.hub.api.restart_telegram_bot(telegram_bot.id)
 
 
 @shared_task
-def stop_telegram_bot(telegram_bot_id: int) -> None:
-	TelegramBot = apps.get_model('telegram_bots.TelegramBot')  # noqa: N806
-	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')  # noqa: N806
+@execute_task
+def stop_telegram_bot(telegram_bot: TelegramBot) -> None:
+	if not telegram_bot.hub:
+		return
 
-	telegram_bot = TelegramBot.objects.get(id=telegram_bot_id)
-	telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(id=telegram_bot.id)
-
-	if telegram_bots_hub:
-		telegram_bot.is_loading = True
-		telegram_bot.save()
-
-		telegram_bots_hub.stop_telegram_bot(telegram_bot)
-	else:
-		telegram_bot.is_enabled = False
-		telegram_bot.is_loading = False
-		telegram_bot.save()
+	telegram_bot.hub.api.stop_telegram_bot(telegram_bot.id)
 
 
 @shared_task
 def start_telegram_bots() -> None:
-	TelegramBot = apps.get_model('telegram_bots.TelegramBot')  # noqa: N806
-	TelegramBotsHub = apps.get_model('telegram_bots_hub.TelegramBotsHub')  # noqa: N806
-
-	for telegram_bot in TelegramBot.objects.filter(is_enabled=True):
-		telegram_bots_hub = TelegramBotsHub.objects.get_telegram_bot_hub(
-			id=telegram_bot.id
-		)
-
-		if not telegram_bots_hub:
+	for telegram_bot in get_telegram_bot_modal().objects.filter(must_be_enabled=True):
+		if not telegram_bot.is_enabled:
 			telegram_bot.start()

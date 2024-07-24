@@ -15,7 +15,7 @@ from typing import Any, Literal
 class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	search_fields = ['username']
 	date_hierarchy = 'added_date'
-	list_filter = ['is_enabled', 'added_date']
+	list_filter = ['must_be_enabled', 'added_date']
 	list_display = [
 		'id',
 		'owner',
@@ -23,10 +23,11 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'storage_size_display',
 		'used_storage_size_display',
 		'remaining_storage_size_display',
-		'commands_count',
-		'users_count',
+		'command_count_display',
+		'user_count_display',
 		'is_private',
-		'is_enabled',
+		'must_be_enabled',
+		'is_enabled_display',
 		'added_date',
 	]
 	fields = [
@@ -37,10 +38,11 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		'storage_size_display',
 		'used_storage_size_display',
 		'remaining_storage_size_display',
-		'commands_count',
-		'users_count',
+		'command_count_display',
+		'user_count_display',
 		'is_private',
-		'is_enabled',
+		'must_be_enabled',
+		'is_enabled_display',
 		'added_date',
 	]
 
@@ -48,7 +50,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 		return (
 			super()
 			.get_queryset(request)
-			.annotate(commands_count=Count('commands'), users_count=Count('users'))
+			.annotate(command_count=Count('commands'), user_count=Count('users'))
 		)
 
 	@admin.display(description='@username', ordering='username')
@@ -69,13 +71,17 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 	def remaining_storage_size_display(self, telegram_bot: TelegramBot) -> str:
 		return f'{(telegram_bot.remaining_storage_size / 1024 ** 2):.2f}MB'
 
-	@admin.display(description=_('Команд'), ordering='commands_count')
-	def commands_count(self, telegram_bot: TelegramBot) -> int:
-		return telegram_bot.commands.count()
+	@admin.display(description=_('Команд'), ordering='command_count')
+	def command_count_display(self, telegram_bot: TelegramBot) -> int:
+		return telegram_bot.command_count  # type: ignore [attr-defined]
 
-	@admin.display(description=_('Пользователей'), ordering='users_count')
-	def users_count(self, telegram_bot: TelegramBot) -> int:
-		return telegram_bot.users.count()
+	@admin.display(description=_('Пользователей'), ordering='user_count')
+	def user_count_display(self, telegram_bot: TelegramBot) -> int:
+		return telegram_bot.user_count  # type: ignore [attr-defined]
+
+	@admin.display(description=_('Включен'))
+	def is_enabled_display(self, telegram_bot: TelegramBot) -> bool:
+		return telegram_bot.is_enabled
 
 	def has_add_permission(self, *args: Any, **kwargs: Any) -> Literal[False]:
 		return False

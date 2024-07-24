@@ -73,7 +73,4 @@ router.register(
 )
 
 app_name = 'telegram-bots'
-urlpatterns = [
-	path('stats/', StatsAPIView.as_view(), name='stats'),
-	# path('hub/<int:telegram_bot_id>/', include('telegram_bots.hub.urls')),
-] + router.urls
+urlpatterns = [path('stats/', StatsAPIView.as_view(), name='stats')] + router.urls

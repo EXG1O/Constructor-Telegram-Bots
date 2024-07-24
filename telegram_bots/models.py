@@ -18,11 +18,12 @@ from .base_models import (
 	AbstractCommandMedia,
 	AbstractDatabaseRecord,
 )
+from .hub.models import TelegramBotsHub
 
 from requests import Response
 import requests
 
-from collections.abc import Collection, Iterable
+from collections.abc import Callable, Collection, Iterable
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 import hashlib
@@ -60,7 +61,7 @@ class TelegramBot(models.Model):
 		_('Размер хранилища'), default=41943040
 	)
 	is_private = models.BooleanField(_('Приватный'), default=False)
-	is_enabled = models.BooleanField(_('Включён'), default=False)
+	must_be_enabled = models.BooleanField(_('Должен быть включен'), default=False)
 	is_loading = models.BooleanField(_('Загружается'), default=False)
 	added_date = models.DateTimeField(_('Добавлен'), auto_now_add=True)
 
@@ -99,23 +100,31 @@ class TelegramBot(models.Model):
 	def remaining_storage_size(self) -> int:
 		return self.storage_size - self.used_storage_size
 
-	def start(self) -> None:
+	@cached_property
+	def hub(self) -> TelegramBotsHub | None:
+		return TelegramBotsHub.objects.get_telegram_bot_hub(self.id)
+
+	@property
+	def is_enabled(self) -> bool:
+		return self.must_be_enabled and bool(self.hub)
+
+	def _execute_task(self, task: Callable[..., None], **kwargs: Any) -> None:
 		if settings.TEST:
 			return
 
-		tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
+		self.is_loading = True
+		self.save(update_fields=['is_loading'])
+
+		task.delay(telegram_bot_id=self.id, **kwargs)  # type: ignore [attr-defined]
+
+	def start(self) -> None:
+		self._execute_task(tasks.start_telegram_bot)
 
 	def restart(self) -> None:
-		if settings.TEST:
-			return
-
-		tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
+		self._execute_task(tasks.restart_telegram_bot)
 
 	def stop(self) -> None:
-		if settings.TEST:
-			return
-
-		tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
+		self._execute_task(tasks.stop_telegram_bot)
 
 	def update_username(self) -> None:
 		if settings.TEST:
