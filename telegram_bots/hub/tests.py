@@ -368,9 +368,7 @@ class UserViewSetTests(BaseTestCase):
 		)
 		self.assertEqual(response.status_code, 201)
 
-		self.assertEqual(
-			self.telegram_bot.users.count(), old_user_count + 1
-		)
+		self.assertEqual(self.telegram_bot.users.count(), old_user_count + 1)
 
 
 class DatabaseRecordViewSetTests(BaseTestCase):
