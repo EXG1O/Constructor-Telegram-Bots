@@ -32,7 +32,7 @@ def execute_task(func: Callable[Concatenate[TelegramBot, P], R]) -> Callable[P, 
 		try:
 			return func(telegram_bot, *args, **kwargs)
 		finally:
-			telegram_bot.is_loading = True
+			telegram_bot.is_loading = False
 			telegram_bot.save(update_fields=['is_loading'])
 
 	return wrapper
