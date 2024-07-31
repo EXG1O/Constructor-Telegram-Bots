@@ -4,12 +4,10 @@ import django_stubs_ext
 
 from dotenv import load_dotenv
 
-from utils.shortcuts import generate_random_string
-
 from pathlib import Path
 from typing import Any
 import os
-import string
+import secrets
 import sys
 
 django_stubs_ext.monkeypatch()
@@ -18,13 +16,7 @@ load_dotenv()
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
-SECRET_KEY: str = os.getenv(
-	'SECRET_KEY',
-	(
-		'django-insecure-'
-		+ generate_random_string(string.ascii_letters + string.digits, 50)
-	),
-)
+SECRET_KEY: str = os.getenv('SECRET_KEY', secrets.token_hex(25))
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
 
 match sys.argv:
@@ -34,7 +26,6 @@ match sys.argv:
 		TEST = False
 
 FRONTEND_PATH: str = os.environ['FRONTEND_PATH']
-TELEGRAM_BOTS_HUB_PATH: str = os.environ['TELEGRAM_BOTS_HUB_PATH']
 
 POSTGRESQL_DATABASE_NAME: str = os.environ['POSTGRESQL_DATABASE_NAME']
 POSTGRESQL_DATABASE_USER: str = os.environ['POSTGRESQL_DATABASE_USER']
