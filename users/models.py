@@ -12,14 +12,13 @@ from aiogram.types import Chat
 from pydantic import ValidationError
 
 from telegram_bots.models import TelegramBot
-from utils.shortcuts import generate_random_string
 
 from requests import Response
 import requests
 
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
-import string
+import secrets
 
 
 class UserManager(BaseUserManager['User']):
@@ -34,7 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	first_name = models.CharField(_('Имя'), max_length=64)
 	last_name = models.CharField(_('Фамилия'), max_length=64, null=True)
 	_confirm_code = models.CharField(
-		_('Код подтверждения'), db_column='confirm_code', max_length=25, null=True
+		_('Код подтверждения'), db_column='confirm_code', max_length=32, null=True
 	)
 	confirm_code_generation_date = models.DateTimeField(
 		_('Код подтверждения сгенерирован'), null=True
@@ -68,9 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		self.confirm_code_generation_date = timezone.now() if value else None
 
 	def generate_confirm_code(self) -> None:
-		self.confirm_code = generate_random_string(
-			string.ascii_letters + string.digits, 25
-		)
+		self.confirm_code = secrets.token_urlsafe(16)
 		self.save()
 
 	@property

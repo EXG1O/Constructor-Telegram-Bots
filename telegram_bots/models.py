@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
-from utils.shortcuts import generate_random_string
-
 from . import tasks
 from .base_models import (
 	AbstractAPIRequest,
@@ -29,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 import hashlib
 import os
 import re
-import string
+import secrets
 
 
 def validate_api_token(api_token: str) -> None:
@@ -286,7 +284,7 @@ class CommandTrigger(models.Model):
 def upload_command_media_path(instance: AbstractCommandMedia, file_name: str) -> str:
 	name, ext = os.path.splitext(file_name)
 
-	salt: str = generate_random_string(string.ascii_letters + string.digits, 15)
+	salt: str = secrets.token_hex(8)
 	hash: str = hashlib.sha256((name + salt).encode()).hexdigest()
 
 	return f'telegram_bots/{name}_{hash}{ext}'
