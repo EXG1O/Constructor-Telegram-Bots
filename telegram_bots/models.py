@@ -168,7 +168,7 @@ class TelegramBot(models.Model):
 		):
 			self.update_username()
 
-			if not self._state.adding and self._loaded_values['is_enabled']:
+			if not self._state.adding and self.is_enabled:
 				self.restart()
 
 		super().save(force_insert, force_update, using, update_fields)
@@ -176,11 +176,7 @@ class TelegramBot(models.Model):
 	def delete(
 		self, using: str | None = None, keep_parents: bool = False
 	) -> tuple[int, dict[str, int]]:
-		if (
-			not settings.TEST
-			and not self._state.adding
-			and self._loaded_values['is_enabled']
-		):
+		if not settings.TEST and not self._state.adding and self.is_enabled:
 			self.stop()
 
 		return super().delete(using, keep_parents)
