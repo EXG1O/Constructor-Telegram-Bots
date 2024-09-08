@@ -7,7 +7,6 @@ from rest_framework import serializers
 from rest_framework.request import Request
 
 from users.models import User as SiteUser
-from utils.formats import date_time_format
 
 from .base_models import AbstractCommandMedia
 from .base_serializers import CommandMediaSerializer, DiagramSerializer
@@ -69,6 +68,7 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 			'is_private',
 			'is_enabled',
 			'is_loading',
+			'added_date',
 		]
 		read_only_fields = [
 			'id',
@@ -78,6 +78,7 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 			'remaining_storage_size',
 			'is_enabled',
 			'is_loading',
+			'added_date',
 		]
 
 	@property
@@ -109,12 +110,6 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 		telegram_bot.save(update_fields=['api_token', 'is_private'])
 
 		return telegram_bot
-
-	def to_representation(self, telegram_bot: TelegramBot) -> dict[str, Any]:
-		representation: dict[str, Any] = super().to_representation(telegram_bot)
-		representation['added_date'] = date_time_format(telegram_bot.added_date)
-
-		return representation
 
 
 class ConnectionSerializer(
@@ -935,8 +930,15 @@ class VariableSerializer(
 class UserSerializer(serializers.ModelSerializer[User]):
 	class Meta:
 		model = User
-		fields = ['id', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked']
-		read_only_fields = ['telegram_id', 'full_name']
+		fields = [
+			'id',
+			'telegram_id',
+			'full_name',
+			'is_allowed',
+			'is_blocked',
+			'activated_date',
+		]
+		read_only_fields = ['telegram_id', 'full_name', 'activated_date']
 
 	def update(self, user: User, validated_data: dict[str, Any]) -> User:
 		user.is_allowed = validated_data.get('is_allowed', user.is_allowed)
@@ -944,12 +946,6 @@ class UserSerializer(serializers.ModelSerializer[User]):
 		user.save(update_fields=['is_allowed', 'is_blocked'])
 
 		return user
-
-	def to_representation(self, user: User) -> dict[str, Any]:
-		representation: dict[str, Any] = super().to_representation(user)
-		representation['activated_date'] = date_time_format(user.activated_date)
-
-		return representation
 
 
 class DatabaseRecordSerializer(
