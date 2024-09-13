@@ -20,10 +20,8 @@ def update_users_first_and_last_name() -> None:
 
 @shared_task
 def check_confirm_code_generation_date() -> None:
-	one_hour_ahead_date: datetime = timezone.now() + timedelta(hours=1)
+	one_hour_ahead_date: datetime = timezone.now() - timedelta(hours=1)
 
-	for user in User.objects.filter(
-		confirm_code_generation_date__gt=one_hour_ahead_date
-	):
-		user.confirm_code = None
-		user.save()
+	User.objects.filter(confirm_code_generation_date__lt=one_hour_ahead_date).update(
+		_confirm_code=None, confirm_code_generation_date=None
+	)
