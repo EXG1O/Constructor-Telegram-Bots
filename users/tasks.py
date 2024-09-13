@@ -13,9 +13,9 @@ def update_users_first_and_last_name() -> None:
 	for user in User.objects.all():
 		user.update_first_name()
 		user.update_last_name()
-		user.save()
+		user.save(update_fields=['first_name', 'last_name'])
 
-		time.sleep(1)
+		time.sleep(0.25)
 
 
 @shared_task
