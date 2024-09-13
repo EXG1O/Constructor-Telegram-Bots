@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import URLPattern, URLResolver, include, path, re_path
 from django.views.generic import TemplateView
-from django.views.i18n import JavaScriptCatalog
 
 import django_stubs_ext
 
@@ -11,10 +10,9 @@ from rest_framework.generics import GenericAPIView
 django_stubs_ext.monkeypatch(extra_classes=[GenericAPIView])
 
 
-urlpatterns = [
+urlpatterns: list[URLPattern | URLResolver] = [
 	path('admin/', admin.site.urls),
 	path('tinymce/', include('tinymce.urls')),
-	path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 	path(
 		'api/',
 		include(
