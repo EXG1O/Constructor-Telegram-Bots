@@ -16,6 +16,14 @@ from .base_models import (
 	AbstractCommandMedia,
 	AbstractDatabaseRecord,
 )
+from .enums import (
+	BackgroundTaskInterval,
+	ConditionPartNextPartOperator,
+	ConditionPartOperatorType,
+	ConditionPartType,
+	ConnectionHandlePosition,
+	KeyboardType,
+)
 from .hub.models import TelegramBotsHub
 
 from requests import Response
@@ -184,11 +192,6 @@ class TelegramBot(models.Model):
 
 
 class Connection(models.Model):
-	HANDLE_POSITION_CHOICES = [
-		('left', _('Слева')),
-		('right', _('Справа')),
-	]
-
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
 		on_delete=models.CASCADE,
@@ -204,8 +207,8 @@ class Connection(models.Model):
 	source_handle_position = models.CharField(
 		_('Стартовая позиция коннектора'),
 		max_length=5,
-		choices=HANDLE_POSITION_CHOICES,
-		default='left',
+		choices=ConnectionHandlePosition,
+		default=ConnectionHandlePosition.LEFT,
 	)
 
 	target_content_type = models.ForeignKey(
@@ -216,8 +219,8 @@ class Connection(models.Model):
 	target_handle_position = models.CharField(
 		_('Окончательная позиция коннектора'),
 		max_length=5,
-		choices=HANDLE_POSITION_CHOICES,
-		default='right',
+		choices=ConnectionHandlePosition,
+		default=ConnectionHandlePosition.RIGHT,
 	)
 
 	class Meta(TypedModelMeta):
@@ -387,12 +390,6 @@ class CommandKeyboardButton(models.Model):
 
 
 class CommandKeyboard(models.Model):
-	TYPE_CHOICES = [
-		('default', _('Обычный')),
-		('inline', _('Встроенный')),
-		('payment', _('Платёжный')),
-	]
-
 	command = models.OneToOneField(
 		'Command',
 		on_delete=models.CASCADE,
@@ -400,7 +397,7 @@ class CommandKeyboard(models.Model):
 		verbose_name=_('Команда'),
 	)
 	type = models.CharField(
-		_('Режим'), max_length=7, choices=TYPE_CHOICES, default='default'
+		_('Режим'), max_length=7, choices=KeyboardType, default=KeyboardType.DEFAULT
 	)
 
 	if TYPE_CHECKING:
@@ -491,37 +488,22 @@ class Command(AbstractBlock):
 
 
 class ConditionPart(models.Model):
-	TYPE_CHOICES = [
-		('+', _('Положительный')),
-		('-', _('Отрицательный')),
-	]
-	OPERATOR_CHOICES = [
-		('==', _('Равно')),
-		('!=', _('Не равно')),
-		('>', _('Больше')),
-		('>=', _('Больше или равно')),
-		('<', _('Меньше')),
-		('<=', _('Меньше или равно')),
-	]
-	NEXT_PART_OPERATOR_CHOICES = [
-		('&&', _('И')),
-		('||', _('ИЛИ')),
-	]
-
 	condition = models.ForeignKey(
 		'Condition',
 		on_delete=models.CASCADE,
 		related_name='parts',
 		verbose_name=_('Условие'),
 	)
-	type = models.CharField(_('Тип'), max_length=1, choices=TYPE_CHOICES)
+	type = models.CharField(_('Тип'), max_length=1, choices=ConditionPartType)
 	first_value = models.CharField(_('Первое значение'), max_length=255)
-	operator = models.CharField(_('Оператор'), max_length=2, choices=OPERATOR_CHOICES)
+	operator = models.CharField(
+		_('Оператор'), max_length=2, choices=ConditionPartOperatorType
+	)
 	second_value = models.CharField(_('Второе значение'), max_length=255)
 	next_part_operator = models.CharField(
 		_('Оператор для следующей части'),
 		max_length=2,
-		choices=NEXT_PART_OPERATOR_CHOICES,
+		choices=ConditionPartNextPartOperator,
 		blank=True,
 		null=True,
 	)
@@ -573,21 +555,15 @@ class BackgroundTaskAPIRequest(AbstractAPIRequest):
 
 
 class BackgroundTask(AbstractBlock):
-	INTERVAL_CHOICES = [
-		(1, _('1 день')),
-		(3, _('3 дня')),
-		(7, _('7 дней')),
-		(14, _('14 дней')),
-		(28, _('28 дней')),
-	]
-
 	telegram_bot = models.ForeignKey(
 		TelegramBot,
 		on_delete=models.CASCADE,
 		related_name='background_tasks',
 		verbose_name=_('Telegram бот'),
 	)
-	interval = models.PositiveSmallIntegerField(_('Интервал'), choices=INTERVAL_CHOICES)
+	interval = models.PositiveSmallIntegerField(
+		_('Интервал'), choices=BackgroundTaskInterval
+	)
 	source_connections = None
 
 	if TYPE_CHECKING:

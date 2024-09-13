@@ -10,6 +10,7 @@ from users.models import User as SiteUser
 
 from .base_models import AbstractCommandMedia
 from .base_serializers import CommandMediaSerializer, DiagramSerializer
+from .enums import ConnectionObjectType
 from .models import (
 	BackgroundTask,
 	BackgroundTaskAPIRequest,
@@ -116,12 +117,10 @@ class ConnectionSerializer(
 	TelegramBotContextMixin, serializers.ModelSerializer[Connection]
 ):
 	source_object_type = serializers.ChoiceField(
-		choices=['command', 'command_keyboard_button', 'condition', 'background_task'],
-		write_only=True,
+		choices=ConnectionObjectType.source_choices(), write_only=True
 	)
 	target_object_type = serializers.ChoiceField(
-		choices=['command', 'condition'],
-		write_only=True,
+		choices=ConnectionObjectType.target_choices(), write_only=True
 	)
 
 	class Meta:
@@ -137,52 +136,55 @@ class ConnectionSerializer(
 		]
 
 	def get_object(self, object_type: str, object_id: int) -> Model:
-		if object_type == 'command':
+		if object_type == ConnectionObjectType.COMMAND:
 			try:
 				return self.telegram_bot.commands.get(id=object_id)
 			except Command.DoesNotExist:
-				raise serializers.ValidationError(_('Команда не найдена!'))
-		elif object_type == 'command_keyboard_button':
+				raise serializers.ValidationError(_('Команда не найдена.'))
+		elif object_type == ConnectionObjectType.COMMAND_KEYBOARD_BUTTON:
 			try:
 				return CommandKeyboardButton.objects.get(
 					keyboard__command__telegram_bot=self.telegram_bot, id=object_id
 				)
 			except CommandKeyboardButton.DoesNotExist:
 				raise serializers.ValidationError(
-					_('Кнопка клавиатуры команды не найдена!')
+					_('Кнопка клавиатуры команды не найдена.')
 				)
-		elif object_type == 'condition':
+		elif object_type == ConnectionObjectType.CONDITION:
 			try:
 				return self.telegram_bot.conditions.get(id=object_id)
 			except Condition.DoesNotExist:
-				raise serializers.ValidationError(_('Условие не найдено!'))
-		elif object_type == 'background_task':
+				raise serializers.ValidationError(_('Условие не найдено.'))
+		elif object_type == ConnectionObjectType.BACKGROUND_TASK:
 			try:
 				return self.telegram_bot.background_tasks.get(id=object_id)
 			except BackgroundTask.DoesNotExist:
-				raise serializers.ValidationError(_('Фоновая задача не найдена!'))
+				raise serializers.ValidationError(_('Фоновая задача не найдена.'))
 
-		raise ValueError('Unknown object type!')
+		raise ValueError('Unknown object type.')
 
 	def get_object_type(self, object: Model) -> str:
 		if isinstance(object, Command):
-			return 'command'
+			return ConnectionObjectType.COMMAND
 		elif isinstance(object, CommandKeyboardButton):
-			return 'command_keyboard_button'
+			return ConnectionObjectType.COMMAND_KEYBOARD_BUTTON
 		elif isinstance(object, Condition):
-			return 'condition'
+			return ConnectionObjectType.CONDITION
 		elif isinstance(object, BackgroundTask):
-			return 'background_task'
+			return ConnectionObjectType.BACKGROUND_TASK
 
-		raise ValueError('Unknown object!')
+		raise ValueError('Unknown object.')
 
 	def validate(self, data: dict[str, Any]) -> dict[str, Any]:
 		source_object_type: str = data.pop('source_object_type')
 		target_object_type: str = data.pop('target_object_type')
 
-		if source_object_type == 'command' and target_object_type == 'command':
+		if (
+			source_object_type == ConnectionObjectType.COMMAND
+			and target_object_type == ConnectionObjectType.COMMAND
+		):
 			raise serializers.ValidationError(
-				_('Нельзя подключить команду к другой команде!')
+				_('Нельзя подключить команду к другой команде.')
 			)
 
 		data['source_object'] = self.get_object(

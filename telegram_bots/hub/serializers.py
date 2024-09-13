@@ -3,6 +3,7 @@ from django.db.models import Model
 from rest_framework import serializers
 
 from ..base_serializers import CommandMediaSerializer
+from ..enums import ConnectionObjectType
 from ..models import (
 	BackgroundTask,
 	BackgroundTaskAPIRequest,
@@ -37,12 +38,10 @@ class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 
 class ConnectionSerializer(serializers.ModelSerializer[Connection]):
 	source_object_type = serializers.ChoiceField(
-		choices=['command', 'command_keyboard_button', 'condition', 'background_task'],
-		write_only=True,
+		choices=ConnectionObjectType.source_choices(), write_only=True
 	)
 	target_object_type = serializers.ChoiceField(
-		choices=['command', 'condition'],
-		write_only=True,
+		choices=ConnectionObjectType.target_choices(), write_only=True
 	)
 
 	class Meta:
@@ -59,15 +58,15 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
 
 	def get_object_type(self, object: Model) -> str:
 		if isinstance(object, Command):
-			return 'command'
+			return ConnectionObjectType.COMMAND
 		elif isinstance(object, CommandKeyboardButton):
-			return 'command_keyboard_button'
+			return ConnectionObjectType.COMMAND_KEYBOARD_BUTTON
 		elif isinstance(object, Condition):
-			return 'condition'
+			return ConnectionObjectType.CONDITION
 		elif isinstance(object, BackgroundTask):
-			return 'background_task'
+			return ConnectionObjectType.BACKGROUND_TASK
 
-		raise ValueError('Unknown object!')
+		raise ValueError('Unknown object.')
 
 	def to_representation(self, instance: Connection) -> dict[str, Any]:
 		representation: dict[str, Any] = super().to_representation(instance)

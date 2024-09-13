@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from .enums import APIRequestMethod
+
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, AnyStr
 
@@ -74,17 +76,9 @@ class AbstractCommandMedia(models.Model):
 
 
 class AbstractAPIRequest(models.Model):
-	METHOD_CHOICES = [
-		('get', 'GET'),
-		('post', 'POST'),
-		('put', 'PUT'),
-		('patch', 'PATCH'),
-		('delete', 'DELETE'),
-	]
-
 	url = models.URLField(_('URL-адрес'))
 	method = models.CharField(
-		_('Метод'), max_length=6, choices=METHOD_CHOICES, default='get'
+		_('Метод'), max_length=6, choices=APIRequestMethod, default=APIRequestMethod.GET
 	)
 	headers = models.JSONField(_('Заголовки'), blank=True, null=True)
 	body = models.JSONField(_('Данные'), blank=True, null=True)
