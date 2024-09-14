@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from aiogram.enums import ChatType
 from aiogram.types import Chat
 from pydantic import ValidationError
 
@@ -89,7 +90,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			try:
 				chat = Chat(**response.json()['result'])
 
-				if chat.type == 'private':
+				if chat.type == ChatType.PRIVATE:
 					return chat
 			except (KeyError, ValidationError):
 				pass
