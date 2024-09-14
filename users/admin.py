@@ -18,7 +18,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'telegram_id',
 		'first_name',
 		'last_name',
-		'telegram_bots_count',
+		'telegram_bot_count',
 		'is_staff',
 		'last_login',
 		'joined_date',
@@ -30,7 +30,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'last_name',
 		'confirm_code',
 		'confirm_code_generation_date',
-		'telegram_bots_count',
+		'telegram_bot_count',
 		'groups',
 		'is_staff',
 		'last_login',
@@ -43,7 +43,7 @@ class UserAdmin(admin.ModelAdmin[User]):
 		'last_name',
 		'confirm_code',
 		'confirm_code_generation_date',
-		'telegram_bots_count',
+		'telegram_bot_count',
 		'last_login',
 		'joined_date',
 	]
@@ -52,11 +52,11 @@ class UserAdmin(admin.ModelAdmin[User]):
 		return (
 			super()
 			.get_queryset(request)
-			.annotate(telegram_bots_count=Count('telegram_bots'))
+			.annotate(telegram_bot_count=Count('telegram_bots'))
 		)
 
-	@admin.display(description=_('Telegram ботов'), ordering='telegram_bots_count')
-	def telegram_bots_count(self, user: User) -> int:
+	@admin.display(description=_('Telegram ботов'), ordering='telegram_bot_count')
+	def telegram_bot_count(self, user: User) -> int:
 		return user.telegram_bots.count()
 
 	@admin.action(
