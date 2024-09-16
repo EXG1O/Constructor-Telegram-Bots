@@ -25,6 +25,8 @@ match sys.argv:
 	case __:
 		TEST = False
 
+TELEGRAM_BOT_TOKEN: str = os.environ['TELEGRAM_BOT_TOKEN']
+
 FRONTEND_PATH: str = os.environ['FRONTEND_PATH']
 
 POSTGRESQL_DATABASE_NAME: str = os.environ['POSTGRESQL_DATABASE_NAME']
