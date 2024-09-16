@@ -9,8 +9,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from constructor_telegram_bots.authentication import CookiesTokenAuthentication
-
+from .authentication import CookiesTokenAuthentication
 from .models import User
 from .serializers import UserLoginSerializer, UserSerializer
 

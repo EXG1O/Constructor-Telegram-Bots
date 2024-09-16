@@ -19,10 +19,10 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from constructor_telegram_bots.authentication import CookiesTokenAuthentication
 from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 from constructor_telegram_bots.parsers import MultiPartJSONParser
+from users.authentication import CookiesTokenAuthentication
 
 from .mixins import TelegramBotMixin
 from .models import (
