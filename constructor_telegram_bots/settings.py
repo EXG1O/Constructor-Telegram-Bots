@@ -35,8 +35,7 @@ POSTGRESQL_DATABASE_USER: str = os.environ['POSTGRESQL_DATABASE_USER']
 POSTGRESQL_DATABASE_PASSWORD: str = os.environ['POSTGRESQL_DATABASE_PASSWORD']
 
 
-SITE_DOMAIN: str = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.exg1o.org'
-ALLOWED_HOSTS: list[str] = ['127.0.0.1', 'constructor.exg1o.org']
+ALLOWED_HOSTS: list[str] = ['*'] if DEBUG else ['constructor.exg1o.org']
 
 
 CSRF_COOKIE_AGE: int = 2419200  # 4 weeks
