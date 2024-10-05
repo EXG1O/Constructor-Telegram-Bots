@@ -3,7 +3,6 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-aiogram = "^3.4.1"
 celery = "^5.3.6"
 django = "^5.0.4"
 django-admin-interface = "^0.28.6"
