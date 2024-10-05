@@ -7,7 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'constructor_telegram_bots.setti
 
 celery_app = Celery('constructor_telegram_bots')
 celery_app.config_from_object('django.conf:settings', namespace='CELERY')
-celery_app.autodiscover_tasks(['user', 'telegram_bot'])
+celery_app.autodiscover_tasks()
 
 
 @signals.celeryd_after_setup.connect
