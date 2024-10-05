@@ -18,5 +18,10 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
 
 class UserLoginSerializer(serializers.Serializer[User]):
-	user_id = serializers.IntegerField()
-	confirm_code = serializers.CharField()
+	id = serializers.IntegerField()
+	first_name = serializers.CharField(min_length=1, max_length=64)
+	last_name = serializers.CharField(max_length=64, required=False)
+	username = serializers.CharField(min_length=4, max_length=32, required=False)
+	photo_url = serializers.URLField(required=False)
+	auth_date = serializers.IntegerField()
+	hash = serializers.CharField(min_length=64, max_length=64)

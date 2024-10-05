@@ -22,7 +22,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 from constructor_telegram_bots.parsers import MultiPartJSONParser
-from users.authentication import CookiesTokenAuthentication
+from users.authentication import JWTCookieAuthentication
 
 from .mixins import TelegramBotMixin
 from .models import (
@@ -70,7 +70,7 @@ class StatsAPIView(APIView):
 
 
 class TelegramBotViewSet(IDLookupMixin, ModelViewSet[TelegramBot]):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = TelegramBotSerializer
 
@@ -106,7 +106,7 @@ class ConnectionViewSet(
 	DestroyModelMixin,
 	GenericViewSet[Connection],
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = ConnectionSerializer
 
@@ -115,7 +115,7 @@ class ConnectionViewSet(
 
 
 class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	parser_classes = [MultiPartJSONParser]
 	serializer_class = CommandSerializer
@@ -125,7 +125,7 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
 
 
 class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition]):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = ConditionSerializer
 
@@ -136,7 +136,7 @@ class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition])
 class BackgroundTaskViewSet(
 	IDLookupMixin, TelegramBotMixin, ModelViewSet[BackgroundTask]
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = BackgroundTaskSerializer
 
@@ -152,7 +152,7 @@ class DiagramCommandViewSet(
 	UpdateModelMixin,
 	GenericViewSet[Command],
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramCommandSerializer
 
@@ -168,7 +168,7 @@ class DiagramConditionViewSet(
 	UpdateModelMixin,
 	GenericViewSet[Condition],
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramConditionSerializer
 
@@ -184,7 +184,7 @@ class DiagramBackgroundTaskViewSet(
 	UpdateModelMixin,
 	GenericViewSet[BackgroundTask],
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DiagramBackgroundTaskSerializer
 
@@ -193,7 +193,7 @@ class DiagramBackgroundTaskViewSet(
 
 
 class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = VariableSerializer
 	pagination_class = LimitOffsetPagination
@@ -214,7 +214,7 @@ class UserViewSet(
 	DestroyModelMixin,
 	GenericViewSet[User],
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = UserSerializer
 	pagination_class = LimitOffsetPagination
@@ -230,7 +230,7 @@ class UserViewSet(
 class DatabaseRecordViewSet(
 	IDLookupMixin, TelegramBotMixin, ModelViewSet[DatabaseRecord]
 ):
-	authentication_classes = [CookiesTokenAuthentication]
+	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = DatabaseRecordSerializer
 	pagination_class = LimitOffsetPagination

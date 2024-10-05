@@ -4,8 +4,9 @@ import django_stubs_ext
 
 from dotenv import load_dotenv
 
+from datetime import timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 import os
 import secrets
 import sys
@@ -38,26 +39,34 @@ SITE_DOMAIN: str = 'http://127.0.0.1:8000' if DEBUG else 'https://constructor.ex
 ALLOWED_HOSTS: list[str] = ['127.0.0.1', 'constructor.exg1o.org']
 
 
+CSRF_COOKIE_AGE: int = 2419200  # 4 weeks
+SESSION_COOKIE_AGE: int = 2419200  # 4 weeks
+
+
+JWT_REFRESH_TOKEN_COOKIE_NAME: str = 'jwt_refresh_token'
+JWT_ACCESS_TOKEN_COOKIE_NAME: str = 'jwt_access_token'
+JWT_REFRESH_TOKEN_LIFETIME: timedelta = timedelta(weeks=4)
+JWT_ACCESS_TOKEN_LIFETIME: timedelta = timedelta(minutes=15)
+JWT_TOKEN_COOKIE_SECURE: bool = False
+JWT_TOKEN_COOKIE_HTTPONLY: bool = True
+JWT_TOKEN_COOKIE_SAMESITE: Literal['Lax', 'Strict', 'None'] = 'Lax'
+
+
 CELERY_BROKER_URL: str = 'redis://127.0.0.1:6379'
 CELERY_RESULT_BACKEND: str = 'redis://127.0.0.1:6379'
 CELERY_ACCEPT_CONTENT: list[str] = ['application/json']
 CELERY_RESULT_SERIALIZER: str = 'json'
 CELERY_TASK_SERIALIZER: str = 'json'
 CELERY_BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
-	'update_users_first_and_last_name_schedule': {
-		'task': 'users.tasks.update_users_first_and_last_name',
+	'check_tokens_expiration_date_schedule': {
+		'task': 'users.tasks.check_tokens_expiration_date',
 		'schedule': 86400,  # 24h
-	},
-	'check_confirm_code_generation_date_schedule': {
-		'task': 'users.tasks.check_confirm_code_generation_date',
-		'schedule': 3600,  # 1h
 	},
 }
 
 
 INSTALLED_APPS: list[str] = [
 	'rest_framework',
-	'rest_framework.authtoken',
 	'django_filters',
 	'drf_standardized_errors',
 	'admin_interface',
@@ -140,6 +149,7 @@ TEMPLATES: list[dict[str, Any]] = [
 	},
 ]
 
+AUTHENTICATION_BACKENDS: list[str] = ['users.backends.TelegramBackend']
 
 AUTH_USER_MODEL: str = 'users.User'
 ROOT_URLCONF: str = 'constructor_telegram_bots.urls'

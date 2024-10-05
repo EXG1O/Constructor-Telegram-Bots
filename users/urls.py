@@ -1,21 +1,11 @@
-from django.urls import include, path
+from django.urls import path
 
-from .views import StatsAPIView, UserAPIView, UserLoginAPIView, UserLogoutAPIView
+from .routers import UserRouter
+from .views import StatsAPIView, UserViewSet
+
+user_router = UserRouter(use_regex_path=False)
+user_router.register('', UserViewSet, basename='user')
+
 
 app_name = 'users'
-urlpatterns = [
-	path('stats/', StatsAPIView.as_view(), name='stats'),
-	path(
-		'_/',
-		include(
-			(
-				(
-					path('', UserAPIView.as_view(), name='index'),
-					path('login/', UserLoginAPIView.as_view(), name='login'),
-					path('logout/', UserLogoutAPIView.as_view(), name='logout'),
-				),
-				'detail',
-			)
-		),
-	),
-]
+urlpatterns = [path('stats/', StatsAPIView.as_view(), name='stats')] + user_router.urls
