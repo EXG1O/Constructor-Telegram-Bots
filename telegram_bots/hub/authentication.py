@@ -10,7 +10,7 @@ class TokenAuthentication(BaseTokenAuthentication):
 	def authenticate_credentials(self, token: str) -> tuple[TelegramBotsHub, str]:
 		try:
 			hub: TelegramBotsHub = TelegramBotsHub.objects.get(service_token=token)
-		except TelegramBotsHub.DoesNotExist:
-			raise AuthenticationFailed(_('Недействительный токен.'))
+		except TelegramBotsHub.DoesNotExist as error:
+			raise AuthenticationFailed(_('Недействительный токен.')) from error
 
 		return hub, token

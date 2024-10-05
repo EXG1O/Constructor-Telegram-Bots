@@ -19,8 +19,8 @@ class MultiPartJSONParser(MultiPartParser):
 	def parse_json(self, json_string: str, key: str) -> dict[str, Any]:
 		try:
 			return json.loads(json_string)
-		except JSONDecodeError:
-			raise ParseError(self.error_detail % {'key': key})
+		except JSONDecodeError as error:
+			raise ParseError(self.error_detail % {'key': key}) from error
 
 	def parse(self, *args: Any, **kwargs: Any) -> dict[str, Any]:  # type: ignore [override]
 		parsed: DataAndFiles = super().parse(*args, **kwargs)  # type: ignore [type-arg]

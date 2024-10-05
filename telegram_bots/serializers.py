@@ -139,27 +139,29 @@ class ConnectionSerializer(
 		if object_type == ConnectionObjectType.COMMAND:
 			try:
 				return self.telegram_bot.commands.get(id=object_id)
-			except Command.DoesNotExist:
-				raise serializers.ValidationError(_('Команда не найдена.'))
+			except Command.DoesNotExist as error:
+				raise serializers.ValidationError(_('Команда не найдена.')) from error
 		elif object_type == ConnectionObjectType.COMMAND_KEYBOARD_BUTTON:
 			try:
 				return CommandKeyboardButton.objects.get(
 					keyboard__command__telegram_bot=self.telegram_bot, id=object_id
 				)
-			except CommandKeyboardButton.DoesNotExist:
+			except CommandKeyboardButton.DoesNotExist as error:
 				raise serializers.ValidationError(
 					_('Кнопка клавиатуры команды не найдена.')
-				)
+				) from error
 		elif object_type == ConnectionObjectType.CONDITION:
 			try:
 				return self.telegram_bot.conditions.get(id=object_id)
-			except Condition.DoesNotExist:
-				raise serializers.ValidationError(_('Условие не найдено.'))
+			except Condition.DoesNotExist as error:
+				raise serializers.ValidationError(_('Условие не найдено.')) from error
 		elif object_type == ConnectionObjectType.BACKGROUND_TASK:
 			try:
 				return self.telegram_bot.background_tasks.get(id=object_id)
-			except BackgroundTask.DoesNotExist:
-				raise serializers.ValidationError(_('Фоновая задача не найдена.'))
+			except BackgroundTask.DoesNotExist as error:
+				raise serializers.ValidationError(
+					_('Фоновая задача не найдена.')
+				) from error
 
 		raise ValueError('Unknown object type.')
 

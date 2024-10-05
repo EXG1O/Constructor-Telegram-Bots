@@ -97,8 +97,8 @@ class UserViewSet(RetrieveModelMixin, DestroyModelMixin, GenericViewSet[User]):
 	def token_refresh(self, request: Request, pk: str | None = None) -> Response:
 		try:
 			refresh_token: RefreshToken = get_refresh_token(request)
-		except PyJWTError:
-			raise PermissionDenied()
+		except PyJWTError as error:
+			raise PermissionDenied() from error
 
 		if refresh_token.is_blacklisted:
 			raise TokenBlacklistedError()
