@@ -52,7 +52,7 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
 		detail=False, methods=['POST'], authentication_classes=[], permission_classes=[]
 	)
 	def login(self, request: Request) -> Response:
-		data: dict[str, Any] = request.data
+		data: dict[str, Any] = request.data.copy()
 
 		serializer = UserLoginSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
