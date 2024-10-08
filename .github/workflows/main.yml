@@ -46,7 +46,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "TELEGRAM_BOT_TOKEN=" > .env
+          echo "TELEGRAM_BOT_TOKEN=12345:test" > .env
           echo "FRONTEND_PATH=" >> .env
           echo "POSTGRESQL_DATABASE_NAME=github_action" >> .env
           echo "POSTGRESQL_DATABASE_USER=github" >> .env
