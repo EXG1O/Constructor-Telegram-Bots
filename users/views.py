@@ -2,6 +2,7 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import RetrieveModelMixin
@@ -124,7 +125,7 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
 		user_logout_all(request, user, get_refresh_token(request))
 		user.delete()
 
-		response = Response(status=204)
+		response = Response(status=status.HTTP_204_NO_CONTENT)
 		delete_jwt_tokens_from_cookies(response)
 
 		return response

@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
+from rest_framework import status
 from rest_framework.test import APIClient
 
 from users.models import User as SiteUser
@@ -51,24 +52,24 @@ class TelegramBotViewSetTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.detail_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CommandViewSetTests(BaseTestCase):
@@ -102,28 +103,28 @@ class CommandViewSetTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 404)
+			self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class ConditionViewSetTests(BaseTestCase):
@@ -163,28 +164,28 @@ class ConditionViewSetTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 404)
+			self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class BackgroundTaskViewSetTests(BaseTestCase):
@@ -221,28 +222,28 @@ class BackgroundTaskViewSetTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 404)
+			self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class VariablesAPIViewTests(BaseTestCase):
@@ -276,28 +277,28 @@ class VariablesAPIViewTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 404)
+			self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class UserViewSetTests(BaseTestCase):
@@ -329,44 +330,44 @@ class UserViewSetTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 404)
+			self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_create(self) -> None:
 		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.post(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		old_user_count: int = self.telegram_bot.users.count()
 
 		response = self.client.post(
 			self.list_true_url, {'telegram_id': 987654321, 'full_name': 'exg1o <3'}
 		)
-		self.assertEqual(response.status_code, 201)
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 		self.assertEqual(self.telegram_bot.users.count(), old_user_count + 1)
 
@@ -405,25 +406,25 @@ class DatabaseRecordViewSetTests(BaseTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		response = self.client.get(self.list_false_url)
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_retrieve(self) -> None:
 		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 		self.auth_client()
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
 			response = self.client.get(url)
-			self.assertEqual(response.status_code, 404)
+			self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 		response = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)

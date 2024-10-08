@@ -2,6 +2,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
+from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
@@ -28,7 +29,7 @@ class StatsAPIViewTests(TestCase):
 
 	def test_get_method(self) -> None:
 		response = self.client.get(self.url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class UserViewSetTests(TestCase):
@@ -57,12 +58,12 @@ class UserViewSetTests(TestCase):
 			response: Response
 
 		response = view(request)
-		self.assertEqual(response.status_code, 403)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
 
 		response = view(request)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_login(self) -> None:
 		view = UserViewSet.as_view({'post': 'login'})
@@ -93,7 +94,7 @@ class UserViewSetTests(TestCase):
 		force_authenticate(request, self.user, None)
 
 		response: Response = view(request)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertIsNotNone(
 			response.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
 		)
@@ -110,12 +111,12 @@ class UserViewSetTests(TestCase):
 			response: Response
 
 		response = view(request)
-		self.assertEqual(response.status_code, 403)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		self.emulate_auth_user_request(request)
 
 		response = view(request)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertTrue(self.refresh_token.is_blacklisted)
 
 	def test_logout_all(self) -> None:
@@ -127,14 +128,14 @@ class UserViewSetTests(TestCase):
 			response: Response
 
 		response = view(request)
-		self.assertEqual(response.status_code, 403)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		self.emulate_auth_user_request(request)
 
 		second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
 
 		response = view(request)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertTrue(self.refresh_token.is_blacklisted)
 		self.assertTrue(second_refresh_token.is_blacklisted)
 
@@ -147,12 +148,12 @@ class UserViewSetTests(TestCase):
 			response: Response
 
 		response = view(request)
-		self.assertEqual(response.status_code, 403)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		self.emulate_auth_user_request(request)
 
 		response = view(request)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertNotEqual(
 			response.cookies.get(settings.JWT_ACCESS_TOKEN_COOKIE_NAME),
 			str(self.access_token),
@@ -167,14 +168,14 @@ class UserViewSetTests(TestCase):
 			response: Response
 
 		response = view(request)
-		self.assertEqual(response.status_code, 403)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		self.emulate_auth_user_request(request)
 
 		second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
 
 		response = view(request)
-		self.assertEqual(response.status_code, 204)
+		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 		with suppress(User.DoesNotExist):
 			self.user.refresh_from_db()

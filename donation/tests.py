@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
+from rest_framework import status
 from rest_framework.test import APIClient
 
 
@@ -15,7 +16,7 @@ class DonationViewSetTests(CustomTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class SectionViewSetTests(CustomTestCase):
@@ -23,7 +24,7 @@ class SectionViewSetTests(CustomTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class ButtonViewSetTests(CustomTestCase):
@@ -31,4 +32,4 @@ class ButtonViewSetTests(CustomTestCase):
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
