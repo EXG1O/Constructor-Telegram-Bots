@@ -13,10 +13,15 @@ class DiagramSerializer(serializers.ModelSerializer[ABT]):
 	class Meta:
 		fields = ['x', 'y']
 
-	def update(self, instance: ABT, validated_data: dict[str, Any]) -> ABT:
+	def update(
+		self,
+		instance: ABT,
+		validated_data: dict[str, Any],
+		update_fields: list[str] = [],  # noqa: B006
+	) -> ABT:
 		instance.x = validated_data.get('x', instance.x)
 		instance.y = validated_data.get('y', instance.y)
-		instance.save()
+		instance.save(update_fields=update_fields + ['x', 'y'])
 
 		return instance
 
