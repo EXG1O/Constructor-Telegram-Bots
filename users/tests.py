@@ -180,6 +180,5 @@ class UserViewSetTests(TestCase):
 			self.user.refresh_from_db()
 			raise self.failureException('User has not been deleted from database!')
 
-		self.assertFalse(User.objects.filter(id=self.user.id).exists())
 		self.assertTrue(self.refresh_token.is_blacklisted)
 		self.assertTrue(second_refresh_token.is_blacklisted)
