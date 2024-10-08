@@ -11,6 +11,7 @@ from users.models import User as SiteUser
 from .base_models import AbstractCommandMedia
 from .base_serializers import CommandMediaSerializer, DiagramSerializer
 from .enums import ConnectionObjectType
+from .mixins import TelegramBotContextMixin
 from .models import (
 	BackgroundTask,
 	BackgroundTaskAPIRequest,
@@ -35,25 +36,6 @@ from .models import (
 
 from typing import Any
 import os
-
-
-class TelegramBotContextMixin:
-	_telegram_bot: TelegramBot | None = None
-
-	@property
-	def telegram_bot(self) -> TelegramBot:
-		if self._telegram_bot is None:
-			telegram_bot: Any = self.context.get('telegram_bot')  # type: ignore [attr-defined]
-
-			if not isinstance(telegram_bot, TelegramBot):
-				raise TypeError(
-					'You not passed a TelegramBot instance as '
-					'telegram_bot to the serializer context.'
-				)
-
-			self._telegram_bot = telegram_bot
-
-		return self._telegram_bot
 
 
 class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
