@@ -1,11 +1,12 @@
-from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APIClient
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from users.models import User as SiteUser
+from users.tokens import AccessToken, RefreshToken
 
 from .models import (
 	BackgroundTask,
@@ -21,8 +22,22 @@ from .models import (
 	User,
 	Variable,
 )
+from .views import (
+	BackgroundTaskViewSet,
+	CommandViewSet,
+	ConditionViewSet,
+	ConnectionViewSet,
+	DatabaseRecordViewSet,
+	DiagramBackgroundTaskViewSet,
+	DiagramCommandViewSet,
+	DiagramConditionViewSet,
+	TelegramBotViewSet,
+	UserViewSet,
+	VariableViewSet,
+)
 
-from typing import Any
+from contextlib import suppress
+from typing import TYPE_CHECKING, Any
 import json
 
 
@@ -39,11 +54,12 @@ class StatsAPIViewTests(TestCase):
 
 class CustomTestCase(TestCase):
 	def setUp(self) -> None:
-		self.client: APIClient = APIClient()
+		self.factory = APIRequestFactory()
 		self.site_user: SiteUser = SiteUser.objects.create(
 			telegram_id=123456789, first_name='exg1o'
 		)
-		self.token: Token = Token.objects.create(user=self.site_user)
+		self.refresh_token: RefreshToken = RefreshToken.for_user(self.site_user)
+		self.access_token: AccessToken = self.refresh_token.access_token
 		self.telegram_bot: TelegramBot = self.site_user.telegram_bots.create(
 			api_token='Hi!'
 		)
@@ -84,160 +100,250 @@ class TelegramBotViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		request: Request = self.factory.get(self.list_url)
 
-		response = self.client.get(self.list_url)
+		if TYPE_CHECKING:
+			response: Response
+
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request)
 		self.assertEqual(response.status_code, 200)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_url)
+		request = self.factory.post(self.list_url)
+
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
+
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request)
 		self.assertEqual(response.status_code, 400)
+
+		request = self.factory.post(
+			self.list_url, {'api_token': 'Bye!', 'is_private': False}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
 		old_telegram_bot_count: int = self.site_user.telegram_bots.count()
 
-		response = self.client.post(
-			self.list_url, {'api_token': 'Bye!', 'is_private': False}
-		)
+		response = view(request)
 		self.assertEqual(response.status_code, 201)
 		self.assertEqual(
 			self.site_user.telegram_bots.count(), old_telegram_bot_count + 1
 		)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.detail_false_url)
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.detail_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_start(self) -> None:
-		response: HttpResponse = self.client.post(self.start_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'post': 'start'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.start_false_url)
+		request = self.factory.post(self.start_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.start_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.start_true_url)
+		request = self.factory.post(self.start_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_restart(self) -> None:
-		response: HttpResponse = self.client.post(self.restart_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'post': 'restart'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.restart_false_url)
+		request = self.factory.post(self.restart_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.restart_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.restart_true_url)
+		request = self.factory.post(self.restart_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_stop(self) -> None:
-		response: HttpResponse = self.client.post(self.stop_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'post': 'stop'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.stop_false_url)
+		request = self.factory.post(self.stop_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.stop_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.stop_true_url)
+		request = self.factory.post(self.stop_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.put(self.detail_false_url)
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.put(self.detail_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url, format='json')
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
-
-		new_api_token_1: str = '123456789:exg1o'
-
-		response = self.client.put(self.detail_true_url, {'api_token': new_api_token_1})
-		self.assertEqual(response.status_code, 200)
-
-		self.telegram_bot.refresh_from_db()
-		self.assertEqual(self.telegram_bot.api_token, new_api_token_1)
-
-		response = self.client.put(self.detail_true_url, {'is_private': True})
-		self.assertEqual(response.status_code, 400)
-
-		new_api_token_2: str = '987654321:exg1o'
-
-		response = self.client.put(
-			self.detail_true_url, {'api_token': new_api_token_2, 'is_private': True}
-		)
-		self.assertEqual(response.status_code, 200)
-
-		self.telegram_bot.refresh_from_db()
-		self.assertEqual(self.telegram_bot.api_token, new_api_token_2)
-		self.assertTrue(self.telegram_bot.is_private)
-
-	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
-
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-
-		response = self.client.patch(self.detail_false_url)
-		self.assertEqual(response.status_code, 404)
-
-		response = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 200)
 
 		new_api_token: str = '123456789:exg1o'
+		data: dict[str, Any] = {'api_token': new_api_token}
 
-		response = self.client.patch(self.detail_true_url, {'api_token': new_api_token})
+		request = self.factory.put(self.detail_true_url, data, format='json')
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 		self.telegram_bot.refresh_from_db()
 		self.assertEqual(self.telegram_bot.api_token, new_api_token)
 
-		response = self.client.patch(self.detail_true_url, {'is_private': True})
+	def test_partial_update(self) -> None:
+		view = TelegramBotViewSet.as_view({'patch': 'partial_update'})
+
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.patch(self.detail_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
+		self.assertEqual(response.status_code, 404)
+
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 200)
+
+		new_api_token: str = '123456789:exg1o'
+
+		request = self.factory.patch(
+			self.detail_true_url, {'api_token': new_api_token}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 		self.telegram_bot.refresh_from_db()
-		self.assertTrue(self.telegram_bot.is_private)
+		self.assertEqual(self.telegram_bot.api_token, new_api_token)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = TelegramBotViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.delete(self.detail_false_url)
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(request, id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.delete(self.detail_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(TelegramBot.DoesNotExist):
 			self.telegram_bot.refresh_from_db()
 			raise self.failureException(
 				'Telegram bot has not been deleted from database!'
 			)
-		except TelegramBot.DoesNotExist:
-			pass
 
 
 class ConnectionViewSetTests(CustomTestCase):
@@ -246,7 +352,7 @@ class ConnectionViewSetTests(CustomTestCase):
 
 		self.command_1: Command = self.telegram_bot.commands.create(name='Test name 1')
 
-		self.command_2: Command = self.telegram_bot.commands.create(name='Test name 1')
+		self.command_2: Command = self.telegram_bot.commands.create(name='Test name 2')
 		self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
 			command=self.command_2, type='default'
 		)
@@ -280,13 +386,36 @@ class ConnectionViewSetTests(CustomTestCase):
 		)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConnectionViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_false_url)
+		request = self.factory.post(
+			self.list_true_url, telegram_bot_id=self.telegram_bot.id
+		)
+
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
+
+		request = self.factory.post(
+			self.list_true_url,
+			{
+				'source_object_type': 'command_keyboard_button',
+				'source_object_id': self.command_2_keyboard_button.id,
+				'target_object_type': 'command',
+				'target_object_id': self.command_1.id,
+			},
+			format='json',
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
 		old_command_1_target_connection_count: int = (
 			self.command_1.target_connections.count()
@@ -295,17 +424,8 @@ class ConnectionViewSetTests(CustomTestCase):
 			self.command_2_keyboard_button.source_connections.count()
 		)
 
-		response = self.client.post(
-			self.list_true_url,
-			{
-				'source_object_type': 'command_keyboard_button',
-				'source_object_id': self.command_2_keyboard_button.id,
-				'target_object_type': 'command',
-				'target_object_id': self.command_1.id,
-			},
-		)
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 201)
-
 		self.assertEqual(
 			self.command_1.target_connections.count(),
 			old_command_1_target_connection_count + 1,
@@ -316,25 +436,39 @@ class ConnectionViewSetTests(CustomTestCase):
 		)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConnectionViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.connection.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=self.telegram_bot.id, id=0)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.connection.id
+		)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(Connection.DoesNotExist):
 			self.connection.refresh_from_db()
 			raise self.failureException(
 				'Connection has not been deleted from database!'
 			)
-		except Connection.DoesNotExist:
-			pass
 
 
 class CommandViewSetTests(CustomTestCase):
@@ -366,30 +500,54 @@ class CommandViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = CommandViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = CommandViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_false_url)
+		request = self.factory.post(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.list_true_url)
+		request = self.factory.post(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(
+		request = self.factory.post(
 			self.list_true_url,
 			{
 				'data': json.dumps(
@@ -397,9 +555,12 @@ class CommandViewSetTests(CustomTestCase):
 				)
 			},
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(
+		request = self.factory.post(
 			self.list_true_url,
 			{
 				'data': json.dumps(
@@ -414,11 +575,12 @@ class CommandViewSetTests(CustomTestCase):
 				)
 			},
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
 
-		old_command_count: int = self.telegram_bot.commands.count()
-
-		response = self.client.post(
+		request = self.factory.post(
 			self.list_true_url,
 			{
 				'data': json.dumps(
@@ -434,44 +596,86 @@ class CommandViewSetTests(CustomTestCase):
 				)
 			},
 		)
-		self.assertEqual(response.status_code, 201)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
+		old_command_count: int = self.telegram_bot.commands.count()
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+
+		self.assertEqual(response.status_code, 201)
 		self.assertEqual(self.telegram_bot.commands.count(), old_command_count + 1)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = CommandViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = CommandViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 400)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(
+		request = self.factory.put(
 			self.detail_true_url, {'data': json.dumps({'name': new_name})}
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
 		)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.put(
+		request = self.factory.put(
 			self.detail_true_url,
 			{
 				'data': json.dumps(
@@ -487,28 +691,54 @@ class CommandViewSetTests(CustomTestCase):
 				)
 			},
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.command.refresh_from_db()
 		self.assertEqual(self.command.name, new_name)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = CommandViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.patch(
+		request = self.factory.patch(
 			self.detail_true_url, {'data': json.dumps({'name': new_name})}
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -516,23 +746,37 @@ class CommandViewSetTests(CustomTestCase):
 		self.assertEqual(self.command.name, new_name)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = CommandViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(Command.DoesNotExist):
 			self.command.refresh_from_db()
 			raise self.failureException('Command has not been deleted from database!')
-		except Command.DoesNotExist:
-			pass
 
 
 class ConditionViewSetTests(CustomTestCase):
@@ -571,37 +815,54 @@ class ConditionViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConditionViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConditionViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_false_url)
+		request = self.factory.post(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.list_true_url)
+		request = self.factory.post(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.post(
-			self.list_true_url, {'name': 'Test name', 'parts': []}, format='json'
-		)
-		self.assertEqual(response.status_code, 400)
-
-		old_condition_count: int = self.telegram_bot.conditions.count()
-
-		response = self.client.post(
+		request = self.factory.post(
 			self.list_true_url,
 			{
 				'name': 'Test name',
@@ -616,44 +877,67 @@ class ConditionViewSetTests(CustomTestCase):
 			},
 			format='json',
 		)
-		self.assertEqual(response.status_code, 201)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
+		old_condition_count: int = self.telegram_bot.conditions.count()
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 201)
 		self.assertEqual(self.telegram_bot.conditions.count(), old_condition_count + 1)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConditionViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConditionViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
-			self.assertEqual(response.status_code, 404)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
-		response = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 400)
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
+			self.assertEqual(response.status_code, 404)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(
-			self.detail_true_url, {'name': new_name, 'parts': []}, format='json'
-		)
-		self.assertEqual(response.status_code, 400)
-
-		response = self.client.put(
+		request = self.factory.put(
 			self.detail_true_url,
 			{
 				'name': new_name,
@@ -668,50 +952,92 @@ class ConditionViewSetTests(CustomTestCase):
 			},
 			format='json',
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.condition.refresh_from_db()
 		self.assertEqual(self.condition.name, new_name)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConditionViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.patch(self.detail_true_url, {'name': new_name})
+		request = self.factory.patch(
+			self.detail_true_url, {'name': new_name}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.condition.refresh_from_db()
 		self.assertEqual(self.condition.name, new_name)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = ConditionViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(Condition.DoesNotExist):
 			self.condition.refresh_from_db()
 			raise self.failureException('Condition has not been deleted from database!')
-		except Condition.DoesNotExist:
-			pass
 
 
 class BackgroundTaskViewSetTests(CustomTestCase):
@@ -747,73 +1073,139 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = BackgroundTaskViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = BackgroundTaskViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_false_url)
+		request = self.factory.post(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.list_true_url)
+		request = self.factory.post(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
+
+		request = self.factory.post(
+			self.list_true_url,
+			{'name': 'Test name', 'interval': 1},
+			format='json',
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
 		old_background_task_count: int = self.telegram_bot.background_tasks.count()
 
-		response = self.client.post(
-			self.list_true_url, {'name': 'Test name', 'interval': 1}
-		)
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 201)
-
 		self.assertEqual(
 			self.telegram_bot.background_tasks.count(), old_background_task_count + 1
 		)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = BackgroundTaskViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = BackgroundTaskViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
-			self.assertEqual(response.status_code, 404)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
 
-		response = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 400)
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
+			self.assertEqual(response.status_code, 404)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(self.detail_true_url, {'name': new_name})
+		request = self.factory.put(
+			self.detail_true_url, {'name': new_name}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 400)
 
-		response = self.client.put(
-			self.detail_true_url, {'name': new_name, 'interval': 1}
+		request = self.factory.put(
+			self.detail_true_url,
+			{'name': new_name, 'interval': 1},
+			format='json',
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -821,46 +1213,83 @@ class BackgroundTaskViewSetTests(CustomTestCase):
 		self.assertEqual(self.background_task.name, new_name)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = BackgroundTaskViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.patch(self.detail_true_url, {'name': new_name})
+		request = self.factory.patch(
+			self.detail_true_url, {'name': new_name}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.background_task.refresh_from_db()
 		self.assertEqual(self.background_task.name, new_name)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = BackgroundTaskViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(BackgroundTask.DoesNotExist):
 			self.background_task.refresh_from_db()
 			raise self.failureException(
 				'Background task has not been deleted from database!'
 			)
-		except BackgroundTask.DoesNotExist:
-			pass
 
 
 class DiagramCommandViewSetTests(CustomTestCase):
@@ -891,67 +1320,139 @@ class DiagramCommandViewSetTests(CustomTestCase):
 		)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramCommandViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramCommandViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramCommandViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_x: int = 150
 
-		response = self.client.put(self.detail_true_url, {'x': new_x, 'y': 200})
+		request = self.factory.put(
+			self.detail_true_url, {'x': new_x, 'y': 200}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.command.refresh_from_db()
 		self.assertEqual(self.command.x, new_x)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramCommandViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.command.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_x: int = 150
 
-		response = self.client.patch(self.detail_true_url, {'x': new_x})
+		request = self.factory.patch(self.detail_true_url, {'x': new_x}, format='json')
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.command.refresh_from_db()
@@ -994,67 +1495,139 @@ class DiagramConditionViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramConditionViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramConditionViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramConditionViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_x: int = 150
 
-		response = self.client.put(self.detail_true_url, {'x': new_x, 'y': 200})
+		request = self.factory.put(
+			self.detail_true_url, {'x': new_x, 'y': 200}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.condition.refresh_from_db()
 		self.assertEqual(self.condition.x, new_x)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramConditionViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.condition.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_x: int = 150
 
-		response = self.client.patch(self.detail_true_url, {'x': new_x})
+		request = self.factory.patch(self.detail_true_url, {'x': new_x}, format='json')
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.condition.refresh_from_db()
@@ -1094,74 +1667,146 @@ class DiagramBackgroundTaskViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramBackgroundTaskViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramBackgroundTaskViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramBackgroundTaskViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_x: int = 150
 
-		response = self.client.put(self.detail_true_url, {'x': new_x, 'y': 200})
+		request = self.factory.put(
+			self.detail_true_url, {'x': new_x, 'y': 200}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.background_task.refresh_from_db()
 		self.assertEqual(self.background_task.x, new_x)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DiagramBackgroundTaskViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.background_task.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_x: int = 150
 
-		response = self.client.patch(self.detail_true_url, {'x': new_x})
+		request = self.factory.patch(self.detail_true_url, {'x': new_x}, format='json')
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.background_task.refresh_from_db()
 		self.assertEqual(self.background_task.x, new_x)
 
 
-class VariablesAPIViewTests(CustomTestCase):
+class VariableViewSetTests(CustomTestCase):
 	def setUp(self) -> None:
 		super().setUp()
 
@@ -1191,32 +1836,56 @@ class VariablesAPIViewTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = VariableViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = VariableViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_false_url)
+		request = self.factory.post(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.post(self.list_true_url)
+		request = self.factory.post(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 400)
 
 		old_variable_count: int = self.telegram_bot.variables.count()
 
-		response = self.client.post(
+		request = self.factory.post(
 			self.list_true_url,
 			{
 				'name': 'Test name',
@@ -1224,45 +1893,86 @@ class VariablesAPIViewTests(CustomTestCase):
 				'description': 'The test variable',
 			},
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(self.telegram_bot.variables.count(), old_variable_count + 1)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = VariableViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.variable.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = VariableViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.variable.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
 		self.assertEqual(response.status_code, 400)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.put(
+		request = self.factory.put(
 			self.detail_true_url,
 			{
 				'name': new_name,
 				'value': 'The test value :)',
 				'description': 'The test variable',
 			},
+			format='json',
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1270,44 +1980,81 @@ class VariablesAPIViewTests(CustomTestCase):
 		self.assertEqual(self.variable.name, new_name)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = VariableViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.variable.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_name: str = 'Test name 2'
 
-		response = self.client.patch(self.detail_true_url, {'name': new_name})
+		request = self.factory.patch(
+			self.detail_true_url, {'name': new_name}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		self.variable.refresh_from_db()
 		self.assertEqual(self.variable.name, new_name)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = VariableViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.variable.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
+		)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(Variable.DoesNotExist):
 			self.variable.refresh_from_db()
 			raise self.failureException('Variable has not been deleted from database!')
-		except Variable.DoesNotExist:
-			pass
 
 
 class UserViewSetTests(CustomTestCase):
@@ -1337,88 +2084,156 @@ class UserViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = UserViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = UserViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.user.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = UserViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.user.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
 		self.assertEqual(response.status_code, 200)
 
-		response = self.client.put(
-			self.detail_true_url, {'is_allowed': False, 'is_blocked': True}
+		request = self.factory.put(
+			self.detail_true_url,
+			{'is_allowed': False, 'is_blocked': True},
+			format='json',
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
 		self.assertEqual(response.status_code, 200)
 
 		self.user.refresh_from_db()
 		self.assertTrue(self.user.is_blocked)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = UserViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.user.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
 		self.assertEqual(response.status_code, 200)
 
-		response = self.client.patch(self.detail_true_url, {'is_blocked': True})
+		request = self.factory.patch(
+			self.detail_true_url, {'is_blocked': True}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
 		self.assertEqual(response.status_code, 200)
 
 		self.user.refresh_from_db()
 		self.assertTrue(self.user.is_blocked)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = UserViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.user.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id, id=self.user.id)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(User.DoesNotExist):
 			self.user.refresh_from_db()
 			raise self.failureException('User has not been deleted from database!')
-		except User.DoesNotExist:
-			pass
 
 
 class DatabaseRecordViewSetTests(CustomTestCase):
@@ -1454,31 +2269,55 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 		)
 
 	def test_list(self) -> None:
-		response: HttpResponse = self.client.get(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DatabaseRecordViewSet.as_view({'get': 'list'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.get(self.list_false_url)
+		request = self.factory.get(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.get(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.list_true_url)
+		request = self.factory.get(self.list_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 200)
 
 	def test_create(self) -> None:
-		response: HttpResponse = self.client.post(self.list_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DatabaseRecordViewSet.as_view({'post': 'create'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
 
-		response = self.client.post(self.list_false_url)
+		request = self.factory.post(self.list_true_url)
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
+		self.assertEqual(response.status_code, 403)
+
+		request = self.factory.post(self.list_false_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=0)
 		self.assertEqual(response.status_code, 404)
 
 		old_database_record_count: int = self.telegram_bot.database_records.count()
 
-		response = self.client.post(
+		request = self.factory.post(
 			self.list_true_url, {'data': {'key': 'value'}}, format='json'
 		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request, telegram_bot_id=self.telegram_bot.id)
 		self.assertEqual(response.status_code, 201)
 
 		self.assertEqual(
@@ -1486,35 +2325,72 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 		)
 
 	def test_retrieve(self) -> None:
-		response: HttpResponse = self.client.get(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DatabaseRecordViewSet.as_view({'get': 'retrieve'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.get(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.get(url)
+			request = self.factory.get(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.database_record.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.get(self.detail_true_url)
+		request = self.factory.get(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 	def test_update(self) -> None:
-		response: HttpResponse = self.client.put(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DatabaseRecordViewSet.as_view({'put': 'update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.put(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.put(url)
+			request = self.factory.put(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.database_record.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.put(self.detail_true_url)
+		request = self.factory.put(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
 		self.assertEqual(response.status_code, 400)
 
 		new_data: dict[str, Any] = {'new_key': 'new_value'}
 
-		response = self.client.put(
+		request = self.factory.put(
 			self.detail_true_url, {'data': new_data}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1525,22 +2401,43 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 		)
 
 	def test_partial_update(self) -> None:
-		response: HttpResponse = self.client.patch(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DatabaseRecordViewSet.as_view({'patch': 'partial_update'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.patch(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.patch(url)
+			request = self.factory.patch(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.database_record.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.patch(self.detail_true_url)
+		request = self.factory.patch(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
 		self.assertEqual(response.status_code, 200)
 
 		new_data: dict[str, Any] = {'new_key': 'new_value'}
 
-		response = self.client.patch(
+		request = self.factory.patch(
 			self.detail_true_url, {'data': new_data}, format='json'
+		)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
 		)
 		self.assertEqual(response.status_code, 200)
 
@@ -1551,22 +2448,36 @@ class DatabaseRecordViewSetTests(CustomTestCase):
 		)
 
 	def test_destroy(self) -> None:
-		response: HttpResponse = self.client.delete(self.detail_true_url)
-		self.assertEqual(response.status_code, 401)
+		view = DatabaseRecordViewSet.as_view({'delete': 'destroy'})
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+		if TYPE_CHECKING:
+			request: Request
+			response: Response
+
+		request = self.factory.delete(self.detail_true_url)
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
+		self.assertEqual(response.status_code, 403)
 
 		for url in [self.detail_false_url_1, self.detail_false_url_2]:
-			response = self.client.delete(url)
+			request = self.factory.delete(url)
+			force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+			response = view(request, telegram_bot_id=0, id=self.database_record.id)
 			self.assertEqual(response.status_code, 404)
 
-		response = self.client.delete(self.detail_true_url)
+		request = self.factory.delete(self.detail_true_url)
+		force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(
+			request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
+		)
 		self.assertEqual(response.status_code, 204)
 
-		try:
+		with suppress(DatabaseRecord.DoesNotExist):
 			self.database_record.refresh_from_db()
 			raise self.failureException(
 				'Database record has not been deleted from database!'
 			)
-		except DatabaseRecord.DoesNotExist:
-			pass
