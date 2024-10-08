@@ -4,7 +4,7 @@ from django.views.decorators.cache import cache_page
 
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.mixins import DestroyModelMixin, RetrieveModelMixin
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -40,7 +40,7 @@ class StatsAPIView(APIView):
 		return Response({'total': User.objects.count()})
 
 
-class UserViewSet(RetrieveModelMixin, DestroyModelMixin, GenericViewSet[User]):
+class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
 	authentication_classes = [JWTCookieAuthentication]
 	permission_classes = [IsAuthenticated]
 	serializer_class = UserSerializer
@@ -119,9 +119,12 @@ class UserViewSet(RetrieveModelMixin, DestroyModelMixin, GenericViewSet[User]):
 		return response
 
 	def destroy(self, request: Request, pk: str | None = None) -> Response:
-		user_logout_all(request, request.user, get_refresh_token(request))  # type: ignore[arg-type]
+		user: User = request.user  # type: ignore [assignment]
 
-		response: Response = super().destroy(request, pk=pk)
+		user_logout_all(request, user, get_refresh_token(request))
+		user.delete()
+
+		response = Response(status=204)
 		delete_jwt_tokens_from_cookies(response)
 
 		return response
