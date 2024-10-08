@@ -1,11 +1,23 @@
-from django.http import HttpResponse
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APIClient
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from .models import User
+from .tokens import AccessToken, RefreshToken
+from .views import UserViewSet
+
+from contextlib import suppress
+from importlib import import_module
+from typing import TYPE_CHECKING, Any
+import hashlib
+import hmac
+import time
+
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 class StatsAPIViewTests(TestCase):
@@ -19,82 +31,155 @@ class StatsAPIViewTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 
 
-class CustomTestCase(TestCase):
+class UserViewSetTests(TestCase):
 	def setUp(self) -> None:
-		self.client: APIClient = APIClient()
+		self.factory = APIRequestFactory()
 		self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
-		self.token: Token = Token.objects.create(user=self.user)
+		self.refresh_token: RefreshToken = RefreshToken.for_user(self.user)
+		self.access_token: AccessToken = self.refresh_token.access_token
 
+	def emulate_auth_user_request(self, request: Request) -> None:
+		request.session = SessionStore()
 
-class UserAPIViewTests(CustomTestCase):
-	url: str = reverse('api:users:detail:index')
-
-	def test_get_method(self) -> None:
-		response: HttpResponse = self.client.get(self.url)
-		self.assertEqual(response.status_code, 401)
-
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-
-		response = self.client.get(self.url)
-		self.assertEqual(response.status_code, 200)
-
-	def test_delete_method(self) -> None:
-		response: HttpResponse = self.client.delete(self.url)
-		self.assertEqual(response.status_code, 401)
-
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-
-		response = self.client.delete(self.url)
-		self.assertEqual(response.status_code, 200)
-
-		try:
-			self.user.refresh_from_db()
-			raise self.failureException('User has not been deleted from database!')
-		except User.DoesNotExist:
-			pass
-
-
-class UserLoginAPIViewTests(CustomTestCase):
-	url: str = reverse('api:users:detail:login')
-
-	def setUp(self) -> None:
-		super().setUp()
-
-		self.user.confirm_code = 'Do you love Python?'
-		self.user.save()
-
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.url)
-		self.assertEqual(response.status_code, 400)
-
-		response = self.client.post(
-			self.url, {'user_id': 0, 'confirm_code': self.user.confirm_code}
+		request.COOKIES[settings.JWT_REFRESH_TOKEN_COOKIE_NAME] = str(
+			self.refresh_token
 		)
-		self.assertEqual(response.status_code, 404)
+		request.COOKIES[settings.JWT_ACCESS_TOKEN_COOKIE_NAME] = str(self.access_token)
 
-		response = self.client.post(
-			self.url, {'user_id': self.user.id, 'confirm_code': 'Yes, I love Python <3'}
-		)
+		force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+
+	def test_retrieve(self) -> None:
+		view = UserViewSet.as_view({'get': 'retrieve'})
+
+		request: Request = self.factory.get(reverse('api:users:user-detail'))
+
+		if TYPE_CHECKING:
+			response: Response
+
+		response = view(request)
 		self.assertEqual(response.status_code, 403)
 
-		response = self.client.post(
-			self.url, {'user_id': self.user.id, 'confirm_code': self.user.confirm_code}
+		force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+
+		response = view(request)
+		self.assertEqual(response.status_code, 200)
+
+	def test_login(self) -> None:
+		view = UserViewSet.as_view({'post': 'login'})
+
+		data: dict[str, Any] = {
+			'id': self.user.telegram_id,
+			'first_name': self.user.first_name,
+			'auth_date': int(time.time()),
+		}
+
+		secret_key: bytes = hashlib.sha256(
+			settings.TELEGRAM_BOT_TOKEN.encode()
+		).digest()
+		data_check_string: str = '\n'.join(
+			[f'{key}={data[key]}' for key in sorted(data.keys())]
 		)
+		data['hash'] = hmac.new(
+			secret_key, data_check_string.encode(), hashlib.sha256
+		).hexdigest()
+
+		request: Request = self.factory.post(
+			reverse('api:users:user-login'), data=data, format='json'
+		)
+		request.session = SessionStore()
+
+		# FIXME: I don't know why, but `APIRequestFactory` doesn't see that...
+		# `permission_classes` and `permission_classes` are set to empty for this action.
+		force_authenticate(request, self.user, None)
+
+		response: Response = view(request)
 		self.assertEqual(response.status_code, 200)
+		self.assertIsNotNone(
+			response.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
+		)
+		self.assertIsNotNone(
+			response.cookies.get(settings.JWT_ACCESS_TOKEN_COOKIE_NAME)
+		)
 
-		self.user.refresh_from_db()
+	def test_logout(self) -> None:
+		view = UserViewSet.as_view({'post': 'logout'})
 
-		self.assertTrue(self.user.last_login)
+		request: Request = self.factory.post(reverse('api:users:user-logout'))
 
+		if TYPE_CHECKING:
+			response: Response
 
-class UserLogoutAPIViewTests(CustomTestCase):
-	url: str = reverse('api:users:detail:logout')
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
 
-	def test_post_method(self) -> None:
-		response: HttpResponse = self.client.post(self.url)
-		self.assertEqual(response.status_code, 401)
+		self.emulate_auth_user_request(request)
 
-		self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-
-		response = self.client.post(self.url)
+		response = view(request)
 		self.assertEqual(response.status_code, 200)
+		self.assertTrue(self.refresh_token.is_blacklisted)
+
+	def test_logout_all(self) -> None:
+		view = UserViewSet.as_view({'post': 'logout_all'})
+
+		request: Request = self.factory.post(reverse('api:users:user-logout-all'))
+
+		if TYPE_CHECKING:
+			response: Response
+
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
+
+		self.emulate_auth_user_request(request)
+
+		second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
+
+		response = view(request)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(self.refresh_token.is_blacklisted)
+		self.assertTrue(second_refresh_token.is_blacklisted)
+
+	def test_token_refresh(self) -> None:
+		view = UserViewSet.as_view({'post': 'token_refresh'})
+
+		request: Request = self.factory.post(reverse('api:users:user-token-refresh'))
+
+		if TYPE_CHECKING:
+			response: Response
+
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
+
+		self.emulate_auth_user_request(request)
+
+		response = view(request)
+		self.assertEqual(response.status_code, 200)
+		self.assertNotEqual(
+			response.cookies.get(settings.JWT_ACCESS_TOKEN_COOKIE_NAME),
+			str(self.access_token),
+		)
+
+	def test_destroy(self) -> None:
+		view = UserViewSet.as_view({'delete': 'destroy'})
+
+		request: Request = self.factory.delete(reverse('api:users:user-detail'))
+
+		if TYPE_CHECKING:
+			response: Response
+
+		response = view(request)
+		self.assertEqual(response.status_code, 403)
+
+		self.emulate_auth_user_request(request)
+
+		second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
+
+		response = view(request)
+		self.assertEqual(response.status_code, 204)
+
+		with suppress(User.DoesNotExist):
+			self.user.refresh_from_db()
+			raise self.failureException('User has not been deleted from database!')
+
+		self.assertFalse(User.objects.filter(id=self.user.id).exists())
+		self.assertTrue(self.refresh_token.is_blacklisted)
+		self.assertTrue(second_refresh_token.is_blacklisted)
