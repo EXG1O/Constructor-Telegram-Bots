@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from django.utils.functional import cached_property
 
 import jwt
@@ -13,7 +14,7 @@ from .exceptions import (
 from .models import BlacklistedToken, Token, User
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from typing import Any, Generic, TypeVar, overload
 
 PT = TypeVar('PT', bound=TokenPayload)
@@ -38,8 +39,11 @@ class BaseToken(ABC, Generic[PT]):
 		self.payload: PT = (
 			self.decode(token) if token else self._create_payload(**kwargs)
 		)
-		self.expiry_date: datetime = datetime.fromtimestamp(self.payload.exp)
-		self.created_date: datetime = datetime.fromtimestamp(self.payload.iat)
+
+		tz: tzinfo = timezone.get_current_timezone()
+
+		self.expiry_date: datetime = datetime.fromtimestamp(self.payload.exp, tz)
+		self.created_date: datetime = datetime.fromtimestamp(self.payload.iat, tz)
 
 	@abstractmethod
 	def _create_payload(self, **kwargs: Any) -> PT: ...
