@@ -54,9 +54,11 @@ class TelegramBackend(ModelBackend):
 
 				return None
 
+		last_name: str | None = data.get('last_name')
+
 		user, created = User.objects.get_or_create(
 			telegram_id=telegram_id,
-			defaults={'first_name': first_name, 'last_name': data.get('last_name')},
+			defaults={'first_name': first_name, 'last_name': last_name},
 		)
 
 		if not self.user_can_authenticate(user):
@@ -64,6 +66,11 @@ class TelegramBackend(ModelBackend):
 				raise UserInactiveOrDeletedError()
 
 			return None
+
+		if not created:
+			user.first_name = first_name
+			user.last_name = last_name
+			user.save(update_fields=['first_name', 'last_name'])
 
 		return user
 
