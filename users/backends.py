@@ -44,30 +44,15 @@ class TelegramBackend(ModelBackend):
 		telegram_id: int = data['id']
 		first_name: str = data['first_name']
 
-		auth_unix_time: int = int(data['auth_date'])
-		current_unix_time: int = int(time.time())
+		if settings.ENABLE_TELEGRAM_AUTH:
+			try:
+				self._validate_auth_date(int(data['auth_date']))
+				self._validate_auth_data(data, hash)
+			except (TelegramAuthDataOutdatedError, FakeTelegramDataError) as error:
+				if raise_exception:
+					raise error
 
-		if current_unix_time - auth_unix_time > 86400:
-			if raise_exception:
-				raise TelegramAuthDataOutdatedError()
-
-			return None
-
-		secret_key: bytes = hashlib.sha256(
-			settings.TELEGRAM_BOT_TOKEN.encode()
-		).digest()
-		data_check_string: str = '\n'.join(
-			[f'{key}={data[key]}' for key in sorted(data.keys())]
-		)
-		result_hash: str = hmac.new(
-			secret_key, data_check_string.encode(), hashlib.sha256
-		).hexdigest()
-
-		if result_hash != hash:
-			if raise_exception:
-				raise FakeTelegramDataError()
-
-			return None
+				return None
 
 		user, created = User.objects.get_or_create(
 			telegram_id=telegram_id,
@@ -81,3 +66,21 @@ class TelegramBackend(ModelBackend):
 			return None
 
 		return user
+
+	def _validate_auth_date(self, auth_unix_date: int) -> None:
+		if int(time.time()) - auth_unix_date > 86400:
+			raise TelegramAuthDataOutdatedError()
+
+	def _validate_auth_data(self, data: dict[str, Any], hash: str) -> None:
+		secret_key: bytes = hashlib.sha256(
+			settings.TELEGRAM_BOT_TOKEN.encode()
+		).digest()
+		data_check_string: str = '\n'.join(
+			[f'{key}={data[key]}' for key in sorted(data.keys())]
+		)
+		result_hash: str = hmac.new(
+			secret_key, data_check_string.encode(), hashlib.sha256
+		).hexdigest()
+
+		if result_hash != hash:
+			raise FakeTelegramDataError()

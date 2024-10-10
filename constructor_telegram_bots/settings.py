@@ -18,7 +18,9 @@ load_dotenv()
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 SECRET_KEY: str = os.getenv('SECRET_KEY', secrets.token_hex(25))
+
 DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
+ENABLE_TELEGRAM_AUTH: bool = os.getenv('ENABLE_TELEGRAM_AUTH', 'True') == 'True'
 
 match sys.argv:
 	case ['manage.py', 'test', *extra_options]:
