@@ -70,8 +70,6 @@ INSTALLED_APPS: list[str] = [
 	'rest_framework',
 	'django_filters',
 	'drf_standardized_errors',
-	'admin_interface',
-	'colorfield',
 	'modeltranslation',
 	'tinymce',
 	'django.contrib.admin',
