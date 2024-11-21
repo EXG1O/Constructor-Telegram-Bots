@@ -13,16 +13,12 @@ from .models import Button, Donation, Section
 @admin.register(Donation)
 class DonationAdmin(admin.ModelAdmin[Donation]):
 	date_hierarchy = 'date'
-	list_display = ['sum_display', 'contact_link_display', 'date']
-	fields = ['sum', 'contact_link', 'date']
+	list_display = ['sum_display', 'sender', 'date']
+	fields = ['sum', 'sender', 'date']
 
 	@admin.display(description=_('Сумма'), ordering='sum')
 	def sum_display(self, donation: Donation) -> str:
 		return f'{donation.sum}€'
-
-	@admin.display(description=_('Контактная ссылка'), ordering='contact_link')
-	def contact_link_display(self, donation: Donation) -> str:
-		return format_html_link(donation.contact_link)
 
 
 @admin.register(Section)

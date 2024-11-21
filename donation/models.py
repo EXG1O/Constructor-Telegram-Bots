@@ -6,7 +6,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 
 class Donation(models.Model):
 	sum = models.FloatField(_('Сумма'))
-	contact_link = models.URLField(_('Контактная ссылка'))
+	sender = models.CharField(_('Отправитель'), max_length=64)
 	date = models.DateTimeField(_('Дата'))
 
 	class Meta(TypedModelMeta):
@@ -16,7 +16,7 @@ class Donation(models.Model):
 		verbose_name_plural = _('Пожертвования')
 
 	def __str__(self) -> str:
-		return self.contact_link
+		return self.sender
 
 
 def section_position_default() -> int:

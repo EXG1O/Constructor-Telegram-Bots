@@ -6,7 +6,7 @@ from .models import Button, Donation, Section
 class DonationSerializer(serializers.ModelSerializer[Donation]):
 	class Meta:
 		model = Donation
-		fields = ['id', 'sum', 'contact_link', 'date']
+		fields = ['id', 'sum', 'sender', 'date']
 
 
 class SectionSerializer(serializers.ModelSerializer[Section]):
