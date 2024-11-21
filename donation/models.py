@@ -40,22 +40,23 @@ class Section(models.Model):  # type: ignore [django-manager-missing]
 		return self.title
 
 
-def button_position_default() -> int:
-	button: Button | None = Button.objects.last()
-	return button.position + 1 if button else 1
+def method_position_default() -> int:
+	method: Method | None = Method.objects.last()
+	return method.position + 1 if method else 1
 
 
-class Button(models.Model):  # type: ignore [django-manager-missing]
-	text = models.CharField(_('Текст'), max_length=255)
-	url = models.URLField(_('Ссылка'))
+class Method(models.Model):  # type: ignore [django-manager-missing]
+	text = models.CharField(_('Текст'), max_length=128)
+	link = models.URLField(_('Ссылка'), blank=True, null=True)
+	value = models.CharField(_('Значение'), max_length=255, blank=True, null=True)
 	position = models.PositiveSmallIntegerField(
-		_('Позиция'), blank=True, default=button_position_default
+		_('Позиция'), blank=True, default=method_position_default
 	)
 
 	class Meta(TypedModelMeta):
 		ordering = ['position']
-		verbose_name = _('Кнопку')
-		verbose_name_plural = _('Кнопки')
+		verbose_name = _('Метод поддержки')
+		verbose_name_plural = _('Методы поддержки')
 
 	def __str__(self) -> str:
 		return self.text

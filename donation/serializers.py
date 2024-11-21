@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Button, Donation, Section
+from .models import Donation, Method, Section
 
 
 class DonationSerializer(serializers.ModelSerializer[Donation]):
@@ -15,7 +15,7 @@ class SectionSerializer(serializers.ModelSerializer[Section]):
 		fields = ['id', 'title', 'text']
 
 
-class ButtonSerializer(serializers.ModelSerializer[Button]):
+class MethodSerializer(serializers.ModelSerializer[Method]):
 	class Meta:
-		model = Button
-		fields = ['id', 'text', 'url']
+		model = Method
+		fields = ['id', 'text', 'link', 'value']

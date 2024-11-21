@@ -27,8 +27,8 @@ class SectionViewSetTests(CustomTestCase):
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ButtonViewSetTests(CustomTestCase):
-	url: str = reverse('api:donation:button-list')
+class MethodViewSetTests(CustomTestCase):
+	url: str = reverse('api:donation:method-list')
 
 	def test_list(self) -> None:
 		response: HttpResponse = self.client.get(self.url)
