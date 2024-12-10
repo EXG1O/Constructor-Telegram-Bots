@@ -29,7 +29,7 @@ class SectionAdmin(TranslationAdmin):  # FIXME: Need to add generics support
 
 
 @admin.register(Method)
-class MethodAdmin(TranslationAdmin):  # FIXME: Need to add generics support
+class MethodAdmin(admin.ModelAdmin[Method]):
 	list_display = ['text', 'link_display', 'value', 'position']
 	fields = ['text', 'link', 'value', 'position']
 
