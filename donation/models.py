@@ -45,7 +45,7 @@ def method_position_default() -> int:
 	return method.position + 1 if method else 1
 
 
-class Method(models.Model):  # type: ignore [django-manager-missing]
+class Method(models.Model):
 	text = models.CharField(_('Текст'), max_length=128)
 	link = models.URLField(_('Ссылка'), blank=True, null=True)
 	value = models.CharField(_('Значение'), max_length=255, blank=True, null=True)
