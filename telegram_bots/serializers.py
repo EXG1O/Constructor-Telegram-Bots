@@ -763,7 +763,7 @@ class BackgroundTaskAPIRequestSerializer(
 class BackgroundTaskSerializer(
 	TelegramBotContextMixin, serializers.ModelSerializer[BackgroundTask]
 ):
-	api_request = BackgroundTaskAPIRequestSerializer(required=False)
+	api_request = BackgroundTaskAPIRequestSerializer(required=False, allow_null=True)
 
 	class Meta:
 		model = BackgroundTask
