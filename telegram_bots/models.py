@@ -208,7 +208,6 @@ class Connection(models.Model):
 		_('Стартовая позиция коннектора'),
 		max_length=5,
 		choices=ConnectionHandlePosition,
-		default=ConnectionHandlePosition.LEFT,
 	)
 
 	target_content_type = models.ForeignKey(
@@ -220,7 +219,6 @@ class Connection(models.Model):
 		_('Окончательная позиция коннектора'),
 		max_length=5,
 		choices=ConnectionHandlePosition,
-		default=ConnectionHandlePosition.RIGHT,
 	)
 
 	class Meta(TypedModelMeta):
@@ -453,6 +451,7 @@ class Command(AbstractBlock):
 		related_name='commands',
 		verbose_name=_('Telegram бот'),
 	)
+	source_connections = None
 
 	if TYPE_CHECKING:
 		settings: CommandSettings
