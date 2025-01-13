@@ -50,10 +50,8 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
 			'id',
 			'source_object_type',
 			'source_object_id',
-			'source_handle_position',
 			'target_object_type',
 			'target_object_id',
-			'target_handle_position',
 		]
 
 	def get_object_type(self, object: Model) -> str:
@@ -119,9 +117,11 @@ class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
 class CommandKeyboardButtonSerializer(
 	serializers.ModelSerializer[CommandKeyboardButton]
 ):
+	source_connections = ConnectionSerializer(many=True)
+
 	class Meta:
 		model = CommandKeyboardButton
-		fields = ['id', 'row', 'position', 'text', 'url']
+		fields = ['id', 'row', 'position', 'text', 'url', 'source_connections']
 
 
 class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
@@ -155,6 +155,7 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 	keyboard = CommandKeyboardSerializer()
 	api_request = CommandAPIRequestSerializer()
 	database_record = CommandDatabaseRecordSerializer()
+	target_connections = ConnectionSerializer(many=True)
 
 	class Meta:
 		model = Command
@@ -169,6 +170,7 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 			'keyboard',
 			'api_request',
 			'database_record',
+			'target_connections',
 		]
 
 
@@ -187,10 +189,12 @@ class ConditionPartSerializer(serializers.ModelSerializer[ConditionPart]):
 
 class ConditionSerializer(serializers.ModelSerializer[Condition]):
 	parts = ConditionPartSerializer(many=True)
+	source_connections = ConnectionSerializer(many=True)
+	target_connections = ConnectionSerializer(many=True)
 
 	class Meta:
 		model = Condition
-		fields = ['id', 'name', 'parts']
+		fields = ['id', 'name', 'parts', 'source_connections', 'target_connections']
 
 
 class BackgroundTaskAPIRequestSerializer(
@@ -203,16 +207,17 @@ class BackgroundTaskAPIRequestSerializer(
 
 class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask]):
 	api_request = BackgroundTaskAPIRequestSerializer()
+	source_connections = ConnectionSerializer(many=True)
 
 	class Meta:
 		model = BackgroundTask
-		fields = ['id', 'name', 'interval', 'api_request']
+		fields = ['id', 'name', 'interval', 'api_request', 'source_connections']
 
 
 class VariableSerializer(serializers.ModelSerializer[Variable]):
 	class Meta:
 		model = Variable
-		fields = ['id', 'name', 'value', 'description']
+		fields = ['id', 'name', 'value']
 
 
 class UserSerializer(TelegramBotContextMixin, serializers.ModelSerializer[User]):
