@@ -875,7 +875,7 @@ class DiagramConditionSerializer(DiagramSerializer[Condition]):
 
 
 class DiagramBackgroundTaskSerializer(DiagramSerializer[BackgroundTask]):
-	target_connections = ConnectionSerializer(many=True, read_only=True)
+	source_connections = ConnectionSerializer(many=True, read_only=True)
 
 	class Meta:
 		model = BackgroundTask
@@ -883,7 +883,7 @@ class DiagramBackgroundTaskSerializer(DiagramSerializer[BackgroundTask]):
 			'id',
 			'name',
 			'interval',
-			'target_connections',
+			'source_connections',
 		] + DiagramSerializer.Meta.fields
 		read_only_fields = ['name', 'interval']
 
