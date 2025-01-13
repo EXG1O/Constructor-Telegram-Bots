@@ -9,6 +9,7 @@ from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from users.models import User as SiteUser
 from users.tokens import AccessToken, RefreshToken
 
+from .enums import ConnectionHandlePosition
 from .models import (
 	BackgroundTask,
 	Command,
@@ -411,8 +412,10 @@ class ConnectionViewSetTests(CustomTestCase):
 			{
 				'source_object_type': 'command_keyboard_button',
 				'source_object_id': self.command_2_keyboard_button.id,
+				'source_handle_position': ConnectionHandlePosition.RIGHT,
 				'target_object_type': 'command',
 				'target_object_id': self.command_1.id,
+				'target_handle_position': ConnectionHandlePosition.LEFT,
 			},
 			format='json',
 		)
