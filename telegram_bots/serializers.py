@@ -843,8 +843,6 @@ class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboa
 
 
 class DiagramCommandSerializer(DiagramSerializer[Command]):
-	images = CommandImageSerializer(many=True, read_only=True)
-	files = CommandFileSerializer(many=True, read_only=True)
 	message = CommandMessageSerializer(read_only=True)
 	keyboard = DiagramCommandKeyboardSerializer(allow_null=True, read_only=True)
 	target_connections = ConnectionSerializer(many=True, read_only=True)
@@ -854,8 +852,6 @@ class DiagramCommandSerializer(DiagramSerializer[Command]):
 		fields = [
 			'id',
 			'name',
-			'images',
-			'files',
 			'message',
 			'keyboard',
 			'target_connections',
