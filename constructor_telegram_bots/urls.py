@@ -22,7 +22,7 @@ urlpatterns: list[URLPattern | URLResolver] = [
 					path('users/', include('users.urls')),
 					path('telegram-bots/', include('telegram_bots.urls')),
 					path(
-						'telegram-bots-hub/telegram-bots',
+						'telegram-bots-hub/telegram-bots/',
 						include('telegram_bots.hub.urls'),
 					),
 					path('updates/', include('updates.urls')),
