@@ -43,7 +43,7 @@ def validate_api_token(api_token: str) -> None:
 		not re.fullmatch(r'\d+:[A-Za-z0-9]+', api_token)
 		or not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
 	):
-		raise ValidationError(_('Этот API-токен является недействительным!'))
+		raise ValidationError(_('Этот API-токен является недействительным.'))
 
 
 class TelegramBot(models.Model):
