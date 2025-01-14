@@ -33,7 +33,7 @@ from typing import Any
 class TelegramBotSerializer(serializers.ModelSerializer[TelegramBot]):
 	class Meta:
 		model = TelegramBot
-		fields = ['id', 'api_token', 'is_private', 'must_be_enabled', 'is_enabled']
+		fields = ['id', 'is_private']
 
 
 class ConnectionSerializer(serializers.ModelSerializer[Connection]):
