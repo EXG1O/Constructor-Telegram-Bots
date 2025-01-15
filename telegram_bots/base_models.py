@@ -12,12 +12,17 @@ from .enums import APIRequestMethod
 
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, AnyStr
+import random
+
+
+def generate_random_coordinate() -> int:
+	return random.randint(-150, 150)
 
 
 class AbstractBlock(models.Model):
 	name = models.CharField(_('Название'), max_length=128)
-	x = models.FloatField(_('Координата X'), default=0)
-	y = models.FloatField(_('Координата Y'), default=0)
+	x = models.FloatField(_('Координата X'), default=generate_random_coordinate)
+	y = models.FloatField(_('Координата Y'), default=generate_random_coordinate)
 	source_connections = GenericRelation(
 		'Connection', 'source_object_id', 'source_content_type'
 	)
