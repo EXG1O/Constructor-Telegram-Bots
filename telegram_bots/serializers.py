@@ -170,6 +170,14 @@ class ConnectionSerializer(
 			raise serializers.ValidationError(
 				_('Нельзя подключить команду к другой команде.')
 			)
+		elif target_object_type == ConnectionObjectType.COMMAND_KEYBOARD_BUTTON:
+			raise serializers.ValidationError(
+				'Кнопка клавиатуры не может быть окончательной позиции коннектора.'
+			)
+		elif target_object_type == ConnectionObjectType.BACKGROUND_TASK:
+			raise serializers.ValidationError(
+				'Фоновая задача не может быть окончательной позиции коннектора.'
+			)
 
 		data['source_object'] = self.get_object(
 			source_object_type, data.pop('source_object_id')
