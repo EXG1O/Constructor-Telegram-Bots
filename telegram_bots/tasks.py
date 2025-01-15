@@ -40,25 +40,25 @@ def execute_task(func: Callable[Concatenate[TelegramBot, P], R]) -> Callable[P, 
 
 @shared_task
 @execute_task
-def start_telegram_bot(telegram_bot: TelegramBot) -> None:
+def start_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
 	hub: TelegramBotsHub = get_telegram_bots_hub_modal().objects.get_freest()
 	hub.api.start_telegram_bot(telegram_bot.id, {'bot_token': telegram_bot.api_token})
 
 
 @shared_task
 @execute_task
-def restart_telegram_bot(telegram_bot: TelegramBot) -> None:
+def restart_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
 	if not telegram_bot.hub:
-		return
+		return None
 
 	telegram_bot.hub.api.restart_telegram_bot(telegram_bot.id)
 
 
 @shared_task
 @execute_task
-def stop_telegram_bot(telegram_bot: TelegramBot) -> None:
+def stop_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
 	if not telegram_bot.hub:
-		return
+		return None
 
 	telegram_bot.hub.api.stop_telegram_bot(telegram_bot.id)
 

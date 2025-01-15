@@ -29,7 +29,7 @@ from .hub.models import TelegramBotsHub
 from requests import Response
 import requests
 
-from collections.abc import Callable, Collection, Iterable
+from collections.abc import Collection, Iterable
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 import hashlib
@@ -114,23 +114,25 @@ class TelegramBot(models.Model):
 	def is_enabled(self) -> bool:
 		return self.must_be_enabled and bool(self.hub)
 
-	def _execute_task(self, task: Callable[..., None], **kwargs: Any) -> None:
-		if settings.TEST:
-			return
+	def start(self) -> None:
+		self.must_be_enabled = True
+		self.is_loading = True
+		self.save(update_fields=['must_be_enabled', 'is_loading'])
 
+		tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
+
+	def restart(self) -> None:
 		self.is_loading = True
 		self.save(update_fields=['is_loading'])
 
-		task.delay(telegram_bot_id=self.id, **kwargs)  # type: ignore [attr-defined]
-
-	def start(self) -> None:
-		self._execute_task(tasks.start_telegram_bot)
-
-	def restart(self) -> None:
-		self._execute_task(tasks.restart_telegram_bot)
+		tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def stop(self) -> None:
-		self._execute_task(tasks.stop_telegram_bot)
+		self.must_be_enabled = False
+		self.is_loading = True
+		self.save(update_fields=['must_be_enabled', 'is_loading'])
+
+		tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
 
 	def update_username(self) -> None:
 		if settings.TEST:
