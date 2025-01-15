@@ -222,7 +222,7 @@ class Connection(models.Model):
 	)
 
 	class Meta(TypedModelMeta):
-		db_table = 'telegram_bot_command_connection'
+		db_table = 'telegram_bot_block_connection'
 		indexes = [
 			models.Index(
 				fields=[
