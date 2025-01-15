@@ -2,6 +2,8 @@ from rest_framework.routers import SimpleRouter
 
 from .views import (
 	BackgroundTaskViewSet,
+	CommandKeyboardButtonViewSet,
+	CommandTriggerViewSet,
 	CommandViewSet,
 	ConditionViewSet,
 	DatabaseRecordViewSet,
@@ -19,6 +21,16 @@ router.register(
 	f'{base_path}/commands',
 	CommandViewSet,
 	basename=f'{base_name}-command',
+)
+router.register(
+	f'{base_path}/command-triggers',
+	CommandTriggerViewSet,
+	basename=f'{base_name}-command-trigger',
+)
+router.register(
+	f'{base_path}/commands-keyboard-buttons',
+	CommandKeyboardButtonViewSet,
+	basename=f'{base_name}-commands-keyboard-button',
 )
 router.register(
 	f'{base_path}/conditions',

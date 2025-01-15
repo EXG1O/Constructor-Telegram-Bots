@@ -78,6 +78,12 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
 		return representation
 
 
+class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
+	class Meta:
+		model = CommandTrigger
+		fields = ['id', 'command_id', 'text', 'description']
+
+
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 	class Meta:
 		model = CommandSettings
@@ -86,12 +92,6 @@ class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 			'is_delete_user_message',
 			'is_send_as_new_message',
 		]
-
-
-class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
-	class Meta:
-		model = CommandTrigger
-		fields = ['text', 'description']
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
@@ -148,7 +148,6 @@ class CommandDatabaseRecordSerializer(
 
 class CommandSerializer(serializers.ModelSerializer[Command]):
 	settings = CommandSettingsSerializer()
-	trigger = CommandTriggerSerializer()
 	images = CommandImageSerializer(many=True)
 	files = CommandFileSerializer(many=True)
 	message = CommandMessageSerializer()
@@ -163,7 +162,6 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
 			'id',
 			'name',
 			'settings',
-			'trigger',
 			'images',
 			'files',
 			'message',
@@ -234,7 +232,12 @@ class UserSerializer(TelegramBotContextMixin, serializers.ModelSerializer[User])
 		)[0]
 
 
-class DatabaseRecordSerializer(serializers.ModelSerializer[DatabaseRecord]):
+class DatabaseRecordSerializer(
+	TelegramBotContextMixin, serializers.ModelSerializer[DatabaseRecord]
+):
 	class Meta:
 		model = DatabaseRecord
 		fields = ['id', 'data']
+
+	def create(self, validated_data: dict[str, Any]) -> DatabaseRecord:
+		return self.telegram_bot.database_records.create(**validated_data)
