@@ -1,6 +1,6 @@
 from yarl import URL
 
-from .types import StartTelegramBotData
+from .data import StartTelegramBotData
 
 from requests import RequestException, Response
 import requests
