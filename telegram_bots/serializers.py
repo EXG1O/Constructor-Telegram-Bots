@@ -34,6 +34,7 @@ from .models import (
 	Variable,
 )
 
+from contextlib import suppress
 from typing import Any
 import os
 
@@ -471,10 +472,8 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 			except CommandTrigger.DoesNotExist:
 				self.create_trigger(command, trigger_data)
 		elif not self.partial:
-			try:
+			with suppress(CommandTrigger.DoesNotExist):
 				command.trigger.delete()
-			except CommandTrigger.DoesNotExist:
-				pass
 
 	def _delete_media_files(
 		self,
@@ -486,10 +485,8 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 		for file_path in queryset.exclude(**{file_field_name: None}).values_list(
 			file_field_name, flat=True
 		):
-			try:
+			with suppress(OSError):
 				os.remove(settings.MEDIA_ROOT / file_path)
-			except OSError:
-				pass
 
 	def update_media(
 		self,
@@ -607,10 +604,8 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 			except CommandKeyboard.DoesNotExist:
 				self.create_keyboard(command, keyboard_data)
 		elif not self.partial:
-			try:
+			with suppress(CommandKeyboard.DoesNotExist):
 				command.keyboard.delete()
-			except CommandKeyboard.DoesNotExist:
-				pass
 
 	def update_api_request(
 		self, command: Command, api_request_data: dict[str, Any] | None
@@ -635,10 +630,8 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 			except CommandAPIRequest.DoesNotExist:
 				self.create_api_request(command, api_request_data)
 		elif not self.partial:
-			try:
+			with suppress(CommandAPIRequest.DoesNotExist):
 				command.api_request.delete()
-			except CommandAPIRequest.DoesNotExist:
-				pass
 
 	def update_database_record(
 		self, command: Command, database_record_data: dict[str, Any] | None
@@ -652,10 +645,8 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 			except CommandDatabaseRecord.DoesNotExist:
 				self.create_database_record(command, database_record_data)
 		elif not self.partial:
-			try:
+			with suppress(CommandDatabaseRecord.DoesNotExist):
 				command.database_record.delete()
-			except CommandDatabaseRecord.DoesNotExist:
-				pass
 
 	def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
 		command.name = validated_data.get('name', command.name)
@@ -824,10 +815,8 @@ class BackgroundTaskSerializer(
 					background_task=background_task, **api_request
 				)
 		elif not self.partial:
-			try:
+			with suppress(BackgroundTaskAPIRequest.DoesNotExist):
 				background_task.api_request.delete()
-			except BackgroundTaskAPIRequest.DoesNotExist:
-				pass
 
 		return background_task
 
