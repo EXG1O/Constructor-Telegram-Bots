@@ -1,0 +1,64 @@
+name: Main CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y redis postgresql
+
+      - name: Start Redis
+        run: sudo systemctl start redis
+
+      - name: Start PostgreSQL
+        run: sudo systemctl start postgresql
+
+      - name: Create PostgreSQL database
+        run: |
+          sudo -u postgres psql -c "CREATE USER github WITH PASSWORD 'password';"
+          sudo -u postgres psql -c "ALTER ROLE github CREATEDB;"
+          sudo -u postgres psql -c "CREATE DATABASE github_action OWNER github;"
+
+      - name: Create Python virtual environment
+        run: python -m venv env
+
+      - name: Install Python requirements
+        run: |
+          source ./env/bin/activate
+          pip install -U pip
+          pip install poetry
+          poetry install
+
+      - name: Create .env file
+        run: |
+          echo "TELEGRAM_BOT_TOKEN=12345:test" > .env
+          echo "FRONTEND_PATH=" >> .env
+          echo "POSTGRESQL_DATABASE_NAME=github_action" >> .env
+          echo "POSTGRESQL_DATABASE_USER=github" >> .env
+          echo "POSTGRESQL_DATABASE_PASSWORD=password" >> .env
+
+      - name: Run ruff
+        run: |
+          ./env/bin/ruff check .
+          ./env/bin/ruff format --check .
+
+      - name: Run mypy
+        run: ./env/bin/mypy .
+
+      - name: Run tests
+        run: ./env/bin/python manage.py test --verbosity 3

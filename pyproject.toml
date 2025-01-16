@@ -1,0 +1,87 @@
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+celery = "^5.3.6"
+django = "^5.0.4"
+django-filter = "^24.2"
+django-modeltranslation = "^0.18.11"
+django-tinymce = "^4.0.0"
+djangorestframework = "^3.15.1"
+drf-standardized-errors = "^0.13.0"
+gunicorn = "^21.2.0"
+python-dotenv = "^1.0.1"
+redis = "^5.0.3"
+psycopg = "^3.1.18"
+django-stubs-ext = "^5.0.0"
+yarl = "^1.9.4"
+pyjwt = "^2.9.0"
+pillow = "^11.0.0"
+
+[tool.poetry.group.dev.dependencies]
+django-silk = "^5.1.0"
+django-stubs = "^5.0.0"
+djangorestframework-stubs = "^3.15.0"
+mypy = "^1.10.0"
+ruff = "^0.4.4"
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+disallow_untyped_decorators = false
+disallow_subclassing_any = false
+warn_unreachable = true
+warn_no_return = true
+warn_return_any = false
+
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "constructor_telegram_bots.settings"
+
+[tool.ruff]
+target-version = "py311"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = [
+	"F",  # pyflakes
+	"E",  # pycodestyle errors
+	"W",  # pycodestyle warnings
+	"I",  # isort
+	"N",  # pep8-naming
+	"UP",  # pyupgrade
+	"B",  # flake8-bugbear
+	"C4",  # flake8-comprehensions
+	"T20",  # flake8-print
+	"INT",  # flake8-gettext
+]
+ignore = [
+	"E501",  # line too long, handled by black
+	"W191",  # indentation contains tabs
+]
+
+[tool.ruff.lint.isort]
+section-order = [
+	"future",
+	"django",
+	"django_stubs_ext",
+	"rest_framework",
+	"third-party",
+	"first-party",
+	"local-folder",
+	"requests",
+	"standard-library",
+]
+from-first = true
+
+[tool.ruff.lint.isort.sections]
+django = ["django"]
+django_stubs_ext = ["django_stubs_ext"]
+rest_framework = ["rest_framework"]
+requests = ["requests"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"

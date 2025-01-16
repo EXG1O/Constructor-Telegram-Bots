@@ -1,8 +1,0 @@
-.tox-tinymce {
-	border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
-}
-
-.tox-editor-header {
-	border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
-	box-shadow: none!important;
-}

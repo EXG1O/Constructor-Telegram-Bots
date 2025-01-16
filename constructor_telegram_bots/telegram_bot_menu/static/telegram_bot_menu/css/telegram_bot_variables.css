@@ -1,9 +1,0 @@
-#telegramBotVariables td {
-	text-wrap: nowrap;
-}
-
-@media (min-width: 992px) {
-	#telegramBotVariables {
-		width: 55%;
-	}
-}
