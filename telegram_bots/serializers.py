@@ -566,7 +566,9 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 	) -> None:
 		if keyboard_data:
 			try:
-				command.keyboard.type = keyboard_data.get('type', command.keyboard.type)
+				keyboard_type: str = keyboard_data.get('type', command.keyboard.type)
+
+				command.keyboard.type = keyboard_type
 				command.keyboard.save(update_fields=['type'])
 
 				create_buttons: list[CommandKeyboardButton] = []
@@ -580,10 +582,17 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 						button.row = button_data.get('row', button.row)
 						button.position = button_data.get('position', button.position)
 						button.text = button_data.get('text', button.text)
-						button.url = button_data.get('url', button.url)
+						button.url = (
+							None
+							if keyboard_type != 'default'
+							else button_data.get('url', button.url)
+						)
 
 						update_buttons.append(button)
 					except (KeyError, CommandKeyboardButton.DoesNotExist):
+						if keyboard_type != 'default':
+							button_data['url'] = None
+
 						create_buttons.append(
 							CommandKeyboardButton(
 								keyboard=command.keyboard, **button_data
@@ -594,7 +603,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 					CommandKeyboardButton.objects.bulk_create(create_buttons)
 				)
 				CommandKeyboardButton.objects.bulk_update(
-					update_buttons, fields=['row', 'text', 'url']
+					update_buttons, fields=['row', 'position', 'text', 'url']
 				)
 
 				if not self.partial:
