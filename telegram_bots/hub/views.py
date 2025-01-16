@@ -54,7 +54,6 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Comma
 		if self.action in ['list', 'retrieve']:
 			return commands.select_related(
 				'settings',
-				'trigger',
 				'message',
 				'keyboard',
 				'api_request',
@@ -62,11 +61,10 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Comma
 			).prefetch_related(
 				'images',
 				'files',
-				'keyboard__buttons',
-				'keyboard__buttons__source_connections',
 				'keyboard__buttons__source_connections__source_object',
 				'keyboard__buttons__source_connections__target_object',
-				'target_connections',
+				'target_connections__source_object',
+				'target_connections__target_object',
 			)
 
 		return commands
@@ -98,7 +96,6 @@ class CommandKeyboardButtonViewSet(
 		return CommandKeyboardButton.objects.filter(
 			keyboard__command__telegram_bot=self.telegram_bot
 		).prefetch_related(
-			'source_connections',
 			'source_connections__source_object',
 			'source_connections__target_object',
 		)
@@ -117,10 +114,8 @@ class ConditionViewSet(
 		if self.action in ['list', 'retrieve']:
 			return conditions.prefetch_related(
 				'parts',
-				'source_connections',
 				'source_connections__source_object',
 				'source_connections__target_object',
-				'target_connections',
 				'target_connections__source_object',
 				'target_connections__target_object',
 			)
@@ -142,7 +137,6 @@ class BackgroundTaskViewSet(
 
 		if self.action in ['list', 'retrieve']:
 			return background_tasks.select_related('api_request').prefetch_related(
-				'source_connections',
 				'source_connections__source_object',
 				'source_connections__target_object',
 			)
