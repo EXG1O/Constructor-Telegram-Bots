@@ -565,7 +565,7 @@ class BackgroundTask(AbstractBlock):
 	interval = models.PositiveSmallIntegerField(
 		_('Интервал'), choices=BackgroundTaskInterval
 	)
-	source_connections = None
+	target_connections = None
 
 	if TYPE_CHECKING:
 		api_request: BackgroundTaskAPIRequest
