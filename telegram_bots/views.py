@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
@@ -58,10 +58,10 @@ class StatsAPIView(APIView):
 	def get(self, request: Request) -> Response:
 		return Response(
 			{
-				'telegram_bots': {
-					'total': TelegramBot.objects.count(),
-					'enabled': TelegramBot.objects.filter(must_be_enabled=True).count(),
-				},
+				'telegram_bots': TelegramBot.objects.aggregate(
+					total=Count('id'),
+					enabled=Count('id', filter=Q(must_be_enabled=True)),
+				),
 				'users': {
 					'total': User.objects.count(),
 				},
@@ -121,7 +121,26 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
 	serializer_class = CommandSerializer
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.telegram_bot.commands.all()
+		commands: QuerySet[Command] = self.telegram_bot.commands.all()
+
+		if self.action in ['list', 'retrieve']:
+			return commands.select_related(
+				'settings',
+				'trigger',
+				'message',
+				'keyboard',
+				'api_request',
+				'database_record',
+			).prefetch_related(
+				'images',
+				'files',
+				'keyboard__buttons__source_connections__source_object',
+				'keyboard__buttons__source_connections__target_object',
+				'target_connections__source_object',
+				'target_connections__target_object',
+			)
+
+		return commands
 
 
 class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition]):
@@ -130,7 +149,18 @@ class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition])
 	serializer_class = ConditionSerializer
 
 	def get_queryset(self) -> QuerySet[Condition]:
-		return self.telegram_bot.conditions.all()
+		conditions: QuerySet[Condition] = self.telegram_bot.conditions.all()
+
+		if self.action in ['list', 'retrieve']:
+			return conditions.prefetch_related(
+				'parts',
+				'source_connections__source_object',
+				'source_connections__target_object',
+				'target_connections__source_object',
+				'target_connections__target_object',
+			)
+
+		return conditions
 
 
 class BackgroundTaskViewSet(
@@ -141,7 +171,17 @@ class BackgroundTaskViewSet(
 	serializer_class = BackgroundTaskSerializer
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
-		return self.telegram_bot.background_tasks.all()
+		background_tasks: QuerySet[BackgroundTask] = (
+			self.telegram_bot.background_tasks.all()
+		)
+
+		if self.action in ['list', 'retrieve']:
+			return background_tasks.select_related('api_request').prefetch_related(
+				'source_connections__source_object',
+				'source_connections__target_object',
+			)
+
+		return background_tasks
 
 
 class DiagramCommandViewSet(
@@ -157,7 +197,17 @@ class DiagramCommandViewSet(
 	serializer_class = DiagramCommandSerializer
 
 	def get_queryset(self) -> QuerySet[Command]:
-		return self.telegram_bot.commands.all()
+		commands: QuerySet[Command] = self.telegram_bot.commands.all()
+
+		if self.action in ['list', 'retrieve']:
+			return commands.select_related('message', 'keyboard').prefetch_related(
+				'keyboard__buttons__source_connections__source_object',
+				'keyboard__buttons__source_connections__target_object',
+				'target_connections__source_object',
+				'target_connections__target_object',
+			)
+
+		return commands
 
 
 class DiagramConditionViewSet(
@@ -173,7 +223,17 @@ class DiagramConditionViewSet(
 	serializer_class = DiagramConditionSerializer
 
 	def get_queryset(self) -> QuerySet[Condition]:
-		return self.telegram_bot.conditions.all()
+		conditions: QuerySet[Condition] = self.telegram_bot.conditions.all()
+
+		if self.action in ['list', 'retrieve']:
+			return conditions.prefetch_related(
+				'source_connections__source_object',
+				'source_connections__target_object',
+				'target_connections__source_object',
+				'target_connections__target_object',
+			)
+
+		return conditions
 
 
 class DiagramBackgroundTaskViewSet(
@@ -189,7 +249,17 @@ class DiagramBackgroundTaskViewSet(
 	serializer_class = DiagramBackgroundTaskSerializer
 
 	def get_queryset(self) -> QuerySet[BackgroundTask]:
-		return self.telegram_bot.background_tasks.all()
+		background_tasks: QuerySet[BackgroundTask] = (
+			self.telegram_bot.background_tasks.all()
+		)
+
+		if self.action in ['list', 'retrieve']:
+			return background_tasks.prefetch_related(
+				'source_connections__source_object',
+				'source_connections__target_object',
+			)
+
+		return background_tasks
 
 
 class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):
