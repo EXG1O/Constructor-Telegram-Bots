@@ -5,7 +5,7 @@ The website is non-commercial and does not aim to make money from its users.
 
 The website was created because, unfortunately, all similar websites are commercial and aim to profit from their users, while the free plans on such sites severely restrict their users.
 
-If you would like to support the project, you can make a donation.<br>
+If you would like to support the project, you can make a [**donation**](https://constructor.exg1o.org/donation).<br>
 Your donation will greatly help the development and improvement of the website.
 
 ## Requirements
