@@ -21,7 +21,7 @@ Your donation will greatly help the development and improvement of the website.
 ## Installing
 1. To install, execute the following commands:
 ```bash
-git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
+git clone --recurse-submodules https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
 source install.sh
 python manage.py runserver
