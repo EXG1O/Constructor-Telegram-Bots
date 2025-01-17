@@ -40,7 +40,7 @@ import secrets
 
 def validate_api_token(api_token: str) -> None:
 	if not settings.TEST and (
-		not re.fullmatch(r'\d+:[A-Za-z0-9]+', api_token)
+		not re.fullmatch(r'^\d+:.+$', api_token)
 		or not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
 	):
 		raise ValidationError(_('Этот API-токен является недействительным.'))
