@@ -1,8 +1,9 @@
 from yarl import URL
 
+from .adapters import UnixHTTPAdapter
 from .data import StartTelegramBotData
 
-from requests import RequestException, Response
+from requests import RequestException, Response, Session
 import requests
 
 from typing import Any, Literal
@@ -12,6 +13,9 @@ class API:
 	def __init__(self, url: str, access_token: str) -> None:
 		self.url = URL(url)
 		self.headers = {'X-API-KEY': access_token}
+
+		self.session = Session()
+		self.session.mount('http+unix://', UnixHTTPAdapter())
 
 	def _request(
 		self,
