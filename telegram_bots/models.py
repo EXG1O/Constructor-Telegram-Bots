@@ -114,23 +114,29 @@ class TelegramBot(models.Model):
 	def is_enabled(self) -> bool:
 		return self.must_be_enabled and bool(self.hub)
 
-	def start(self) -> None:
+	def start(self, save: bool = True) -> None:
 		self.must_be_enabled = True
 		self.is_loading = True
-		self.save(update_fields=['must_be_enabled', 'is_loading'])
+
+		if save:
+			self.save(update_fields=['must_be_enabled', 'is_loading'])
 
 		tasks.start_telegram_bot.delay(telegram_bot_id=self.id)
 
-	def restart(self) -> None:
+	def restart(self, save: bool = True) -> None:
 		self.is_loading = True
-		self.save(update_fields=['is_loading'])
+
+		if save:
+			self.save(update_fields=['is_loading'])
 
 		tasks.restart_telegram_bot.delay(telegram_bot_id=self.id)
 
-	def stop(self) -> None:
+	def stop(self, save: bool = True) -> None:
 		self.must_be_enabled = False
 		self.is_loading = True
-		self.save(update_fields=['must_be_enabled', 'is_loading'])
+
+		if save:
+			self.save(update_fields=['must_be_enabled', 'is_loading'])
 
 		tasks.stop_telegram_bot.delay(telegram_bot_id=self.id)
 
@@ -177,7 +183,13 @@ class TelegramBot(models.Model):
 			self.update_username()
 
 			if not self._state.adding and self.is_enabled:
-				self.restart()
+				self.restart(save=False)
+				should_update_fields: list[str] = ['must_be_enabled', 'is_loading']
+
+				if update_fields:
+					update_fields = list(update_fields) + should_update_fields
+				else:
+					update_fields = should_update_fields
 
 		super().save(force_insert, force_update, using, update_fields)
 
@@ -185,7 +197,7 @@ class TelegramBot(models.Model):
 		self, using: str | None = None, keep_parents: bool = False
 	) -> tuple[int, dict[str, int]]:
 		if not settings.TEST and not self._state.adding and self.is_enabled:
-			self.stop()
+			self.stop(save=False)
 
 		return super().delete(using, keep_parents)
 
