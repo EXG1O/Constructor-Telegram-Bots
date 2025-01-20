@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import DataAndFiles, MultiPartParser
 
-from collections import defaultdict
 from itertools import chain
 from json import JSONDecodeError
 from typing import Any
@@ -34,7 +33,6 @@ class MultiPartJSONParser(MultiPartParser):
 			if (raw_data := parsed.data.get('data'))
 			else {}
 		)
-		tmp_data: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
 
 		for key, value in chain(parsed.data.items(), parsed.files.items()):
 			result: re.Match[str] | None = re.fullmatch(
@@ -45,6 +43,7 @@ class MultiPartJSONParser(MultiPartParser):
 				continue
 
 			name, index = result.group('name', 'index')
+			name_plural: str = f'{name}s'
 
 			extra_data_key: str = f'{name}:{index}:extra_data'
 			extra_data: dict[str, Any] = (
@@ -53,18 +52,16 @@ class MultiPartJSONParser(MultiPartParser):
 				else {}
 			)
 
+			items: list[dict[str, Any]] = data.setdefault(name_plural, [])
+
 			if isinstance(value, UploadedFile):
-				tmp_data[name].append({name: value, **extra_data})
+				items.append({name: value, **extra_data})
 			elif isinstance(value, str):
 				if value.isdigit():
-					tmp_data[name].append({'id': int(value), **extra_data})
+					items.append({'id': int(value), **extra_data})
 				else:
-					tmp_data[name].append({'url': value, **extra_data})
-
-		for key, items in tmp_data.items():
-			if len(items) > 1:
-				data.update({f'{key}s': items})
-			else:
-				data.update({key: items[0]})
+					items.append({'url': value, **extra_data})
+			elif len(items) < 1:
+				del data[name_plural]
 
 		return data
