@@ -44,7 +44,7 @@ CSRF_TRUSTED_ORIGINS: list[str] = ['https://*.exg1o.org']
 CSRF_COOKIE_AGE: int = 2419200  # 4 weeks
 SESSION_COOKIE_AGE: int = 2419200  # 4 weeks
 
-FILE_UPLOAD_MAX_MEMORY_SIZE: int = 83886080  # 60M
+FILE_UPLOAD_MAX_MEMORY_SIZE: int = 62914560  # 60M
 
 
 JWT_REFRESH_TOKEN_COOKIE_NAME: str = 'jwt_refresh_token'
