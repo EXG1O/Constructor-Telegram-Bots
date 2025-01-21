@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path, re_path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 import django_stubs_ext
 
@@ -11,6 +11,7 @@ django_stubs_ext.monkeypatch(extra_classes=[GenericAPIView])
 
 
 urlpatterns: list[URLPattern | URLResolver] = [
+    path('admin/login/', RedirectView.as_view(url='/')),
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),
     path(
