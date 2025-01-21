@@ -21,9 +21,9 @@ from .models import User
 from .serializers import UserLoginSerializer, UserSerializer
 from .tokens import RefreshToken
 from .utils import (
-	add_jwt_tokens_to_cookies,
-	delete_jwt_tokens_from_cookies,
-	get_refresh_token,
+    add_jwt_tokens_to_cookies,
+    delete_jwt_tokens_from_cookies,
+    get_refresh_token,
 )
 from .utils import login as user_login
 from .utils import logout as user_logout
@@ -33,99 +33,99 @@ from typing import Any
 
 
 class StatsAPIView(APIView):
-	authentication_classes = []
-	permission_classes = []
+    authentication_classes = []
+    permission_classes = []
 
-	@method_decorator(cache_page(3600))
-	def get(self, request: Request) -> Response:
-		return Response({'total': User.objects.count()})
+    @method_decorator(cache_page(3600))
+    def get(self, request: Request) -> Response:
+        return Response({'total': User.objects.count()})
 
 
 class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
-	authentication_classes = [JWTCookieAuthentication]
-	permission_classes = [IsAuthenticated]
-	serializer_class = UserSerializer
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
-	def get_object(self) -> User:
-		return self.request.user  # type: ignore [return-value]
+    def get_object(self) -> User:
+        return self.request.user  # type: ignore [return-value]
 
-	@action(
-		detail=False, methods=['POST'], authentication_classes=[], permission_classes=[]
-	)
-	def login(self, request: Request) -> Response:
-		data: dict[str, Any] = request.data.copy()
+    @action(
+        detail=False, methods=['POST'], authentication_classes=[], permission_classes=[]
+    )
+    def login(self, request: Request) -> Response:
+        data: dict[str, Any] = request.data.copy()
 
-		serializer = UserLoginSerializer(data=data)
-		serializer.is_valid(raise_exception=True)
+        serializer = UserLoginSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
 
-		user: User = TelegramBackend().authenticate(
-			request, hash=data.pop('hash'), raise_exception=True, **data
-		)
-		refresh_token: RefreshToken = user_login(request, user)
+        user: User = TelegramBackend().authenticate(
+            request, hash=data.pop('hash'), raise_exception=True, **data
+        )
+        refresh_token: RefreshToken = user_login(request, user)
 
-		response = Response()
-		add_jwt_tokens_to_cookies(
-			response, str(refresh_token), str(refresh_token.access_token)
-		)
+        response = Response()
+        add_jwt_tokens_to_cookies(
+            response, str(refresh_token), str(refresh_token.access_token)
+        )
 
-		return response
+        return response
 
-	@action(detail=True, methods=['POST'])
-	def logout(self, request: Request, pk: str | None = None) -> Response:
-		user_logout(request, get_refresh_token(request))
+    @action(detail=True, methods=['POST'])
+    def logout(self, request: Request, pk: str | None = None) -> Response:
+        user_logout(request, get_refresh_token(request))
 
-		response = Response()
-		delete_jwt_tokens_from_cookies(response)
+        response = Response()
+        delete_jwt_tokens_from_cookies(response)
 
-		return response
+        return response
 
-	@action(detail=True, url_path='logout-all', methods=['POST'])
-	def logout_all(self, request: Request, pk: str | None = None) -> Response:
-		user_logout_all(request, request.user, get_refresh_token(request))  # type: ignore[arg-type]
+    @action(detail=True, url_path='logout-all', methods=['POST'])
+    def logout_all(self, request: Request, pk: str | None = None) -> Response:
+        user_logout_all(request, request.user, get_refresh_token(request))  # type: ignore[arg-type]
 
-		response = Response()
-		delete_jwt_tokens_from_cookies(response)
+        response = Response()
+        delete_jwt_tokens_from_cookies(response)
 
-		return response
+        return response
 
-	@action(
-		detail=True,
-		url_path='token-refresh',
-		methods=['POST'],
-		authentication_classes=[],
-		permission_classes=[],
-	)
-	def token_refresh(self, request: Request, pk: str | None = None) -> Response:
-		try:
-			refresh_token: RefreshToken = get_refresh_token(request)
-		except PyJWTError as error:
-			raise PermissionDenied() from error
+    @action(
+        detail=True,
+        url_path='token-refresh',
+        methods=['POST'],
+        authentication_classes=[],
+        permission_classes=[],
+    )
+    def token_refresh(self, request: Request, pk: str | None = None) -> Response:
+        try:
+            refresh_token: RefreshToken = get_refresh_token(request)
+        except PyJWTError as error:
+            raise PermissionDenied() from error
 
-		if refresh_token.is_blacklisted:
-			raise TokenBlacklistedError()
+        if refresh_token.is_blacklisted:
+            raise TokenBlacklistedError()
 
-		if not refresh_token.user.is_active:
-			raise UserInactiveOrDeletedError()
+        if not refresh_token.user.is_active:
+            raise UserInactiveOrDeletedError()
 
-		response = Response()
-		response.set_cookie(
-			settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
-			str(refresh_token.access_token),
-			max_age=settings.JWT_ACCESS_TOKEN_LIFETIME,
-			secure=settings.JWT_TOKEN_COOKIE_SECURE,
-			httponly=settings.JWT_TOKEN_COOKIE_HTTPONLY,
-			samesite=settings.JWT_TOKEN_COOKIE_SAMESITE,
-		)
+        response = Response()
+        response.set_cookie(
+            settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
+            str(refresh_token.access_token),
+            max_age=settings.JWT_ACCESS_TOKEN_LIFETIME,
+            secure=settings.JWT_TOKEN_COOKIE_SECURE,
+            httponly=settings.JWT_TOKEN_COOKIE_HTTPONLY,
+            samesite=settings.JWT_TOKEN_COOKIE_SAMESITE,
+        )
 
-		return response
+        return response
 
-	def destroy(self, request: Request, pk: str | None = None) -> Response:
-		user: User = request.user  # type: ignore [assignment]
+    def destroy(self, request: Request, pk: str | None = None) -> Response:
+        user: User = request.user  # type: ignore [assignment]
 
-		user_logout_all(request, user, get_refresh_token(request))
-		user.delete()
+        user_logout_all(request, user, get_refresh_token(request))
+        user.delete()
 
-		response = Response(status=status.HTTP_204_NO_CONTENT)
-		delete_jwt_tokens_from_cookies(response)
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        delete_jwt_tokens_from_cookies(response)
 
-		return response
+        return response

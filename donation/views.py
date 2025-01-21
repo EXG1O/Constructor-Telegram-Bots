@@ -12,24 +12,24 @@ from .serializers import DonationSerializer, MethodSerializer, SectionSerializer
 
 @method_decorator(cache_page(3600), name='dispatch')
 class DonationViewSet(ListModelMixin, GenericViewSet[Donation]):
-	authentication_classes = []
-	permission_classes = []
-	queryset = Donation.objects.all()
-	serializer_class = DonationSerializer
-	pagination_class = LimitOffsetPagination
+    authentication_classes = []
+    permission_classes = []
+    queryset = Donation.objects.all()
+    serializer_class = DonationSerializer
+    pagination_class = LimitOffsetPagination
 
 
 @method_decorator(cache_page(3600), name='dispatch')
 class SectionViewSet(ListModelMixin, GenericViewSet[Section]):
-	authentication_classes = []
-	permission_classes = []
-	queryset = Section.objects.all()
-	serializer_class = SectionSerializer
+    authentication_classes = []
+    permission_classes = []
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
 
 
 @method_decorator(cache_page(3600), name='dispatch')
 class MethodViewSet(ListModelMixin, GenericViewSet[Method]):
-	authentication_classes = []
-	permission_classes = []
-	queryset = Method.objects.all()
-	serializer_class = MethodSerializer
+    authentication_classes = []
+    permission_classes = []
+    queryset = Method.objects.all()
+    serializer_class = MethodSerializer

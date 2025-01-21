@@ -10,7 +10,7 @@ from .serializers import SectionSerializer
 
 @method_decorator(cache_page(3600), name='dispatch')
 class SectionViewSet(ListModelMixin, GenericViewSet[Section]):
-	authentication_classes = []
-	permission_classes = []
-	queryset = Section.objects.all()
-	serializer_class = SectionSerializer
+    authentication_classes = []
+    permission_classes = []
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
