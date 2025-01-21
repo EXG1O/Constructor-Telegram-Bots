@@ -9,6 +9,6 @@ from .models import Section
 
 @admin.register(Section)
 class SectionAdmin(TranslationAdmin):  # FIXME: Need to add generics support
-	list_display = ['title', 'position']
-	fields = ['title', 'text', 'position']
-	formfield_overrides = {models.TextField: {'widget': TinyMCE}}
+    list_display = ['title', 'position']
+    fields = ['title', 'text', 'position']
+    formfield_overrides = {models.TextField: {'widget': TinyMCE}}

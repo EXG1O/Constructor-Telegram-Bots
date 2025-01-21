@@ -13,52 +13,52 @@ from typing import TYPE_CHECKING, Any, Optional
 import secrets
 
 if TYPE_CHECKING:
-	from ..models import TelegramBot
+    from ..models import TelegramBot
 else:
-	TelegramBot = Any
+    TelegramBot = Any
 
 
 class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
-	def get_freest(self) -> 'TelegramBotsHub':
-		return sorted(self.all(), key=lambda hub: hub.api.get_telegram_bot_ids())[0]
+    def get_freest(self) -> 'TelegramBotsHub':
+        return sorted(self.all(), key=lambda hub: hub.api.get_telegram_bot_ids())[0]
 
-	def get_telegram_bot_hub(self, telegram_bot_id: int) -> Optional['TelegramBotsHub']:
-		for hub in self.all():
-			if telegram_bot_id in hub.api.get_telegram_bot_ids():
-				return hub
+    def get_telegram_bot_hub(self, telegram_bot_id: int) -> Optional['TelegramBotsHub']:
+        for hub in self.all():
+            if telegram_bot_id in hub.api.get_telegram_bot_ids():
+                return hub
 
-		return None
+        return None
 
 
 def generate_token() -> str:
-	return secrets.token_hex(25)
+    return secrets.token_hex(25)
 
 
 class TelegramBotsHub(models.Model):
-	url = models.URLField(_('URL-адрес'), unique=True)
-	service_token = models.CharField(
-		_('Токен сервиса'), max_length=50, primary_key=True, default=generate_token
-	)
-	microservice_token = models.CharField(_('Токен микросервиса'), max_length=50)
+    url = models.URLField(_('URL-адрес'), unique=True)
+    service_token = models.CharField(
+        _('Токен сервиса'), max_length=50, primary_key=True, default=generate_token
+    )
+    microservice_token = models.CharField(_('Токен микросервиса'), max_length=50)
 
-	is_authenticated = True  # Stub for IsAuthenticated permission
+    is_authenticated = True  # Stub for IsAuthenticated permission
 
-	objects = TelegramBotsHubManager()
+    objects = TelegramBotsHubManager()
 
-	class Meta(TypedModelMeta):
-		db_table = 'telegram_bots_hub'
-		verbose_name = _('Центр')
-		verbose_name_plural = _('Центра')
+    class Meta(TypedModelMeta):
+        db_table = 'telegram_bots_hub'
+        verbose_name = _('Центр')
+        verbose_name_plural = _('Центра')
 
-	@cached_property
-	def api(self) -> API:
-		return API(self.url, self.microservice_token)
+    @cached_property
+    def api(self) -> API:
+        return API(self.url, self.microservice_token)
 
-	@property
-	def telegram_bots(self) -> QuerySet[TelegramBot]:
-		telegram_bot_modal = get_telegram_bot_modal()
+    @property
+    def telegram_bots(self) -> QuerySet[TelegramBot]:
+        telegram_bot_modal = get_telegram_bot_modal()
 
-		if settings.TEST:
-			return telegram_bot_modal.objects.all()
+        if settings.TEST:
+            return telegram_bot_modal.objects.all()
 
-		return telegram_bot_modal.objects.filter(id__in=self.api.get_telegram_bot_ids())
+        return telegram_bot_modal.objects.filter(id__in=self.api.get_telegram_bot_ids())

@@ -12,8 +12,8 @@ from .serializers import UpdateSerializer
 
 @method_decorator(cache_page(3600), name='dispatch')
 class UpdateViewSet(ListModelMixin, GenericViewSet[Update]):
-	authentication_classes = []
-	permission_classes = []
-	queryset = Update.objects.all()
-	serializer_class = UpdateSerializer
-	pagination_class = LimitOffsetPagination
+    authentication_classes = []
+    permission_classes = []
+    queryset = Update.objects.all()
+    serializer_class = UpdateSerializer
+    pagination_class = LimitOffsetPagination

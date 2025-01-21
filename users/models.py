@@ -13,73 +13,73 @@ from typing import TYPE_CHECKING, Any
 
 
 class UserManager(BaseUserManager['User']):
-	def create_superuser(self, **fields: Any) -> 'User':
-		return self.create(is_staff=True, is_superuser=True, **fields)
+    def create_superuser(self, **fields: Any) -> 'User':
+        return self.create(is_staff=True, is_superuser=True, **fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-	password = None  # type: ignore [assignment]
+    password = None  # type: ignore [assignment]
 
-	telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
-	first_name = models.CharField(_('Имя'), max_length=64)
-	last_name = models.CharField(_('Фамилия'), max_length=64, null=True)
-	is_staff = models.BooleanField(_('Сотрудник'), default=False)
-	joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
+    telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
+    first_name = models.CharField(_('Имя'), max_length=64)
+    last_name = models.CharField(_('Фамилия'), max_length=64, null=True)
+    is_staff = models.BooleanField(_('Сотрудник'), default=False)
+    joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
 
-	if TYPE_CHECKING:
-		tokens: models.Manager['Token']
-		telegram_bots: models.Manager[TelegramBot]
+    if TYPE_CHECKING:
+        tokens: models.Manager['Token']
+        telegram_bots: models.Manager[TelegramBot]
 
-	USERNAME_FIELD = 'telegram_id'
+    USERNAME_FIELD = 'telegram_id'
 
-	objects = UserManager()
+    objects = UserManager()
 
-	class Meta(TypedModelMeta):
-		db_table = 'user'
-		verbose_name = _('Пользователя')
-		verbose_name_plural = _('Пользователи')
+    class Meta(TypedModelMeta):
+        db_table = 'user'
+        verbose_name = _('Пользователя')
+        verbose_name_plural = _('Пользователи')
 
-	@property
-	def full_name(self) -> str:
-		return f"{self.first_name} {self.last_name or ''}".strip()
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name or ''}".strip()
 
-	def __str__(self) -> str:
-		return f'Telegram ID: {self.telegram_id}'
+    def __str__(self) -> str:
+        return f'Telegram ID: {self.telegram_id}'
 
 
 class Token(models.Model):
-	user = models.ForeignKey(
-		User,
-		on_delete=models.SET_NULL,
-		related_name='tokens',
-		verbose_name=_('Пользователь'),
-		blank=True,
-		null=True,
-	)
-	jti = models.CharField('JWT ID', primary_key=True, max_length=32)
-	type = models.CharField(_('Тип'), max_length=7, choices=TokenType)
-	expiry_date = models.DateTimeField(_('Срок действия'))
-	created_date = models.DateTimeField(_('Создан'), auto_now_add=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name='tokens',
+        verbose_name=_('Пользователь'),
+        blank=True,
+        null=True,
+    )
+    jti = models.CharField('JWT ID', primary_key=True, max_length=32)
+    type = models.CharField(_('Тип'), max_length=7, choices=TokenType)
+    expiry_date = models.DateTimeField(_('Срок действия'))
+    created_date = models.DateTimeField(_('Создан'), auto_now_add=True)
 
-	if TYPE_CHECKING:
-		blacklisted: 'BlacklistedToken'
+    if TYPE_CHECKING:
+        blacklisted: 'BlacklistedToken'
 
-	class Meta(TypedModelMeta):
-		db_table = 'user_token'
-		verbose_name = _('Токен')
-		verbose_name_plural = _('Токены')
+    class Meta(TypedModelMeta):
+        db_table = 'user_token'
+        verbose_name = _('Токен')
+        verbose_name_plural = _('Токены')
 
 
 class BlacklistedToken(models.Model):
-	token = models.OneToOneField(
-		Token,
-		on_delete=models.CASCADE,
-		related_name='blacklisted',
-		verbose_name=_('Токен'),
-	)
-	blacklisted_date = models.DateTimeField(_('Внесён'), auto_now_add=True)
+    token = models.OneToOneField(
+        Token,
+        on_delete=models.CASCADE,
+        related_name='blacklisted',
+        verbose_name=_('Токен'),
+    )
+    blacklisted_date = models.DateTimeField(_('Внесён'), auto_now_add=True)
 
-	class Meta(TypedModelMeta):
-		db_table = 'user_blacklisted_token'
-		verbose_name = _('Токен в чёрном списке')
-		verbose_name_plural = _('Токены в чёрном списке')
+    class Meta(TypedModelMeta):
+        db_table = 'user_blacklisted_token'
+        verbose_name = _('Токен в чёрном списке')
+        verbose_name_plural = _('Токены в чёрном списке')
