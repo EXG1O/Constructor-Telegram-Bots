@@ -24,7 +24,6 @@ Your donation will greatly help the development and improvement of the website.
 git clone --recurse-submodules https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
 source install.sh
-python manage.py runserver
 ```
 2. Go to the `./frontend` directory to build the frontend and go back.
 ```bash
