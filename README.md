@@ -47,3 +47,6 @@ python manage.py runserver
 celery -A constructor_telegram_bots worker --loglevel=INFO -f logs/celery.log
 ```
 2. Open the home page `http://127.0.0.1:8000` and enjoy :)
+
+## Contributing
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for information about this.
