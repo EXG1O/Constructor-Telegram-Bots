@@ -23,6 +23,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Install poetry
+        run: pipx install poetry
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -30,9 +33,7 @@ jobs:
           cache: poetry
 
       - name: Install dependencies
-        run: |
-          pip install poetry
-          poetry install --no-interaction --no-root
+        run: poetry install --no-interaction --no-root
 
       - name: Run ruff
         run: ruff check . && ruff format --check .
@@ -58,6 +59,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Install poetry
+        run: pipx install poetry
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -65,9 +69,7 @@ jobs:
           cache: poetry
 
       - name: Install dependencies
-        run: |
-          pip install poetry
-          poetry install --no-interaction --no-root
+        run: poetry install --no-interaction --no-root
 
       - name: Run tests
         run: python manage.py test --verbosity 3
