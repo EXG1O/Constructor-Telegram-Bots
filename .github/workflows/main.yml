@@ -36,7 +36,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run ruff
-        run: poetry run ruff check . && ruff format --check .
+        run: poetry run ruff check . && poetry run ruff format --check .
 
       - name: Run mypy
         run: poetry run mypy .
