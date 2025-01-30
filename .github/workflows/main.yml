@@ -33,13 +33,15 @@ jobs:
           cache: poetry
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction
 
       - name: Run ruff
-        run: poetry run ruff check . && poetry run ruff format --check .
+        run: ruff check . && ruff format --check .
 
       - name: Run mypy
-        run: poetry run mypy .
+        run: mypy .
   tests:
     name: Run Tests
     needs: code-quality
@@ -69,7 +71,9 @@ jobs:
           cache: poetry
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction
 
       - name: Run tests
-        run: poetry run python manage.py test --verbosity 3
+        run: python manage.py test --verbosity 3
