@@ -19,23 +19,17 @@ Your donation will greatly help the development and improvement of the website.
 - [Telegram Bots Hub](https://github.com/EXG1O/Telegram-Bots-Hub#requirements)
 
 ## Installing
-1. To install, execute the following commands:
+1. First, build the [frontend](https://github.com/EXG1O/Constructor-Telegram-Bots-Frontend#installing).
+2. Installing the backend using the following commands:
 ```bash
-git clone --recurse-submodules https://github.com/EXG1O/Constructor-Telegram-Bots.git
+git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
 source install.sh
-```
-2. Go to the `./frontend` directory to build the frontend and go back.
-```bash
-cd ./frontend
-npm i
-npm run build
-cd ..
 ```
 3. Now, go to the main page `http://127.0.0.1:8000` and log in.
 4. Edit the `user` table in the database by changing the values of `is_staff` and `is_superuser` to `true` for the `Anonymous` user record.
 5. Open the admin panel's main page `http://127.0.0.1:8000/admin` and select `Telegram Bots Hubs` -> `Hubs`.
-6. Click `Add Hub`, enter all the necessary data, and copy the `Service Token`.
+6. Click `Add Hub` button, enter all the necessary data, and copy the `Service Token`.
 7. Deploy the [Telegram Bots Hub](https://github.com/EXG1O/Telegram-Bots-Hub) project and run it **(working in the global network)**.
 
 ## Usage
