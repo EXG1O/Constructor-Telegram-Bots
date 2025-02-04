@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from adminsortable2.admin import SortableAdminMixin
 from modeltranslation.admin import TranslationAdmin
 from tinymce.widgets import TinyMCE
 
@@ -22,16 +23,19 @@ class DonationAdmin(admin.ModelAdmin[Donation]):
 
 
 @admin.register(Section)
-class SectionAdmin(TranslationAdmin):  # FIXME: Need to add generics support
+class SectionAdmin(
+    SortableAdminMixin,
+    TranslationAdmin,  # FIXME: Need to add generics support
+):
     list_display = ['title', 'position']
-    fields = ['title', 'text', 'position']
+    fields = ['title', 'text']
     formfield_overrides = {models.TextField: {'widget': TinyMCE}}
 
 
 @admin.register(Method)
-class MethodAdmin(admin.ModelAdmin[Method]):
-    list_display = ['text', 'link_display', 'value', 'position']
-    fields = ['text', 'link', 'value', 'position']
+class MethodAdmin(SortableAdminMixin, admin.ModelAdmin[Method]):
+    list_display = ['text', 'link_display', 'value']
+    fields = ['text', 'link', 'value']
 
     @admin.display(description=_('Ссылка'), ordering='link')
     def link_display(self, method: Method) -> str | None:

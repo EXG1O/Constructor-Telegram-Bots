@@ -19,17 +19,10 @@ class Donation(models.Model):
         return self.sender
 
 
-def section_position_default() -> int:
-    section: Section | None = Section.objects.last()
-    return section.position + 1 if section else 1
-
-
 class Section(models.Model):  # type: ignore [django-manager-missing]
     title = models.CharField(_('Заголовок'), max_length=255)
     text = models.TextField(_('Текст'))
-    position = models.PositiveSmallIntegerField(
-        _('Позиция'), blank=True, default=section_position_default
-    )
+    position = models.PositiveSmallIntegerField(_('Позиция'), blank=True)
 
     class Meta(TypedModelMeta):
         ordering = ['position']
@@ -40,18 +33,11 @@ class Section(models.Model):  # type: ignore [django-manager-missing]
         return self.title
 
 
-def method_position_default() -> int:
-    method: Method | None = Method.objects.last()
-    return method.position + 1 if method else 1
-
-
 class Method(models.Model):
     text = models.CharField(_('Текст'), max_length=128)
     link = models.URLField(_('Ссылка'), blank=True, null=True)
     value = models.CharField(_('Значение'), max_length=255, blank=True, null=True)
-    position = models.PositiveSmallIntegerField(
-        _('Позиция'), blank=True, default=method_position_default
-    )
+    position = models.PositiveSmallIntegerField(_('Позиция'), blank=True)
 
     class Meta(TypedModelMeta):
         ordering = ['position']
