@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from constructor_telegram_bots.fields import PublicURLField
+
 from .enums import APIRequestMethod
 
 from collections.abc import Iterable
@@ -43,7 +45,7 @@ class AbstractCommandMedia(models.Model):
         file_field_name: str
 
     position = models.PositiveSmallIntegerField(_('Позиция'))
-    from_url = models.URLField(_('Из URL-адреса'), blank=True, null=True)
+    from_url = PublicURLField(_('Из URL-адреса'), blank=True, null=True)
 
     class Meta(TypedModelMeta):
         abstract = True
@@ -81,7 +83,7 @@ class AbstractCommandMedia(models.Model):
 
 
 class AbstractAPIRequest(models.Model):
-    url = models.URLField(_('URL-адрес'))
+    url = PublicURLField(_('URL-адрес'))
     method = models.CharField(
         _('Метод'), max_length=6, choices=APIRequestMethod, default=APIRequestMethod.GET
     )

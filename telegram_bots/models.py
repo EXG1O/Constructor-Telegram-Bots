@@ -9,6 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from constructor_telegram_bots.fields import PublicURLField
+
 from . import tasks
 from .base_models import (
     AbstractAPIRequest,
@@ -387,7 +389,7 @@ class CommandKeyboardButton(models.Model):
     row = models.PositiveSmallIntegerField(_('Ряд'))
     position = models.PositiveSmallIntegerField(_('Позиция'))
     text = models.TextField(_('Текст'), max_length=512)
-    url = models.URLField(_('URL-адрес'), blank=True, null=True)
+    url = PublicURLField(_('URL-адрес'), blank=True, null=True)
     source_connections = GenericRelation(
         'Connection', 'source_object_id', 'source_content_type'
     )
