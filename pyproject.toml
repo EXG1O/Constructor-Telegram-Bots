@@ -18,6 +18,7 @@ django-stubs-ext = "^5.0.0"
 yarl = "^1.9.4"
 pyjwt = "^2.9.0"
 pillow = "^11.0.0"
+django-admin-sortable2 = "^2.2.4"
 
 [tool.poetry.group.dev.dependencies]
 django-silk = "^5.1.0"
