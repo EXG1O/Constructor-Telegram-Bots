@@ -3,6 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from constructor_telegram_bots.fields import PublicURLField
+
 
 class Donation(models.Model):
     sum = models.FloatField(_('Сумма'))
@@ -35,7 +37,7 @@ class Section(models.Model):  # type: ignore [django-manager-missing]
 
 class Method(models.Model):
     text = models.CharField(_('Текст'), max_length=128)
-    link = models.URLField(_('Ссылка'), blank=True, null=True)
+    link = PublicURLField(_('Ссылка'), blank=True, null=True)
     value = models.CharField(_('Значение'), max_length=255, blank=True, null=True)
     position = models.PositiveSmallIntegerField(_('Позиция'), blank=True)
 
