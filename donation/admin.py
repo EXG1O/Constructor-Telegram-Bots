@@ -34,7 +34,7 @@ class SectionAdmin(
 
 @admin.register(Method)
 class MethodAdmin(SortableAdminMixin, admin.ModelAdmin[Method]):
-    list_display = ['text', 'link_display', 'value']
+    list_display = ['text', 'link_display', 'value', 'position']
     fields = ['text', 'link', 'value']
 
     @admin.display(description=_('Ссылка'), ordering='link')
