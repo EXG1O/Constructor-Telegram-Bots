@@ -79,7 +79,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
     def user_count_display(self, telegram_bot: TelegramBot) -> int:
         return telegram_bot.user_count  # type: ignore [attr-defined]
 
-    @admin.display(description=_('Включен'))
+    @admin.display(description=_('Включен'), boolean=True)
     def is_enabled_display(self, telegram_bot: TelegramBot) -> bool:
         return telegram_bot.is_enabled
 
