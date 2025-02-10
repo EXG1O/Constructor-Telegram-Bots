@@ -583,9 +583,9 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
                         button.position = button_data.get('position', button.position)
                         button.text = button_data.get('text', button.text)
                         button.url = (
-                            None
+                            button_data.get('url', button.url)
                             if keyboard_type != 'default'
-                            else button_data.get('url', button.url)
+                            else None
                         )
 
                         update_buttons.append(button)
