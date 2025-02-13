@@ -104,7 +104,9 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
         if refresh_token.is_blacklisted:
             raise TokenBlacklistedError()
 
-        if not refresh_token.user.is_active:
+        user: User | None = refresh_token.user
+
+        if not user or not user.is_active:
             raise UserInactiveOrDeletedError()
 
         response = Response()

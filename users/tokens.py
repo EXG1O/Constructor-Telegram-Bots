@@ -49,8 +49,11 @@ class BaseToken(ABC, Generic[PT]):
     def _create_payload(self, **kwargs: Any) -> PT: ...
 
     @cached_property
-    def user(self) -> User:
-        return User.objects.get(id=self.payload.sub)
+    def user(self) -> User | None:
+        try:
+            return User.objects.get(id=self.payload.sub)
+        except User.DoesNotExist:
+            return None
 
     def create_token(self) -> Token:
         """
