@@ -19,9 +19,9 @@ class JWTCookieAuthentication(BaseAuthentication):
         if access_token.is_blacklisted:
             raise TokenBlacklistedError()
 
-        user: User = access_token.user
+        user: User | None = access_token.user
 
-        if not user.is_active:
+        if not user or not user.is_active:
             raise UserInactiveOrDeletedError()
 
         return user, access_token
