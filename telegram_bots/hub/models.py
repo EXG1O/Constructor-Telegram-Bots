@@ -21,7 +21,7 @@ else:
 class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
     def get_freest(self) -> Optional['TelegramBotsHub']:
         return (
-            sorted(hubs, key=lambda hub: hub.api.get_telegram_bot_ids())[1]
+            sorted(hubs, key=lambda hub: hub.api.get_telegram_bot_ids())[0]
             if (hubs := self.all())
             else None
         )
