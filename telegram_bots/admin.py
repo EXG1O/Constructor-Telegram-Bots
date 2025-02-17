@@ -23,8 +23,8 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
         'storage_size_display',
         'used_storage_size_display',
         'remaining_storage_size_display',
-        'command_count_display',
         'user_count_display',
+        'block_count_display',
         'is_private',
         'must_be_enabled',
         'is_enabled_display',
@@ -38,8 +38,8 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
         'storage_size_display',
         'used_storage_size_display',
         'remaining_storage_size_display',
-        'command_count_display',
         'user_count_display',
+        'block_count_display',
         'is_private',
         'must_be_enabled',
         'is_enabled_display',
@@ -50,7 +50,14 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
         return (
             super()
             .get_queryset(request)
-            .annotate(command_count=Count('commands'), user_count=Count('users'))
+            .annotate(
+                block_count=(
+                    Count('commands', distinct=True)
+                    + Count('conditions', distinct=True)
+                    + Count('background_tasks', distinct=True)
+                ),
+                user_count=Count('users', distinct=True),
+            )
         )
 
     @admin.display(description='@username', ordering='username')
@@ -71,13 +78,13 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
     def remaining_storage_size_display(self, telegram_bot: TelegramBot) -> str:
         return f'{(telegram_bot.remaining_storage_size / 1024 ** 2):.2f}MB'
 
-    @admin.display(description=_('Команд'), ordering='command_count')
-    def command_count_display(self, telegram_bot: TelegramBot) -> int:
-        return telegram_bot.command_count  # type: ignore [attr-defined]
-
     @admin.display(description=_('Пользователей'), ordering='user_count')
     def user_count_display(self, telegram_bot: TelegramBot) -> int:
         return telegram_bot.user_count  # type: ignore [attr-defined]
+
+    @admin.display(description=_('Блоков'), ordering='block_count')
+    def block_count_display(self, telegram_bot: TelegramBot) -> int:
+        return telegram_bot.block_count  # type: ignore [attr-defined]
 
     @admin.display(description=_('Включен'), boolean=True)
     def is_enabled_display(self, telegram_bot: TelegramBot) -> bool:
