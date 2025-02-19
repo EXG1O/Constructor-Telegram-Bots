@@ -16,6 +16,10 @@ load_dotenv()
 
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
+LOGS_DIR: Path = BASE_DIR / 'logs'
+
+os.makedirs(LOGS_DIR, exist_ok=True)
+
 
 SECRET_KEY: str = os.getenv('SECRET_KEY', secrets.token_hex(25))
 
@@ -207,8 +211,6 @@ MEDIA_URL: str = '/media/'
 MEDIA_ROOT: Path = BASE_DIR / 'media'
 
 
-os.makedirs(BASE_DIR / 'logs', exist_ok=True)
-
 LOGGING: dict[str, Any] = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -231,7 +233,7 @@ LOGGING: dict[str, Any] = {
         'django_info_file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs/django_info.log',
+            'filename': LOGS_DIR / 'django_info.log',
             'maxBytes': 10485760,
             'backupCount': 10,
             'formatter': 'verbose',
@@ -239,7 +241,7 @@ LOGGING: dict[str, Any] = {
         'django_error_file': {
             'level': 'WARNING',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs/django_error.log',
+            'filename': LOGS_DIR / 'django_error.log',
             'maxBytes': 10485760,
             'backupCount': 10,
             'formatter': 'verbose',
