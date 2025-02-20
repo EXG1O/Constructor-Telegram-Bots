@@ -1,9 +1,12 @@
 from constructor_telegram_bots.settings import LOGS_DIR
 
-workers = 9
-max_requests = 1000
-max_requests_jitter = 100
+from multiprocessing import cpu_count
+from typing import Final
 
-capture_output = True
-accesslog = str(LOGS_DIR / 'gunicorn_info.log')
-errorlog = str(LOGS_DIR / 'gunicorn_info.log')
+workers: Final[int] = cpu_count() * 2 + 1
+max_requests: Final[int] = 1000
+max_requests_jitter: Final[int] = 100
+
+capture_output: Final[bool] = True
+accesslog: Final[str] = str(LOGS_DIR / 'gunicorn_info.log')
+errorlog: Final[str] = str(LOGS_DIR / 'gunicorn_info.log')
