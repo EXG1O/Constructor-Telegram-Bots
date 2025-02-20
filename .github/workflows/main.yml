@@ -9,6 +9,7 @@ on:
       - master
 
 env:
+  SECRET_KEY: test_secret_key
   TELEGRAM_BOT_TOKEN: 12345:test
   FRONTEND_PATH: ''
   POSTGRESQL_DATABASE_NAME: postgres
