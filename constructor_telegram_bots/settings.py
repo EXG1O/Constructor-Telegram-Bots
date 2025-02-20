@@ -6,66 +6,60 @@ from dotenv import load_dotenv
 
 from datetime import timedelta
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Final, Literal
 import os
-import secrets
 import sys
 
 django_stubs_ext.monkeypatch()
 load_dotenv()
 
 
-BASE_DIR: Path = Path(__file__).resolve().parent.parent
-LOGS_DIR: Path = BASE_DIR / 'logs'
+BASE_DIR: Final[Path] = Path(__file__).resolve().parent.parent
+LOGS_DIR: Final[Path] = BASE_DIR / 'logs'
 
 os.makedirs(LOGS_DIR, exist_ok=True)
 
 
-SECRET_KEY: str = os.getenv('SECRET_KEY', secrets.token_hex(25))
+SECRET_KEY: Final[str] = os.environ['SECRET_KEY']
 
-DEBUG: bool = os.getenv('DEBUG', 'True') == 'True'
-ENABLE_TELEGRAM_AUTH: bool = os.getenv('ENABLE_TELEGRAM_AUTH', 'True') == 'True'
+TEST: Final[bool] = bool(len(sys.argv) >= 2 and sys.argv[1] == 'test')
+DEBUG: Final[bool] = os.getenv('DEBUG', 'True') == 'True'
+ENABLE_TELEGRAM_AUTH: Final[bool] = os.getenv('ENABLE_TELEGRAM_AUTH', 'True') == 'True'
 
-match sys.argv:
-    case ['manage.py', 'test', *extra_options]:
-        TEST = True
-    case __:
-        TEST = False
+TELEGRAM_BOT_TOKEN: Final[str] = os.environ['TELEGRAM_BOT_TOKEN']
 
-TELEGRAM_BOT_TOKEN: str = os.environ['TELEGRAM_BOT_TOKEN']
+FRONTEND_PATH: Final[str] = os.environ['FRONTEND_PATH']
 
-FRONTEND_PATH: str = os.environ['FRONTEND_PATH']
-
-POSTGRESQL_DATABASE_NAME: str = os.environ['POSTGRESQL_DATABASE_NAME']
-POSTGRESQL_DATABASE_USER: str = os.environ['POSTGRESQL_DATABASE_USER']
-POSTGRESQL_DATABASE_PASSWORD: str = os.environ['POSTGRESQL_DATABASE_PASSWORD']
+POSTGRESQL_DATABASE_NAME: Final[str] = os.environ['POSTGRESQL_DATABASE_NAME']
+POSTGRESQL_DATABASE_USER: Final[str] = os.environ['POSTGRESQL_DATABASE_USER']
+POSTGRESQL_DATABASE_PASSWORD: Final[str] = os.environ['POSTGRESQL_DATABASE_PASSWORD']
 
 
-ALLOWED_HOSTS: list[str] = ['*'] if DEBUG else ['constructor.exg1o.org']
-CSRF_TRUSTED_ORIGINS: list[str] = ['https://*.exg1o.org']
+ALLOWED_HOSTS: Final[list[str]] = ['*'] if DEBUG else ['constructor.exg1o.org']
+CSRF_TRUSTED_ORIGINS: Final[list[str]] = ['https://*.exg1o.org']
 
 
-CSRF_COOKIE_AGE: int = 2419200  # 4 weeks
-SESSION_COOKIE_AGE: int = 2419200  # 4 weeks
+CSRF_COOKIE_AGE: Final[int] = 2419200  # 4 weeks
+SESSION_COOKIE_AGE: Final[int] = 2419200  # 4 weeks
 
-FILE_UPLOAD_MAX_MEMORY_SIZE: int = 62914560  # 60M
-
-
-JWT_REFRESH_TOKEN_COOKIE_NAME: str = 'jwt_refresh_token'
-JWT_ACCESS_TOKEN_COOKIE_NAME: str = 'jwt_access_token'
-JWT_REFRESH_TOKEN_LIFETIME: timedelta = timedelta(weeks=4)
-JWT_ACCESS_TOKEN_LIFETIME: timedelta = timedelta(minutes=15)
-JWT_TOKEN_COOKIE_SECURE: bool = False
-JWT_TOKEN_COOKIE_HTTPONLY: bool = True
-JWT_TOKEN_COOKIE_SAMESITE: Literal['Lax', 'Strict', 'None'] = 'Lax'
+FILE_UPLOAD_MAX_MEMORY_SIZE: Final[int] = 62914560  # 60M
 
 
-CELERY_BROKER_URL: str = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND: str = 'redis://127.0.0.1:6379'
-CELERY_ACCEPT_CONTENT: list[str] = ['application/json']
-CELERY_RESULT_SERIALIZER: str = 'json'
-CELERY_TASK_SERIALIZER: str = 'json'
-CELERY_BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
+JWT_REFRESH_TOKEN_COOKIE_NAME: Final[str] = 'jwt_refresh_token'
+JWT_ACCESS_TOKEN_COOKIE_NAME: Final[str] = 'jwt_access_token'
+JWT_REFRESH_TOKEN_LIFETIME: Final[timedelta] = timedelta(weeks=4)
+JWT_ACCESS_TOKEN_LIFETIME: Final[timedelta] = timedelta(minutes=15)
+JWT_TOKEN_COOKIE_SECURE: Final[bool] = False
+JWT_TOKEN_COOKIE_HTTPONLY: Final[bool] = True
+JWT_TOKEN_COOKIE_SAMESITE: Final[Literal['Lax', 'Strict', 'None']] = 'Lax'
+
+
+CELERY_BROKER_URL: Final[str] = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND: Final[str] = 'redis://127.0.0.1:6379'
+CELERY_ACCEPT_CONTENT: Final[list[str]] = ['application/json']
+CELERY_RESULT_SERIALIZER: Final[str] = 'json'
+CELERY_TASK_SERIALIZER: Final[str] = 'json'
+CELERY_BEAT_SCHEDULE: Final[dict[str, dict[str, Any]]] = {
     'check_tokens_expiration_date_schedule': {
         'task': 'users.tasks.check_tokens_expiration_date',
         'schedule': 86400,  # 24h
@@ -73,7 +67,7 @@ CELERY_BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
 }
 
 
-INSTALLED_APPS: list[str] = [
+INSTALLED_APPS: Final[list[str]] = [
     'rest_framework',
     'django_filters',
     'drf_standardized_errors',
@@ -99,11 +93,11 @@ INSTALLED_APPS: list[str] = [
 if not TEST and DEBUG:
     INSTALLED_APPS.append('silk')
 
-REST_FRAMEWORK: dict[str, Any] = {
+REST_FRAMEWORK: Final[dict[str, Any]] = {
     'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler'
 }
 
-TINYMCE_DEFAULT_CONFIG: dict[str, Any] = {
+TINYMCE_DEFAULT_CONFIG: Final[dict[str, Any]] = {
     'theme': 'silver',
     'menubar': True,
     'height': 420,
@@ -125,7 +119,7 @@ TINYMCE_DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 
-MIDDLEWARE: list[str] = [
+MIDDLEWARE: Final[list[str]] = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -140,7 +134,7 @@ if not TEST and DEBUG:
     MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
 
 
-TEMPLATES: list[dict[str, Any]] = [
+TEMPLATES: Final[list[dict[str, Any]]] = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [FRONTEND_PATH],
@@ -156,14 +150,14 @@ TEMPLATES: list[dict[str, Any]] = [
     },
 ]
 
-AUTHENTICATION_BACKENDS: list[str] = ['users.backends.TelegramBackend']
+AUTHENTICATION_BACKENDS: Final[list[str]] = ['users.backends.TelegramBackend']
 
-AUTH_USER_MODEL: str = 'users.User'
-ROOT_URLCONF: str = 'constructor_telegram_bots.urls'
-WSGI_APPLICATION: str = 'constructor_telegram_bots.wsgi.application'
+AUTH_USER_MODEL: Final[str] = 'users.User'
+ROOT_URLCONF: Final[str] = 'constructor_telegram_bots.urls'
+WSGI_APPLICATION: Final[str] = 'constructor_telegram_bots.wsgi.application'
 
 
-CACHES = {
+CACHES: Final[dict[str, dict[str, Any]]] = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
         'LOCATION': 'redis://127.0.0.1:6379',
@@ -171,7 +165,7 @@ CACHES = {
 }
 
 
-DATABASES: dict[str, dict[str, Any]] = {
+DATABASES: Final[dict[str, dict[str, Any]]] = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': POSTGRESQL_DATABASE_NAME,
@@ -181,37 +175,37 @@ DATABASES: dict[str, dict[str, Any]] = {
         'PORT': '5432',
     },
 }
-DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD: Final[str] = 'django.db.models.BigAutoField'
 
 
-USE_I18N: bool = True
-USE_L10N: bool = True
+USE_I18N: Final[bool] = True
+USE_L10N: Final[bool] = True
 
-LANGUAGE_COOKIE_NAME: str = 'lang'
+LANGUAGE_COOKIE_NAME: Final[str] = 'lang'
 
-LANGUAGES: list[tuple[str, Any]] = [
+LANGUAGES: Final[list[tuple[str, Any]]] = [
     ('en', _('Английский')),
     ('uk', _('Украинский')),
     ('ru', _('Русский')),
 ]
-LANGUAGE_CODE: str = 'ru-ru'
-MODELTRANSLATION_DEFAULT_LANGUAGE: str = 'ru'
-LOCALE_PATHS: list[Path] = [BASE_DIR / 'locale']
+LANGUAGE_CODE: Final[str] = 'ru-ru'
+MODELTRANSLATION_DEFAULT_LANGUAGE: Final[str] = 'ru'
+LOCALE_PATHS: Final[list[Path]] = [BASE_DIR / 'locale']
 
 
-TIME_ZONE: str = 'UTC'
-USE_TZ: bool = True
+TIME_ZONE: Final[str] = 'UTC'
+USE_TZ: Final[bool] = True
 
 
-STATIC_URL: str = '/static/'
-STATIC_ROOT: Path = BASE_DIR / 'static'
-STATICFILES_DIRS: list[Path | str] = [FRONTEND_PATH]
+STATIC_URL: Final[str] = '/static/'
+STATIC_ROOT: Final[Path] = BASE_DIR / 'static'
+STATICFILES_DIRS: Final[list[Path | str]] = [FRONTEND_PATH]
 
-MEDIA_URL: str = '/media/'
-MEDIA_ROOT: Path = BASE_DIR / 'media'
+MEDIA_URL: Final[str] = '/media/'
+MEDIA_ROOT: Final[Path] = BASE_DIR / 'media'
 
 
-LOGGING: dict[str, Any] = {
+LOGGING: Final[dict[str, Any]] = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
