@@ -24,6 +24,8 @@ Your donation will greatly help the development and improvement of the website.
 ```bash
 git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
+python -m venv env
+source env/bin/activate
 source install.sh
 ```
 3. Now, go to the main page `http://127.0.0.1:8000` and log in.
