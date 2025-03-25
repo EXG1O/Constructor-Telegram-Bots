@@ -13,7 +13,6 @@ django_stubs_ext.monkeypatch(extra_classes=[GenericAPIView])
 urlpatterns: list[URLPattern | URLResolver] = [
     path('admin/login/', RedirectView.as_view(url='/')),
     path('admin/', admin.site.urls),
-    path('tinymce/', include('tinymce.urls')),
     path(
         'api/',
         include(

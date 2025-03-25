@@ -72,7 +72,6 @@ INSTALLED_APPS: Final[list[str]] = [
     'django_filters',
     'drf_standardized_errors',
     'modeltranslation',
-    'tinymce',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -95,27 +94,6 @@ if not TEST and DEBUG:
 
 REST_FRAMEWORK: Final[dict[str, Any]] = {
     'EXCEPTION_HANDLER': 'drf_standardized_errors.handler.exception_handler'
-}
-
-TINYMCE_DEFAULT_CONFIG: Final[dict[str, Any]] = {
-    'theme': 'silver',
-    'menubar': True,
-    'height': 420,
-    'plugins': (
-        'advlist, autolink, lists, link, image, charmap,'
-        'print, preview, anchor, searchreplace, visualblocks,'
-        'code, fullscreen, insertdatetime, media, table, paste,'
-        'help, wordcount'
-    ),
-    'toolbar': (
-        'undo redo | '
-        'formatselect | '
-        'bold italic backcolor | '
-        'alignleft aligncenter alignright alignjustify | '
-        'bullist numlist outdent indent | '
-        'removeformat | '
-        'help'
-    ),
 }
 
 

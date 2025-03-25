@@ -1,10 +1,8 @@
 from django.contrib import admin
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from adminsortable2.admin import SortableAdminMixin
 from modeltranslation.admin import TranslationAdmin
-from tinymce.widgets import TinyMCE
 
 from utils.html import format_html_link
 
@@ -29,7 +27,6 @@ class SectionAdmin(
 ):
     list_display = ['title', 'position']
     fields = ['title', 'text']
-    formfield_overrides = {models.TextField: {'widget': TinyMCE}}
 
 
 @admin.register(Method)
