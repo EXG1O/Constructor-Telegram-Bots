@@ -7,7 +7,6 @@ celery = "^5.3.6"
 django = "^5.0.4"
 django-filter = "^24.2"
 django-modeltranslation = "^0.18.11"
-django-tinymce = "^4.0.0"
 djangorestframework = "^3.15.1"
 drf-standardized-errors = "^0.13.0"
 gunicorn = "^21.2.0"
@@ -26,6 +25,9 @@ django-stubs = "^5.0.0"
 djangorestframework-stubs = "^3.15.0"
 mypy = "^1.10.0"
 ruff = "^0.4.4"
+
+[tool.poetry.group.migrations.dependencies]
+html2text = "^2024.2.26"
 
 [tool.mypy]
 strict = true
