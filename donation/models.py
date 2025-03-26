@@ -9,7 +9,7 @@ from constructor_telegram_bots.fields import PublicURLField
 class Donation(models.Model):
     sum = models.FloatField(_('Сумма'))
     sender = models.CharField(_('Отправитель'), max_length=64)
-    date = models.DateTimeField(_('Дата'))
+    date = models.DateField(_('Дата'))
 
     class Meta(TypedModelMeta):
         db_table = 'donation'
