@@ -24,6 +24,7 @@ Your donation will greatly help the development and improvement of the website.
 ```bash
 git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
+git checkout $(git describe --tags --abbrev=0)
 python -m venv env
 source env/bin/activate
 source install.sh
