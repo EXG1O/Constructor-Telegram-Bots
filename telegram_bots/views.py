@@ -133,7 +133,7 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
                 'database_record',
             ).prefetch_related(
                 'images',
-                'files',
+                'documents',
                 'keyboard__buttons__source_connections__source_object',
                 'keyboard__buttons__source_connections__target_object',
                 'target_connections__source_object',

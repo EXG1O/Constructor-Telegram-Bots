@@ -32,8 +32,9 @@ from requests import Response
 import requests
 
 from collections.abc import Collection, Iterable
+from contextlib import suppress
 from itertools import chain
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 import hashlib
 import os
 import re
@@ -93,12 +94,12 @@ class TelegramBot(models.Model):
         """The property is cached, because it make heavy query to database."""
 
         return sum(
-            media.file_field.size  # type: ignore [union-attr, misc]
+            media.file.size
             for media in chain(
                 CommandImage.objects.filter(command__telegram_bot=self).exclude(
-                    image=None
+                    file=None
                 ),
-                CommandFile.objects.filter(command__telegram_bot=self).exclude(
+                CommandDocument.objects.filter(command__telegram_bot=self).exclude(
                     file=None
                 ),
             )
@@ -309,7 +310,6 @@ def upload_command_media_path(instance: AbstractCommandMedia, file_name: str) ->
 
 class CommandImage(AbstractCommandMedia):
     related_name = 'images'
-    file_field_name = 'image'
 
     command = models.ForeignKey(
         'Command',
@@ -317,7 +317,7 @@ class CommandImage(AbstractCommandMedia):
         related_name=related_name,
         verbose_name=_('Команда'),
     )
-    image = models.ImageField(
+    file = models.ImageField(
         _('Изображение'),
         upload_to=upload_command_media_path,
         max_length=500,
@@ -334,9 +334,8 @@ class CommandImage(AbstractCommandMedia):
         return self.command.name
 
 
-class CommandFile(AbstractCommandMedia):
-    related_name = 'files'
-    file_field_name = 'file'
+class CommandDocument(AbstractCommandMedia):
+    related_name = 'documents'
 
     command = models.ForeignKey(
         'Command',
@@ -345,7 +344,7 @@ class CommandFile(AbstractCommandMedia):
         verbose_name=_('Команда'),
     )
     file = models.FileField(
-        _('Файл'),
+        _('Документ'),
         upload_to=upload_command_media_path,
         max_length=500,
         blank=True,
@@ -353,9 +352,9 @@ class CommandFile(AbstractCommandMedia):
     )
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_file'
-        verbose_name = _('Файл команды')
-        verbose_name_plural = _('Файлы команд')
+        db_table = 'telegram_bot_command_document'
+        verbose_name = _('Документ команды')
+        verbose_name_plural = _('Документы команд')
 
     def __str__(self) -> str:
         return self.command.name
@@ -473,7 +472,7 @@ class Command(AbstractBlock):
         settings: CommandSettings
         trigger: CommandTrigger
         images: models.Manager[CommandImage]
-        files: models.Manager[CommandFile]
+        documents: models.Manager[CommandDocument]
         message: CommandMessage
         keyboard: CommandKeyboard
         api_request: CommandAPIRequest
@@ -488,13 +487,13 @@ class Command(AbstractBlock):
         self, using: str | None = None, keep_parents: bool = False
     ) -> tuple[int, dict[str, int]]:
         for file_path in chain(
-            self.images.exclude(image=None).values_list('image', flat=True),
-            self.files.exclude(file=None).values_list('file', flat=True),
+            self.images.exclude(file=None).values_list('file', flat=True),
+            self.documents.exclude(file=None).values_list('file', flat=True),
         ):
-            try:
-                os.remove(settings.MEDIA_ROOT / file_path)  # type: ignore [operator]
-            except FileNotFoundError:
-                pass
+            file_path = cast(str, file_path)
+
+            with suppress(FileNotFoundError):
+                os.remove(settings.MEDIA_ROOT / file_path)
 
         return super().delete(using, keep_parents)
 

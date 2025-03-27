@@ -10,7 +10,7 @@ from ..models import (
     Command,
     CommandAPIRequest,
     CommandDatabaseRecord,
-    CommandFile,
+    CommandDocument,
     CommandImage,
     CommandKeyboard,
     CommandKeyboardButton,
@@ -95,17 +95,13 @@ class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
-    file_field_name = 'image'
-
     class Meta:
         model = CommandImage
 
 
-class CommandFileSerializer(CommandMediaSerializer[CommandFile]):
-    file_field_name = 'file'
-
+class CommandDocumentSerializer(CommandMediaSerializer[CommandDocument]):
     class Meta:
-        model = CommandFile
+        model = CommandDocument
 
 
 class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
@@ -149,7 +145,7 @@ class CommandDatabaseRecordSerializer(
 class CommandSerializer(serializers.ModelSerializer[Command]):
     settings = CommandSettingsSerializer()
     images = CommandImageSerializer(many=True)
-    files = CommandFileSerializer(many=True)
+    documents = CommandDocumentSerializer(many=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer()
     api_request = CommandAPIRequestSerializer()
@@ -163,7 +159,7 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
             'name',
             'settings',
             'images',
-            'files',
+            'documents',
             'message',
             'keyboard',
             'api_request',

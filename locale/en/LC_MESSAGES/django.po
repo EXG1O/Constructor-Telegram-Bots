@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-17 12:41+0000\n"
+"POT-Creation-Date: 2025-03-27 16:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,23 +23,23 @@ msgstr ""
 msgid "Не удалось проанализировать JSON данные для ключа '%(key)s'."
 msgstr "Failed to parse JSON data for the key '%(key)s'."
 
-#: constructor_telegram_bots/settings.py:189
+#: constructor_telegram_bots/settings.py:165
 msgid "Английский"
 msgstr "English"
 
-#: constructor_telegram_bots/settings.py:190
+#: constructor_telegram_bots/settings.py:166
 msgid "Украинский"
 msgstr "Ukrainian"
 
-#: constructor_telegram_bots/settings.py:191
+#: constructor_telegram_bots/settings.py:167
 msgid "Русский"
 msgstr "Russian"
 
-#: donation/admin.py:20 donation/models.py:10
+#: donation/admin.py:18 donation/models.py:10
 msgid "Сумма"
 msgstr "Sum"
 
-#: donation/admin.py:40 donation/models.py:40
+#: donation/admin.py:37 donation/models.py:40
 msgid "Ссылка"
 msgstr "Link"
 
@@ -64,14 +64,14 @@ msgid "Заголовок"
 msgstr "Title"
 
 #: donation/models.py:26 donation/models.py:39 instruction/models.py:9
-#: privacy_policy/models.py:9 telegram_bots/models.py:289
-#: telegram_bots/models.py:371 telegram_bots/models.py:391
+#: privacy_policy/models.py:9 telegram_bots/models.py:290
+#: telegram_bots/models.py:370 telegram_bots/models.py:390
 msgid "Текст"
 msgstr "Text"
 
 #: donation/models.py:27 donation/models.py:42 instruction/models.py:10
-#: privacy_policy/models.py:10 telegram_bots/base_models.py:47
-#: telegram_bots/models.py:390
+#: privacy_policy/models.py:10 telegram_bots/base_models.py:46
+#: telegram_bots/models.py:389
 msgid "Позиция"
 msgstr "Position"
 
@@ -83,7 +83,7 @@ msgstr "Section"
 msgid "Разделы"
 msgstr "Sections"
 
-#: donation/models.py:41 telegram_bots/models.py:604
+#: donation/models.py:41 telegram_bots/models.py:603
 msgid "Значение"
 msgstr "Value"
 
@@ -103,7 +103,7 @@ msgstr "Instruction"
 msgid "Политика конфиденциальности"
 msgstr "Privacy Policy"
 
-#: telegram_bots/admin.py:69 telegram_bots/models.py:69
+#: telegram_bots/admin.py:69 telegram_bots/models.py:70
 msgid "Размер хранилища"
 msgstr "Storage size"
 
@@ -127,40 +127,40 @@ msgstr "Blocks"
 msgid "Включен"
 msgstr "Enabled"
 
-#: telegram_bots/apps.py:8 telegram_bots/models.py:89
+#: telegram_bots/apps.py:8 telegram_bots/models.py:90
 msgid "Telegram боты"
 msgstr "Telegram bots"
 
-#: telegram_bots/base_models.py:25 telegram_bots/models.py:603
+#: telegram_bots/base_models.py:23 telegram_bots/models.py:602
 msgid "Название"
 msgstr "Name"
 
-#: telegram_bots/base_models.py:26
+#: telegram_bots/base_models.py:24
 msgid "Координата X"
 msgstr "X coordinate"
 
-#: telegram_bots/base_models.py:27
+#: telegram_bots/base_models.py:25
 msgid "Координата Y"
 msgstr "Y coordinate"
 
-#: telegram_bots/base_models.py:48
+#: telegram_bots/base_models.py:45
 msgid "Из URL-адреса"
 msgstr "From URL"
 
-#: telegram_bots/base_models.py:86 telegram_bots/hub/models.py:42
-#: telegram_bots/models.py:392
+#: telegram_bots/base_models.py:75 telegram_bots/hub/models.py:42
+#: telegram_bots/models.py:391
 msgid "URL-адрес"
 msgstr "URL"
 
-#: telegram_bots/base_models.py:88
+#: telegram_bots/base_models.py:77
 msgid "Метод"
 msgstr "Method"
 
-#: telegram_bots/base_models.py:90
+#: telegram_bots/base_models.py:79
 msgid "Заголовки"
 msgstr "Headers"
 
-#: telegram_bots/base_models.py:91 telegram_bots/base_models.py:101
+#: telegram_bots/base_models.py:80 telegram_bots/base_models.py:90
 msgid "Данные"
 msgstr "Data"
 
@@ -172,11 +172,11 @@ msgstr "Left"
 msgid "Справа"
 msgstr "Right"
 
-#: telegram_bots/enums.py:19 telegram_bots/models.py:261
-#: telegram_bots/models.py:287 telegram_bots/models.py:318
-#: telegram_bots/models.py:345 telegram_bots/models.py:369
-#: telegram_bots/models.py:411 telegram_bots/models.py:434
-#: telegram_bots/models.py:451 telegram_bots/models.py:484
+#: telegram_bots/enums.py:19 telegram_bots/models.py:262
+#: telegram_bots/models.py:288 telegram_bots/models.py:318
+#: telegram_bots/models.py:344 telegram_bots/models.py:368
+#: telegram_bots/models.py:410 telegram_bots/models.py:433
+#: telegram_bots/models.py:450 telegram_bots/models.py:483
 msgid "Команда"
 msgstr "Command"
 
@@ -184,13 +184,13 @@ msgstr "Command"
 msgid "Кнопка клавиатуры"
 msgstr "Keyboard button"
 
-#: telegram_bots/enums.py:21 telegram_bots/models.py:510
-#: telegram_bots/models.py:548
+#: telegram_bots/enums.py:21 telegram_bots/models.py:509
+#: telegram_bots/models.py:547
 msgid "Условие"
 msgstr "Condition"
 
-#: telegram_bots/enums.py:22 telegram_bots/models.py:560
-#: telegram_bots/models.py:589
+#: telegram_bots/enums.py:22 telegram_bots/models.py:559
+#: telegram_bots/models.py:588
 msgid "Фоновая задача"
 msgstr "Background task"
 
@@ -290,94 +290,94 @@ msgstr "Hub"
 msgid "Центра"
 msgstr "Hubs"
 
-#: telegram_bots/models.py:48
+#: telegram_bots/models.py:49
 msgid "Этот API-токен является недействительным."
 msgstr "This API token is invalid."
 
-#: telegram_bots/models.py:56
+#: telegram_bots/models.py:57
 msgid "Владелец"
 msgstr "Owner"
 
-#: telegram_bots/models.py:60
+#: telegram_bots/models.py:61
 msgid "API-токен"
 msgstr "API-token"
 
-#: telegram_bots/models.py:65
+#: telegram_bots/models.py:66
 msgid "Telegram бот с таким API-токеном уже существует."
 msgstr "Telegram bot with this API token already exists."
 
-#: telegram_bots/models.py:71
+#: telegram_bots/models.py:72
 msgid "Приватный"
 msgstr "Private"
 
-#: telegram_bots/models.py:72
+#: telegram_bots/models.py:73
 msgid "Должен быть включен"
 msgstr "Must be enabled"
 
-#: telegram_bots/models.py:73
+#: telegram_bots/models.py:74
 msgid "Загружается"
 msgstr "Loading"
 
-#: telegram_bots/models.py:74
+#: telegram_bots/models.py:75
 msgid "Добавлен"
 msgstr "Added"
 
-#: telegram_bots/models.py:88
+#: telegram_bots/models.py:89
 msgid "Telegram бота"
 msgstr "Telegram bot"
 
-#: telegram_bots/models.py:215 telegram_bots/models.py:468
-#: telegram_bots/models.py:540 telegram_bots/models.py:577
-#: telegram_bots/models.py:601 telegram_bots/models.py:621
-#: telegram_bots/models.py:646
+#: telegram_bots/models.py:216 telegram_bots/models.py:467
+#: telegram_bots/models.py:539 telegram_bots/models.py:576
+#: telegram_bots/models.py:600 telegram_bots/models.py:620
+#: telegram_bots/models.py:645
 msgid "Telegram бот"
 msgstr "Telegram bot"
 
-#: telegram_bots/models.py:224
+#: telegram_bots/models.py:225
 msgid "Стартовая позиция коннектора"
 msgstr "Connector start position"
 
-#: telegram_bots/models.py:235
+#: telegram_bots/models.py:236
 msgid "Окончательная позиция коннектора"
 msgstr "Connector final position"
 
-#: telegram_bots/models.py:252
+#: telegram_bots/models.py:253
 msgid "Подключение"
 msgstr "Connection"
 
-#: telegram_bots/models.py:253
+#: telegram_bots/models.py:254
 msgid "Подключения"
 msgstr "Connections"
 
-#: telegram_bots/models.py:264
+#: telegram_bots/models.py:265
 msgid "Ответить на сообщение пользователя"
 msgstr "Reply to user message"
 
-#: telegram_bots/models.py:267
+#: telegram_bots/models.py:268
 msgid "Удалить сообщение пользователя"
 msgstr "Delete user message"
 
-#: telegram_bots/models.py:270
+#: telegram_bots/models.py:271
 msgid "Отправить сообщение как новое"
 msgstr "Send message as new"
 
-#: telegram_bots/models.py:275
+#: telegram_bots/models.py:276
 msgid "Настройки команды"
 msgstr "Command settings"
 
-#: telegram_bots/models.py:276
+#: telegram_bots/models.py:277
 msgid "Настройки команд"
 msgstr "Commands settings"
 
-#: telegram_bots/models.py:290 telegram_bots/models.py:605 updates/models.py:9
+#: telegram_bots/models.py:291 telegram_bots/models.py:604 updates/models.py:9
 msgid "Описание"
 msgstr "Description"
 
-#: telegram_bots/models.py:294
+#: telegram_bots/models.py:295
 msgid "Триггер команды"
 msgstr "Command trigger"
 
-#: telegram_bots/models.py:295
+#: telegram_bots/models.py:296
 msgid "Триггеры команд"
 msgstr "Command triggers"
 
@@ -393,163 +393,163 @@ msgstr "Command image"
 msgid "Изображения команд"
 msgstr "Command images"
 
-#: telegram_bots/models.py:348
-msgid "Файл"
-msgstr "File"
+#: telegram_bots/models.py:347
+msgid "Документ"
+msgstr "Document"
+
+#: telegram_bots/models.py:356
+msgid "Документ команды"
+msgstr "Command document"
 
 #: telegram_bots/models.py:357
-msgid "Файл команды"
-msgstr "Command file"
+msgid "Документы команд"
+msgstr "Command documents"
 
-#: telegram_bots/models.py:358
-msgid "Файлы команд"
-msgstr "Command files"
-
-#: telegram_bots/models.py:375
+#: telegram_bots/models.py:374
 msgid "Сообщение команды"
 msgstr "Command message"
 
-#: telegram_bots/models.py:376
+#: telegram_bots/models.py:375
 msgid "Сообщения команд"
 msgstr "Command messages"
 
-#: telegram_bots/models.py:387
+#: telegram_bots/models.py:386
 msgid "Клавиатура"
 msgstr "Keyboard"
 
-#: telegram_bots/models.py:389
+#: telegram_bots/models.py:388
 msgid "Ряд"
 msgstr "Row"
 
-#: telegram_bots/models.py:399
+#: telegram_bots/models.py:398
 msgid "Кнопка клавиатуры команды"
 msgstr "Command keyboard button"
 
-#: telegram_bots/models.py:400
+#: telegram_bots/models.py:399
 msgid "Кнопки клавиатур команд"
 msgstr "Command keyboard buttons"
 
-#: telegram_bots/models.py:414
+#: telegram_bots/models.py:413
 msgid "Режим"
 msgstr "Type"
 
-#: telegram_bots/models.py:422
+#: telegram_bots/models.py:421
 msgid "Клавиатура команды"
 msgstr "Command keyboard"
 
-#: telegram_bots/models.py:423
+#: telegram_bots/models.py:422
 msgid "Клавиатуры команд"
 msgstr "Command keyboards"
 
-#: telegram_bots/models.py:439
+#: telegram_bots/models.py:438
 msgid "API-запрос команды"
 msgstr "Command API-request"
 
-#: telegram_bots/models.py:440
+#: telegram_bots/models.py:439
 msgid "API-запросы команд"
 msgstr "Command API-requests"
 
-#: telegram_bots/models.py:456
+#: telegram_bots/models.py:455
 msgid "Запись в БД команды"
 msgstr "Record to the command DB"
 
-#: telegram_bots/models.py:457
+#: telegram_bots/models.py:456
 msgid "Записи в БД команд"
 msgstr "Record to the commands DB"
 
-#: telegram_bots/models.py:485
+#: telegram_bots/models.py:484
 msgid "Команды"
 msgstr "Commands"
 
-#: telegram_bots/models.py:512 users/models.py:60
+#: telegram_bots/models.py:511 users/models.py:60
 msgid "Тип"
 msgstr "Type"
 
-#: telegram_bots/models.py:513
+#: telegram_bots/models.py:512
 msgid "Первое значение"
 msgstr "First value"
 
-#: telegram_bots/models.py:515
+#: telegram_bots/models.py:514
 msgid "Оператор"
 msgstr "Operator"
 
-#: telegram_bots/models.py:517
+#: telegram_bots/models.py:516
 msgid "Второе значение"
 msgstr "Second value"
 
-#: telegram_bots/models.py:519
+#: telegram_bots/models.py:518
 msgid "Оператор для следующей части"
 msgstr "Operator for the next part"
 
-#: telegram_bots/models.py:528
+#: telegram_bots/models.py:527
 msgid "Часть условия"
 msgstr "Condition part"
 
-#: telegram_bots/models.py:529
+#: telegram_bots/models.py:528
 msgid "Части условий"
 msgstr "Condition parts"
 
-#: telegram_bots/models.py:549
+#: telegram_bots/models.py:548
 msgid "Условия"
 msgstr "Conditions"
 
-#: telegram_bots/models.py:565
+#: telegram_bots/models.py:564
 msgid "API-запрос фоновой задачи"
 msgstr "Background task API-request"
 
-#: telegram_bots/models.py:566
+#: telegram_bots/models.py:565
 msgid "API-запросы фоновых задач"
 msgstr "Background task API-requests"
 
-#: telegram_bots/models.py:580
+#: telegram_bots/models.py:579
 msgid "Интервал"
 msgstr "Interval"
 
-#: telegram_bots/models.py:590
+#: telegram_bots/models.py:589
 msgid "Фоновые задачи"
 msgstr "Background tasks"
 
-#: telegram_bots/models.py:609
+#: telegram_bots/models.py:608
 msgid "Переменная"
 msgstr "Variable"
 
-#: telegram_bots/models.py:610
+#: telegram_bots/models.py:609
 msgid "Переменные"
 msgstr "Variables"
 
-#: telegram_bots/models.py:624
+#: telegram_bots/models.py:623
 msgid "Имя и фамилия"
 msgstr "Full name"
 
-#: telegram_bots/models.py:625
+#: telegram_bots/models.py:624
 msgid "Разрешён"
 msgstr "Allowed"
 
-#: telegram_bots/models.py:626
+#: telegram_bots/models.py:625
 msgid "Заблокирован"
 msgstr "Blocked"
 
-#: telegram_bots/models.py:628
+#: telegram_bots/models.py:627
 msgid "Дата последней активности"
 msgstr "Last activity date"
 
-#: telegram_bots/models.py:630
+#: telegram_bots/models.py:629
 msgid "Дата активации"
 msgstr "Activation date"
 
-#: telegram_bots/models.py:634 users/models.py:39
+#: telegram_bots/models.py:633 users/models.py:39
 msgid "Пользователя"
 msgstr "User"
 
-#: telegram_bots/models.py:635 users/apps.py:8 users/models.py:40
+#: telegram_bots/models.py:634 users/apps.py:8 users/models.py:40
 msgid "Пользователи"
 msgstr "Users"
 
-#: telegram_bots/models.py:651
+#: telegram_bots/models.py:650
 msgid "Запись в БД"
 msgstr "Record to the DB"
 
-#: telegram_bots/models.py:652
+#: telegram_bots/models.py:651
 msgid "Записи в БД"
 msgstr "Records to the DB"
 
@@ -573,16 +573,15 @@ msgstr "Background task not found."
 msgid "Нельзя подключить команду к другой команде."
 msgstr "Cannot connect command to another command."
 
-#: telegram_bots/serializers.py:306
-#, python-format
-msgid "Необходимо указать только одно из полей '%(key)s' или 'from_url'."
-msgstr "You must specify only one of the fields '%(key)s' or 'from_url'."
+#: telegram_bots/serializers.py:299
+msgid "Необходимо указать только одно из полей 'file' или 'from_url'."
+msgstr "You must specify only one of the fields 'file' or 'from_url'."
 
-#: telegram_bots/serializers.py:342
+#: telegram_bots/serializers.py:328
 msgid "Превышен лимит хранилища."
 msgstr "Storage limit exceeded."
 
-#: telegram_bots/serializers.py:705
+#: telegram_bots/serializers.py:683
 msgid "Условие должно содержать хотя бы одну часть."
 msgstr "Condition must contain at least one part."
 
