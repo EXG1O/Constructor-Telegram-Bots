@@ -1,9 +1,7 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import FieldError
-from django.core.files.base import File
 from django.db import models
 from django.db.models.base import ModelBase
-from django.db.models.fields.files import FieldFile
 from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
@@ -13,7 +11,7 @@ from constructor_telegram_bots.fields import PublicURLField
 from .enums import APIRequestMethod
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, AnyStr
+from typing import TYPE_CHECKING
 import random
 
 
@@ -42,21 +40,13 @@ class AbstractBlock(models.Model):
 class AbstractCommandMedia(models.Model):
     if TYPE_CHECKING:
         related_name: str
-        file_field_name: str
+        file: models.FileField
 
-    position = models.PositiveSmallIntegerField(_('Позиция'))
     from_url = PublicURLField(_('Из URL-адреса'), blank=True, null=True)
+    position = models.PositiveSmallIntegerField(_('Позиция'))
 
     class Meta(TypedModelMeta):
         abstract = True
-
-    @property
-    def file_field(self) -> File[AnyStr] | FieldFile | None:
-        return getattr(self, self.file_field_name)
-
-    @file_field.setter
-    def file_field(self, file: File[AnyStr] | None) -> None:
-        setattr(self, self.file_field_name, file)
 
     def save(
         self,
@@ -65,10 +55,9 @@ class AbstractCommandMedia(models.Model):
         using: str | None = None,
         update_fields: Iterable[str] | None = None,
     ) -> None:
-        if bool(self.file_field) is bool(self.from_url):
+        if bool(self.file) is bool(self.from_url):
             raise FieldError(
-                f"Only one of the fields '{self.file_field_name}' or 'from_url' "
-                'should be specified.'
+                "Only one of the fields 'file' or 'from_url' should be specified."
             )
 
         super().save(force_insert, force_update, using, update_fields)
@@ -76,8 +65,8 @@ class AbstractCommandMedia(models.Model):
     def delete(
         self, using: str | None = None, keep_parents: bool = False
     ) -> tuple[int, dict[str, int]]:
-        if self.file_field:
-            self.file_field.delete(save=False)
+        if self.file:
+            self.file.delete(save=False)
 
         return super().delete(using, keep_parents)
 

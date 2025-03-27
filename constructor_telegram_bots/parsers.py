@@ -55,7 +55,7 @@ class MultiPartJSONParser(MultiPartParser):
             items: list[dict[str, Any]] = data.setdefault(name_plural, [])
 
             if isinstance(value, UploadedFile):
-                items.append({name: value, **extra_data})
+                items.append({'file': value, **extra_data})
             elif isinstance(value, str):
                 if value.isdigit():
                     items.append({'id': int(value), **extra_data})

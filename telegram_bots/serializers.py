@@ -18,7 +18,7 @@ from .models import (
     Command,
     CommandAPIRequest,
     CommandDatabaseRecord,
-    CommandFile,
+    CommandDocument,
     CommandImage,
     CommandKeyboard,
     CommandKeyboardButton,
@@ -221,17 +221,13 @@ class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
-    file_field_name = 'image'
-
-    class Meta:
+    class Meta(CommandMediaSerializer.Meta):
         model = CommandImage
 
 
-class CommandFileSerializer(CommandMediaSerializer[CommandFile]):
-    file_field_name = 'file'
-
-    class Meta:
-        model = CommandFile
+class CommandDocumentSerializer(CommandMediaSerializer[CommandDocument]):
+    class Meta(CommandMediaSerializer.Meta):
+        model = CommandDocument
 
 
 class CommandMessageSerializer(serializers.ModelSerializer[CommandMessage]):
@@ -275,7 +271,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
     settings = CommandSettingsSerializer()
     trigger = CommandTriggerSerializer(required=False, allow_null=True)
     images = CommandImageSerializer(many=True, required=False, allow_null=True)
-    files = CommandFileSerializer(many=True, required=False, allow_null=True)
+    documents = CommandDocumentSerializer(many=True, required=False, allow_null=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer(required=False, allow_null=True)
     api_request = CommandAPIRequestSerializer(required=False, allow_null=True)
@@ -289,50 +285,40 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             'settings',
             'trigger',
             'images',
-            'files',
+            'documents',
             'message',
             'keyboard',
             'api_request',
             'database_record',
         ]
 
-    def _validate_media(
-        self, media: list[dict[str, Any]], file_key: str
-    ) -> list[dict[str, Any]]:
+    def _validate_media(self, media: list[dict[str, Any]]) -> list[dict[str, Any]]:
         for data in media:
-            if 'id' not in data and (file_key in data) is ('from_url' in data):
+            if 'id' not in data and ('file' in data) is ('from_url' in data):
                 raise serializers.ValidationError(
-                    _(
-                        'Необходимо указать только одно из полей '
-                        "'%(key)s' или 'from_url'."
-                    )
-                    % {'key': file_key},
+                    _("Необходимо указать только одно из полей 'file' или 'from_url'."),
                     code='media',
                 )
 
         return media
 
     def validate_images(self, images: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return self._validate_media(images, 'image')
+        return self._validate_media(images)
 
-    def validate_files(self, files: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return self._validate_media(files, 'file')
+    def validate_documents(
+        self, documents: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        return self._validate_media(documents)
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        images_data: list[dict[str, Any]] = data.get('images', [])
-        files_data: list[dict[str, Any]] = data.get('files', [])
+        images: list[dict[str, Any]] = data.get('images', [])
+        documents: list[dict[str, Any]] = data.get('documents', [])
 
-        if images_data or files_data:
+        if images or documents:
             extra_size: int = 0
 
-            for image_data in images_data:
-                image: Any | None = image_data.get('image')
-
-                if isinstance(image, UploadedFile):
-                    extra_size += image.size or 0
-
-            for file_data in files_data:
-                file: Any | None = file_data.get('file')
+            for media in images + documents:
+                file: Any | None = media.get('file')
 
                 if isinstance(file, UploadedFile):
                     extra_size += file.size or 0
@@ -365,14 +351,15 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             CommandImage(command=command, **image_data) for image_data in images_data
         )
 
-    def create_files(
-        self, command: Command, files_data: list[dict[str, Any]] | None
+    def create_documents(
+        self, command: Command, documents_data: list[dict[str, Any]] | None
     ) -> None:
-        if not files_data:
+        if not documents_data:
             return
 
-        CommandFile.objects.bulk_create(
-            CommandFile(command=command, **file_data) for file_data in files_data
+        CommandDocument.objects.bulk_create(
+            CommandDocument(command=command, **document_data)
+            for document_data in documents_data
         )
 
     def create_message(self, command: Command, message_data: dict[str, Any]) -> None:
@@ -415,7 +402,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         settings: dict[str, Any] = validated_data.pop('settings')
         trigger: dict[str, Any] | None = validated_data.pop('trigger', None)
         images: list[dict[str, Any]] | None = validated_data.pop('images', None)
-        files: list[dict[str, Any]] | None = validated_data.pop('files', None)
+        documents: list[dict[str, Any]] | None = validated_data.pop('documents', None)
         message: dict[str, Any] = validated_data.pop('message')
         keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
         api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
@@ -428,7 +415,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.create_settings(command, settings)
         self.create_trigger(command, trigger)
         self.create_images(command, images)
-        self.create_files(command, files)
+        self.create_documents(command, documents)
         self.create_message(command, message)
         self.create_keyboard(command, keyboard)
         self.create_api_request(command, api_request)
@@ -475,58 +462,51 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             with suppress(CommandTrigger.DoesNotExist):
                 command.trigger.delete()
 
-    def _delete_media_files(
-        self,
-        queryset: QuerySet[AbstractCommandMedia],
-        media_class: type[AbstractCommandMedia],
-    ) -> None:
-        file_field_name: str = media_class.file_field_name
-
-        for file_path in queryset.exclude(**{file_field_name: None}).values_list(
-            file_field_name, flat=True
-        ):
+    def _delete_media_files(self, queryset: QuerySet[AbstractCommandMedia]) -> None:
+        for file_path in queryset.exclude(file=None).values_list('file', flat=True):  # type: ignore [misc]
             with suppress(OSError):
                 os.remove(settings.MEDIA_ROOT / file_path)
 
     def update_media(
         self,
         command: Command,
-        media_class: type[AbstractCommandMedia],
+        media_model_class: type[AbstractCommandMedia],
         media_data: list[dict[str, Any]] | None,
     ) -> None:
-        file_field_name: str = media_class.file_field_name
         queryset: QuerySet[AbstractCommandMedia] = getattr(
-            command, media_class.related_name
+            command, media_model_class.related_name
         )
 
         if media_data:
             create_media: list[AbstractCommandMedia] = []
             update_media: list[AbstractCommandMedia] = []
 
-            for data in media_data:
-                file: UploadedFile | None = data.get(file_field_name)
-                from_url: str | None = data.get('from_url')
+            for item in media_data:
+                file: UploadedFile | None = item.get('file')
+                from_url: str | None = item.get('from_url')
 
                 try:
-                    media: AbstractCommandMedia = queryset.get(id=data['id'])
-                    media.position = data.get('position', media.position)
+                    media: AbstractCommandMedia = queryset.get(id=item['id'])
+                    media.position = item.get('position', media.position)
 
                     if file or from_url:
-                        if media.file_field:
-                            media.file_field.delete()
+                        if media.file:
+                            media.file.delete()
 
-                        media.file_field = file
+                        media.file = file
                         media.from_url = from_url
 
                     update_media.append(media)
-                except (KeyError, media_class.DoesNotExist):
-                    create_media.append(media_class(command=command, **data))  # type: ignore [misc]
+                except (KeyError, media_model_class.DoesNotExist):
+                    create_media.append(media_model_class(command=command, **item))  # type: ignore [misc]
 
-            new_media: list[AbstractCommandMedia] = media_class.objects.bulk_create(  # type: ignore [attr-defined]
-                create_media
+            new_media: list[AbstractCommandMedia] = (
+                media_model_class.objects.bulk_create(  # type: ignore [attr-defined]
+                    create_media
+                )
             )
-            media_class.objects.bulk_update(  # type: ignore [attr-defined]
-                update_media, fields=['position', file_field_name, 'from_url']
+            media_model_class.objects.bulk_update(  # type: ignore [attr-defined]
+                update_media, fields=['file', 'from_url', 'position']
             )
 
             if not self.partial:
@@ -534,12 +514,10 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
                     id__in=[media.id for media in new_media + update_media]  # type: ignore [attr-defined]
                 )
 
-                self._delete_media_files(new_queryset, media_class)
-
+                self._delete_media_files(new_queryset)
                 new_queryset.delete()
         elif not self.partial:
-            self._delete_media_files(queryset, media_class)
-
+            self._delete_media_files(queryset)
             queryset.all().delete()
 
     def update_images(
@@ -547,10 +525,10 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
     ) -> None:
         self.update_media(command, CommandImage, images_data)
 
-    def update_files(
-        self, command: Command, files_data: list[dict[str, Any]] | None
+    def update_documents(
+        self, command: Command, documents_data: list[dict[str, Any]] | None
     ) -> None:
-        self.update_media(command, CommandFile, files_data)
+        self.update_media(command, CommandDocument, documents_data)
 
     def update_message(
         self, command: Command, message_data: dict[str, Any] | None
@@ -664,7 +642,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.update_settings(command, validated_data.get('settings'))
         self.update_trigger(command, validated_data.get('trigger'))
         self.update_images(command, validated_data.get('images'))
-        self.update_files(command, validated_data.get('files'))
+        self.update_documents(command, validated_data.get('documents'))
         self.update_message(command, validated_data.get('message'))
         self.update_keyboard(command, validated_data.get('keyboard'))
         self.update_api_request(command, validated_data.get('api_request'))
