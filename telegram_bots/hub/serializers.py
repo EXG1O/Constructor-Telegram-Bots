@@ -56,15 +56,18 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
             'target_object_id',
         ]
 
+    _object_type_map: dict[ConnectionObjectType, type[Model]] = {
+        ConnectionObjectType.TRIGGER: Trigger,
+        ConnectionObjectType.COMMAND: Command,
+        ConnectionObjectType.COMMAND_KEYBOARD_BUTTON: CommandKeyboardButton,
+        ConnectionObjectType.CONDITION: Condition,
+        ConnectionObjectType.BACKGROUND_TASK: BackgroundTask,
+    }
+
     def get_object_type(self, object: Model) -> str:
-        if isinstance(object, Command):
-            return ConnectionObjectType.COMMAND
-        elif isinstance(object, CommandKeyboardButton):
-            return ConnectionObjectType.COMMAND_KEYBOARD_BUTTON
-        elif isinstance(object, Condition):
-            return ConnectionObjectType.CONDITION
-        elif isinstance(object, BackgroundTask):
-            return ConnectionObjectType.BACKGROUND_TASK
+        for object_type, model_class in self._object_type_map.items():
+            if isinstance(object, model_class):
+                return object_type
 
         raise ValueError('Unknown object.')
 
