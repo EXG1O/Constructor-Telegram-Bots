@@ -161,7 +161,7 @@ class ConnectionSerializer(
 
     def get_object_type(self, object: Model) -> str:
         for object_type, config in self._object_type_map.items():
-            if isinstance(object, config['model']):  # type: ignore [arg-type]
+            if isinstance(object, config['model']):
                 return object_type
 
         raise ValueError('Unknown object.')
