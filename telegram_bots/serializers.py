@@ -120,7 +120,11 @@ class ConnectionSerializer(
             'target_handle_position',
         ]
 
-    _object_type_map = {
+    _object_type_map: dict[ConnectionObjectType, Any] = {
+        ConnectionObjectType.TRIGGER: {
+            'model': Trigger,
+            'queryset': lambda self: self.telegram_bot.triggers,
+        },
         ConnectionObjectType.COMMAND: {
             'model': Command,
             'queryset': lambda self: self.telegram_bot.commands,
