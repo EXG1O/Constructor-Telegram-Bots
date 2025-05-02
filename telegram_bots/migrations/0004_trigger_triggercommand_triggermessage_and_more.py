@@ -67,7 +67,7 @@ def migrate_command_triggers(
         ContentTypeModel.objects.get_for_model(CommandModel)
     )
 
-    for command_trigger in CommandTriggerModel.objects.iterator():
+    for command_trigger in CommandTriggerModel.objects.iterator():  # type: ignore [attr-defined]
         command: Command = command_trigger.command
         telegram_bot: TelegramBot = command.telegram_bot
 
