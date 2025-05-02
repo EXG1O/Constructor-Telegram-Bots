@@ -32,6 +32,7 @@ from .models import (
     Connection,
     DatabaseRecord,
     TelegramBot,
+    Trigger,
     User,
     Variable,
 )
@@ -44,7 +45,9 @@ from .serializers import (
     DiagramBackgroundTaskSerializer,
     DiagramCommandSerializer,
     DiagramConditionSerializer,
+    DiagramTriggerSerializer,
     TelegramBotSerializer,
+    TriggerSerializer,
     UserSerializer,
     VariableSerializer,
 )
@@ -114,6 +117,20 @@ class ConnectionViewSet(
         return self.telegram_bot.connections.all()
 
 
+class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = TriggerSerializer
+
+    def get_queryset(self) -> QuerySet[Trigger]:
+        triggers: QuerySet[Trigger] = self.telegram_bot.triggers.all()
+
+        if self.action in ['list', 'retrieve']:
+            return triggers.select_related('command', 'message')
+
+        return triggers
+
+
 class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
     authentication_classes = [JWTCookieAuthentication]
     permission_classes = [IsAuthenticated]
@@ -126,7 +143,6 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
         if self.action in ['list', 'retrieve']:
             return commands.select_related(
                 'settings',
-                'trigger',
                 'message',
                 'keyboard',
                 'api_request',
@@ -182,6 +198,23 @@ class BackgroundTaskViewSet(
             )
 
         return background_tasks
+
+
+class DiagramTriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = DiagramTriggerSerializer
+
+    def get_queryset(self) -> QuerySet[Trigger]:
+        triggers: QuerySet[Trigger] = self.telegram_bot.triggers.all()
+
+        if self.action in ['list', 'retrieve']:
+            return triggers.prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+            )
+
+        return triggers
 
 
 class DiagramCommandViewSet(

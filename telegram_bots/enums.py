@@ -16,6 +16,7 @@ class ConnectionHandlePosition(TextChoices):
 
 
 class ConnectionObjectType(TextChoices):
+    TRIGGER = 'trigger', _('Триггер')
     COMMAND = 'command', _('Команда')
     COMMAND_KEYBOARD_BUTTON = 'command_keyboard_button', _('Кнопка клавиатуры')
     CONDITION = 'condition', _('Условие')
@@ -23,17 +24,23 @@ class ConnectionObjectType(TextChoices):
 
     @staticmethod
     def source_choices() -> list[tuple[str, str]]:
-        return [(value, value.label) for value in ConnectionObjectType]
+        return [
+            (value, value.label)
+            for value in [
+                ConnectionObjectType.TRIGGER,
+                ConnectionObjectType.COMMAND_KEYBOARD_BUTTON,
+                ConnectionObjectType.CONDITION,
+                ConnectionObjectType.BACKGROUND_TASK,
+            ]
+        ]
 
     @staticmethod
     def target_choices() -> list[tuple[str, str]]:
         return [
             (value, value.label)
-            for value in ConnectionObjectType
-            if value
-            not in [
-                ConnectionObjectType.COMMAND_KEYBOARD_BUTTON,
-                ConnectionObjectType.BACKGROUND_TASK,
+            for value in [
+                ConnectionObjectType.COMMAND,
+                ConnectionObjectType.CONDITION,
             ]
         ]
 

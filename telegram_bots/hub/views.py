@@ -12,10 +12,10 @@ from ..models import (
     BackgroundTask,
     Command,
     CommandKeyboardButton,
-    CommandTrigger,
     Condition,
     DatabaseRecord,
     TelegramBot,
+    Trigger,
     User,
     Variable,
 )
@@ -25,10 +25,10 @@ from .serializers import (
     BackgroundTaskSerializer,
     CommandKeyboardButtonSerializer,
     CommandSerializer,
-    CommandTriggerSerializer,
     ConditionSerializer,
     DatabaseRecordSerializer,
     TelegramBotSerializer,
+    TriggerSerializer,
     UserSerializer,
     VariableSerializer,
 )
@@ -41,6 +41,22 @@ class TelegramBotViewSet(IDLookupMixin, ReadOnlyModelViewSet[TelegramBot]):
 
     def get_queryset(self) -> QuerySet[TelegramBot]:
         return TelegramBot.objects.all()
+
+
+class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Trigger]):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = TriggerSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['command__command', 'message__text']
+
+    def get_queryset(self) -> QuerySet[Trigger]:
+        triggers: QuerySet[Trigger] = self.telegram_bot.triggers.all()
+
+        if self.action in ['list', 'retrieve']:
+            return triggers.select_related('command', 'message')
+
+        return triggers
 
 
 class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Command]):
@@ -68,19 +84,6 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Comma
             )
 
         return commands
-
-
-class CommandTriggerViewSet(
-    IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[CommandTrigger]
-):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    serializer_class = CommandTriggerSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['text']
-
-    def get_queryset(self) -> QuerySet[CommandTrigger]:
-        return CommandTrigger.objects.filter(command__telegram_bot=self.telegram_bot)
 
 
 class CommandKeyboardButtonViewSet(

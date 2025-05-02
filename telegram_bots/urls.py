@@ -11,8 +11,10 @@ from .views import (
     DiagramBackgroundTaskViewSet,
     DiagramCommandViewSet,
     DiagramConditionViewSet,
+    DiagramTriggerViewSet,
     StatsAPIView,
     TelegramBotViewSet,
+    TriggerViewSet,
     UserViewSet,
     VariableViewSet,
 )
@@ -31,6 +33,11 @@ router.register(
     basename=f'{base_name}-connection',
 )
 router.register(
+    f'{base_path}/triggers',
+    TriggerViewSet,
+    basename=f'{base_name}-trigger',
+)
+router.register(
     f'{base_path}/commands',
     CommandViewSet,
     basename=f'{base_name}-command',
@@ -44,6 +51,11 @@ router.register(
     f'{base_path}/background-tasks',
     BackgroundTaskViewSet,
     basename=f'{base_name}-background-task',
+)
+router.register(
+    f'{base_diagram_path}/triggers',
+    DiagramTriggerViewSet,
+    basename=f'{base_diagram_name}-trigger',
 )
 router.register(
     f'{base_diagram_path}/commands',
