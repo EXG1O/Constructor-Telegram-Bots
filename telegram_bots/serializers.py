@@ -24,12 +24,14 @@ from .models import (
     CommandKeyboardButton,
     CommandMessage,
     CommandSettings,
-    CommandTrigger,
     Condition,
     ConditionPart,
     Connection,
     DatabaseRecord,
     TelegramBot,
+    Trigger,
+    TriggerCommand,
+    TriggerMessage,
     User,
     Variable,
 )
@@ -118,45 +120,45 @@ class ConnectionSerializer(
             'target_handle_position',
         ]
 
-    def get_object(self, object_type: str, object_id: int) -> Model:
-        if object_type == ConnectionObjectType.COMMAND:
-            try:
-                return self.telegram_bot.commands.get(id=object_id)
-            except Command.DoesNotExist as error:
-                raise serializers.ValidationError(_('Команда не найдена.')) from error
-        elif object_type == ConnectionObjectType.COMMAND_KEYBOARD_BUTTON:
-            try:
-                return CommandKeyboardButton.objects.get(
-                    keyboard__command__telegram_bot=self.telegram_bot, id=object_id
-                )
-            except CommandKeyboardButton.DoesNotExist as error:
-                raise serializers.ValidationError(
-                    _('Кнопка клавиатуры команды не найдена.')
-                ) from error
-        elif object_type == ConnectionObjectType.CONDITION:
-            try:
-                return self.telegram_bot.conditions.get(id=object_id)
-            except Condition.DoesNotExist as error:
-                raise serializers.ValidationError(_('Условие не найдено.')) from error
-        elif object_type == ConnectionObjectType.BACKGROUND_TASK:
-            try:
-                return self.telegram_bot.background_tasks.get(id=object_id)
-            except BackgroundTask.DoesNotExist as error:
-                raise serializers.ValidationError(
-                    _('Фоновая задача не найдена.')
-                ) from error
+    _object_type_map = {
+        ConnectionObjectType.COMMAND: {
+            'model': Command,
+            'queryset': lambda self: self.telegram_bot.commands,
+        },
+        ConnectionObjectType.COMMAND_KEYBOARD_BUTTON: {
+            'model': CommandKeyboardButton,
+            'queryset': lambda self: CommandKeyboardButton.objects.filter(
+                keyboard__command__telegram_bot=self.telegram_bot
+            ),
+        },
+        ConnectionObjectType.CONDITION: {
+            'model': Condition,
+            'queryset': lambda self: self.telegram_bot.conditions,
+        },
+        ConnectionObjectType.BACKGROUND_TASK: {
+            'model': BackgroundTask,
+            'queryset': lambda self: self.telegram_bot.background_tasks,
+        },
+    }
 
-        raise ValueError('Unknown object type.')
+    def get_object(self, object_type: str, object_id: int) -> Model:
+        object_type = ConnectionObjectType(object_type)
+        config: dict[str, Any] | None = self._object_type_map.get(object_type)
+
+        if not config:
+            raise ValueError('Unknown object type.')
+
+        try:
+            return config['queryset'](self).get(id=object_id)
+        except config['model'].DoesNotExist as error:
+            raise serializers.ValidationError(
+                _('%(object)s не найден.') % {'object': object_type.label}
+            ) from error
 
     def get_object_type(self, object: Model) -> str:
-        if isinstance(object, Command):
-            return ConnectionObjectType.COMMAND
-        elif isinstance(object, CommandKeyboardButton):
-            return ConnectionObjectType.COMMAND_KEYBOARD_BUTTON
-        elif isinstance(object, Condition):
-            return ConnectionObjectType.CONDITION
-        elif isinstance(object, BackgroundTask):
-            return ConnectionObjectType.BACKGROUND_TASK
+        for object_type, config in self._object_type_map.items():
+            if isinstance(object, config['model']):  # type: ignore [arg-type]
+                return object_type
 
         raise ValueError('Unknown object.')
 
@@ -164,20 +166,23 @@ class ConnectionSerializer(
         source_object_type: str = data.pop('source_object_type')
         target_object_type: str = data.pop('target_object_type')
 
-        if (
-            source_object_type == ConnectionObjectType.COMMAND
-            and target_object_type == ConnectionObjectType.COMMAND
-        ):
+        allowed_source_object_types: dict[str, str] = dict(
+            ConnectionObjectType.source_choices()
+        )
+        allowed_target_object_types: dict[str, str] = dict(
+            ConnectionObjectType.target_choices()
+        )
+
+        if source_object_type not in allowed_source_object_types:
             raise serializers.ValidationError(
-                _('Нельзя подключить команду к другой команде.')
+                _('%(source_object)s не может быть стартовой позиции коннектора.')
+                % {'source_object': allowed_source_object_types[source_object_type]}
             )
-        elif target_object_type == ConnectionObjectType.COMMAND_KEYBOARD_BUTTON:
+
+        if target_object_type not in allowed_target_object_types:
             raise serializers.ValidationError(
-                'Кнопка клавиатуры не может быть окончательной позиции коннектора.'
-            )
-        elif target_object_type == ConnectionObjectType.BACKGROUND_TASK:
-            raise serializers.ValidationError(
-                'Фоновая задача не может быть окончательной позиции коннектора.'
+                _('%(target_object)s не может быть окончательной позиции коннектора.')
+                % {'target_object': allowed_target_object_types[target_object_type]}
             )
 
         data['source_object'] = self.get_object(
@@ -204,6 +209,80 @@ class ConnectionSerializer(
         return representation
 
 
+class TriggerCommandSerializer(serializers.ModelSerializer[TriggerCommand]):
+    class Meta:
+        model = TriggerCommand
+        fields = ['command', 'payload', 'description']
+
+
+class TriggerMessageSerializer(serializers.ModelSerializer[TriggerMessage]):
+    class Meta:
+        model = TriggerMessage
+        fields = ['text']
+
+
+class TriggerSerializer(serializers.ModelSerializer[Trigger]):
+    command = TriggerCommandSerializer(required=False, allow_null=True)
+    message = TriggerMessageSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = Trigger
+        fields = ['id', 'name', 'command', 'message']
+
+    def create(self, validated_data: dict[str, Any]) -> Trigger:
+        command_data: dict[str, Any] | None = validated_data.pop('command', None)
+        message_data: dict[str, Any] | None = validated_data.pop('message', None)
+
+        trigger: Trigger = Trigger.objects.create(**validated_data)
+
+        if command_data:
+            TriggerCommand.objects.create(**command_data)
+
+        if message_data:
+            TriggerMessage.objects.create(**message_data)
+
+        return trigger
+
+    def update(self, trigger: Trigger, validated_data: dict[str, Any]) -> Trigger:
+        command_data: dict[str, Any] | None = validated_data.get('command')
+        message_data: dict[str, Any] | None = validated_data.get('message')
+
+        trigger.name = validated_data.get('name', trigger.name)
+        trigger.save(update_fields=['name'])
+
+        if command_data:
+            try:
+                trigger.command.command = command_data.get(
+                    'command', trigger.command.command
+                )
+                trigger.command.payload = command_data.get(
+                    'command', trigger.command.payload
+                )
+                trigger.command.description = command_data.get(
+                    'command', trigger.command.description
+                )
+                trigger.command.save(
+                    update_fields=['command', 'payload', 'description']
+                )
+            except TriggerCommand.DoesNotExist:
+                TriggerCommand.objects.create(**command_data)
+        elif not self.partial:
+            with suppress(TriggerCommand.DoesNotExist):
+                trigger.command.delete()
+
+        if message_data:
+            try:
+                trigger.message.text = message_data.get('text', trigger.message.text)
+                trigger.message.save(update_fields=['text'])
+            except TriggerMessage.DoesNotExist:
+                TriggerMessage.objects.create(**message_data)
+        elif not self.partial:
+            with suppress(TriggerMessage.DoesNotExist):
+                trigger.message.delete()
+
+        return trigger
+
+
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
     class Meta:
         model = CommandSettings
@@ -212,12 +291,6 @@ class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
             'is_delete_user_message',
             'is_send_as_new_message',
         ]
-
-
-class CommandTriggerSerializer(serializers.ModelSerializer[CommandTrigger]):
-    class Meta:
-        model = CommandTrigger
-        fields = ['text', 'description']
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
@@ -269,7 +342,6 @@ class CommandDatabaseRecordSerializer(
 
 class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContextMixin):
     settings = CommandSettingsSerializer()
-    trigger = CommandTriggerSerializer(required=False, allow_null=True)
     images = CommandImageSerializer(many=True, required=False, allow_null=True)
     documents = CommandDocumentSerializer(many=True, required=False, allow_null=True)
     message = CommandMessageSerializer()
@@ -283,7 +355,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             'id',
             'name',
             'settings',
-            'trigger',
             'images',
             'documents',
             'message',
@@ -332,14 +403,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 
     def create_settings(self, command: Command, settings_data: dict[str, Any]) -> None:
         CommandSettings.objects.create(command=command, **settings_data)
-
-    def create_trigger(
-        self, command: Command, trigger_data: dict[str, Any] | None
-    ) -> None:
-        if not trigger_data:
-            return
-
-        CommandTrigger.objects.create(command=command, **trigger_data)
 
     def create_images(
         self, command: Command, images_data: list[dict[str, Any]] | None
@@ -400,7 +463,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
 
     def create(self, validated_data: dict[str, Any]) -> Command:
         settings: dict[str, Any] = validated_data.pop('settings')
-        trigger: dict[str, Any] | None = validated_data.pop('trigger', None)
         images: list[dict[str, Any]] | None = validated_data.pop('images', None)
         documents: list[dict[str, Any]] | None = validated_data.pop('documents', None)
         message: dict[str, Any] = validated_data.pop('message')
@@ -413,7 +475,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         command: Command = self.telegram_bot.commands.create(**validated_data)
 
         self.create_settings(command, settings)
-        self.create_trigger(command, trigger)
         self.create_images(command, images)
         self.create_documents(command, documents)
         self.create_message(command, message)
@@ -445,22 +506,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
                 'is_send_as_new_message',
             ]
         )
-
-    def update_trigger(
-        self, command: Command, trigger_data: dict[str, Any] | None
-    ) -> None:
-        if trigger_data:
-            try:
-                command.trigger.text = trigger_data.get('text', command.trigger.text)
-                command.trigger.description = trigger_data.get(
-                    'description', command.trigger.description
-                )
-                command.trigger.save(update_fields=['text', 'description'])
-            except CommandTrigger.DoesNotExist:
-                self.create_trigger(command, trigger_data)
-        elif not self.partial:
-            with suppress(CommandTrigger.DoesNotExist):
-                command.trigger.delete()
 
     def _delete_media_files(self, queryset: QuerySet[AbstractCommandMedia]) -> None:
         for file_path in queryset.exclude(file=None).values_list('file', flat=True):  # type: ignore [misc]
@@ -640,7 +685,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         command.save(update_fields=['name'])
 
         self.update_settings(command, validated_data.get('settings'))
-        self.update_trigger(command, validated_data.get('trigger'))
         self.update_images(command, validated_data.get('images'))
         self.update_documents(command, validated_data.get('documents'))
         self.update_message(command, validated_data.get('message'))
@@ -648,9 +692,7 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.update_api_request(command, validated_data.get('api_request'))
         self.update_database_record(command, validated_data.get('database_record'))
 
-        command.refresh_from_db(
-            fields=['trigger', 'keyboard', 'api_request', 'database_record']
-        )
+        command.refresh_from_db(fields=['keyboard', 'api_request', 'database_record'])
 
         return command
 
@@ -806,6 +848,15 @@ class BackgroundTaskSerializer(
                 background_task.api_request.delete()
 
         return background_task
+
+
+class DiagramTriggerSerializer(DiagramSerializer[Trigger]):
+    source_connections = ConnectionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Trigger
+        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
+        read_only_fields = ['name']
 
 
 class DiagramCommandKeyboardButtonSerializer(
