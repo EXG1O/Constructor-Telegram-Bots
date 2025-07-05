@@ -225,7 +225,7 @@ class TriggerMessageSerializer(serializers.ModelSerializer[TriggerMessage]):
         fields = ['text']
 
 
-class TriggerSerializer(serializers.ModelSerializer[Trigger]):
+class TriggerSerializer(serializers.ModelSerializer[Trigger], TelegramBotContextMixin):
     command = TriggerCommandSerializer(required=False, allow_null=True)
     message = TriggerMessageSerializer(required=False, allow_null=True)
 
@@ -233,17 +233,25 @@ class TriggerSerializer(serializers.ModelSerializer[Trigger]):
         model = Trigger
         fields = ['id', 'name', 'command', 'message']
 
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if bool(data.get('command')) is bool(data.get('message')):
+            raise serializers.ValidationError(
+                _("Необходимо указать только одно из полей: 'command' или 'message'.")
+            )
+
+        return data
+
     def create(self, validated_data: dict[str, Any]) -> Trigger:
         command_data: dict[str, Any] | None = validated_data.pop('command', None)
         message_data: dict[str, Any] | None = validated_data.pop('message', None)
 
-        trigger: Trigger = Trigger.objects.create(**validated_data)
+        trigger: Trigger = self.telegram_bot.triggers.create(**validated_data)
 
         if command_data:
-            TriggerCommand.objects.create(**command_data)
+            TriggerCommand.objects.create(trigger=trigger, **command_data)
 
         if message_data:
-            TriggerMessage.objects.create(**message_data)
+            TriggerMessage.objects.create(trigger=trigger, **message_data)
 
         return trigger
 
@@ -260,16 +268,16 @@ class TriggerSerializer(serializers.ModelSerializer[Trigger]):
                     'command', trigger.command.command
                 )
                 trigger.command.payload = command_data.get(
-                    'command', trigger.command.payload
+                    'payload', trigger.command.payload
                 )
                 trigger.command.description = command_data.get(
-                    'command', trigger.command.description
+                    'description', trigger.command.description
                 )
                 trigger.command.save(
                     update_fields=['command', 'payload', 'description']
                 )
             except TriggerCommand.DoesNotExist:
-                TriggerCommand.objects.create(**command_data)
+                TriggerCommand.objects.create(trigger=trigger, **command_data)
         elif not self.partial:
             with suppress(TriggerCommand.DoesNotExist):
                 trigger.command.delete()
@@ -279,7 +287,7 @@ class TriggerSerializer(serializers.ModelSerializer[Trigger]):
                 trigger.message.text = message_data.get('text', trigger.message.text)
                 trigger.message.save(update_fields=['text'])
             except TriggerMessage.DoesNotExist:
-                TriggerMessage.objects.create(**message_data)
+                TriggerMessage.objects.create(trigger=trigger, **message_data)
         elif not self.partial:
             with suppress(TriggerMessage.DoesNotExist):
                 trigger.message.delete()
