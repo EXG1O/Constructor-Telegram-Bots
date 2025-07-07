@@ -26,6 +26,7 @@ from requests import Response
 import requests
 
 from collections.abc import Collection, Iterable
+from contextlib import suppress
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 import re
@@ -143,11 +144,11 @@ class TelegramBot(models.Model):
             f'https://api.telegram.org/bot{self.api_token}/getMe'
         )
 
-        if response.ok:
-            try:
-                self.username = response.json()['result']['username']
-            except KeyError:
-                pass
+        if not response.ok:
+            return
+
+        with suppress(KeyError):
+            self.username = response.json()['result']['username']
 
     @classmethod
     def from_db(
@@ -179,11 +180,11 @@ class TelegramBot(models.Model):
             if not self._state.adding and self.is_enabled:
                 self.restart(save=False)
                 should_update_fields: list[str] = ['must_be_enabled', 'is_loading']
-
-                if update_fields:
-                    update_fields = list(update_fields) + should_update_fields
-                else:
-                    update_fields = should_update_fields
+                update_fields = (
+                    (list(update_fields) + should_update_fields)
+                    if update_fields
+                    else should_update_fields
+                )
 
         super().save(force_insert, force_update, using, update_fields)
 
@@ -197,4 +198,3 @@ class TelegramBot(models.Model):
 
     def __str__(self) -> str:
         return f'@{self.username}'
-
