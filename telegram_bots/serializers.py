@@ -8,7 +8,6 @@ from rest_framework.request import Request
 
 from users.models import User as SiteUser
 
-from .base_models import AbstractCommandMedia
 from .base_serializers import CommandMediaSerializer, DiagramSerializer
 from .enums import ConnectionObjectType
 from .mixins import TelegramBotContextMixin
@@ -35,6 +34,7 @@ from .models import (
     User,
     Variable,
 )
+from .models.base import AbstractCommandMedia
 
 from contextlib import suppress
 from typing import Any

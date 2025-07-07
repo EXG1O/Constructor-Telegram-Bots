@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 max_length=500,
                 null=True,
-                upload_to=telegram_bots.models.upload_command_media_path,
+                upload_to=telegram_bots.models.command.upload_command_media_path,
                 verbose_name='Документ',
             ),
         ),

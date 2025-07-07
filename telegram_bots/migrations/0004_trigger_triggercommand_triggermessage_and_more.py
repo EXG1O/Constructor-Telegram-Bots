@@ -6,7 +6,7 @@ from django.db import migrations, models
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 import django.db.models.deletion
 
-from ..base_models import generate_random_coordinate
+from ..models.base import generate_random_coordinate
 from ..enums import ConnectionHandlePosition
 
 from typing import TYPE_CHECKING, Any
