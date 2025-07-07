@@ -8,7 +8,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 
 from constructor_telegram_bots.fields import PublicURLField
 
-from .enums import APIRequestMethod
+from ..enums import APIRequestMethod
 
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
