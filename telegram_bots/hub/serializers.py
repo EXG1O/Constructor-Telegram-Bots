@@ -2,7 +2,6 @@ from django.db.models import Model
 
 from rest_framework import serializers
 
-from ..base_serializers import CommandMediaSerializer
 from ..enums import ConnectionObjectType
 from ..models import (
     BackgroundTask,
@@ -27,6 +26,7 @@ from ..models import (
     User,
     Variable,
 )
+from ..serializers.base import CommandMediaSerializer
 from .mixins import TelegramBotContextMixin
 
 from typing import Any
