@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models.base import AbstractBlock, AbstractCommandMedia
+from ..models.base import AbstractBlock, AbstractCommandMedia
 
 from typing import Any, TypeVar
 import os
