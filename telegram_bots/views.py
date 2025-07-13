@@ -145,7 +145,6 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
                 'settings',
                 'message',
                 'keyboard',
-                'api_request',
                 'database_record',
             ).prefetch_related(
                 'images',
@@ -192,7 +191,7 @@ class BackgroundTaskViewSet(
         )
 
         if self.action in ['list', 'retrieve']:
-            return background_tasks.select_related('api_request').prefetch_related(
+            return background_tasks.prefetch_related(
                 'source_connections__source_object',
                 'source_connections__target_object',
             )

@@ -9,7 +9,6 @@ from constructor_telegram_bots.fields import PublicURLField
 
 from ..enums import KeyboardType
 from .base import (
-    AbstractAPIRequest,
     AbstractBlock,
     AbstractCommandMedia,
     AbstractDatabaseRecord,
@@ -175,23 +174,6 @@ class CommandKeyboard(models.Model):
         return self.command.name
 
 
-class CommandAPIRequest(AbstractAPIRequest):
-    command = models.OneToOneField(
-        'Command',
-        on_delete=models.CASCADE,
-        related_name='api_request',
-        verbose_name=_('Команда'),
-    )
-
-    class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_api_request'
-        verbose_name = _('API-запрос команды')
-        verbose_name_plural = _('API-запросы команд')
-
-    def __str__(self) -> str:
-        return self.command.name
-
-
 class CommandDatabaseRecord(AbstractDatabaseRecord):
     command = models.OneToOneField(
         'Command',
@@ -224,7 +206,6 @@ class Command(AbstractBlock):
         documents: models.Manager[CommandDocument]
         message: CommandMessage
         keyboard: CommandKeyboard
-        api_request: CommandAPIRequest
         database_record: CommandDatabaseRecord
 
     class Meta(TypedModelMeta):

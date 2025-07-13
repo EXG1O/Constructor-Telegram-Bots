@@ -8,7 +8,6 @@ from rest_framework import serializers
 from ..mixins import TelegramBotContextMixin
 from ..models import (
     Command,
-    CommandAPIRequest,
     CommandDatabaseRecord,
     CommandDocument,
     CommandImage,
@@ -69,12 +68,6 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
         fields = ['type', 'buttons']
 
 
-class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]):
-    class Meta:
-        model = CommandAPIRequest
-        fields = ['url', 'method', 'headers', 'body']
-
-
 class CommandDatabaseRecordSerializer(
     serializers.ModelSerializer[CommandDatabaseRecord]
 ):
@@ -89,7 +82,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
     documents = CommandDocumentSerializer(many=True, required=False, allow_null=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer(required=False, allow_null=True)
-    api_request = CommandAPIRequestSerializer(required=False, allow_null=True)
     database_record = CommandDatabaseRecordSerializer(required=False, allow_null=True)
 
     class Meta:
@@ -102,7 +94,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             'documents',
             'message',
             'keyboard',
-            'api_request',
             'database_record',
         ]
 
@@ -188,14 +179,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             for button_data in buttons_data
         )
 
-    def create_api_request(
-        self, command: Command, api_request_data: dict[str, Any] | None
-    ) -> None:
-        if not api_request_data:
-            return
-
-        CommandAPIRequest.objects.create(command=command, **api_request_data)
-
     def create_database_record(
         self, command: Command, database_record_data: dict[str, Any] | None
     ) -> None:
@@ -210,7 +193,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         documents: list[dict[str, Any]] | None = validated_data.pop('documents', None)
         message: dict[str, Any] = validated_data.pop('message')
         keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
-        api_request: dict[str, Any] | None = validated_data.pop('api_request', None)
         database_record: dict[str, Any] | None = validated_data.pop(
             'database_record', None
         )
@@ -222,7 +204,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.create_documents(command, documents)
         self.create_message(command, message)
         self.create_keyboard(command, keyboard)
-        self.create_api_request(command, api_request)
         self.create_database_record(command, database_record)
 
         return command
@@ -382,32 +363,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             with suppress(CommandKeyboard.DoesNotExist):
                 command.keyboard.delete()
 
-    def update_api_request(
-        self, command: Command, api_request_data: dict[str, Any] | None
-    ) -> None:
-        if api_request_data:
-            try:
-                command.api_request.url = api_request_data.get(
-                    'url', command.api_request.url
-                )
-                command.api_request.method = api_request_data.get(
-                    'method', command.api_request.method
-                )
-                command.api_request.headers = api_request_data.get(
-                    'headers', command.api_request.headers
-                )
-                command.api_request.body = api_request_data.get(
-                    'body', command.api_request.body
-                )
-                command.api_request.save(
-                    update_fields=['url', 'method', 'headers', 'body']
-                )
-            except CommandAPIRequest.DoesNotExist:
-                self.create_api_request(command, api_request_data)
-        elif not self.partial:
-            with suppress(CommandAPIRequest.DoesNotExist):
-                command.api_request.delete()
-
     def update_database_record(
         self, command: Command, database_record_data: dict[str, Any] | None
     ) -> None:
@@ -432,10 +387,9 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.update_documents(command, validated_data.get('documents'))
         self.update_message(command, validated_data.get('message'))
         self.update_keyboard(command, validated_data.get('keyboard'))
-        self.update_api_request(command, validated_data.get('api_request'))
         self.update_database_record(command, validated_data.get('database_record'))
 
-        command.refresh_from_db(fields=['keyboard', 'api_request', 'database_record'])
+        command.refresh_from_db(fields=['keyboard', 'database_record'])
 
         return command
 

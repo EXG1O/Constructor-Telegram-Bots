@@ -9,6 +9,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 
 from .. import tasks
 from ..hub.models import TelegramBotsHub
+from .api_request import APIRequest
 from .background_task import BackgroundTask
 from .command import (
     Command,
@@ -72,6 +73,7 @@ class TelegramBot(models.Model):
         commands: models.Manager[Command]
         conditions: models.Manager[Condition]
         background_tasks: models.Manager[BackgroundTask]
+        api_requests: models.Manager[APIRequest]
         variables: models.Manager[Variable]
         users: models.Manager[User]
         database_records: models.Manager[DatabaseRecord]
