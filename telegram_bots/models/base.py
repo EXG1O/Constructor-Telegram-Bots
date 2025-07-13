@@ -8,8 +8,6 @@ from django_stubs_ext.db.models import TypedModelMeta
 
 from constructor_telegram_bots.fields import PublicURLField
 
-from ..enums import APIRequestMethod
-
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
 import random
@@ -69,21 +67,6 @@ class AbstractCommandMedia(models.Model):
             self.file.delete(save=False)
 
         return super().delete(using, keep_parents)
-
-
-class AbstractAPIRequest(models.Model):
-    url = PublicURLField(_('URL-адрес'))
-    method = models.CharField(
-        _('Метод'), max_length=6, choices=APIRequestMethod, default=APIRequestMethod.GET
-    )
-    headers = models.JSONField(_('Заголовки'), blank=True, null=True)
-    body = models.JSONField(_('Данные'), blank=True, null=True)
-
-    class Meta(TypedModelMeta):
-        abstract = True
-
-    def __str__(self) -> str:
-        return self.url
 
 
 class AbstractDatabaseRecord(models.Model):

@@ -26,6 +26,7 @@ from users.authentication import JWTCookieAuthentication
 
 from .mixins import TelegramBotMixin
 from .models import (
+    APIRequest,
     BackgroundTask,
     Command,
     Condition,
@@ -37,11 +38,13 @@ from .models import (
     Variable,
 )
 from .serializers import (
+    APIRequestSerializer,
     BackgroundTaskSerializer,
     CommandSerializer,
     ConditionSerializer,
     ConnectionSerializer,
     DatabaseRecordSerializer,
+    DiagramAPIRequestSerializer,
     DiagramBackgroundTaskSerializer,
     DiagramCommandSerializer,
     DiagramConditionSerializer,
@@ -145,7 +148,6 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
                 'settings',
                 'message',
                 'keyboard',
-                'api_request',
                 'database_record',
             ).prefetch_related(
                 'images',
@@ -192,12 +194,31 @@ class BackgroundTaskViewSet(
         )
 
         if self.action in ['list', 'retrieve']:
-            return background_tasks.select_related('api_request').prefetch_related(
+            return background_tasks.prefetch_related(
                 'source_connections__source_object',
                 'source_connections__target_object',
             )
 
         return background_tasks
+
+
+class APIRequestViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[APIRequest]):
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = APIRequestSerializer
+
+    def get_queryset(self) -> QuerySet[APIRequest]:
+        api_requests: QuerySet[APIRequest] = self.telegram_bot.api_requests.all()
+
+        if self.action in ['list', 'retrieve']:
+            return api_requests.prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+                'target_connections__source_object',
+                'target_connections__target_object',
+            )
+
+        return api_requests
 
 
 class DiagramTriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
@@ -293,6 +314,32 @@ class DiagramBackgroundTaskViewSet(
             )
 
         return background_tasks
+
+
+class DiagramAPIRequestViewSet(
+    IDLookupMixin,
+    TelegramBotMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet[APIRequest],
+):
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = DiagramAPIRequestSerializer
+
+    def get_queryset(self) -> QuerySet[APIRequest]:
+        api_requests: QuerySet[APIRequest] = self.telegram_bot.api_requests.all()
+
+        if self.action in ['list', 'retrieve']:
+            return api_requests.prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+                'target_connections__source_object',
+                'target_connections__target_object',
+            )
+
+        return api_requests
 
 
 class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):

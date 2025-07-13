@@ -21,6 +21,7 @@ class ConnectionObjectType(TextChoices):
     COMMAND_KEYBOARD_BUTTON = 'command_keyboard_button', _('Кнопка клавиатуры')
     CONDITION = 'condition', _('Условие')
     BACKGROUND_TASK = 'background_task', _('Фоновая задача')
+    API_REQUEST = 'api_request', _('API-запрос')
 
     @staticmethod
     def source_choices() -> list[tuple[str, str]]:
@@ -31,6 +32,7 @@ class ConnectionObjectType(TextChoices):
                 ConnectionObjectType.COMMAND_KEYBOARD_BUTTON,
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.BACKGROUND_TASK,
+                ConnectionObjectType.API_REQUEST,
             ]
         ]
 
@@ -41,6 +43,7 @@ class ConnectionObjectType(TextChoices):
             for value in [
                 ConnectionObjectType.COMMAND,
                 ConnectionObjectType.CONDITION,
+                ConnectionObjectType.API_REQUEST,
             ]
         ]
 

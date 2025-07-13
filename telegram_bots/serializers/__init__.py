@@ -1,10 +1,6 @@
-from .background_task import (
-    BackgroundTaskAPIRequestSerializer,
-    BackgroundTaskSerializer,
-    DiagramBackgroundTaskSerializer,
-)
+from .api_request import APIRequestSerializer, DiagramAPIRequestSerializer
+from .background_task import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
 from .command import (
-    CommandAPIRequestSerializer,
     CommandDatabaseRecordSerializer,
     CommandDocumentSerializer,
     CommandImageSerializer,
@@ -48,7 +44,6 @@ __all__ = [
     'CommandMessageSerializer',
     'CommandKeyboardSerializer',
     'CommandKeyboardButtonSerializer',
-    'CommandAPIRequestSerializer',
     'CommandDatabaseRecordSerializer',
     'DiagramCommandSerializer',
     'DiagramCommandKeyboardSerializer',
@@ -57,8 +52,9 @@ __all__ = [
     'ConditionPartSerializer',
     'DiagramConditionSerializer',
     'BackgroundTaskSerializer',
-    'BackgroundTaskAPIRequestSerializer',
     'DiagramBackgroundTaskSerializer',
+    'APIRequestSerializer',
+    'DiagramAPIRequestSerializer',
     'VariableSerializer',
     'UserSerializer',
     'DatabaseRecordSerializer',

@@ -5,9 +5,7 @@ from rest_framework import serializers
 from ..enums import ConnectionObjectType
 from ..models import (
     BackgroundTask,
-    BackgroundTaskAPIRequest,
     Command,
-    CommandAPIRequest,
     CommandDatabaseRecord,
     CommandDocument,
     CommandImage,
@@ -148,12 +146,6 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
         fields = ['type', 'buttons']
 
 
-class CommandAPIRequestSerializer(serializers.ModelSerializer[CommandAPIRequest]):
-    class Meta:
-        model = CommandAPIRequest
-        fields = ['url', 'method', 'headers', 'body']
-
-
 class CommandDatabaseRecordSerializer(
     serializers.ModelSerializer[CommandDatabaseRecord]
 ):
@@ -168,7 +160,6 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
     documents = CommandDocumentSerializer(many=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer()
-    api_request = CommandAPIRequestSerializer()
     database_record = CommandDatabaseRecordSerializer()
     target_connections = ConnectionSerializer(many=True)
 
@@ -182,7 +173,6 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
             'documents',
             'message',
             'keyboard',
-            'api_request',
             'database_record',
             'target_connections',
         ]
@@ -211,21 +201,12 @@ class ConditionSerializer(serializers.ModelSerializer[Condition]):
         fields = ['id', 'name', 'parts', 'source_connections', 'target_connections']
 
 
-class BackgroundTaskAPIRequestSerializer(
-    serializers.ModelSerializer[BackgroundTaskAPIRequest]
-):
-    class Meta:
-        model = BackgroundTaskAPIRequest
-        fields = ['url', 'method', 'headers', 'body']
-
-
 class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask]):
-    api_request = BackgroundTaskAPIRequestSerializer()
     source_connections = ConnectionSerializer(many=True)
 
     class Meta:
         model = BackgroundTask
-        fields = ['id', 'name', 'interval', 'api_request', 'source_connections']
+        fields = ['id', 'name', 'interval', 'source_connections']
 
 
 class VariableSerializer(serializers.ModelSerializer[Variable]):
