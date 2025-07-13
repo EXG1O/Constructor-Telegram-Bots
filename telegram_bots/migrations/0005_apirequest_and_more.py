@@ -59,7 +59,7 @@ def migrate_command_api_requests(
         api_request_model
     )
 
-    for command_api_request in command_api_request_model.objects.iterator():
+    for command_api_request in command_api_request_model.objects.iterator():  # type: ignore [attr-defined]
         command: Command = command_api_request.command
         telegram_bot: TelegramBot = command.telegram_bot
 
@@ -128,7 +128,7 @@ def migrate_background_task_api_requests(
 
     for (
         background_task_api_request
-    ) in background_task_api_request_model.objects.iterator():
+    ) in background_task_api_request_model.objects.iterator():  # type: ignore [attr-defined]
         background_task: BackgroundTask = background_task_api_request.background_task
         telegram_bot: TelegramBot = background_task.telegram_bot
 
