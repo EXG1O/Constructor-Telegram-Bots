@@ -1,3 +1,4 @@
+from .api_request import APIRequestSerializer, DiagramAPIRequestSerializer
 from .background_task import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
 from .command import (
     CommandDatabaseRecordSerializer,
@@ -52,6 +53,8 @@ __all__ = [
     'DiagramConditionSerializer',
     'BackgroundTaskSerializer',
     'DiagramBackgroundTaskSerializer',
+    'APIRequestSerializer',
+    'DiagramAPIRequestSerializer',
     'VariableSerializer',
     'UserSerializer',
     'DatabaseRecordSerializer',

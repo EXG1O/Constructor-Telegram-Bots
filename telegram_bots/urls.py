@@ -3,11 +3,13 @@ from django.urls import path
 from rest_framework.routers import SimpleRouter
 
 from .views import (
+    APIRequestViewSet,
     BackgroundTaskViewSet,
     CommandViewSet,
     ConditionViewSet,
     ConnectionViewSet,
     DatabaseRecordViewSet,
+    DiagramAPIRequestViewSet,
     DiagramBackgroundTaskViewSet,
     DiagramCommandViewSet,
     DiagramConditionViewSet,
@@ -53,6 +55,11 @@ router.register(
     basename=f'{base_name}-background-task',
 )
 router.register(
+    f'{base_path}/api-requests',
+    APIRequestViewSet,
+    basename=f'{base_name}-api-request',
+)
+router.register(
     f'{base_diagram_path}/triggers',
     DiagramTriggerViewSet,
     basename=f'{base_diagram_name}-trigger',
@@ -71,6 +78,11 @@ router.register(
     f'{base_diagram_path}/background-tasks',
     DiagramBackgroundTaskViewSet,
     basename=f'{base_diagram_name}-background-task',
+)
+router.register(
+    f'{base_diagram_path}/api-requests',
+    DiagramAPIRequestViewSet,
+    basename=f'{base_diagram_name}-api-request',
 )
 router.register(
     f'{base_path}/variables',
