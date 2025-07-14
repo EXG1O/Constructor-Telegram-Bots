@@ -18,6 +18,12 @@ from .condition import (
     DiagramConditionSerializer,
 )
 from .connection import ConnectionSerializer
+from .database_operation import (
+    DatabaseCreateOperationSerializer,
+    DatabaseOperationSerializer,
+    DatabaseUpdateOperationSerializer,
+    DiagramDatabaseOperationSerializer,
+)
 from .database_record import DatabaseRecordSerializer
 from .telegram_bot import TelegramBotSerializer
 from .trigger import (
@@ -53,6 +59,10 @@ __all__ = [
     'DiagramBackgroundTaskSerializer',
     'APIRequestSerializer',
     'DiagramAPIRequestSerializer',
+    'DatabaseOperationSerializer',
+    'DatabaseCreateOperationSerializer',
+    'DatabaseUpdateOperationSerializer',
+    'DiagramDatabaseOperationSerializer',
     'VariableSerializer',
     'UserSerializer',
     'DatabaseRecordSerializer',
