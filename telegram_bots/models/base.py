@@ -67,10 +67,3 @@ class AbstractCommandMedia(models.Model):
             self.file.delete(save=False)
 
         return super().delete(using, keep_parents)
-
-
-class AbstractDatabaseRecord(models.Model):
-    data = models.JSONField(_('Данные'))
-
-    class Meta(TypedModelMeta):
-        abstract = True

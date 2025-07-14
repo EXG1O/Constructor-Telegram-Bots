@@ -3,16 +3,15 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
-from .base import AbstractDatabaseRecord
 
-
-class DatabaseRecord(AbstractDatabaseRecord):
+class DatabaseRecord(models.Model):
     telegram_bot = models.ForeignKey(
         'TelegramBot',
         on_delete=models.CASCADE,
         related_name='database_records',
         verbose_name=_('Telegram бот'),
     )
+    data = models.JSONField(_('Данные'))
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_database_record'

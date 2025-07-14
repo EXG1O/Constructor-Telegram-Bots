@@ -1,7 +1,6 @@
 from .api_request import APIRequestSerializer, DiagramAPIRequestSerializer
 from .background_task import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
 from .command import (
-    CommandDatabaseRecordSerializer,
     CommandDocumentSerializer,
     CommandImageSerializer,
     CommandKeyboardButtonSerializer,
@@ -44,7 +43,6 @@ __all__ = [
     'CommandMessageSerializer',
     'CommandKeyboardSerializer',
     'CommandKeyboardButtonSerializer',
-    'CommandDatabaseRecordSerializer',
     'DiagramCommandSerializer',
     'DiagramCommandKeyboardSerializer',
     'DiagramCommandKeyboardButtonSerializer',

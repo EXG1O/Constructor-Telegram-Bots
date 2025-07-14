@@ -8,7 +8,6 @@ from rest_framework import serializers
 from ..mixins import TelegramBotContextMixin
 from ..models import (
     Command,
-    CommandDatabaseRecord,
     CommandDocument,
     CommandImage,
     CommandKeyboard,
@@ -68,21 +67,12 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
         fields = ['type', 'buttons']
 
 
-class CommandDatabaseRecordSerializer(
-    serializers.ModelSerializer[CommandDatabaseRecord]
-):
-    class Meta:
-        model = CommandDatabaseRecord
-        fields = ['data']
-
-
 class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContextMixin):
     settings = CommandSettingsSerializer()
     images = CommandImageSerializer(many=True, required=False, allow_null=True)
     documents = CommandDocumentSerializer(many=True, required=False, allow_null=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer(required=False, allow_null=True)
-    database_record = CommandDatabaseRecordSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Command
@@ -94,7 +84,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             'documents',
             'message',
             'keyboard',
-            'database_record',
         ]
 
     def _validate_media(self, media: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -179,23 +168,12 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             for button_data in buttons_data
         )
 
-    def create_database_record(
-        self, command: Command, database_record_data: dict[str, Any] | None
-    ) -> None:
-        if not database_record_data:
-            return
-
-        CommandDatabaseRecord.objects.create(command=command, **database_record_data)
-
     def create(self, validated_data: dict[str, Any]) -> Command:
         settings: dict[str, Any] = validated_data.pop('settings')
         images: list[dict[str, Any]] | None = validated_data.pop('images', None)
         documents: list[dict[str, Any]] | None = validated_data.pop('documents', None)
         message: dict[str, Any] = validated_data.pop('message')
         keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
-        database_record: dict[str, Any] | None = validated_data.pop(
-            'database_record', None
-        )
 
         command: Command = self.telegram_bot.commands.create(**validated_data)
 
@@ -204,7 +182,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.create_documents(command, documents)
         self.create_message(command, message)
         self.create_keyboard(command, keyboard)
-        self.create_database_record(command, database_record)
 
         return command
 
@@ -363,21 +340,6 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
             with suppress(CommandKeyboard.DoesNotExist):
                 command.keyboard.delete()
 
-    def update_database_record(
-        self, command: Command, database_record_data: dict[str, Any] | None
-    ) -> None:
-        if database_record_data:
-            try:
-                command.database_record.data = database_record_data.get(
-                    'data', command.database_record.data
-                )
-                command.database_record.save(update_fields=['data'])
-            except CommandDatabaseRecord.DoesNotExist:
-                self.create_database_record(command, database_record_data)
-        elif not self.partial:
-            with suppress(CommandDatabaseRecord.DoesNotExist):
-                command.database_record.delete()
-
     def update(self, command: Command, validated_data: dict[str, Any]) -> Command:
         command.name = validated_data.get('name', command.name)
         command.save(update_fields=['name'])
@@ -387,9 +349,8 @@ class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContext
         self.update_documents(command, validated_data.get('documents'))
         self.update_message(command, validated_data.get('message'))
         self.update_keyboard(command, validated_data.get('keyboard'))
-        self.update_database_record(command, validated_data.get('database_record'))
 
-        command.refresh_from_db(fields=['keyboard', 'database_record'])
+        command.refresh_from_db(fields=['keyboard'])
 
         return command
 

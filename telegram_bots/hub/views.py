@@ -69,10 +69,7 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Comma
 
         if self.action in ['list', 'retrieve']:
             return commands.select_related(
-                'settings',
-                'message',
-                'keyboard',
-                'database_record',
+                'settings', 'message', 'keyboard'
             ).prefetch_related(
                 'images',
                 'documents',

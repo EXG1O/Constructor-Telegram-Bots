@@ -8,11 +8,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 from constructor_telegram_bots.fields import PublicURLField
 
 from ..enums import KeyboardType
-from .base import (
-    AbstractBlock,
-    AbstractCommandMedia,
-    AbstractDatabaseRecord,
-)
+from .base import AbstractBlock, AbstractCommandMedia
 
 from contextlib import suppress
 from itertools import chain
@@ -174,23 +170,6 @@ class CommandKeyboard(models.Model):
         return self.command.name
 
 
-class CommandDatabaseRecord(AbstractDatabaseRecord):
-    command = models.OneToOneField(
-        'Command',
-        on_delete=models.CASCADE,
-        related_name='database_record',
-        verbose_name=_('Команда'),
-    )
-
-    class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_database_record'
-        verbose_name = _('Запись в БД команды')
-        verbose_name_plural = _('Записи в БД команд')
-
-    def __str__(self) -> str:
-        return self.command.name
-
-
 class Command(AbstractBlock):
     telegram_bot = models.ForeignKey(
         'TelegramBot',
@@ -206,7 +185,6 @@ class Command(AbstractBlock):
         documents: models.Manager[CommandDocument]
         message: CommandMessage
         keyboard: CommandKeyboard
-        database_record: CommandDatabaseRecord
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_command'

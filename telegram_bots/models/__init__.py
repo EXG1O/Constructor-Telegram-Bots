@@ -2,7 +2,6 @@ from .api_request import APIRequest
 from .background_task import BackgroundTask
 from .command import (
     Command,
-    CommandDatabaseRecord,
     CommandDocument,
     CommandImage,
     CommandKeyboard,
@@ -31,7 +30,6 @@ __all__ = [
     'CommandMessage',
     'CommandKeyboard',
     'CommandKeyboardButton',
-    'CommandDatabaseRecord',
     'Condition',
     'ConditionPart',
     'BackgroundTask',
