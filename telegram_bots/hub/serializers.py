@@ -6,7 +6,6 @@ from ..enums import ConnectionObjectType
 from ..models import (
     BackgroundTask,
     Command,
-    CommandDatabaseRecord,
     CommandDocument,
     CommandImage,
     CommandKeyboard,
@@ -146,21 +145,12 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
         fields = ['type', 'buttons']
 
 
-class CommandDatabaseRecordSerializer(
-    serializers.ModelSerializer[CommandDatabaseRecord]
-):
-    class Meta:
-        model = CommandDatabaseRecord
-        fields = ['data']
-
-
 class CommandSerializer(serializers.ModelSerializer[Command]):
     settings = CommandSettingsSerializer()
     images = CommandImageSerializer(many=True)
     documents = CommandDocumentSerializer(many=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer()
-    database_record = CommandDatabaseRecordSerializer()
     target_connections = ConnectionSerializer(many=True)
 
     class Meta:
@@ -173,7 +163,6 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
             'documents',
             'message',
             'keyboard',
-            'database_record',
             'target_connections',
         ]
 

@@ -2,7 +2,6 @@ from .api_request import APIRequest
 from .background_task import BackgroundTask
 from .command import (
     Command,
-    CommandDatabaseRecord,
     CommandDocument,
     CommandImage,
     CommandKeyboard,
@@ -12,6 +11,11 @@ from .command import (
 )
 from .condition import Condition, ConditionPart
 from .connection import Connection
+from .database_operation import (
+    DatabaseCreateOperation,
+    DatabaseOperation,
+    DatabaseUpdateOperation,
+)
 from .database_record import DatabaseRecord
 from .telegram_bot import TelegramBot
 from .trigger import Trigger, TriggerCommand, TriggerMessage
@@ -31,11 +35,13 @@ __all__ = [
     'CommandMessage',
     'CommandKeyboard',
     'CommandKeyboardButton',
-    'CommandDatabaseRecord',
     'Condition',
     'ConditionPart',
     'BackgroundTask',
     'APIRequest',
+    'DatabaseOperation',
+    'DatabaseCreateOperation',
+    'DatabaseUpdateOperation',
     'Variable',
     'User',
     'DatabaseRecord',

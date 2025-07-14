@@ -31,6 +31,7 @@ from .models import (
     Command,
     Condition,
     Connection,
+    DatabaseOperation,
     DatabaseRecord,
     TelegramBot,
     Trigger,
@@ -48,6 +49,7 @@ from .serializers import (
     DiagramBackgroundTaskSerializer,
     DiagramCommandSerializer,
     DiagramConditionSerializer,
+    DiagramDatabaseOperationSerializer,
     DiagramTriggerSerializer,
     TelegramBotSerializer,
     TriggerSerializer,
@@ -145,10 +147,7 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
 
         if self.action in ['list', 'retrieve']:
             return commands.select_related(
-                'settings',
-                'message',
-                'keyboard',
-                'database_record',
+                'settings', 'message', 'keyboard'
             ).prefetch_related(
                 'images',
                 'documents',
@@ -219,6 +218,31 @@ class APIRequestViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[APIRequest
             )
 
         return api_requests
+
+
+class DatabaseOperationViewSet(
+    IDLookupMixin, TelegramBotMixin, ModelViewSet[DatabaseOperation]
+):
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = DiagramDatabaseOperationSerializer
+
+    def get_queryset(self) -> QuerySet[DatabaseOperation]:
+        operations: QuerySet[DatabaseOperation] = (
+            self.telegram_bot.database_operations.all()
+        )
+
+        if self.action in ['list', 'retrieve']:
+            return operations.select_related(
+                'create_operation', 'update_operation'
+            ).prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+                'target_connections__source_object',
+                'target_connections__target_object',
+            )
+
+        return operations
 
 
 class DiagramTriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
@@ -340,6 +364,34 @@ class DiagramAPIRequestViewSet(
             )
 
         return api_requests
+
+
+class DiagramDatabaseOperationViewSet(
+    IDLookupMixin,
+    TelegramBotMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet[DatabaseOperation],
+):
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = DiagramDatabaseOperationSerializer
+
+    def get_queryset(self) -> QuerySet[DatabaseOperation]:
+        operations: QuerySet[DatabaseOperation] = (
+            self.telegram_bot.database_operations.all()
+        )
+
+        if self.action in ['list', 'retrieve']:
+            return operations.prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+                'target_connections__source_object',
+                'target_connections__target_object',
+            )
+
+        return operations
 
 
 class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):

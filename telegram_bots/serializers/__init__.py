@@ -1,7 +1,6 @@
 from .api_request import APIRequestSerializer, DiagramAPIRequestSerializer
 from .background_task import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
 from .command import (
-    CommandDatabaseRecordSerializer,
     CommandDocumentSerializer,
     CommandImageSerializer,
     CommandKeyboardButtonSerializer,
@@ -19,6 +18,12 @@ from .condition import (
     DiagramConditionSerializer,
 )
 from .connection import ConnectionSerializer
+from .database_operation import (
+    DatabaseCreateOperationSerializer,
+    DatabaseOperationSerializer,
+    DatabaseUpdateOperationSerializer,
+    DiagramDatabaseOperationSerializer,
+)
 from .database_record import DatabaseRecordSerializer
 from .telegram_bot import TelegramBotSerializer
 from .trigger import (
@@ -44,7 +49,6 @@ __all__ = [
     'CommandMessageSerializer',
     'CommandKeyboardSerializer',
     'CommandKeyboardButtonSerializer',
-    'CommandDatabaseRecordSerializer',
     'DiagramCommandSerializer',
     'DiagramCommandKeyboardSerializer',
     'DiagramCommandKeyboardButtonSerializer',
@@ -55,6 +59,10 @@ __all__ = [
     'DiagramBackgroundTaskSerializer',
     'APIRequestSerializer',
     'DiagramAPIRequestSerializer',
+    'DatabaseOperationSerializer',
+    'DatabaseCreateOperationSerializer',
+    'DatabaseUpdateOperationSerializer',
+    'DiagramDatabaseOperationSerializer',
     'VariableSerializer',
     'UserSerializer',
     'DatabaseRecordSerializer',

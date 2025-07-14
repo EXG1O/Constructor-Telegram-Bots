@@ -18,6 +18,7 @@ from .command import (
 )
 from .condition import Condition
 from .connection import Connection
+from .database_operation import DatabaseOperation
 from .database_record import DatabaseRecord
 from .trigger import Trigger
 from .user import User
@@ -74,6 +75,7 @@ class TelegramBot(models.Model):
         conditions: models.Manager[Condition]
         background_tasks: models.Manager[BackgroundTask]
         api_requests: models.Manager[APIRequest]
+        database_operations: models.Manager[DatabaseOperation]
         variables: models.Manager[Variable]
         users: models.Manager[User]
         database_records: models.Manager[DatabaseRecord]
