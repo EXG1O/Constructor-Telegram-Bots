@@ -7,9 +7,9 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from constructor_telegram_bots.mixins import IDLookupMixin
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import APIRequest
 from ..serializers import APIRequestSerializer, DiagramAPIRequestSerializer
+from .mixins import TelegramBotMixin
 
 
 class APIRequestViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[APIRequest]):

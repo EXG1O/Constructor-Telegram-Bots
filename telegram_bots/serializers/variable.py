@@ -1,14 +1,12 @@
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import Variable
+from .mixins import TelegramBotMixin
 
 from typing import Any
 
 
-class VariableSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[Variable]
-):
+class VariableSerializer(TelegramBotMixin, serializers.ModelSerializer[Variable]):
     class Meta:
         model = Variable
         fields = ['id', 'name', 'value', 'description']

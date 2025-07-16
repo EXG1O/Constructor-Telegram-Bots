@@ -1,16 +1,14 @@
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import APIRequest
 from .base import DiagramSerializer
 from .connection import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 from typing import Any
 
 
-class APIRequestSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[APIRequest]
-):
+class APIRequestSerializer(TelegramBotMixin, serializers.ModelSerializer[APIRequest]):
     class Meta:
         model = APIRequest
         fields = ['id', 'name', 'url', 'method', 'headers', 'body']

@@ -8,9 +8,9 @@ from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import Variable
 from ..serializers import VariableSerializer
+from .mixins import TelegramBotMixin
 
 
 class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):

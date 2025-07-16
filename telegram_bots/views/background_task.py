@@ -7,9 +7,9 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from constructor_telegram_bots.mixins import IDLookupMixin
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import BackgroundTask
 from ..serializers import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
+from .mixins import TelegramBotMixin
 
 
 class BackgroundTaskViewSet(

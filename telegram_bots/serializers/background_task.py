@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import BackgroundTask
 from .base import DiagramSerializer
 from .connection import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 from typing import Any
 
 
 class BackgroundTaskSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[BackgroundTask]
+    TelegramBotMixin, serializers.ModelSerializer[BackgroundTask]
 ):
     class Meta:
         model = BackgroundTask

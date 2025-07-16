@@ -16,9 +16,9 @@ from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import User
 from ..serializers import UserSerializer
+from .mixins import TelegramBotMixin
 
 
 class UserViewSet(

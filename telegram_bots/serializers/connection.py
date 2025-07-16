@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from ..enums import ConnectionObjectType
-from ..mixins import TelegramBotContextMixin
 from ..models import (
     BackgroundTask,
     Command,
@@ -13,13 +12,12 @@ from ..models import (
     Connection,
     Trigger,
 )
+from .mixins import TelegramBotMixin
 
 from typing import Any
 
 
-class ConnectionSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[Connection]
-):
+class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connection]):
     source_object_type = serializers.ChoiceField(
         choices=ConnectionObjectType.source_choices(), write_only=True
     )

@@ -2,10 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import Condition, ConditionPart
 from .base import DiagramSerializer
 from .connection import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 from typing import Any
 
@@ -23,9 +23,7 @@ class ConditionPartSerializer(serializers.ModelSerializer[ConditionPart]):
         ]
 
 
-class ConditionSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[Condition]
-):
+class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Condition]):
     parts = ConditionPartSerializer(many=True)
 
     class Meta:
