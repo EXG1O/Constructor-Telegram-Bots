@@ -7,9 +7,9 @@ from rest_framework.viewsets import GenericViewSet
 from constructor_telegram_bots.mixins import IDLookupMixin
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import Connection
 from ..serializers import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 
 class ConnectionViewSet(

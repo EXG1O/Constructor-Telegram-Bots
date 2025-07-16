@@ -8,9 +8,9 @@ from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.parsers import MultiPartJSONParser
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import Command
 from ..serializers import CommandSerializer, DiagramCommandSerializer
+from .mixins import TelegramBotMixin
 
 
 class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):

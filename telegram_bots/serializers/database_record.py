@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import DatabaseRecord
+from .mixins import TelegramBotMixin
 
 from typing import Any
 
 
 class DatabaseRecordSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[DatabaseRecord]
+    TelegramBotMixin, serializers.ModelSerializer[DatabaseRecord]
 ):
     class Meta:
         model = DatabaseRecord

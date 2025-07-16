@@ -6,9 +6,9 @@ from rest_framework.viewsets import ModelViewSet
 from constructor_telegram_bots.mixins import IDLookupMixin
 from users.authentication import JWTCookieAuthentication
 
-from ..mixins import TelegramBotMixin
 from ..models import Trigger
 from ..serializers import DiagramTriggerSerializer, TriggerSerializer
+from .mixins import TelegramBotMixin
 
 
 class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):

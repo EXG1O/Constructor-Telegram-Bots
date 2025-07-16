@@ -2,10 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import Trigger, TriggerCommand, TriggerMessage
 from .base import DiagramSerializer
 from .connection import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 from contextlib import suppress
 from typing import Any
@@ -23,7 +23,7 @@ class TriggerMessageSerializer(serializers.ModelSerializer[TriggerMessage]):
         fields = ['text']
 
 
-class TriggerSerializer(serializers.ModelSerializer[Trigger], TelegramBotContextMixin):
+class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
     command = TriggerCommandSerializer(required=False, allow_null=True)
     message = TriggerMessageSerializer(required=False, allow_null=True)
 

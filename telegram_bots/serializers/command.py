@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import (
     Command,
     CommandDocument,
@@ -18,6 +17,7 @@ from ..models import (
 from ..models.base import AbstractCommandMedia
 from .base import CommandMediaSerializer, DiagramSerializer
 from .connection import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 from contextlib import suppress
 from typing import Any
@@ -67,7 +67,7 @@ class CommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboard]):
         fields = ['type', 'buttons']
 
 
-class CommandSerializer(serializers.ModelSerializer[Command], TelegramBotContextMixin):
+class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
     settings = CommandSettingsSerializer()
     images = CommandImageSerializer(many=True, required=False, allow_null=True)
     documents = CommandDocumentSerializer(many=True, required=False, allow_null=True)

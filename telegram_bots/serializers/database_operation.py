@@ -2,10 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 
-from ..mixins import TelegramBotContextMixin
 from ..models import DatabaseCreateOperation, DatabaseOperation, DatabaseUpdateOperation
 from .base import DiagramSerializer
 from .connection import ConnectionSerializer
+from .mixins import TelegramBotMixin
 
 from contextlib import suppress
 from typing import Any
@@ -34,7 +34,7 @@ class DatabaseUpdateOperationSerializer(
 
 
 class DatabaseOperationSerializer(
-    TelegramBotContextMixin, serializers.ModelSerializer[DatabaseOperation]
+    TelegramBotMixin, serializers.ModelSerializer[DatabaseOperation]
 ):
     create_operation = DatabaseCreateOperationSerializer()
     update_operation = DatabaseUpdateOperationSerializer()
