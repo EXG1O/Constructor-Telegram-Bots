@@ -34,56 +34,62 @@ router.register(
     ConnectionViewSet,
     basename=f'{base_name}-connection',
 )
+
 router.register(
     f'{base_path}/triggers',
     TriggerViewSet,
     basename=f'{base_name}-trigger',
 )
 router.register(
-    f'{base_path}/commands',
-    CommandViewSet,
-    basename=f'{base_name}-command',
-)
-router.register(
-    f'{base_path}/conditions',
-    ConditionViewSet,
-    basename=f'{base_name}-condition',
-)
-router.register(
-    f'{base_path}/background-tasks',
-    BackgroundTaskViewSet,
-    basename=f'{base_name}-background-task',
-)
-router.register(
-    f'{base_path}/api-requests',
-    APIRequestViewSet,
-    basename=f'{base_name}-api-request',
-)
-router.register(
     f'{base_diagram_path}/triggers',
     DiagramTriggerViewSet,
     basename=f'{base_diagram_name}-trigger',
+)
+
+router.register(
+    f'{base_path}/commands',
+    CommandViewSet,
+    basename=f'{base_name}-command',
 )
 router.register(
     f'{base_diagram_path}/commands',
     DiagramCommandViewSet,
     basename=f'{base_diagram_name}-command',
 )
+
+router.register(
+    f'{base_path}/conditions',
+    ConditionViewSet,
+    basename=f'{base_name}-condition',
+)
 router.register(
     f'{base_diagram_path}/conditions',
     DiagramConditionViewSet,
     basename=f'{base_diagram_name}-condition',
+)
+
+router.register(
+    f'{base_path}/background-tasks',
+    BackgroundTaskViewSet,
+    basename=f'{base_name}-background-task',
 )
 router.register(
     f'{base_diagram_path}/background-tasks',
     DiagramBackgroundTaskViewSet,
     basename=f'{base_diagram_name}-background-task',
 )
+
+router.register(
+    f'{base_path}/api-requests',
+    APIRequestViewSet,
+    basename=f'{base_name}-api-request',
+)
 router.register(
     f'{base_diagram_path}/api-requests',
     DiagramAPIRequestViewSet,
     basename=f'{base_diagram_name}-api-request',
 )
+
 router.register(
     f'{base_path}/variables',
     VariableViewSet,
