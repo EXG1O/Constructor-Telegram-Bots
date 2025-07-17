@@ -4,6 +4,7 @@ from .background_task import (
 )
 from .command import CommandViewSetTests, DiagramCommandViewSetTests
 from .condition import ConditionViewSetTests, DiagramConditionViewSetTests
+from .connection import ConnectionViewSetTests
 from .database_record import DatabaseRecordViewSetTests
 from .stats import StatsAPIViewTests
 from .telegram_bot import TelegramBotViewSetTests
@@ -13,6 +14,7 @@ from .variable import VariableViewSetTests
 __all__ = [
     'StatsAPIViewTests',
     'TelegramBotViewSetTests',
+    'ConnectionViewSetTests',
     'CommandViewSetTests',
     'DiagramCommandViewSetTests',
     'ConditionViewSetTests',

@@ -1,21 +1,24 @@
+from django.test import TestCase
 from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.test import force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import BackgroundTask
 from ..views import BackgroundTaskViewSet, DiagramBackgroundTaskViewSet
-from .base import BaseTestCase
+from .mixins import TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
-class BackgroundTaskViewSetTests(BaseTestCase):
+class BackgroundTaskViewSetTests(TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        self.factory = APIRequestFactory()
 
         self.background_task: BackgroundTask = (
             self.telegram_bot.background_tasks.create(name='Test name', interval=1)
@@ -58,13 +61,13 @@ class BackgroundTaskViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -82,13 +85,13 @@ class BackgroundTaskViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.post(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -98,7 +101,7 @@ class BackgroundTaskViewSetTests(BaseTestCase):
             {'name': 'Test name', 'interval': 1},
             format='json',
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         old_background_task_count: int = self.telegram_bot.background_tasks.count()
 
@@ -124,13 +127,13 @@ class BackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -153,7 +156,7 @@ class BackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -163,7 +166,7 @@ class BackgroundTaskViewSetTests(BaseTestCase):
         request = self.factory.put(
             self.detail_true_url, {'name': new_name}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -175,7 +178,7 @@ class BackgroundTaskViewSetTests(BaseTestCase):
             {'name': new_name, 'interval': 1},
             format='json',
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -201,13 +204,13 @@ class BackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -219,7 +222,7 @@ class BackgroundTaskViewSetTests(BaseTestCase):
         request = self.factory.patch(
             self.detail_true_url, {'name': new_name}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -245,13 +248,13 @@ class BackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.delete(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.delete(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -265,9 +268,11 @@ class BackgroundTaskViewSetTests(BaseTestCase):
             )
 
 
-class DiagramBackgroundTaskViewSetTests(BaseTestCase):
+class DiagramBackgroundTaskViewSetTests(TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        self.factory = APIRequestFactory()
 
         self.background_task: BackgroundTask = (
             self.telegram_bot.background_tasks.create(name='Test name', interval=1)
@@ -310,13 +315,13 @@ class DiagramBackgroundTaskViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -337,13 +342,13 @@ class DiagramBackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -366,13 +371,13 @@ class DiagramBackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.put(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -384,7 +389,7 @@ class DiagramBackgroundTaskViewSetTests(BaseTestCase):
         request = self.factory.put(
             self.detail_true_url, {'x': new_x, 'y': 200}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -410,13 +415,13 @@ class DiagramBackgroundTaskViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.background_task.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id
@@ -426,7 +431,7 @@ class DiagramBackgroundTaskViewSetTests(BaseTestCase):
         new_x: int = 150
 
         request = self.factory.patch(self.detail_true_url, {'x': new_x}, format='json')
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.background_task.id

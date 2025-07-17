@@ -1,22 +1,25 @@
+from django.test import TestCase
 from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.test import force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import Command, CommandMessage, CommandSettings
 from ..views import CommandViewSet, DiagramCommandViewSet
-from .base import BaseTestCase
+from .mixins import TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 import json
 
 
-class CommandViewSetTests(BaseTestCase):
+class CommandViewSetTests(TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        self.factory = APIRequestFactory()
 
         self.command: Command = self.telegram_bot.commands.create(name='Test name')
         CommandSettings.objects.create(command=self.command)
@@ -55,13 +58,13 @@ class CommandViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -79,13 +82,13 @@ class CommandViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.post(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -98,7 +101,7 @@ class CommandViewSetTests(BaseTestCase):
                 )
             },
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -118,7 +121,7 @@ class CommandViewSetTests(BaseTestCase):
                 )
             },
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -139,7 +142,7 @@ class CommandViewSetTests(BaseTestCase):
                 )
             },
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         old_command_count: int = self.telegram_bot.commands.count()
 
@@ -164,13 +167,13 @@ class CommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -193,13 +196,13 @@ class CommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.put(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -211,7 +214,7 @@ class CommandViewSetTests(BaseTestCase):
         request = self.factory.put(
             self.detail_true_url, {'data': json.dumps({'name': new_name})}
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -234,7 +237,7 @@ class CommandViewSetTests(BaseTestCase):
                 )
             },
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -260,13 +263,13 @@ class CommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -278,7 +281,7 @@ class CommandViewSetTests(BaseTestCase):
         request = self.factory.patch(
             self.detail_true_url, {'data': json.dumps({'name': new_name})}
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -304,13 +307,13 @@ class CommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.delete(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.delete(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -322,9 +325,11 @@ class CommandViewSetTests(BaseTestCase):
             raise self.failureException('Command has not been deleted from database!')
 
 
-class DiagramCommandViewSetTests(BaseTestCase):
+class DiagramCommandViewSetTests(TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        self.factory = APIRequestFactory()
 
         self.command: Command = self.telegram_bot.commands.create(name='Test name')
 
@@ -365,13 +370,13 @@ class DiagramCommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -391,13 +396,13 @@ class DiagramCommandViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -418,13 +423,13 @@ class DiagramCommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.put(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -436,7 +441,7 @@ class DiagramCommandViewSetTests(BaseTestCase):
         request = self.factory.put(
             self.detail_true_url, {'x': new_x, 'y': 200}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -462,13 +467,13 @@ class DiagramCommandViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.command.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
@@ -478,7 +483,7 @@ class DiagramCommandViewSetTests(BaseTestCase):
         new_x: int = 150
 
         request = self.factory.patch(self.detail_true_url, {'x': new_x}, format='json')
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.command.id

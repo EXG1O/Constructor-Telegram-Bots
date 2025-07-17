@@ -1,23 +1,26 @@
+from django.test import TestCase
 from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.test import force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import TelegramBot
 from ..views import TelegramBotViewSet
-from .base import BaseTestCase
+from .mixins import TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
 
-class TelegramBotViewSetTests(BaseTestCase):
+class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
     list_url: str = reverse('api:telegram-bots:telegram-bot-list')
 
     def setUp(self) -> None:
         super().setUp()
+
+        self.factory = APIRequestFactory()
 
         true_kwargs: dict[str, Any] = {'id': self.telegram_bot.id}
         false_kwargs: dict[str, Any] = {'id': 0}
@@ -59,7 +62,7 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.list_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -76,7 +79,7 @@ class TelegramBotViewSetTests(BaseTestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -84,15 +87,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         request = self.factory.post(
             self.list_url, {'api_token': 'Bye!', 'is_private': False}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-        old_telegram_bot_count: int = self.site_user.telegram_bots.count()
+        old_telegram_bot_count: int = self.user.telegram_bots.count()
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.site_user.telegram_bots.count(), old_telegram_bot_count + 1
-        )
+        self.assertEqual(self.user.telegram_bots.count(), old_telegram_bot_count + 1)
 
     def test_retrieve(self) -> None:
         view = TelegramBotViewSet.as_view({'get': 'retrieve'})
@@ -107,13 +108,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.detail_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -131,13 +132,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.post(self.start_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.start_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -155,13 +156,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.post(self.restart_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.restart_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -179,13 +180,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.post(self.stop_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.stop_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -203,13 +204,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.put(self.detail_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.put(self.detail_true_url, format='json')
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -218,7 +219,7 @@ class TelegramBotViewSetTests(BaseTestCase):
         data: dict[str, Any] = {'api_token': new_api_token}
 
         request = self.factory.put(self.detail_true_url, data, format='json')
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -239,13 +240,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.patch(self.detail_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -255,7 +256,7 @@ class TelegramBotViewSetTests(BaseTestCase):
         request = self.factory.patch(
             self.detail_true_url, {'api_token': new_api_token}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -276,13 +277,13 @@ class TelegramBotViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.delete(self.detail_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.delete(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

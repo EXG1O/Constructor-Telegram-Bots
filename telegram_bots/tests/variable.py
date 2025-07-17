@@ -1,21 +1,24 @@
+from django.test import TestCase
 from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.test import force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import Variable
 from ..views import VariableViewSet
-from .base import BaseTestCase
+from .mixins import TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
-class VariableViewSetTests(BaseTestCase):
+class VariableViewSetTests(TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        self.factory = APIRequestFactory()
 
         self.variable: Variable = self.telegram_bot.variables.create(
             name='Test name', value='The test value :)', description='The test variable'
@@ -55,13 +58,13 @@ class VariableViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.get(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -79,13 +82,13 @@ class VariableViewSetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         request = self.factory.post(self.list_false_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.list_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -100,7 +103,7 @@ class VariableViewSetTests(BaseTestCase):
                 'description': 'The test variable',
             },
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -123,13 +126,13 @@ class VariableViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.variable.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
@@ -152,13 +155,13 @@ class VariableViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.variable.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.put(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
@@ -176,7 +179,7 @@ class VariableViewSetTests(BaseTestCase):
             },
             format='json',
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
@@ -202,13 +205,13 @@ class VariableViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.variable.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
@@ -220,7 +223,7 @@ class VariableViewSetTests(BaseTestCase):
         request = self.factory.patch(
             self.detail_true_url, {'name': new_name}, format='json'
         )
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
@@ -246,13 +249,13 @@ class VariableViewSetTests(BaseTestCase):
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.delete(url)
-            force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+            force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
             response = view(request, telegram_bot_id=0, id=self.variable.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.delete(self.detail_true_url)
-        force_authenticate(request, self.site_user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.variable.id
