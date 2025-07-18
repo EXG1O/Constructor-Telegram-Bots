@@ -15,7 +15,7 @@ class LanguagesAPIView(APIView):
 
     @method_decorator(cache_page(3600))
     def get(self, request: Request) -> Response:
-        return Response({language[0]: language[1] for language in settings.LANGUAGES})
+        return Response(dict(settings.LANGUAGES))
 
     def post(self, request: Request) -> Response:
         serializer = SetLanguageSerializer(data=request.data)
