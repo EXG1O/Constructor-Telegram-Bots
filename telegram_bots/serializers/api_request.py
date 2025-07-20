@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+
 from rest_framework import serializers
 
 from ..models import APIRequest
@@ -12,6 +14,19 @@ class APIRequestSerializer(TelegramBotMixin, serializers.ModelSerializer[APIRequ
     class Meta:
         model = APIRequest
         fields = ['id', 'name', 'url', 'method', 'headers', 'body']
+
+    def validate_headers(self, headers: list[Any] | dict[str, Any]) -> dict[str, str]:
+        if not isinstance(headers, dict):
+            raise serializers.ValidationError(_('Заголовки должны быть словарем.'))
+
+        for key, value in headers.items():
+            if not isinstance(value, str):
+                raise serializers.ValidationError(
+                    _("Значение для заголовка '%(key)s' должно быть строкой.")
+                    % {'key': key}
+                )
+
+        return headers
 
     def create(self, validated_data: dict[str, Any]) -> APIRequest:
         return self.telegram_bot.api_requests.create(**validated_data)
