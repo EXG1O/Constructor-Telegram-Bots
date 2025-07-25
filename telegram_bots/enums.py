@@ -27,8 +27,8 @@ class ConnectionObjectType(TextChoices):
     @staticmethod
     def source_choices() -> list[tuple[str, str]]:
         return [
-            (value, value.label)
-            for value in [
+            (item.value, item.label)
+            for item in [
                 ConnectionObjectType.TRIGGER,
                 ConnectionObjectType.COMMAND_KEYBOARD_BUTTON,
                 ConnectionObjectType.CONDITION,
@@ -41,8 +41,8 @@ class ConnectionObjectType(TextChoices):
     @staticmethod
     def target_choices() -> list[tuple[str, str]]:
         return [
-            (value, value.label)
-            for value in [
+            (item.value, item.label)
+            for item in [
                 ConnectionObjectType.COMMAND,
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.API_REQUEST,
