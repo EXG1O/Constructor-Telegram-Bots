@@ -5,11 +5,13 @@ from rest_framework import serializers
 
 from ..enums import ConnectionObjectType
 from ..models import (
+    APIRequest,
     BackgroundTask,
     Command,
     CommandKeyboardButton,
     Condition,
     Connection,
+    DatabaseOperation,
     Trigger,
 )
 from .mixins import TelegramBotMixin
@@ -59,6 +61,14 @@ class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connect
         ConnectionObjectType.BACKGROUND_TASK: {
             'model': BackgroundTask,
             'queryset': lambda self: self.telegram_bot.background_tasks,
+        },
+        ConnectionObjectType.API_REQUEST: {
+            'model': APIRequest,
+            'queryset': lambda self: self.telegram_bot.api_requests,
+        },
+        ConnectionObjectType.DATABASE_OPERATION: {
+            'model': DatabaseOperation,
+            'queryset': lambda self: self.telegram_bot.database_operations,
         },
     }
 
