@@ -8,7 +8,10 @@ from constructor_telegram_bots.mixins import IDLookupMixin
 from users.authentication import JWTCookieAuthentication
 
 from ..models import DatabaseOperation
-from ..serializers import DiagramDatabaseOperationSerializer
+from ..serializers import (
+    DatabaseOperationSerializer,
+    DiagramDatabaseOperationSerializer,
+)
 from .mixins import TelegramBotMixin
 
 
@@ -17,7 +20,7 @@ class DatabaseOperationViewSet(
 ):
     authentication_classes = [JWTCookieAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = DiagramDatabaseOperationSerializer
+    serializer_class = DatabaseOperationSerializer
 
     def get_queryset(self) -> QuerySet[DatabaseOperation]:
         operations: QuerySet[DatabaseOperation] = (

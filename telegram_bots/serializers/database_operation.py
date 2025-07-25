@@ -36,12 +36,16 @@ class DatabaseUpdateOperationSerializer(
 class DatabaseOperationSerializer(
     TelegramBotMixin, serializers.ModelSerializer[DatabaseOperation]
 ):
-    create_operation = DatabaseCreateOperationSerializer()
-    update_operation = DatabaseUpdateOperationSerializer()
+    create_operation = DatabaseCreateOperationSerializer(
+        required=False, allow_null=True
+    )
+    update_operation = DatabaseUpdateOperationSerializer(
+        required=False, allow_null=True
+    )
 
     class Meta:
         model = DatabaseOperation
-        fields = ['id', 'create_operation', 'update_operation']
+        fields = ['id', 'name', 'create_operation', 'update_operation']
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if bool(data.get('create_operation')) is bool(data.get('update_operation')):
@@ -135,7 +139,7 @@ class DatabaseOperationSerializer(
             )
             return update_operation
         except DatabaseUpdateOperation.DoesNotExist:
-            return self.update_update_operation(operation, data)
+            return self.create_update_operation(operation, data)
 
     def update(
         self, operation: DatabaseOperation, validated_data: dict[str, Any]

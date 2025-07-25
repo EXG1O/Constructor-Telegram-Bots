@@ -8,11 +8,13 @@ from .views import (
     CommandViewSet,
     ConditionViewSet,
     ConnectionViewSet,
+    DatabaseOperationViewSet,
     DatabaseRecordViewSet,
     DiagramAPIRequestViewSet,
     DiagramBackgroundTaskViewSet,
     DiagramCommandViewSet,
     DiagramConditionViewSet,
+    DiagramDatabaseOperationViewSet,
     DiagramTriggerViewSet,
     StatsAPIView,
     TelegramBotViewSet,
@@ -88,6 +90,17 @@ router.register(
     f'{base_diagram_path}/api-requests',
     DiagramAPIRequestViewSet,
     basename=f'{base_diagram_name}-api-request',
+)
+
+router.register(
+    f'{base_path}/database-operations',
+    DatabaseOperationViewSet,
+    basename=f'{base_name}-database-operation',
+)
+router.register(
+    f'{base_diagram_path}/database-operations',
+    DiagramDatabaseOperationViewSet,
+    basename=f'{base_diagram_name}-database-operation',
 )
 
 router.register(
