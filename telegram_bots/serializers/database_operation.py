@@ -48,7 +48,9 @@ class DatabaseOperationSerializer(
         fields = ['id', 'name', 'create_operation', 'update_operation']
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        if bool(data.get('create_operation')) is bool(data.get('update_operation')):
+        if not self.partial and bool(data.get('create_operation')) is bool(
+            data.get('update_operation')
+        ):
             raise serializers.ValidationError(
                 _(
                     "Необходимо указать только одно из полей: 'create_operation' "

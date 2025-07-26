@@ -32,7 +32,7 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         fields = ['id', 'name', 'command', 'message']
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        if bool(data.get('command')) is bool(data.get('message')):
+        if not self.partial and bool(data.get('command')) is bool(data.get('message')):
             raise serializers.ValidationError(
                 _("Необходимо указать только одно из полей: 'command' или 'message'.")
             )
