@@ -6,43 +6,48 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ..models import Condition
-from ..views import ConditionViewSet, DiagramConditionViewSet
-from .mixins import ConditionMixin, TelegramBotMixin, UserMixin
+from ..models import DatabaseOperation
+from ..views import DatabaseOperationViewSet, DiagramDatabaseOperationViewSet
+from .mixins import DatabaseOperationMixin, TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
-class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCase):
+class DatabaseOperationViewSetTests(
+    DatabaseOperationMixin, TelegramBotMixin, UserMixin, TestCase
+):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
 
         self.list_true_url: str = reverse(
-            'api:telegram-bots:telegram-bot-condition-list',
+            'api:telegram-bots:telegram-bot-database-operation-list',
             kwargs={'telegram_bot_id': self.telegram_bot.id},
         )
         self.list_false_url: str = reverse(
-            'api:telegram-bots:telegram-bot-condition-list',
+            'api:telegram-bots:telegram-bot-database-operation-list',
             kwargs={'telegram_bot_id': 0},
         )
         self.detail_true_url: str = reverse(
-            'api:telegram-bots:telegram-bot-condition-detail',
-            kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.condition.id},
+            'api:telegram-bots:telegram-bot-database-operation-detail',
+            kwargs={
+                'telegram_bot_id': self.telegram_bot.id,
+                'id': self.database_operation.id,
+            },
         )
         self.detail_false_url_1: str = reverse(
-            'api:telegram-bots:telegram-bot-condition-detail',
-            kwargs={'telegram_bot_id': 0, 'id': self.condition.id},
+            'api:telegram-bots:telegram-bot-database-operation-detail',
+            kwargs={'telegram_bot_id': 0, 'id': self.database_operation.id},
         )
         self.detail_false_url_2: str = reverse(
-            'api:telegram-bots:telegram-bot-condition-detail',
+            'api:telegram-bots:telegram-bot-database-operation-detail',
             kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
         )
 
     def test_list(self) -> None:
-        view = ConditionViewSet.as_view({'get': 'list'})
+        view = DatabaseOperationViewSet.as_view({'get': 'list'})
 
         if TYPE_CHECKING:
             request: Request
@@ -66,7 +71,7 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create(self) -> None:
-        view = ConditionViewSet.as_view({'post': 'create'})
+        view = DatabaseOperationViewSet.as_view({'post': 'create'})
 
         if TYPE_CHECKING:
             request: Request
@@ -91,29 +96,24 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
 
         request = self.factory.post(
             self.list_true_url,
-            {
-                'name': 'Test name',
-                'parts': [
-                    {
-                        'type': '+',
-                        'first_value': 'first_value',
-                        'operator': '==',
-                        'second_value': 'second_value',
-                    }
-                ],
-            },
+            {'name': 'Test name', 'create_operation': {'data': {'key': 'value'}}},
             format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-        old_condition_count: int = self.telegram_bot.conditions.count()
+        old_database_operation_count: int = (
+            self.telegram_bot.database_operations.count()
+        )
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(self.telegram_bot.conditions.count(), old_condition_count + 1)
+        self.assertEqual(
+            self.telegram_bot.database_operations.count(),
+            old_database_operation_count + 1,
+        )
 
     def test_retrieve(self) -> None:
-        view = ConditionViewSet.as_view({'get': 'retrieve'})
+        view = DatabaseOperationViewSet.as_view({'get': 'retrieve'})
 
         if TYPE_CHECKING:
             request: Request
@@ -122,7 +122,7 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         request = self.factory.get(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -130,19 +130,19 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
             request = self.factory.get(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update(self) -> None:
-        view = ConditionViewSet.as_view({'put': 'update'})
+        view = DatabaseOperationViewSet.as_view({'put': 'update'})
 
         if TYPE_CHECKING:
             request: Request
@@ -151,7 +151,7 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         request = self.factory.put(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -159,38 +159,47 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
             request = self.factory.put(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        new_name: str = 'Test name 2'
+        new_name: str = 'New test name'
+
+        request = self.factory.put(
+            self.detail_true_url, {'name': new_name}, format='json'
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         request = self.factory.put(
             self.detail_true_url,
             {
                 'name': new_name,
-                'parts': [
-                    {
-                        'type': '+',
-                        'first_value': 'first_value',
-                        'operator': '==',
-                        'second_value': 'second_value',
-                    }
-                ],
+                'update_operation': {
+                    'overwrite': True,
+                    'lookup_field_name': 'user_id',
+                    'lookup_field_value': '123456789',
+                    'create_if_not_found': False,
+                    'new_data': {'key': 'New value'},
+                },
             },
             format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.condition.refresh_from_db()
-        self.assertEqual(self.condition.name, new_name)
+        self.database_operation.refresh_from_db(fields=['name'])
+        self.assertEqual(self.database_operation.name, new_name)
 
     def test_partial_update(self) -> None:
-        view = ConditionViewSet.as_view({'patch': 'partial_update'})
+        view = DatabaseOperationViewSet.as_view({'patch': 'partial_update'})
 
         if TYPE_CHECKING:
             request: Request
@@ -199,7 +208,7 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         request = self.factory.patch(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -207,18 +216,18 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
             request = self.factory.patch(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        new_name: str = 'Test name 2'
+        new_name: str = 'New test name'
 
         request = self.factory.patch(
             self.detail_true_url, {'name': new_name}, format='json'
@@ -226,15 +235,15 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.condition.refresh_from_db()
-        self.assertEqual(self.condition.name, new_name)
+        self.database_operation.refresh_from_db(fields=['name'])
+        self.assertEqual(self.database_operation.name, new_name)
 
     def test_destroy(self) -> None:
-        view = ConditionViewSet.as_view({'delete': 'destroy'})
+        view = DatabaseOperationViewSet.as_view({'delete': 'destroy'})
 
         if TYPE_CHECKING:
             request: Request
@@ -243,7 +252,7 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         request = self.factory.delete(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -251,24 +260,26 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
             request = self.factory.delete(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.delete(self.detail_true_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        with suppress(Condition.DoesNotExist):
-            self.condition.refresh_from_db()
-            raise self.failureException('Condition has not been deleted from database!')
+        with suppress(DatabaseOperation.DoesNotExist):
+            self.database_operation.refresh_from_db()
+            raise self.failureException(
+                'Database operation has not been deleted from database.'
+            )
 
 
-class DiagramConditionViewSetTests(
-    ConditionMixin, TelegramBotMixin, UserMixin, TestCase
+class DiagramDatabaseOperationViewSetTests(
+    DatabaseOperationMixin, TelegramBotMixin, UserMixin, TestCase
 ):
     def setUp(self) -> None:
         super().setUp()
@@ -276,28 +287,31 @@ class DiagramConditionViewSetTests(
         self.factory = APIRequestFactory()
 
         self.list_true_url: str = reverse(
-            'api:telegram-bots:telegram-bot-diagram-condition-list',
+            'api:telegram-bots:telegram-bot-diagram-database-operation-list',
             kwargs={'telegram_bot_id': self.telegram_bot.id},
         )
         self.list_false_url: str = reverse(
-            'api:telegram-bots:telegram-bot-diagram-condition-list',
+            'api:telegram-bots:telegram-bot-diagram-database-operation-list',
             kwargs={'telegram_bot_id': 0},
         )
         self.detail_true_url: str = reverse(
-            'api:telegram-bots:telegram-bot-diagram-condition-detail',
-            kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.condition.id},
+            'api:telegram-bots:telegram-bot-diagram-database-operation-detail',
+            kwargs={
+                'telegram_bot_id': self.telegram_bot.id,
+                'id': self.database_operation.id,
+            },
         )
         self.detail_false_url_1: str = reverse(
-            'api:telegram-bots:telegram-bot-diagram-condition-detail',
-            kwargs={'telegram_bot_id': 0, 'id': self.condition.id},
+            'api:telegram-bots:telegram-bot-diagram-database-operation-detail',
+            kwargs={'telegram_bot_id': 0, 'id': self.database_operation.id},
         )
         self.detail_false_url_2: str = reverse(
-            'api:telegram-bots:telegram-bot-diagram-condition-detail',
+            'api:telegram-bots:telegram-bot-diagram-database-operation-detail',
             kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
         )
 
     def test_list(self) -> None:
-        view = DiagramConditionViewSet.as_view({'get': 'list'})
+        view = DiagramDatabaseOperationViewSet.as_view({'get': 'list'})
 
         if TYPE_CHECKING:
             request: Request
@@ -321,7 +335,7 @@ class DiagramConditionViewSetTests(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve(self) -> None:
-        view = DiagramConditionViewSet.as_view({'get': 'retrieve'})
+        view = DiagramDatabaseOperationViewSet.as_view({'get': 'retrieve'})
 
         if TYPE_CHECKING:
             request: Request
@@ -330,7 +344,7 @@ class DiagramConditionViewSetTests(
         request = self.factory.get(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -338,19 +352,19 @@ class DiagramConditionViewSetTests(
             request = self.factory.get(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update(self) -> None:
-        view = DiagramConditionViewSet.as_view({'put': 'update'})
+        view = DiagramDatabaseOperationViewSet.as_view({'put': 'update'})
 
         if TYPE_CHECKING:
             request: Request
@@ -359,7 +373,7 @@ class DiagramConditionViewSetTests(
         request = self.factory.put(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -367,14 +381,14 @@ class DiagramConditionViewSetTests(
             request = self.factory.put(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.put(self.detail_true_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -386,15 +400,15 @@ class DiagramConditionViewSetTests(
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.condition.refresh_from_db()
-        self.assertEqual(self.condition.x, new_x)
+        self.database_operation.refresh_from_db(fields=['x'])
+        self.assertEqual(self.database_operation.x, new_x)
 
     def test_partial_update(self) -> None:
-        view = DiagramConditionViewSet.as_view({'patch': 'partial_update'})
+        view = DiagramDatabaseOperationViewSet.as_view({'patch': 'partial_update'})
 
         if TYPE_CHECKING:
             request: Request
@@ -403,7 +417,7 @@ class DiagramConditionViewSetTests(
         request = self.factory.patch(self.detail_true_url)
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -411,14 +425,14 @@ class DiagramConditionViewSetTests(
             request = self.factory.patch(url)
             force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.condition.id)
+            response = view(request, telegram_bot_id=0, id=self.database_operation.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.patch(self.detail_true_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -428,9 +442,9 @@ class DiagramConditionViewSetTests(
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.condition.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.condition.refresh_from_db()
-        self.assertEqual(self.condition.x, new_x)
+        self.database_operation.refresh_from_db(fields=['x'])
+        self.assertEqual(self.database_operation.x, new_x)

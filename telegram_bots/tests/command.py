@@ -6,24 +6,20 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ..models import Command, CommandMessage, CommandSettings
+from ..models import Command
 from ..views import CommandViewSet, DiagramCommandViewSet
-from .mixins import TelegramBotMixin, UserMixin
+from .mixins import CommandMixin, TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 import json
 
 
-class CommandViewSetTests(TelegramBotMixin, UserMixin, TestCase):
+class CommandViewSetTests(CommandMixin, TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
-
-        self.command: Command = self.telegram_bot.commands.create(name='Test name')
-        CommandSettings.objects.create(command=self.command)
-        CommandMessage.objects.create(command=self.command, text='...')
 
         self.list_true_url: str = reverse(
             'api:telegram-bots:telegram-bot-command-list',
@@ -325,13 +321,11 @@ class CommandViewSetTests(TelegramBotMixin, UserMixin, TestCase):
             raise self.failureException('Command has not been deleted from database!')
 
 
-class DiagramCommandViewSetTests(TelegramBotMixin, UserMixin, TestCase):
+class DiagramCommandViewSetTests(CommandMixin, TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
-
-        self.command: Command = self.telegram_bot.commands.create(name='Test name')
 
         self.list_true_url: str = reverse(
             'api:telegram-bots:telegram-bot-diagram-command-list',
