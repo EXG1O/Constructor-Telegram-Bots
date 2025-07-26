@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ..enums import ConnectionHandlePosition
+from ..enums import ConnectionHandlePosition, KeyboardType
 from ..models import Command, CommandKeyboard, CommandKeyboardButton, Connection
 from ..views import ConnectionViewSet
 from .mixins import TelegramBotMixin, UserMixin
@@ -25,7 +25,7 @@ class ConnectionViewSetTests(TelegramBotMixin, UserMixin, TestCase):
 
         self.command_2: Command = self.telegram_bot.commands.create(name='Test name 2')
         self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-            command=self.command_2, type='default'
+            command=self.command_2, type=KeyboardType.DEFAULT
         )
         self.command_2_keyboard_button: CommandKeyboardButton = (
             self.command_2_keyboard.buttons.create(row=0, position=0, text='Button')

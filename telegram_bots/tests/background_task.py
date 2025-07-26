@@ -8,21 +8,19 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import BackgroundTask
 from ..views import BackgroundTaskViewSet, DiagramBackgroundTaskViewSet
-from .mixins import TelegramBotMixin, UserMixin
+from .mixins import BackgroundTaskMixin, TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
-class BackgroundTaskViewSetTests(TelegramBotMixin, UserMixin, TestCase):
+class BackgroundTaskViewSetTests(
+    BackgroundTaskMixin, TelegramBotMixin, UserMixin, TestCase
+):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
-
-        self.background_task: BackgroundTask = (
-            self.telegram_bot.background_tasks.create(name='Test name', interval=1)
-        )
 
         self.list_true_url: str = reverse(
             'api:telegram-bots:telegram-bot-background-task-list',
@@ -268,15 +266,13 @@ class BackgroundTaskViewSetTests(TelegramBotMixin, UserMixin, TestCase):
             )
 
 
-class DiagramBackgroundTaskViewSetTests(TelegramBotMixin, UserMixin, TestCase):
+class DiagramBackgroundTaskViewSetTests(
+    BackgroundTaskMixin, TelegramBotMixin, UserMixin, TestCase
+):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
-
-        self.background_task: BackgroundTask = (
-            self.telegram_bot.background_tasks.create(name='Test name', interval=1)
-        )
 
         self.list_true_url: str = reverse(
             'api:telegram-bots:telegram-bot-diagram-background-task-list',
