@@ -66,6 +66,30 @@ class UserViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_timeline_stats(self) -> None:
+        view = UserViewSet.as_view({'get': 'timeline_stats'})
+
+        if TYPE_CHECKING:
+            request: Request
+            response: Response
+
+        request = self.factory.get(self.list_true_url)
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        request = self.factory.get(self.list_false_url)
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=0)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        request = self.factory.get(self.list_true_url)
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_retrieve(self) -> None:
         view = UserViewSet.as_view({'get': 'retrieve'})
 
