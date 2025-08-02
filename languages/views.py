@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ class LanguagesAPIView(APIView):
     permission_classes = []
 
     @method_decorator(cache_page(3600))
+    @method_decorator(vary_on_cookie)
     def get(self, request: Request) -> Response:
         return Response(dict(settings.LANGUAGES))
 
