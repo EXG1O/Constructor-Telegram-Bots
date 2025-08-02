@@ -28,6 +28,8 @@ from ..serializers import UserSerializer
 from .mixins import TelegramBotMixin
 
 from datetime import timedelta
+from typing import Any
+import datetime
 
 
 class UserViewSet(
@@ -72,13 +74,19 @@ class UserViewSet(
                 {'days': _('Значение должно быть целым числом.')}
             ) from error
 
-        return Response(
-            list(
-                self.get_queryset()
-                .filter(**{f'{field}__gte': timezone.now() - timedelta(days=days)})
-                .annotate(date=TruncDate(field))
-                .values('date')
-                .annotate(count=Count('id'))
-                .order_by('date')
-            )
-        )
+        start_date: datetime.date = timezone.now().date() - timedelta(days=days)
+        timeline_data: dict[datetime.date, int] = {
+            item['date']: item['count']
+            for item in self.get_queryset()
+            .filter(**{f'{field}__gte': start_date})
+            .annotate(date=TruncDate(field))
+            .values('date')
+            .annotate(count=Count('id'))
+        }
+        result: list[dict[str, Any]] = []
+
+        for day in range(days):
+            date: datetime.date = start_date + timedelta(days=day)
+            result.append({'date': date, 'count': timeline_data.get(date, 0)})
+
+        return Response(result)
