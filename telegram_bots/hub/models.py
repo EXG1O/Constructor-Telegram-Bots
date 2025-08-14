@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django_stubs_ext.db.models import TypedModelMeta
 
 from ..utils import get_telegram_bot_modal
-from .api import API
+from .service import API
 
 from typing import TYPE_CHECKING, Any, Optional
 import secrets

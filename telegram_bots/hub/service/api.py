@@ -1,7 +1,7 @@
 from yarl import URL
 
 from .adapters import UnixHTTPAdapter
-from .data import StartTelegramBotData
+from .schemas import StartTelegramBot
 
 from requests import RequestException, Response, Session
 import requests
@@ -40,9 +40,7 @@ class API:
         response: Response | None = self._request('get', 'bots/')
         return response.json() if response else []
 
-    def start_telegram_bot(
-        self, telegram_bot_id: int, data: StartTelegramBotData
-    ) -> bool:
+    def start_telegram_bot(self, telegram_bot_id: int, data: StartTelegramBot) -> bool:
         return (
             self._request('post', f'bots/{telegram_bot_id}/start/', data=data)
             is not None

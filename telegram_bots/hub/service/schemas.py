@@ -1,5 +1,5 @@
 from typing import TypedDict
 
 
-class StartTelegramBotData(TypedDict):
+class StartTelegramBot(TypedDict):
     bot_token: str
