@@ -1,10 +1,12 @@
 from rest_framework.routers import SimpleRouter
 
 from .views import (
+    APIRequestViewSet,
     BackgroundTaskViewSet,
     CommandKeyboardButtonViewSet,
     CommandViewSet,
     ConditionViewSet,
+    DatabaseOperationViewSet,
     DatabaseRecordViewSet,
     TelegramBotViewSet,
     TriggerViewSet,
@@ -41,6 +43,16 @@ router.register(
     f'{base_path}/background-tasks',
     BackgroundTaskViewSet,
     basename=f'{base_name}-background-task',
+)
+router.register(
+    f'{base_path}/api-requests',
+    APIRequestViewSet,
+    basename=f'{base_name}-api-request',
+)
+router.register(
+    f'{base_path}/database-operations',
+    DatabaseOperationViewSet,
+    basename=f'{base_name}-database-operation',
 )
 router.register(
     f'{base_path}/variables',

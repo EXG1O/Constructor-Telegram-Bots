@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
-from ..models import TelegramBot
+from ...models import TelegramBot
 
 from typing import TYPE_CHECKING, Any
 
