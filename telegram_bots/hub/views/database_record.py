@@ -1,6 +1,6 @@
 from django.db.models import QuerySet
 
-from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -16,6 +16,7 @@ class DatabaseRecordViewSet(
     IDLookupMixin,
     TelegramBotMixin,
     CreateModelMixin,
+    UpdateModelMixin,
     ReadOnlyModelViewSet[DatabaseRecord],
 ):
     authentication_classes = [TokenAuthentication]
