@@ -89,5 +89,5 @@ class TelegramBackend(ModelBackend):
             secret_key, data_check_string.encode(), hashlib.sha256
         ).hexdigest()
 
-        if hmac.compare_digest(result_hash, hash):
+        if not hmac.compare_digest(result_hash, hash):
             raise FakeTelegramDataError()
