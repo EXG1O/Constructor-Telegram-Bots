@@ -12,10 +12,13 @@ from ..models import (
     ConditionPart,
     DatabaseCreateOperation,
     DatabaseOperation,
+    DatabaseRecord,
     TelegramBot,
     Trigger,
     TriggerCommand,
+    Variable,
 )
+from ..models import User as BotUser
 
 from typing import TYPE_CHECKING
 
@@ -116,4 +119,35 @@ class DatabaseOperationMixin:
             DatabaseCreateOperation.objects.create(
                 operation=self.database_operation, data={'key': 'value'}
             )
+        )
+
+
+class VariableMixin:
+    if TYPE_CHECKING:
+        telegram_bot: TelegramBot
+
+    def setUp(self) -> None:
+        super().setUp()  # type: ignore [misc]
+        self.variable: Variable = self.telegram_bot.variables.create(
+            name='Test name', value='The test value :)', description='The test variable'
+        )
+
+
+class BotUserMixin:
+    if TYPE_CHECKING:
+        telegram_bot: TelegramBot
+
+    def setUp(self) -> None:
+        super().setUp()  # type: ignore [misc]
+        self.bot_user: BotUser = self.telegram_bot.users.create(telegram_id=123456789)
+
+
+class DatabaseRecordMixin:
+    if TYPE_CHECKING:
+        telegram_bot: TelegramBot
+
+    def setUp(self) -> None:
+        super().setUp()  # type: ignore [misc]
+        self.database_record: DatabaseRecord = (
+            self.telegram_bot.database_records.create(data={'key': 'value'})
         )

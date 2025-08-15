@@ -8,21 +8,17 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import Variable
 from ..views import VariableViewSet
-from .mixins import TelegramBotMixin, UserMixin
+from .mixins import TelegramBotMixin, UserMixin, VariableMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
-class VariableViewSetTests(TelegramBotMixin, UserMixin, TestCase):
+class VariableViewSetTests(VariableMixin, TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
-
-        self.variable: Variable = self.telegram_bot.variables.create(
-            name='Test name', value='The test value :)', description='The test variable'
-        )
 
         self.list_true_url: str = reverse(
             'api:telegram-bots:telegram-bot-variable-list',

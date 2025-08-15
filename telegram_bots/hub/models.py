@@ -7,10 +7,9 @@ from django.utils.translation import gettext_lazy as _
 from django_stubs_ext.db.models import TypedModelMeta
 
 from ..utils import get_telegram_bot_modal
-from .api import API
+from .service import API
 
 from typing import TYPE_CHECKING, Any, Optional
-import secrets
 
 if TYPE_CHECKING:
     from ..models import TelegramBot
@@ -34,16 +33,12 @@ class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
         return None
 
 
-def generate_token() -> str:
-    return secrets.token_hex(25)
-
-
 class TelegramBotsHub(models.Model):
     url = models.URLField(_('URL-адрес'), unique=True)
     service_token = models.CharField(
-        _('Токен сервиса'), max_length=50, primary_key=True, default=generate_token
+        _('Токен сервиса'), max_length=64, primary_key=True
     )
-    microservice_token = models.CharField(_('Токен микросервиса'), max_length=50)
+    microservice_token = models.CharField(_('Токен микросервиса'), max_length=64)
 
     is_authenticated = True  # Stub for IsAuthenticated permission
 
