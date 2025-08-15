@@ -8,19 +8,17 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from ..models import User
 from ..views import UserViewSet
-from .mixins import TelegramBotMixin, UserMixin
+from .mixins import BotUserMixin, TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
-class UserViewSetTests(TelegramBotMixin, UserMixin, TestCase):
+class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
-
-        self.bot_user = self.telegram_bot.users.create(telegram_id=123456789)
 
         self.list_true_url: str = reverse(
             'api:telegram-bots:telegram-bot-user-list',
