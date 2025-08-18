@@ -209,7 +209,7 @@ class Migration(migrations.Migration):
                 (
                     'create_if_not_found',
                     models.BooleanField(
-                        default=True, verbose_name='Создать, если запись не найдена'
+                        default=True, verbose_name='Создать, если не найдена'
                     ),
                 ),
                 ('new_data', models.JSONField(verbose_name='Новые данные')),
