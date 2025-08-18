@@ -27,11 +27,7 @@ import os
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
     class Meta:
         model = CommandSettings
-        fields = [
-            'is_reply_to_user_message',
-            'is_delete_user_message',
-            'is_send_as_new_message',
-        ]
+        fields = ['reply_to_user_message', 'delete_user_message', 'send_as_new_message']
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
@@ -191,20 +187,20 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
         if not settings_data:
             return
 
-        command.settings.is_reply_to_user_message = settings_data.get(
-            'is_reply_to_user_message', command.settings.is_reply_to_user_message
+        command.settings.reply_to_user_message = settings_data.get(
+            'reply_to_user_message', command.settings.reply_to_user_message
         )
-        command.settings.is_delete_user_message = settings_data.get(
-            'is_delete_user_message', command.settings.is_delete_user_message
+        command.settings.delete_user_message = settings_data.get(
+            'delete_user_message', command.settings.delete_user_message
         )
-        command.settings.is_send_as_new_message = settings_data.get(
-            'is_send_as_new_message', command.settings.is_send_as_new_message
+        command.settings.send_as_new_message = settings_data.get(
+            'send_as_new_message', command.settings.send_as_new_message
         )
         command.settings.save(
             update_fields=[
-                'is_reply_to_user_message',
-                'is_delete_user_message',
-                'is_send_as_new_message',
+                'reply_to_user_message',
+                'delete_user_message',
+                'send_as_new_message',
             ]
         )
 

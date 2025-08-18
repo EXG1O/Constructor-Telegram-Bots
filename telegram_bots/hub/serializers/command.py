@@ -16,11 +16,7 @@ from .connection import ConnectionSerializer
 class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
     class Meta:
         model = CommandSettings
-        fields = [
-            'is_reply_to_user_message',
-            'is_delete_user_message',
-            'is_send_as_new_message',
-        ]
+        fields = ['reply_to_user_message', 'delete_user_message', 'send_as_new_message']
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):

@@ -25,14 +25,14 @@ class CommandSettings(models.Model):
         related_name='settings',
         verbose_name=_('Команда'),
     )
-    is_reply_to_user_message = models.BooleanField(
+    reply_to_user_message = models.BooleanField(
         _('Ответить на сообщение пользователя'), default=False
     )
-    is_delete_user_message = models.BooleanField(
+    delete_user_message = models.BooleanField(
         _('Удалить сообщение пользователя'), default=False
     )
-    is_send_as_new_message = models.BooleanField(
-        _('Отправить сообщение как новое'), default=False
+    send_as_new_message = models.BooleanField(
+        _('Отправить сообщение как новое'), default=True
     )
 
     class Meta(TypedModelMeta):
