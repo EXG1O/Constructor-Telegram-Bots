@@ -109,9 +109,9 @@ class CommandViewSetTests(CommandMixin, TelegramBotMixin, UserMixin, TestCase):
                     {
                         'name': 'Test name',
                         'settings': {
-                            'is_reply_to_user_message': False,
-                            'is_delete_user_message': False,
-                            'is_send_as_new_message': False,
+                            'reply_to_user_message': False,
+                            'delete_user_message': False,
+                            'send_as_new_message': False,
                         },
                     }
                 )
@@ -129,9 +129,9 @@ class CommandViewSetTests(CommandMixin, TelegramBotMixin, UserMixin, TestCase):
                     {
                         'name': 'Test name',
                         'settings': {
-                            'is_reply_to_user_message': False,
-                            'is_delete_user_message': False,
-                            'is_send_as_new_message': False,
+                            'reply_to_user_message': False,
+                            'delete_user_message': False,
+                            'send_as_new_message': False,
                         },
                         'message': {'text': 'The test message :)'},
                     }
@@ -224,9 +224,9 @@ class CommandViewSetTests(CommandMixin, TelegramBotMixin, UserMixin, TestCase):
                     {
                         'name': new_name,
                         'settings': {
-                            'is_reply_to_user_message': False,
-                            'is_delete_user_message': False,
-                            'is_send_as_new_message': False,
+                            'reply_to_user_message': False,
+                            'delete_user_message': False,
+                            'send_as_new_message': False,
                         },
                         'message': {'text': 'The test message :)'},
                     }
