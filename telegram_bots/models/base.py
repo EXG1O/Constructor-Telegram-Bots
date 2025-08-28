@@ -31,9 +31,6 @@ class AbstractBlock(models.Model):
     class Meta(TypedModelMeta):
         abstract = True
 
-    def __str__(self) -> str:
-        return self.name
-
 
 class AbstractCommandMedia(models.Model):
     if TYPE_CHECKING:
