@@ -41,14 +41,8 @@ class Connection(models.Model):
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_block_connection'
         indexes = [
-            models.Index(
-                fields=[
-                    'source_content_type',
-                    'source_object_id',
-                    'target_content_type',
-                    'target_object_id',
-                ]
-            )
+            models.Index(fields=['source_content_type', 'source_object_id']),
+            models.Index(fields=['target_content_type', 'target_object_id']),
         ]
         verbose_name = _('Подключение')
         verbose_name_plural = _('Подключения')
