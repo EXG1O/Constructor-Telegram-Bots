@@ -1,3 +1,4 @@
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -15,6 +16,7 @@ class DatabaseRecord(models.Model):
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_database_record'
+        indexes = [GinIndex(fields=['data'])]
         verbose_name = _('Запись в БД')
         verbose_name_plural = _('Записи в БД')
 

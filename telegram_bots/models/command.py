@@ -140,6 +140,7 @@ class CommandKeyboardButton(models.Model):
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_command_keyboard_button'
+        indexes = [models.Index(fields=['text'])]
         verbose_name = _('Кнопка клавиатуры команды')
         verbose_name_plural = _('Кнопки клавиатур команд')
 
