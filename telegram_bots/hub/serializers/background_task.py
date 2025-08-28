@@ -9,4 +9,4 @@ class BackgroundTaskSerializer(serializers.ModelSerializer[BackgroundTask]):
 
     class Meta:
         model = BackgroundTask
-        fields = ['id', 'name', 'interval', 'source_connections']
+        fields = ['id', 'interval', 'source_connections']

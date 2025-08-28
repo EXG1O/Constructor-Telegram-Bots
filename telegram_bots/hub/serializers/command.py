@@ -59,17 +59,7 @@ class CommandSerializer(serializers.ModelSerializer[Command]):
     documents = CommandDocumentSerializer(many=True)
     message = CommandMessageSerializer()
     keyboard = CommandKeyboardSerializer()
-    target_connections = ConnectionSerializer(many=True)
 
     class Meta:
         model = Command
-        fields = [
-            'id',
-            'name',
-            'settings',
-            'images',
-            'documents',
-            'message',
-            'keyboard',
-            'target_connections',
-        ]
+        fields = ['id', 'settings', 'images', 'documents', 'message', 'keyboard']

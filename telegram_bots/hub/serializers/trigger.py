@@ -23,4 +23,4 @@ class TriggerSerializer(serializers.ModelSerializer[Trigger]):
 
     class Meta:
         model = Trigger
-        fields = ['id', 'name', 'command', 'message', 'source_connections']
+        fields = ['id', 'command', 'message', 'source_connections']

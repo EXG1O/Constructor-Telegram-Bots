@@ -34,15 +34,7 @@ class DatabaseOperationSerializer(serializers.ModelSerializer[DatabaseOperation]
     create_operation = DatabaseCreateOperationSerializer()
     update_operation = DatabaseUpdateOperationSerializer()
     source_connections = ConnectionSerializer(many=True)
-    target_connections = ConnectionSerializer(many=True)
 
     class Meta:
         model = DatabaseOperation
-        fields = [
-            'id',
-            'name',
-            'create_operation',
-            'update_operation',
-            'source_connections',
-            'target_connections',
-        ]
+        fields = ['id', 'create_operation', 'update_operation', 'source_connections']

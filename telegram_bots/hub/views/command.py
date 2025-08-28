@@ -29,8 +29,6 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Comma
                 'documents',
                 'keyboard__buttons__source_connections__source_object',
                 'keyboard__buttons__source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return commands
