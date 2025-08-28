@@ -20,8 +20,7 @@ class ConditionPartSerializer(serializers.ModelSerializer[ConditionPart]):
 class ConditionSerializer(serializers.ModelSerializer[Condition]):
     parts = ConditionPartSerializer(many=True)
     source_connections = ConnectionSerializer(many=True)
-    target_connections = ConnectionSerializer(many=True)
 
     class Meta:
         model = Condition
-        fields = ['id', 'name', 'parts', 'source_connections', 'target_connections']
+        fields = ['id', 'parts', 'source_connections']

@@ -26,8 +26,6 @@ class ConditionViewSet(
                 'parts',
                 'source_connections__source_object',
                 'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return conditions
