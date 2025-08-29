@@ -52,9 +52,12 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
             .get_queryset(request)
             .annotate(
                 block_count=(
-                    Count('commands', distinct=True)
+                    Count('triggers', distinct=True)
+                    + Count('commands', distinct=True)
                     + Count('conditions', distinct=True)
                     + Count('background_tasks', distinct=True)
+                    + Count('api_requests', distinct=True)
+                    + Count('database_operations', distinct=True)
                 ),
                 user_count=Count('users', distinct=True),
             )
