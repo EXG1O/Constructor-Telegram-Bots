@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
@@ -35,6 +36,17 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         if not self.partial and bool(data.get('command')) is bool(data.get('message')):
             raise serializers.ValidationError(
                 _("Необходимо указать только одно из полей: 'command' или 'message'.")
+            )
+
+        if (
+            not self.instance
+            and self.telegram_bot.triggers.count() + 1
+            > settings.TELEGRAM_BOT_MAX_TRIGGERS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s триггеров.')
+                % {'max': settings.TELEGRAM_BOT_MAX_TRIGGERS},
+                code='max_limit',
             )
 
         return data
