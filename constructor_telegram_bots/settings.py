@@ -44,6 +44,8 @@ SESSION_COOKIE_AGE: Final[int] = 2419200  # 4 weeks
 
 FILE_UPLOAD_MAX_MEMORY_SIZE: Final[int] = 62914560  # 60M
 
+TELEGRAM_BOT_MAX_VARIABLES: Final[int] = 100
+
 
 JWT_REFRESH_TOKEN_COOKIE_NAME: Final[str] = 'jwt_refresh_token'
 JWT_ACCESS_TOKEN_COOKIE_NAME: Final[str] = 'jwt_access_token'
