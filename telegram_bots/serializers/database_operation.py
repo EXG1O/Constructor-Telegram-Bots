@@ -1,4 +1,5 @@
-from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
@@ -56,6 +57,17 @@ class DatabaseOperationSerializer(
                     "Необходимо указать только одно из полей: 'create_operation' "
                     "или 'update_operation'."
                 )
+            )
+
+        if (
+            not self.instance
+            and self.telegram_bot.database_operations.count() + 1
+            > settings.TELEGRAM_BOT_MAX_DATABASE_OPERATIONS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s операций базы данных.')
+                % {'max': settings.TELEGRAM_BOT_MAX_DATABASE_OPERATIONS},
+                code='max_limit',
             )
 
         return data

@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.utils.translation import gettext as _
+
 from rest_framework import serializers
 
 from ..models import Variable
@@ -10,6 +13,20 @@ class VariableSerializer(TelegramBotMixin, serializers.ModelSerializer[Variable]
     class Meta:
         model = Variable
         fields = ['id', 'name', 'value', 'description']
+
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if (
+            not self.instance
+            and self.telegram_bot.variables.count() + 1
+            > settings.TELEGRAM_BOT_MAX_VARIABLES
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s переменных.')
+                % {'max': settings.TELEGRAM_BOT_MAX_VARIABLES},
+                code='max_limit',
+            )
+
+        return data
 
     def create(self, validated_data: dict[str, Any]) -> Variable:
         return self.telegram_bot.variables.create(**validated_data)

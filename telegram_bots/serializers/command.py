@@ -100,6 +100,26 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
     ) -> list[dict[str, Any]]:
         return self._validate_media(documents)
 
+    def validate_keyboard(self, keyboard: dict[str, Any]) -> dict[str, Any] | None:
+        buttons: list[dict[str, Any]] | None = keyboard.get('buttons')
+
+        if not buttons:
+            return None
+
+        if (
+            len(buttons)
+            if not isinstance(self.instance, Command) or not self.partial
+            else self.instance.keyboard.buttons.count()
+            + sum('id' not in button for button in buttons)
+        ) > settings.TELEGRAM_BOT_MAX_COMMAND_KEYBOARD_BUTTONS:
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s кнопок для клавиатуры команды.')
+                % {'max': settings.TELEGRAM_BOT_MAX_COMMAND_KEYBOARD_BUTTONS},
+                code='max_limit',
+            )
+
+        return keyboard
+
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         images: list[dict[str, Any]] = data.get('images', [])
         documents: list[dict[str, Any]] = data.get('documents', [])
@@ -117,6 +137,17 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
                 raise serializers.ValidationError(
                     _('Превышен лимит хранилища.'), code='storage_size'
                 )
+
+        if (
+            not self.instance
+            and self.telegram_bot.commands.count() + 1
+            > settings.TELEGRAM_BOT_MAX_COMMANDS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s команд.')
+                % {'max': settings.TELEGRAM_BOT_MAX_COMMANDS},
+                code='max_limit',
+            )
 
         return data
 

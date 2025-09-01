@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
@@ -31,12 +32,37 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
         fields = ['id', 'name', 'parts']
 
     def validate_parts(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        if not self.partial and not parts:
+        if (not self.instance or not self.partial) and not parts:
             raise serializers.ValidationError(
-                _('Условие должно содержать хотя бы одну часть.')
+                _('Условие должно содержать хотя бы одну часть.'), code='empty'
+            )
+
+        if (
+            len(parts)
+            if not isinstance(self.instance, Condition) or not self.partial
+            else self.instance.parts.count() + sum('id' not in part for part in parts)
+        ) > settings.TELEGRAM_BOT_MAX_CONDITION_PARTS:
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s частей условия.')
+                % {'max': settings.TELEGRAM_BOT_MAX_CONDITION_PARTS},
+                code='max_limit',
             )
 
         return parts
+
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if (
+            not self.instance
+            and self.telegram_bot.conditions.count() + 1
+            > settings.TELEGRAM_BOT_MAX_CONDITIONS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s условий.')
+                % {'max': settings.TELEGRAM_BOT_MAX_CONDITIONS},
+                code='max_limit',
+            )
+
+        return data
 
     def create(self, validated_data: dict[str, Any]) -> Condition:
         parts_data: list[dict[str, Any]] = validated_data.pop('parts')

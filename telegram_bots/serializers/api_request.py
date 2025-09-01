@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -27,6 +28,20 @@ class APIRequestSerializer(TelegramBotMixin, serializers.ModelSerializer[APIRequ
                 )
 
         return headers
+
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if (
+            not self.instance
+            and self.telegram_bot.api_requests.count() + 1
+            > settings.TELEGRAM_BOT_MAX_API_REQUESTS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s API-запросов.')
+                % {'max': settings.TELEGRAM_BOT_MAX_API_REQUESTS},
+                code='max_limit',
+            )
+
+        return data
 
     def create(self, validated_data: dict[str, Any]) -> APIRequest:
         return self.telegram_bot.api_requests.create(**validated_data)
