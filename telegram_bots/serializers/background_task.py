@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.utils.translation import gettext as _
+
 from rest_framework import serializers
 
 from ..models import BackgroundTask
@@ -14,6 +17,20 @@ class BackgroundTaskSerializer(
     class Meta:
         model = BackgroundTask
         fields = ['id', 'name', 'interval']
+
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if (
+            not self.instance
+            and self.telegram_bot.background_tasks.count() + 1
+            > settings.TELEGRAM_BOT_MAX_BACKGROUND_TASKS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s фоновых задач.')
+                % {'max': settings.TELEGRAM_BOT_MAX_BACKGROUND_TASKS},
+                code='max_limit',
+            )
+
+        return data
 
     def create(self, validated_data: dict[str, Any]) -> BackgroundTask:
         return self.telegram_bot.background_tasks.create(**validated_data)
