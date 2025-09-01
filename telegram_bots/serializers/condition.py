@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
@@ -37,6 +38,20 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
             )
 
         return parts
+
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if (
+            not self.instance
+            and self.telegram_bot.conditions.count() + 1
+            > settings.TELEGRAM_BOT_MAX_CONDITIONS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s условий.')
+                % {'max': settings.TELEGRAM_BOT_MAX_CONDITIONS},
+                code='max_limit',
+            )
+
+        return data
 
     def create(self, validated_data: dict[str, Any]) -> Condition:
         parts_data: list[dict[str, Any]] = validated_data.pop('parts')
