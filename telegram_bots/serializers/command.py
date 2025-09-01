@@ -118,6 +118,17 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
                     _('Превышен лимит хранилища.'), code='storage_size'
                 )
 
+        if (
+            not self.instance
+            and self.telegram_bot.commands.count() + 1
+            > settings.TELEGRAM_BOT_MAX_COMMANDS
+        ):
+            raise serializers.ValidationError(
+                _('Нельзя добавлять больше %(max)s команд.')
+                % {'max': settings.TELEGRAM_BOT_MAX_COMMANDS},
+                code='max_limit',
+            )
+
         return data
 
     def create_settings(self, command: Command, settings_data: dict[str, Any]) -> None:
