@@ -22,21 +22,21 @@ class TelegramBotViewSet(IDLookupMixin, ModelViewSet[TelegramBot]):
         return self.request.user.telegram_bots.all()  # type: ignore [union-attr]
 
     @action(detail=True, methods=['POST'])
-    def start(self, request: Request, id: int | None = None) -> Response:
+    def start(self, request: Request, id: int) -> Response:
         telegram_bot: TelegramBot = self.get_object()
         telegram_bot.start()
 
         return Response(self.get_serializer(telegram_bot).data)
 
     @action(detail=True, methods=['POST'])
-    def restart(self, request: Request, id: int | None = None) -> Response:
+    def restart(self, request: Request, id: int) -> Response:
         telegram_bot: TelegramBot = self.get_object()
         telegram_bot.restart()
 
         return Response(self.get_serializer(telegram_bot).data)
 
     @action(detail=True, methods=['POST'])
-    def stop(self, request: Request, id: int | None = None) -> Response:
+    def stop(self, request: Request, id: int) -> Response:
         telegram_bot: TelegramBot = self.get_object()
         telegram_bot.stop()
 
