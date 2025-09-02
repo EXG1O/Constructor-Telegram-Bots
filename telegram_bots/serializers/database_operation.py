@@ -56,7 +56,8 @@ class DatabaseOperationSerializer(
                 _(
                     "Необходимо указать только одно из полей: 'create_operation' "
                     "или 'update_operation'."
-                )
+                ),
+                code='required',
             )
 
         if (

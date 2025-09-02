@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
@@ -35,7 +35,8 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if not self.partial and bool(data.get('command')) is bool(data.get('message')):
             raise serializers.ValidationError(
-                _("Необходимо указать только одно из полей: 'command' или 'message'.")
+                _("Необходимо указать только одно из полей: 'command' или 'message'."),
+                code='required',
             )
 
         if (

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import QuerySet
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
@@ -87,7 +87,7 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
             if 'id' not in data and ('file' in data) is ('from_url' in data):
                 raise serializers.ValidationError(
                     _("Необходимо указать только одно из полей 'file' или 'from_url'."),
-                    code='media',
+                    code='required',
                 )
 
         return media
@@ -133,9 +133,9 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
                 if isinstance(file, UploadedFile):
                     extra_size += file.size or 0
 
-            if self.telegram_bot.remaining_storage_size - extra_size < 0:
+            if extra_size and self.telegram_bot.remaining_storage_size - extra_size < 0:
                 raise serializers.ValidationError(
-                    _('Превышен лимит хранилища.'), code='storage_size'
+                    _('Превышен лимит хранилища.'), code='max_storage_size_limit'
                 )
 
         if (
