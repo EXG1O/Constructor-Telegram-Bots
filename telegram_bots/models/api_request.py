@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
-from constructor_telegram_bots.fields import PublicURLField
+from constructor_telegram_bots.fields import PublicURLField, StrictJSONField
 
 from ..enums import APIRequestMethod
 from .base import AbstractBlock
@@ -20,8 +20,10 @@ class APIRequest(AbstractBlock):
     method = models.CharField(
         _('Метод'), max_length=6, choices=APIRequestMethod, default=APIRequestMethod.GET
     )
-    headers = models.JSONField(_('Заголовки'), blank=True, null=True)
-    body = models.JSONField(_('Данные'), blank=True, null=True)
+    headers = StrictJSONField(
+        _('Заголовки'), max_length=2048, allowed_types=(dict,), blank=True, null=True
+    )
+    body = StrictJSONField(_('Данные'), max_length=4096, blank=True, null=True)
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_api_request'

@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
+from django.core.validators import MaxLengthValidator, URLValidator
+from django.db.models import JSONField
 from django.utils.deconstruct import deconstructible
 
 from collections.abc import Callable
@@ -11,7 +12,9 @@ from ipaddress import (
     ip_address,
     ip_network,
 )
+from typing import Any
 from urllib.parse import urlparse
+import json
 
 
 @deconstructible
@@ -45,3 +48,23 @@ class PublicURLValidator:
                 raise ValidationError(
                     URLValidator.message, code=URLValidator.code, params={'value': url}
                 )
+
+
+@deconstructible
+class StrictJSONValidator:
+    code = 'invalid'
+    message = JSONField.default_error_messages[code]
+
+    def __init__(
+        self,
+        max_light: int,
+        allowed_types: tuple[type[dict[Any, Any]] | type[list[Any]], ...],
+    ):
+        self.allowed_types = allowed_types
+        self.validate_max_length = MaxLengthValidator(max_light)
+
+    def __call__(self, value: Any) -> None:
+        if not isinstance(value, self.allowed_types):
+            raise ValidationError(self.message, code=self.code)
+
+        self.validate_max_length(json.dumps(value))

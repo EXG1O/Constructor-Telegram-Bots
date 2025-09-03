@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from constructor_telegram_bots.fields import StrictJSONField
+
 
 class DatabaseRecord(models.Model):
     telegram_bot = models.ForeignKey(
@@ -12,7 +14,7 @@ class DatabaseRecord(models.Model):
         related_name='database_records',
         verbose_name=_('Telegram бот'),
     )
-    data = models.JSONField(_('Данные'))
+    data = StrictJSONField(_('Данные'))
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_database_record'
