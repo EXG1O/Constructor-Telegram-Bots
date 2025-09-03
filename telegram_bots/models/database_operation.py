@@ -3,6 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from constructor_telegram_bots.fields import StrictJSONField
+
 from .base import AbstractBlock
 
 from typing import TYPE_CHECKING
@@ -15,7 +17,7 @@ class DatabaseCreateOperation(models.Model):
         related_name='create_operation',
         verbose_name=_('Операция'),
     )
-    data = models.JSONField(_('Данные'))
+    data = StrictJSONField(_('Данные'))
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_database_create_operation'
@@ -39,7 +41,7 @@ class DatabaseUpdateOperation(models.Model):
     create_if_not_found = models.BooleanField(
         _('Создать, если не найдена'), default=True
     )
-    new_data = models.JSONField(_('Новые данные'))
+    new_data = StrictJSONField(_('Новые данные'))
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_database_update_operation'
