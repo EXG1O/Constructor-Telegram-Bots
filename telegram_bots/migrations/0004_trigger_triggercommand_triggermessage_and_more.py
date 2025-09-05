@@ -6,10 +6,10 @@ from django.db import migrations, models
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 import django.db.models.deletion
 
-from ..models.base import generate_random_coordinate
 from ..enums import ConnectionHandlePosition
+from ..models.base import generate_random_coordinate
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 import re
 
 if TYPE_CHECKING:
@@ -36,48 +36,50 @@ else:
     TriggerMessage = Any
 
 
-COMMAND_PATTERN: re.Pattern[str] = re.compile(r'^/[\w]{1,32}$', flags=re.ASCII)
+COMMAND_PATTERN: Final[re.Pattern[str]] = re.compile(r'^/[\w]{1,32}$', flags=re.ASCII)
 
 
 def migrate_command_triggers(
     apps: Apps, schema_editor: BaseDatabaseSchemaEditor
 ) -> None:
-    CommandModel: type[Command] = apps.get_model('telegram_bots', 'Command')
-    CommandTriggerModel: type[CommandTrigger] = apps.get_model(
+    command_model: type[Command] = apps.get_model('telegram_bots', 'Command')
+    command_trigger_model: type[CommandTrigger] = apps.get_model(
         'telegram_bots', 'CommandTrigger'
     )
-    ConnectionModel: type[Connection] = apps.get_model('telegram_bots', 'Connection')
-    TriggerModel: type[Trigger] = apps.get_model('telegram_bots', 'Trigger')
-    TriggerCommandModel: type[TriggerCommand] = apps.get_model(
+    connection_model: type[Connection] = apps.get_model('telegram_bots', 'Connection')
+    trigger_model: type[Trigger] = apps.get_model('telegram_bots', 'Trigger')
+    trigger_command_model: type[TriggerCommand] = apps.get_model(
         'telegram_bots', 'TriggerCommand'
     )
-    TriggerMessageModel: type[TriggerMessage] = apps.get_model(
+    trigger_message_model: type[TriggerMessage] = apps.get_model(
         'telegram_bots', 'TriggerMessage'
     )
-    ContentTypeModel: type[ContentType] = apps.get_model('contenttypes', 'ContentType')
+    content_type_model: type[ContentType] = apps.get_model(
+        'contenttypes', 'ContentType'
+    )
 
     create_trigger_commands: list[TriggerCommand] = []
     create_trigger_messages: list[TriggerMessage] = []
     create_connections: list[Connection] = []
 
     connection_source_content_type: ContentType = (
-        ContentTypeModel.objects.get_for_model(TriggerModel)
+        content_type_model.objects.get_for_model(trigger_model)
     )
     connection_target_content_type: ContentType = (
-        ContentTypeModel.objects.get_for_model(CommandModel)
+        content_type_model.objects.get_for_model(command_model)
     )
 
-    for command_trigger in CommandTriggerModel.objects.iterator():  # type: ignore [attr-defined]
+    for command_trigger in command_trigger_model.objects.iterator():  # type: ignore [attr-defined]
         command: Command = command_trigger.command
         telegram_bot: TelegramBot = command.telegram_bot
 
-        trigger: Trigger = TriggerModel.objects.create(
+        trigger: Trigger = trigger_model.objects.create(
             telegram_bot=telegram_bot, name='Trigger', x=command.x - 350, y=command.y
         )
 
         if COMMAND_PATTERN.fullmatch(command_trigger.text):
             create_trigger_commands.append(
-                TriggerCommandModel(
+                trigger_command_model(
                     trigger=trigger,
                     command=command_trigger.text.removeprefix('/'),
                     payload=None,
@@ -86,11 +88,11 @@ def migrate_command_triggers(
             )
         else:
             create_trigger_messages.append(
-                TriggerMessageModel(trigger=trigger, text=command_trigger.text)
+                trigger_message_model(trigger=trigger, text=command_trigger.text)
             )
 
         create_connections.append(
-            ConnectionModel(
+            connection_model(
                 telegram_bot=telegram_bot,
                 source_content_type=connection_source_content_type,
                 source_object_id=trigger.id,
@@ -101,9 +103,9 @@ def migrate_command_triggers(
             )
         )
 
-    TriggerCommandModel.objects.bulk_create(create_trigger_commands)
-    TriggerMessageModel.objects.bulk_create(create_trigger_messages)
-    ConnectionModel.objects.bulk_create(create_connections)
+    trigger_command_model.objects.bulk_create(create_trigger_commands)
+    trigger_message_model.objects.bulk_create(create_trigger_messages)
+    connection_model.objects.bulk_create(create_connections)
 
 
 class Migration(migrations.Migration):
