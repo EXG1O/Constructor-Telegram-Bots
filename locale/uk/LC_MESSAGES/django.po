@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-07 16:19+0000\n"
+"POT-Creation-Date: 2025-09-07 16:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -557,12 +557,12 @@ msgid "Описание"
 msgstr "Опис"
 
 #: telegram_bots/models/trigger.py:31
-msgid "Команда"
-msgstr "Команда"
+msgid "Команда триггер"
+msgstr "Команда тригер"
 
 #: telegram_bots/models/trigger.py:32
-msgid "Команды"
-msgstr "Команди"
+msgid "Команды триггеры"
+msgstr "Команди тригери"
 
 #: telegram_bots/models/trigger.py:49
 msgid "Сообщение триггер"
@@ -682,7 +682,9 @@ msgstr "%(target_object)s не може бути остаточною позиц
 msgid ""
 "Необходимо указать только одно из полей: 'create_operation' или "
 "'update_operation'."
-msgstr "Необхідно вказати лише одне з полів 'create_operation' або 'update_operation'."
+msgstr ""
+"Необхідно вказати лише одне з полів 'create_operation' або "
+"'update_operation'."
 
 #: telegram_bots/serializers/database_operation.py:69
 #, python-format
