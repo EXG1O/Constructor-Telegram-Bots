@@ -100,7 +100,9 @@ class CommandSerializer(TelegramBotMixin, serializers.ModelSerializer[Command]):
     ) -> list[dict[str, Any]]:
         return self._validate_media(documents)
 
-    def validate_keyboard(self, keyboard: dict[str, Any] | None) -> dict[str, Any] | None:
+    def validate_keyboard(
+        self, keyboard: dict[str, Any] | None
+    ) -> dict[str, Any] | None:
         if not keyboard:
             return None
 
