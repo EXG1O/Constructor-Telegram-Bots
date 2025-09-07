@@ -69,7 +69,7 @@ def migrate_text_variables(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) 
     for model, fields in migration_model_fields:
         update_instances: list[models.Model] = []
 
-        for instance in model.objects.iterator():
+        for instance in model.objects.iterator():  # type: ignore [attr-defined]
             for field in fields:
                 field_value: Any | None = getattr(instance, field, None)
 
@@ -83,7 +83,7 @@ def migrate_text_variables(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) 
 
             update_instances.append(instance)
 
-        model.objects.bulk_update(update_instances, fields=fields)
+        model.objects.bulk_update(update_instances, fields=fields)  # type: ignore [attr-defined]
 
 
 class Migration(migrations.Migration):
