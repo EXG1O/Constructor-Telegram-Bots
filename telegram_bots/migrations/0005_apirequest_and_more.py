@@ -4,6 +4,7 @@ from django.apps.registry import Apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
+from django.db.models import QuerySet
 import django.db.models.deletion
 
 import constructor_telegram_bots.fields
@@ -74,6 +75,12 @@ def migrate_command_api_requests(
             y=command.y,
         )
 
+        command_target_connections: QuerySet[Connection] = (
+            connection_model.objects.filter(
+                target_content_type=command_content_type, target_object_id=command.id
+            )
+        )
+
         create_connections.extend(
             connection_model(
                 telegram_bot=telegram_bot,
@@ -84,9 +91,9 @@ def migrate_command_api_requests(
                 target_object_id=api_request.id,
                 target_handle_position=ConnectionHandlePosition.LEFT,
             )
-            for command_target_connection in command.target_connections
+            for command_target_connection in command_target_connections
         )
-        command.target_connections.delete()
+        command_target_connections.delete()
         create_connections.append(
             connection_model(
                 telegram_bot=telegram_bot,
@@ -143,6 +150,13 @@ def migrate_background_task_api_requests(
             y=background_task.y,
         )
 
+        background_task_source_connections: QuerySet[Connection] = (
+            connection_model.objects.filter(
+                source_content_type=background_task_content_type,
+                source_object_id=background_task.id,
+            )
+        )
+
         create_connections.append(
             connection_model(
                 telegram_bot=telegram_bot,
@@ -164,9 +178,9 @@ def migrate_background_task_api_requests(
                 target_object_id=background_task_source_connection.target_object_id,
                 target_handle_position=background_task_source_connection.target_handle_position,
             )
-            for background_task_source_connection in background_task.source_connections
+            for background_task_source_connection in background_task_source_connections
         )
-        background_task.source_connections.delete()
+        background_task_source_connections.delete()
 
     connection_model.objects.bulk_create(create_connections)
 
