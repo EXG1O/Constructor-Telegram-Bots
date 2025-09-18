@@ -3,6 +3,7 @@
 from django.apps.registry import Apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
+from django.db.models import QuerySet
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 import django.db.models.deletion
 
@@ -75,6 +76,12 @@ def migrate_command_database_records(
             data=command_database_record.data,
         )
 
+        command_target_connections: QuerySet[Connection] = (
+            connection_model.objects.filter(
+                target_content_type=command_content_type, target_object_id=command.id
+            )
+        )
+
         create_connections.extend(
             connection_model(
                 telegram_bot=telegram_bot,
@@ -85,9 +92,9 @@ def migrate_command_database_records(
                 target_object_id=database_operation.id,
                 target_handle_position=ConnectionHandlePosition.LEFT,
             )
-            for command_target_connection in command.target_connections
+            for command_target_connection in command_target_connections
         )
-        command.target_connections.delete()
+        command_target_connections.delete()
         create_connections.append(
             connection_model(
                 telegram_bot=telegram_bot,
