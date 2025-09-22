@@ -12,7 +12,12 @@ However, depending on your needs, you can skip certain steps:
 To maintain a consistent code style, we use **ruff** as code formatter and linter, and **mypy** for type checking.
 
 ### ruff
-To check your code for formatting or linting issues, run the following command:
+To format your code, run the following command:
+```bash
+ruff format .
+```
+
+To check your code for linting issues, run the following command:
 ```bash
 ruff check .
 ```
@@ -20,7 +25,7 @@ This will list any issues that need to be addressed.
 
 To auto-fix these issues, run the following command:
 ```bash
-ruff --fix .
+ruff check --fix .
 ```
 
 ### mypy
