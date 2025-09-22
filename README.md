@@ -10,7 +10,7 @@ Your donation will greatly help the development and improvement of the website.
 
 ## Requirements
 - Linux
-- Python 3.11.x
+- Python 3.11
 - PostgreSQL
 - Redis
 
@@ -23,7 +23,7 @@ Your donation will greatly help the development and improvement of the website.
 ```bash
 git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
-git checkout $(git describe --tags --abbrev=0)
+git checkout tags/v2.0.0
 python -m venv env
 source env/bin/activate
 source install.sh
@@ -48,5 +48,5 @@ celery -A constructor_telegram_bots worker --loglevel=INFO -f logs/celery.log
 ## Contributing
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for more information on this.
 
-## License  
+## License
 This repository is licensed under the [AGPL-3.0 License](LICENSE).
