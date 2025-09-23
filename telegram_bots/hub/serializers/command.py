@@ -20,12 +20,12 @@ class CommandSettingsSerializer(serializers.ModelSerializer[CommandSettings]):
 
 
 class CommandImageSerializer(CommandMediaSerializer[CommandImage]):
-    class Meta:
+    class Meta(CommandMediaSerializer.Meta):
         model = CommandImage
 
 
 class CommandDocumentSerializer(CommandMediaSerializer[CommandDocument]):
-    class Meta:
+    class Meta(CommandMediaSerializer.Meta):
         model = CommandDocument
 
 
