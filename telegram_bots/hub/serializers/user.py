@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from rest_framework import serializers
 
 from ...models import User
@@ -15,6 +17,13 @@ class UserSerializer(TelegramBotMixin, serializers.ModelSerializer[User]):
     def create(self, validated_data: dict[str, Any]) -> User:
         telegram_id: int = validated_data.pop('telegram_id')
 
-        return self.telegram_bot.users.get_or_create(
+        user, created = self.telegram_bot.users.get_or_create(
             telegram_id=telegram_id, defaults=validated_data
-        )[0]
+        )
+
+        if not created:
+            user.full_name = validated_data.get('full_name', user.full_name)
+            user.last_activity_date = timezone.now()
+            user.save(update_fields=['full_name', 'last_activity_date'])
+
+        return user
