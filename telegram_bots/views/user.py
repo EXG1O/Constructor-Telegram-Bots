@@ -85,7 +85,7 @@ class UserViewSet(
         }
         result: list[dict[str, Any]] = []
 
-        for day in range(days):
+        for day in range(days + 1):
             date: datetime.date = start_date + timedelta(days=day)
             result.append({'date': date, 'count': timeline_data.get(date, 0)})
 
