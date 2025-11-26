@@ -25,7 +25,6 @@ urlpatterns: list[URLPattern | URLResolver] = [
                         'telegram-bots-hub/telegram-bots/',
                         include('telegram_bots.hub.urls'),
                     ),
-                    path('updates/', include('updates.urls')),
                     path('donation/', include('donation.urls')),
                     path('instruction/', include('instruction.urls')),
                     path('privacy-policy/', include('privacy_policy.urls')),
