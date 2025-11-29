@@ -42,7 +42,7 @@ class TriggerMessage(models.Model):
         related_name='message',
         verbose_name=_('Триггер'),
     )
-    text = models.TextField(_('Текст'), max_length=4096)
+    text = models.TextField(_('Текст'), max_length=4096, null=True)
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_trigger_message'
@@ -50,7 +50,7 @@ class TriggerMessage(models.Model):
         verbose_name_plural = _('Сообщения триггеры')
 
     def __str__(self) -> str:
-        return self.text[:128]
+        return (self.text or 'NULL')[:128]
 
 
 class Trigger(AbstractBlock):
@@ -60,7 +60,6 @@ class Trigger(AbstractBlock):
         related_name='triggers',
         verbose_name=_('Telegram бот'),
     )
-    target_connections = None
 
     if TYPE_CHECKING:
         command: TriggerCommand
