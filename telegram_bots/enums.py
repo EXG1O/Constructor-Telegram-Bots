@@ -30,6 +30,7 @@ class ConnectionObjectType(TextChoices):
             (item.value, item.label)
             for item in [
                 ConnectionObjectType.TRIGGER,
+                ConnectionObjectType.COMMAND,
                 ConnectionObjectType.COMMAND_KEYBOARD_BUTTON,
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.BACKGROUND_TASK,

@@ -178,7 +178,6 @@ class Command(AbstractBlock):
         related_name='commands',
         verbose_name=_('Telegram бот'),
     )
-    source_connections = None
 
     if TYPE_CHECKING:
         settings: CommandSettings
