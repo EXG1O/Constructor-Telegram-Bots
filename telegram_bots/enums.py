@@ -43,6 +43,7 @@ class ConnectionObjectType(TextChoices):
         return [
             (item.value, item.label)
             for item in [
+                ConnectionObjectType.TRIGGER,
                 ConnectionObjectType.COMMAND,
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.API_REQUEST,

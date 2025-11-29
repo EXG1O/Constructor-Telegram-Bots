@@ -31,6 +31,12 @@ class TriggerFilter(FilterSet):
         field_name='command__description', method='filter_has_field'
     )
     has_message = BooleanFilter(field_name='message', method='filter_has_field')
+    has_message_text = BooleanFilter(
+        field_name='message__text', method='filter_has_field'
+    )
+    has_target_connections = BooleanFilter(
+        field_name='target_connections', method='filter_has_field'
+    )
 
     def filter_has_field(
         self, queryset: QuerySet[Trigger], name: str, value: bool
@@ -39,7 +45,14 @@ class TriggerFilter(FilterSet):
 
     class Meta:
         model = Trigger
-        fields = ['command', 'command_payload', 'has_command_payload', 'has_message']
+        fields = [
+            'command',
+            'command_payload',
+            'has_command_payload',
+            'has_message',
+            'has_message_text',
+            'has_target_connections',
+        ]
 
 
 class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Trigger]):
@@ -53,6 +66,9 @@ class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Trigg
         triggers: QuerySet[Trigger] = self.telegram_bot.triggers.all()
 
         if self.action in ['list', 'retrieve']:
-            return triggers.select_related('command', 'message')
+            return triggers.select_related('command', 'message').prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+            )
 
         return triggers
