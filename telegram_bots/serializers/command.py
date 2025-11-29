@@ -408,6 +408,7 @@ class DiagramCommandKeyboardSerializer(serializers.ModelSerializer[CommandKeyboa
 class DiagramCommandSerializer(DiagramSerializer[Command]):
     message = CommandMessageSerializer(read_only=True)
     keyboard = DiagramCommandKeyboardSerializer(allow_null=True, read_only=True)
+    source_connections = ConnectionSerializer(many=True, read_only=True)
     target_connections = ConnectionSerializer(many=True, read_only=True)
 
     class Meta:
@@ -417,6 +418,7 @@ class DiagramCommandSerializer(DiagramSerializer[Command]):
             'name',
             'message',
             'keyboard',
+            'source_connections',
             'target_connections',
         ] + DiagramSerializer.Meta.fields
         read_only_fields = ['name']
