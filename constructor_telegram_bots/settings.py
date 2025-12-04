@@ -28,7 +28,7 @@ ENABLE_TELEGRAM_AUTH: Final[bool] = os.getenv('ENABLE_TELEGRAM_AUTH', 'True') ==
 
 TELEGRAM_BOT_TOKEN: Final[str] = os.environ['TELEGRAM_BOT_TOKEN']
 
-FRONTEND_PATH: Final[str] = os.environ['FRONTEND_PATH']
+FRONTEND_PATH: Final[Path] = Path(os.environ['FRONTEND_PATH'])
 
 POSTGRESQL_DATABASE_NAME: Final[str] = os.environ['POSTGRESQL_DATABASE_NAME']
 POSTGRESQL_DATABASE_USER: Final[str] = os.environ['POSTGRESQL_DATABASE_USER']
@@ -125,7 +125,7 @@ if not TEST and DEBUG:
 TEMPLATES: Final[list[dict[str, Any]]] = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [FRONTEND_PATH],
+        'DIRS': [FRONTEND_PATH / 'dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -187,7 +187,7 @@ USE_TZ: Final[bool] = True
 
 STATIC_URL: Final[str] = '/static/'
 STATIC_ROOT: Final[Path] = BASE_DIR / 'static'
-STATICFILES_DIRS: Final[list[Path | str]] = [FRONTEND_PATH]
+STATICFILES_DIRS: Final[list[Path | str]] = [FRONTEND_PATH / 'dist']
 
 MEDIA_URL: Final[str] = '/media/'
 MEDIA_ROOT: Final[Path] = BASE_DIR / 'media'
