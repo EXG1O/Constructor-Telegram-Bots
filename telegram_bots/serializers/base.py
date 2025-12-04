@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from ..models.base import AbstractBlock, AbstractCommandMedia
+from ..models.base import AbstractBlock, AbstractMessageMedia
 
 from typing import Any, TypeVar
 import os
 
 ABT = TypeVar('ABT', bound=AbstractBlock)
-ACMT = TypeVar('ACMT', bound=AbstractCommandMedia)
+ACMT = TypeVar('ACMT', bound=AbstractMessageMedia)
 
 
 class DiagramSerializer(serializers.ModelSerializer[ABT]):
@@ -26,7 +26,7 @@ class DiagramSerializer(serializers.ModelSerializer[ABT]):
         return instance
 
 
-class CommandMediaSerializer(serializers.ModelSerializer[ACMT]):
+class MessageMediaSerializer(serializers.ModelSerializer[ACMT]):
     name = serializers.CharField(source='file.name', read_only=True, allow_null=True)
     size = serializers.IntegerField(source='file.size', read_only=True, allow_null=True)
     url = serializers.URLField(source='file.url', read_only=True, allow_null=True)

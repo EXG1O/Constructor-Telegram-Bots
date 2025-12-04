@@ -8,7 +8,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 from constructor_telegram_bots.fields import PublicURLField
 
 from ..enums import KeyboardType
-from .base import AbstractBlock, AbstractCommandMedia
+from .base import AbstractBlock, AbstractMessageMedia
 
 from contextlib import suppress
 from itertools import chain
@@ -18,12 +18,12 @@ import os
 import secrets
 
 
-class CommandSettings(models.Model):
-    command = models.OneToOneField(
-        'Command',
+class MessageSettings(models.Model):
+    message = models.OneToOneField(
+        'Message',
         on_delete=models.CASCADE,
         related_name='settings',
-        verbose_name=_('Команда'),
+        verbose_name=_('Сообщение'),
     )
     reply_to_user_message = models.BooleanField(
         _('Ответить на сообщение пользователя'), default=False
@@ -36,15 +36,15 @@ class CommandSettings(models.Model):
     )
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_settings'
-        verbose_name = _('Настройки команды')
-        verbose_name_plural = _('Настройки команд')
+        db_table = 'telegram_bot_message_settings'
+        verbose_name = _('Настройки сообщения')
+        verbose_name_plural = _('Настройки сообщений')
 
     def __str__(self) -> str:
-        return self.command.name
+        return self.message.name
 
 
-def upload_command_media_path(instance: AbstractCommandMedia, file_name: str) -> str:
+def upload_message_media_path(instance: AbstractMessageMedia, file_name: str) -> str:
     name, ext = os.path.splitext(file_name)
 
     salt: str = secrets.token_hex(8)
@@ -53,79 +53,61 @@ def upload_command_media_path(instance: AbstractCommandMedia, file_name: str) ->
     return f'telegram_bots/{name}_{hash}{ext}'
 
 
-class CommandImage(AbstractCommandMedia):
+class MessageImage(AbstractMessageMedia):
     related_name = 'images'
 
-    command = models.ForeignKey(
-        'Command',
+    message = models.ForeignKey(
+        'Message',
         on_delete=models.CASCADE,
         related_name=related_name,
-        verbose_name=_('Команда'),
+        verbose_name=_('Сообщение'),
     )
     file = models.ImageField(
         _('Изображение'),
-        upload_to=upload_command_media_path,
+        upload_to=upload_message_media_path,
         max_length=500,
         blank=True,
         null=True,
     )
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_image'
-        verbose_name = _('Изображение команды')
-        verbose_name_plural = _('Изображения команд')
+        db_table = 'telegram_bot_message_image'
+        verbose_name = _('Изображение сообщения')
+        verbose_name_plural = _('Изображения сообщений')
 
     def __str__(self) -> str:
-        return self.command.name
+        return self.message.name
 
 
-class CommandDocument(AbstractCommandMedia):
+class MessageDocument(AbstractMessageMedia):
     related_name = 'documents'
 
-    command = models.ForeignKey(
-        'Command',
+    message = models.ForeignKey(
+        'Message',
         on_delete=models.CASCADE,
         related_name=related_name,
-        verbose_name=_('Команда'),
+        verbose_name=_('Сообщение'),
     )
     file = models.FileField(
         _('Документ'),
-        upload_to=upload_command_media_path,
+        upload_to=upload_message_media_path,
         max_length=500,
         blank=True,
         null=True,
     )
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_document'
-        verbose_name = _('Документ команды')
-        verbose_name_plural = _('Документы команд')
+        db_table = 'telegram_bot_message_document'
+        verbose_name = _('Документ сообщения')
+        verbose_name_plural = _('Документы сообщений')
 
     def __str__(self) -> str:
-        return self.command.name
+        return self.message.name
 
 
-class CommandMessage(models.Model):
-    command = models.OneToOneField(
-        'Command',
-        on_delete=models.CASCADE,
-        related_name='message',
-        verbose_name=_('Команда'),
-    )
-    text = models.TextField(_('Текст'), max_length=4096)
-
-    class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_message'
-        verbose_name = _('Сообщение команды')
-        verbose_name_plural = _('Сообщения команд')
-
-    def __str__(self) -> str:
-        return self.command.name
-
-
-class CommandKeyboardButton(models.Model):
+class MessageKeyboardButton(models.Model):
     keyboard = models.ForeignKey(
-        'CommandKeyboard',
+        'MessageKeyboard',
         on_delete=models.CASCADE,
         related_name='buttons',
         verbose_name=_('Клавиатура'),
@@ -139,57 +121,57 @@ class CommandKeyboardButton(models.Model):
     )
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_keyboard_button'
+        db_table = 'telegram_bot_message_keyboard_button'
         indexes = [models.Index(fields=['text'])]
-        verbose_name = _('Кнопка клавиатуры команды')
-        verbose_name_plural = _('Кнопки клавиатур команд')
+        verbose_name = _('Кнопка клавиатуры сообщения')
+        verbose_name_plural = _('Кнопки клавиатур сообщений')
 
     def __str__(self) -> str:
-        return self.keyboard.command.name
+        return self.keyboard.message.name
 
 
-class CommandKeyboard(models.Model):
-    command = models.OneToOneField(
-        'Command',
+class MessageKeyboard(models.Model):
+    message = models.OneToOneField(
+        'Message',
         on_delete=models.CASCADE,
         related_name='keyboard',
-        verbose_name=_('Команда'),
+        verbose_name=_('Сообщение'),
     )
     type = models.CharField(
         _('Режим'), max_length=7, choices=KeyboardType, default=KeyboardType.DEFAULT
     )
 
     if TYPE_CHECKING:
-        buttons: models.Manager[CommandKeyboardButton]
+        buttons: models.Manager[MessageKeyboardButton]
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command_keyboard'
-        verbose_name = _('Клавиатура команды')
-        verbose_name_plural = _('Клавиатуры команд')
+        db_table = 'telegram_bot_message_keyboard'
+        verbose_name = _('Клавиатура сообщения')
+        verbose_name_plural = _('Клавиатуры сообщений')
 
     def __str__(self) -> str:
-        return self.command.name
+        return self.message.name
 
 
-class Command(AbstractBlock):
+class Message(AbstractBlock):
     telegram_bot = models.ForeignKey(
         'TelegramBot',
         on_delete=models.CASCADE,
-        related_name='commands',
+        related_name='messages',
         verbose_name=_('Telegram бот'),
     )
+    text = models.TextField(_('Текст'), max_length=4096)
 
     if TYPE_CHECKING:
-        settings: CommandSettings
-        images: models.Manager[CommandImage]
-        documents: models.Manager[CommandDocument]
-        message: CommandMessage
-        keyboard: CommandKeyboard
+        settings: MessageSettings
+        images: models.Manager[MessageImage]
+        documents: models.Manager[MessageDocument]
+        keyboard: MessageKeyboard
 
     class Meta(TypedModelMeta):
-        db_table = 'telegram_bot_command'
-        verbose_name = _('Команда')
-        verbose_name_plural = _('Команды')
+        db_table = 'telegram_bot_message'
+        verbose_name = _('Сообщение')
+        verbose_name_plural = _('Сообщения')
 
     def delete(
         self, using: str | None = None, keep_parents: bool = False

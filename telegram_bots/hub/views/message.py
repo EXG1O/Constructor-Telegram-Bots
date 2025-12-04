@@ -7,24 +7,22 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from constructor_telegram_bots.mixins import IDLookupMixin
 
-from ...models import Command, CommandKeyboardButton
+from ...models import Message, MessageKeyboardButton
 from ..authentication import TokenAuthentication
-from ..serializers import CommandKeyboardButtonSerializer, CommandSerializer
+from ..serializers import MessageKeyboardButtonSerializer, MessageSerializer
 from .mixins import TelegramBotMixin
 
 
-class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Command]):
+class MessageViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Message]):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = CommandSerializer
+    serializer_class = MessageSerializer
 
-    def get_queryset(self) -> QuerySet[Command]:
-        commands: QuerySet[Command] = self.telegram_bot.commands.all()
+    def get_queryset(self) -> QuerySet[Message]:
+        messages: QuerySet[Message] = self.telegram_bot.messages.all()
 
         if self.action in ['list', 'retrieve']:
-            return commands.select_related(
-                'settings', 'message', 'keyboard'
-            ).prefetch_related(
+            return messages.select_related('settings', 'keyboard').prefetch_related(
                 'images',
                 'documents',
                 'keyboard__buttons__source_connections__source_object',
@@ -33,21 +31,21 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Comma
                 'source_connections__target_object',
             )
 
-        return commands
+        return messages
 
 
-class CommandKeyboardButtonViewSet(
-    IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[CommandKeyboardButton]
+class MessageKeyboardButtonViewSet(
+    IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[MessageKeyboardButton]
 ):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = CommandKeyboardButtonSerializer
+    serializer_class = MessageKeyboardButtonSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['id', 'text']
 
-    def get_queryset(self) -> QuerySet[CommandKeyboardButton]:
-        return CommandKeyboardButton.objects.filter(
-            keyboard__command__telegram_bot=self.telegram_bot
+    def get_queryset(self) -> QuerySet[MessageKeyboardButton]:
+        return MessageKeyboardButton.objects.filter(
+            keyboard__message__telegram_bot=self.telegram_bot
         ).prefetch_related(
             'source_connections__source_object',
             'source_connections__target_object',

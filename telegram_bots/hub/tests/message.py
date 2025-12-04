@@ -6,17 +6,17 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ...models import CommandKeyboard
-from ...tests.mixins import CommandMixin, TelegramBotMixin, UserMixin
-from ..views import CommandKeyboardButtonViewSet, CommandViewSet
+from ...models import MessageKeyboard
+from ...tests.mixins import MessageMixin, TelegramBotMixin, UserMixin
+from ..views import MessageKeyboardButtonViewSet, MessageViewSet
 from .mixins import HubMixin
 from .utils import assert_view_basic_protected
 
 from typing import TYPE_CHECKING
 
 
-class CommandViewSetTests(
-    CommandMixin, TelegramBotMixin, UserMixin, HubMixin, TestCase
+class MessageViewSetTests(
+    MessageMixin, TelegramBotMixin, UserMixin, HubMixin, TestCase
 ):
     def setUp(self) -> None:
         super().setUp()
@@ -24,28 +24,28 @@ class CommandViewSetTests(
         self.factory = APIRequestFactory()
 
         self.list_true_url: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-command-list',
+            'api:telegram-bots-hub:telegram-bot-message-list',
             kwargs={'telegram_bot_id': self.telegram_bot.id},
         )
         self.list_false_url: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-command-list',
+            'api:telegram-bots-hub:telegram-bot-message-list',
             kwargs={'telegram_bot_id': 0},
         )
         self.detail_true_url: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-command-detail',
-            kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.command.id},
+            'api:telegram-bots-hub:telegram-bot-message-detail',
+            kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.message.id},
         )
         self.detail_false_url_1: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-command-detail',
-            kwargs={'telegram_bot_id': 0, 'id': self.command.id},
+            'api:telegram-bots-hub:telegram-bot-message-detail',
+            kwargs={'telegram_bot_id': 0, 'id': self.message.id},
         )
         self.detail_false_url_2: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-command-detail',
+            'api:telegram-bots-hub:telegram-bot-message-detail',
             kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
         )
 
     def test_list(self) -> None:
-        view = CommandViewSet.as_view({'get': 'list'})
+        view = MessageViewSet.as_view({'get': 'list'})
 
         if TYPE_CHECKING:
             request: Request
@@ -69,7 +69,7 @@ class CommandViewSetTests(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve(self) -> None:
-        view = CommandViewSet.as_view({'get': 'retrieve'})
+        view = MessageViewSet.as_view({'get': 'retrieve'})
 
         if TYPE_CHECKING:
             request: Request
@@ -81,61 +81,61 @@ class CommandViewSetTests(
             view,
             self.hub.service_token,
             telegram_bot_id=self.telegram_bot.id,
-            id=self.command.id,
+            id=self.message.id,
         )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
             force_authenticate(request, self.hub, self.hub.service_token)  # type: ignore [arg-type]
 
-            response = view(request, telegram_bot_id=0, id=self.command.id)
+            response = view(request, telegram_bot_id=0, id=self.message.id)
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.get(self.detail_true_url)
         force_authenticate(request, self.hub, self.hub.service_token)  # type: ignore [arg-type]
 
         response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.command.id
+            request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class CommandKeyboardButtonViewSetTests(
-    CommandMixin, TelegramBotMixin, UserMixin, HubMixin, TestCase
+class MessageKeyboardButtonViewSetTests(
+    MessageMixin, TelegramBotMixin, UserMixin, HubMixin, TestCase
 ):
     def setUp(self) -> None:
         super().setUp()
 
         self.factory = APIRequestFactory()
 
-        self.command_keyboard = CommandKeyboard.objects.create(command=self.command)
-        self.command_keyboard_button = self.command_keyboard.buttons.create(
+        self.message_keyboard = MessageKeyboard.objects.create(message=self.message)
+        self.message_keyboard_button = self.message_keyboard.buttons.create(
             row=0, position=0, text='Test button'
         )
 
         self.list_true_url: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-commands-keyboard-button-list',
+            'api:telegram-bots-hub:telegram-bot-messages-keyboard-button-list',
             kwargs={'telegram_bot_id': self.telegram_bot.id},
         )
         self.list_false_url: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-commands-keyboard-button-list',
+            'api:telegram-bots-hub:telegram-bot-messages-keyboard-button-list',
             kwargs={'telegram_bot_id': 0},
         )
         self.detail_true_url: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-commands-keyboard-button-detail',
-            kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.command.id},
+            'api:telegram-bots-hub:telegram-bot-messages-keyboard-button-detail',
+            kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': self.message.id},
         )
         self.detail_false_url_1: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-commands-keyboard-button-detail',
-            kwargs={'telegram_bot_id': 0, 'id': self.command.id},
+            'api:telegram-bots-hub:telegram-bot-messages-keyboard-button-detail',
+            kwargs={'telegram_bot_id': 0, 'id': self.message.id},
         )
         self.detail_false_url_2: str = reverse(
-            'api:telegram-bots-hub:telegram-bot-commands-keyboard-button-detail',
+            'api:telegram-bots-hub:telegram-bot-messages-keyboard-button-detail',
             kwargs={'telegram_bot_id': self.telegram_bot.id, 'id': 0},
         )
 
     def test_list(self) -> None:
-        view = CommandKeyboardButtonViewSet.as_view({'get': 'list'})
+        view = MessageKeyboardButtonViewSet.as_view({'get': 'list'})
 
         if TYPE_CHECKING:
             request: Request
@@ -159,7 +159,7 @@ class CommandKeyboardButtonViewSetTests(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve(self) -> None:
-        view = CommandKeyboardButtonViewSet.as_view({'get': 'retrieve'})
+        view = MessageKeyboardButtonViewSet.as_view({'get': 'retrieve'})
 
         if TYPE_CHECKING:
             request: Request
@@ -171,7 +171,7 @@ class CommandKeyboardButtonViewSetTests(
             view,
             self.hub.service_token,
             telegram_bot_id=self.telegram_bot.id,
-            id=self.command_keyboard_button.id,
+            id=self.message_keyboard_button.id,
         )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
@@ -179,7 +179,7 @@ class CommandKeyboardButtonViewSetTests(
             force_authenticate(request, self.hub, self.hub.service_token)  # type: ignore [arg-type]
 
             response = view(
-                request, telegram_bot_id=0, id=self.command_keyboard_button.id
+                request, telegram_bot_id=0, id=self.message_keyboard_button.id
             )
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -189,6 +189,6 @@ class CommandKeyboardButtonViewSetTests(
         response = view(
             request,
             telegram_bot_id=self.telegram_bot.id,
-            id=self.command_keyboard_button.id,
+            id=self.message_keyboard_button.id,
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

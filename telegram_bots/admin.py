@@ -53,7 +53,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
             .annotate(
                 block_count=(
                     Count('triggers', distinct=True)
-                    + Count('commands', distinct=True)
+                    + Count('messages', distinct=True)
                     + Count('conditions', distinct=True)
                     + Count('background_tasks', distinct=True)
                     + Count('api_requests', distinct=True)

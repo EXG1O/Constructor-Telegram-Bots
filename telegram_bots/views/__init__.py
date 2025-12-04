@@ -1,6 +1,5 @@
 from .api_request import APIRequestViewSet, DiagramAPIRequestViewSet
 from .background_task import BackgroundTaskViewSet, DiagramBackgroundTaskViewSet
-from .command import CommandViewSet, DiagramCommandViewSet
 from .condition import ConditionViewSet, DiagramConditionViewSet
 from .connection import ConnectionViewSet
 from .database_operation import (
@@ -8,6 +7,7 @@ from .database_operation import (
     DiagramDatabaseOperationViewSet,
 )
 from .database_record import DatabaseRecordViewSet
+from .message import DiagramMessageViewSet, MessageViewSet
 from .stats import StatsAPIView
 from .telegram_bot import TelegramBotViewSet
 from .trigger import DiagramTriggerViewSet, TriggerViewSet
@@ -20,8 +20,8 @@ __all__ = [
     'ConnectionViewSet',
     'TriggerViewSet',
     'DiagramTriggerViewSet',
-    'CommandViewSet',
-    'DiagramCommandViewSet',
+    'MessageViewSet',
+    'DiagramMessageViewSet',
     'ConditionViewSet',
     'DiagramConditionViewSet',
     'BackgroundTaskViewSet',

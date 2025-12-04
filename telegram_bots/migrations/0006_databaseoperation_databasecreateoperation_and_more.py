@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..models import (
-        Command,
         Connection,
         DatabaseCreateOperation,
         DatabaseOperation,
@@ -23,8 +22,14 @@ if TYPE_CHECKING:
     )
 
     class CommandDatabaseRecord(models.Model):
-        command: Command
+        command: 'Command'
         data: dict[str, Any] | list[Any]
+
+    class Command(models.Model):
+        id: int
+        telegram_bot: TelegramBot
+        x: int
+        y: int
 else:
     TelegramBot = Any
     Command = Any

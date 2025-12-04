@@ -14,7 +14,6 @@ import re
 
 if TYPE_CHECKING:
     from ..models import (
-        Command,
         Connection,
         TelegramBot,
         Trigger,
@@ -23,9 +22,15 @@ if TYPE_CHECKING:
     )
 
     class CommandTrigger(models.Model):
-        command: Command
+        command: 'Command'
         text: str
         description: str | None
+
+    class Command(models.Model):
+        id: int
+        telegram_bot: TelegramBot
+        x: int
+        y: int
 else:
     TelegramBot = Any
     Command = Any

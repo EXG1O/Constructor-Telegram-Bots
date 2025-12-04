@@ -11,15 +11,11 @@ from .. import tasks
 from ..hub.models import TelegramBotsHub
 from .api_request import APIRequest
 from .background_task import BackgroundTask
-from .command import (
-    Command,
-    CommandDocument,
-    CommandImage,
-)
 from .condition import Condition
 from .connection import Connection
 from .database_operation import DatabaseOperation
 from .database_record import DatabaseRecord
+from .message import Message, MessageDocument, MessageImage
 from .trigger import Trigger
 from .user import User
 from .variable import Variable
@@ -71,7 +67,7 @@ class TelegramBot(models.Model):
         _loaded_values: dict[str, Any]
         connections: models.Manager[Connection]
         triggers: models.Manager[Trigger]
-        commands: models.Manager[Command]
+        messages: models.Manager[Message]
         conditions: models.Manager[Condition]
         background_tasks: models.Manager[BackgroundTask]
         api_requests: models.Manager[APIRequest]
@@ -92,10 +88,10 @@ class TelegramBot(models.Model):
         return sum(
             media.file.size
             for media in chain(
-                CommandImage.objects.filter(command__telegram_bot=self).exclude(
+                MessageImage.objects.filter(message__telegram_bot=self).exclude(
                     file=None
                 ),
-                CommandDocument.objects.filter(command__telegram_bot=self).exclude(
+                MessageDocument.objects.filter(message__telegram_bot=self).exclude(
                     file=None
                 ),
             )

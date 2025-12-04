@@ -15,7 +15,7 @@ from ..enums import APIRequestMethod, ConnectionHandlePosition
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..models import APIRequest, BackgroundTask, Command, Connection, TelegramBot
+    from ..models import APIRequest, BackgroundTask, Connection, TelegramBot
 
     class AbstractAPIRequest(models.Model):
         url: str
@@ -24,7 +24,13 @@ if TYPE_CHECKING:
         body: dict[str, Any] | None
 
     class CommandAPIRequest(AbstractAPIRequest):
-        command: Command
+        command: 'Command'
+
+    class Command(models.Model):
+        id: int
+        telegram_bot: TelegramBot
+        x: int
+        y: int
 
     class BackgroundTaskAPIRequest(AbstractAPIRequest):
         background_task: BackgroundTask

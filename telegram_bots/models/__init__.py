@@ -1,14 +1,5 @@
 from .api_request import APIRequest
 from .background_task import BackgroundTask
-from .command import (
-    Command,
-    CommandDocument,
-    CommandImage,
-    CommandKeyboard,
-    CommandKeyboardButton,
-    CommandMessage,
-    CommandSettings,
-)
 from .condition import Condition, ConditionPart
 from .connection import Connection
 from .database_operation import (
@@ -17,6 +8,14 @@ from .database_operation import (
     DatabaseUpdateOperation,
 )
 from .database_record import DatabaseRecord
+from .message import (
+    Message,
+    MessageDocument,
+    MessageImage,
+    MessageKeyboard,
+    MessageKeyboardButton,
+    MessageSettings,
+)
 from .telegram_bot import TelegramBot
 from .trigger import Trigger, TriggerCommand, TriggerMessage
 from .user import User
@@ -28,13 +27,12 @@ __all__ = [
     'Trigger',
     'TriggerCommand',
     'TriggerMessage',
-    'Command',
-    'CommandSettings',
-    'CommandImage',
-    'CommandDocument',
-    'CommandMessage',
-    'CommandKeyboard',
-    'CommandKeyboardButton',
+    'Message',
+    'MessageSettings',
+    'MessageImage',
+    'MessageDocument',
+    'MessageKeyboard',
+    'MessageKeyboardButton',
     'Condition',
     'ConditionPart',
     'BackgroundTask',

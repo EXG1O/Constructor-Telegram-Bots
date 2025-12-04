@@ -7,11 +7,11 @@ from ..enums import ConnectionObjectType
 from ..models import (
     APIRequest,
     BackgroundTask,
-    Command,
-    CommandKeyboardButton,
     Condition,
     Connection,
     DatabaseOperation,
+    Message,
+    MessageKeyboardButton,
     Trigger,
 )
 from .mixins import TelegramBotMixin
@@ -44,14 +44,14 @@ class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connect
             'model': Trigger,
             'queryset': lambda self: self.telegram_bot.triggers,
         },
-        ConnectionObjectType.COMMAND: {
-            'model': Command,
-            'queryset': lambda self: self.telegram_bot.commands,
+        ConnectionObjectType.MESSAGE: {
+            'model': Message,
+            'queryset': lambda self: self.telegram_bot.messages,
         },
-        ConnectionObjectType.COMMAND_KEYBOARD_BUTTON: {
-            'model': CommandKeyboardButton,
-            'queryset': lambda self: CommandKeyboardButton.objects.filter(
-                keyboard__command__telegram_bot=self.telegram_bot
+        ConnectionObjectType.MESSAGE_KEYBOARD_BUTTON: {
+            'model': MessageKeyboardButton,
+            'queryset': lambda self: MessageKeyboardButton.objects.filter(
+                keyboard__message__telegram_bot=self.telegram_bot
             ),
         },
         ConnectionObjectType.CONDITION: {

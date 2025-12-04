@@ -32,7 +32,7 @@ class AbstractBlock(models.Model):
         abstract = True
 
 
-class AbstractCommandMedia(models.Model):
+class AbstractMessageMedia(models.Model):
     if TYPE_CHECKING:
         related_name: str
         file: models.FileField

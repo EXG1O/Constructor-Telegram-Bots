@@ -6,8 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ..enums import ConnectionHandlePosition, KeyboardType
-from ..models import Command, CommandKeyboard, CommandKeyboardButton, Connection
+from ..enums import ConnectionHandlePosition, ConnectionObjectType, KeyboardType
+from ..models import Connection, Message, MessageKeyboard, MessageKeyboardButton
 from ..views import ConnectionViewSet
 from .mixins import TelegramBotMixin, UserMixin
 
@@ -21,18 +21,22 @@ class ConnectionViewSetTests(TelegramBotMixin, UserMixin, TestCase):
 
         self.factory = APIRequestFactory()
 
-        self.command_1: Command = self.telegram_bot.commands.create(name='Test name 1')
-
-        self.command_2: Command = self.telegram_bot.commands.create(name='Test name 2')
-        self.command_2_keyboard: CommandKeyboard = CommandKeyboard.objects.create(
-            command=self.command_2, type=KeyboardType.DEFAULT
+        self.message_1: Message = self.telegram_bot.messages.create(
+            name='Test name 1', text='...'
         )
-        self.command_2_keyboard_button: CommandKeyboardButton = (
-            self.command_2_keyboard.buttons.create(row=0, position=0, text='Button')
+
+        self.message_2: Message = self.telegram_bot.messages.create(
+            name='Test name 2', text='...'
+        )
+        self.message_2_keyboard: MessageKeyboard = MessageKeyboard.objects.create(
+            message=self.message_2, type=KeyboardType.DEFAULT
+        )
+        self.message_2_keyboard_button: MessageKeyboardButton = (
+            self.message_2_keyboard.buttons.create(row=0, position=0, text='Button')
         )
 
         self.connection: Connection = self.telegram_bot.connections.create(
-            source_object=self.command_2_keyboard_button, target_object=self.command_1
+            source_object=self.message_2_keyboard_button, target_object=self.message_1
         )
 
         self.list_true_url: str = reverse(
@@ -79,33 +83,33 @@ class ConnectionViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(
             self.list_true_url,
             {
-                'source_object_type': 'command_keyboard_button',
-                'source_object_id': self.command_2_keyboard_button.id,
+                'source_object_type': ConnectionObjectType.MESSAGE_KEYBOARD_BUTTON,
+                'source_object_id': self.message_2_keyboard_button.id,
                 'source_handle_position': ConnectionHandlePosition.RIGHT,
-                'target_object_type': 'command',
-                'target_object_id': self.command_1.id,
+                'target_object_type': ConnectionObjectType.MESSAGE,
+                'target_object_id': self.message_1.id,
                 'target_handle_position': ConnectionHandlePosition.LEFT,
             },
             format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-        old_command_1_target_connection_count: int = (
-            self.command_1.target_connections.count()
+        old_message_1_target_connection_count: int = (
+            self.message_1.target_connections.count()
         )
-        old_command_2_keyboard_button_source_connection_count: int = (
-            self.command_2_keyboard_button.source_connections.count()
+        old_message_2_keyboard_button_source_connection_count: int = (
+            self.message_2_keyboard_button.source_connections.count()
         )
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            self.command_1.target_connections.count(),
-            old_command_1_target_connection_count + 1,
+            self.message_1.target_connections.count(),
+            old_message_1_target_connection_count + 1,
         )
         self.assertEqual(
-            self.command_2_keyboard_button.source_connections.count(),
-            old_command_2_keyboard_button_source_connection_count + 1,
+            self.message_2_keyboard_button.source_connections.count(),
+            old_message_2_keyboard_button_source_connection_count + 1,
         )
 
     def test_destroy(self) -> None:
