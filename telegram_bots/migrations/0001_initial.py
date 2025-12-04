@@ -111,7 +111,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('position', models.PositiveSmallIntegerField(verbose_name='Позиция')),
                 ('from_url', models.URLField(blank=True, null=True, verbose_name='Из URL-адреса')),
-                ('file', models.FileField(blank=True, max_length=500, null=True, upload_to=telegram_bots.models.command.upload_command_media_path, verbose_name='Файл')),
+                ('file', models.FileField(blank=True, max_length=500, null=True, upload_to=telegram_bots.models.message.upload_message_media_path, verbose_name='Файл')),
                 ('command', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='telegram_bots.command', verbose_name='Команда')),
             ],
             options={
@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('position', models.PositiveSmallIntegerField(verbose_name='Позиция')),
                 ('from_url', models.URLField(blank=True, null=True, verbose_name='Из URL-адреса')),
-                ('image', models.ImageField(blank=True, max_length=500, null=True, upload_to=telegram_bots.models.command.upload_command_media_path, verbose_name='Изображение')),
+                ('image', models.ImageField(blank=True, max_length=500, null=True, upload_to=telegram_bots.models.message.upload_message_media_path, verbose_name='Изображение')),
                 ('command', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='telegram_bots.command', verbose_name='Команда')),
             ],
             options={

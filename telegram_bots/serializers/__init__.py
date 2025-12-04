@@ -1,17 +1,5 @@
 from .api_request import APIRequestSerializer, DiagramAPIRequestSerializer
 from .background_task import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
-from .command import (
-    CommandDocumentSerializer,
-    CommandImageSerializer,
-    CommandKeyboardButtonSerializer,
-    CommandKeyboardSerializer,
-    CommandMessageSerializer,
-    CommandSerializer,
-    CommandSettingsSerializer,
-    DiagramCommandKeyboardButtonSerializer,
-    DiagramCommandKeyboardSerializer,
-    DiagramCommandSerializer,
-)
 from .condition import (
     ConditionPartSerializer,
     ConditionSerializer,
@@ -25,6 +13,17 @@ from .database_operation import (
     DiagramDatabaseOperationSerializer,
 )
 from .database_record import DatabaseRecordSerializer
+from .message import (
+    DiagramMessageKeyboardButtonSerializer,
+    DiagramMessageKeyboardSerializer,
+    DiagramMessageSerializer,
+    MessageDocumentSerializer,
+    MessageImageSerializer,
+    MessageKeyboardButtonSerializer,
+    MessageKeyboardSerializer,
+    MessageSerializer,
+    MessageSettingsSerializer,
+)
 from .telegram_bot import TelegramBotSerializer
 from .trigger import (
     DiagramTriggerSerializer,
@@ -42,16 +41,15 @@ __all__ = [
     'TriggerCommandSerializer',
     'TriggerMessageSerializer',
     'DiagramTriggerSerializer',
-    'CommandSerializer',
-    'CommandSettingsSerializer',
-    'CommandImageSerializer',
-    'CommandDocumentSerializer',
-    'CommandMessageSerializer',
-    'CommandKeyboardSerializer',
-    'CommandKeyboardButtonSerializer',
-    'DiagramCommandSerializer',
-    'DiagramCommandKeyboardSerializer',
-    'DiagramCommandKeyboardButtonSerializer',
+    'MessageSerializer',
+    'MessageSettingsSerializer',
+    'MessageImageSerializer',
+    'MessageDocumentSerializer',
+    'MessageKeyboardSerializer',
+    'MessageKeyboardButtonSerializer',
+    'DiagramMessageSerializer',
+    'DiagramMessageKeyboardSerializer',
+    'DiagramMessageKeyboardButtonSerializer',
     'ConditionSerializer',
     'ConditionPartSerializer',
     'DiagramConditionSerializer',

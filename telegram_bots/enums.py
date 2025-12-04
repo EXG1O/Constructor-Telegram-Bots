@@ -17,8 +17,11 @@ class ConnectionHandlePosition(TextChoices):
 
 class ConnectionObjectType(TextChoices):
     TRIGGER = 'trigger', _('Триггер')
-    COMMAND = 'command', _('Команда')
-    COMMAND_KEYBOARD_BUTTON = 'command_keyboard_button', _('Кнопка клавиатуры')
+    MESSAGE = 'message', _('Сообщение')
+    MESSAGE_KEYBOARD_BUTTON = (
+        'message_keyboard_button',
+        _('Кнопка клавиатуры сообщения'),
+    )
     CONDITION = 'condition', _('Условие')
     BACKGROUND_TASK = 'background_task', _('Фоновая задача')
     API_REQUEST = 'api_request', _('API-запрос')
@@ -30,8 +33,8 @@ class ConnectionObjectType(TextChoices):
             (item.value, item.label)
             for item in [
                 ConnectionObjectType.TRIGGER,
-                ConnectionObjectType.COMMAND,
-                ConnectionObjectType.COMMAND_KEYBOARD_BUTTON,
+                ConnectionObjectType.MESSAGE,
+                ConnectionObjectType.MESSAGE_KEYBOARD_BUTTON,
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.BACKGROUND_TASK,
                 ConnectionObjectType.API_REQUEST,
@@ -45,7 +48,7 @@ class ConnectionObjectType(TextChoices):
             (item.value, item.label)
             for item in [
                 ConnectionObjectType.TRIGGER,
-                ConnectionObjectType.COMMAND,
+                ConnectionObjectType.MESSAGE,
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.API_REQUEST,
                 ConnectionObjectType.DATABASE_OPERATION,

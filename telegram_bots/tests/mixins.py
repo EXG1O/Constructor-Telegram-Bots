@@ -5,14 +5,13 @@ from ..enums import ConditionPartOperatorType, ConditionPartType
 from ..models import (
     APIRequest,
     BackgroundTask,
-    Command,
-    CommandMessage,
-    CommandSettings,
     Condition,
     ConditionPart,
     DatabaseCreateOperation,
     DatabaseOperation,
     DatabaseRecord,
+    Message,
+    MessageSettings,
     TelegramBot,
     Trigger,
     TriggerCommand,
@@ -52,18 +51,17 @@ class TriggerMixin:
         )
 
 
-class CommandMixin:
+class MessageMixin:
     if TYPE_CHECKING:
         telegram_bot: TelegramBot
 
     def setUp(self) -> None:
         super().setUp()  # type: ignore [misc]
-        self.command: Command = self.telegram_bot.commands.create(name='Test name')
-        self.command_settings: CommandSettings = CommandSettings.objects.create(
-            command=self.command
+        self.message: Message = self.telegram_bot.messages.create(
+            name='Test name', text='...'
         )
-        self.command_message: CommandMessage = CommandMessage.objects.create(
-            command=self.command, text='...'
+        self.message_settings: MessageSettings = MessageSettings.objects.create(
+            message=self.message
         )
 
 

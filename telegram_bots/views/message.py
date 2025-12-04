@@ -8,24 +8,22 @@ from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.parsers import MultiPartJSONParser
 from users.authentication import JWTCookieAuthentication
 
-from ..models import Command
-from ..serializers import CommandSerializer, DiagramCommandSerializer
+from ..models import Message
+from ..serializers import DiagramMessageSerializer, MessageSerializer
 from .mixins import TelegramBotMixin
 
 
-class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
+class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
     authentication_classes = [JWTCookieAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartJSONParser]
-    serializer_class = CommandSerializer
+    serializer_class = MessageSerializer
 
-    def get_queryset(self) -> QuerySet[Command]:
-        commands: QuerySet[Command] = self.telegram_bot.commands.all()
+    def get_queryset(self) -> QuerySet[Message]:
+        messages: QuerySet[Message] = self.telegram_bot.messages.all()
 
         if self.action in ['list', 'retrieve']:
-            return commands.select_related(
-                'settings', 'message', 'keyboard'
-            ).prefetch_related(
+            return messages.select_related('settings', 'keyboard').prefetch_related(
                 'images',
                 'documents',
                 'keyboard__buttons__source_connections__source_object',
@@ -34,26 +32,26 @@ class CommandViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Command]):
                 'target_connections__target_object',
             )
 
-        return commands
+        return messages
 
 
-class DiagramCommandViewSet(
+class DiagramMessageViewSet(
     IDLookupMixin,
     TelegramBotMixin,
     ListModelMixin,
     RetrieveModelMixin,
     UpdateModelMixin,
-    GenericViewSet[Command],
+    GenericViewSet[Message],
 ):
     authentication_classes = [JWTCookieAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = DiagramCommandSerializer
+    serializer_class = DiagramMessageSerializer
 
-    def get_queryset(self) -> QuerySet[Command]:
-        commands: QuerySet[Command] = self.telegram_bot.commands.all()
+    def get_queryset(self) -> QuerySet[Message]:
+        messages: QuerySet[Message] = self.telegram_bot.messages.all()
 
         if self.action in ['list', 'retrieve']:
-            return commands.select_related('message', 'keyboard').prefetch_related(
+            return messages.select_related('keyboard').prefetch_related(
                 'keyboard__buttons__source_connections__source_object',
                 'keyboard__buttons__source_connections__target_object',
                 'source_connections__source_object',
@@ -62,4 +60,4 @@ class DiagramCommandViewSet(
                 'target_connections__target_object',
             )
 
-        return commands
+        return messages

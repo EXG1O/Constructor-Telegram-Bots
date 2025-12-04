@@ -6,11 +6,11 @@ from ...enums import ConnectionObjectType
 from ...models import (
     APIRequest,
     BackgroundTask,
-    Command,
-    CommandKeyboardButton,
     Condition,
     Connection,
     DatabaseOperation,
+    Message,
+    MessageKeyboardButton,
     Trigger,
 )
 
@@ -37,8 +37,8 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
 
     _object_type_map: dict[ConnectionObjectType, type[Model]] = {
         ConnectionObjectType.TRIGGER: Trigger,
-        ConnectionObjectType.COMMAND: Command,
-        ConnectionObjectType.COMMAND_KEYBOARD_BUTTON: CommandKeyboardButton,
+        ConnectionObjectType.MESSAGE: Message,
+        ConnectionObjectType.MESSAGE_KEYBOARD_BUTTON: MessageKeyboardButton,
         ConnectionObjectType.CONDITION: Condition,
         ConnectionObjectType.BACKGROUND_TASK: BackgroundTask,
         ConnectionObjectType.API_REQUEST: APIRequest,

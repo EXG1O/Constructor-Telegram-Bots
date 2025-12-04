@@ -1,14 +1,5 @@
 from .api_request import APIRequestSerializer
 from .background_task import BackgroundTaskSerializer
-from .command import (
-    CommandDocumentSerializer,
-    CommandImageSerializer,
-    CommandKeyboardButtonSerializer,
-    CommandKeyboardSerializer,
-    CommandMessageSerializer,
-    CommandSerializer,
-    CommandSettingsSerializer,
-)
 from .condition import (
     ConditionPartSerializer,
     ConditionSerializer,
@@ -20,6 +11,14 @@ from .database_operation import (
     DatabaseUpdateOperationSerializer,
 )
 from .database_record import DatabaseRecordSerializer
+from .message import (
+    MessageDocumentSerializer,
+    MessageImageSerializer,
+    MessageKeyboardButtonSerializer,
+    MessageKeyboardSerializer,
+    MessageSerializer,
+    MessageSettingsSerializer,
+)
 from .telegram_bot import TelegramBotSerializer
 from .trigger import (
     TriggerCommandSerializer,
@@ -35,13 +34,12 @@ __all__ = [
     'TriggerSerializer',
     'TriggerCommandSerializer',
     'TriggerMessageSerializer',
-    'CommandSerializer',
-    'CommandSettingsSerializer',
-    'CommandImageSerializer',
-    'CommandDocumentSerializer',
-    'CommandMessageSerializer',
-    'CommandKeyboardSerializer',
-    'CommandKeyboardButtonSerializer',
+    'MessageSerializer',
+    'MessageSettingsSerializer',
+    'MessageImageSerializer',
+    'MessageDocumentSerializer',
+    'MessageKeyboardSerializer',
+    'MessageKeyboardButtonSerializer',
     'ConditionSerializer',
     'ConditionPartSerializer',
     'BackgroundTaskSerializer',

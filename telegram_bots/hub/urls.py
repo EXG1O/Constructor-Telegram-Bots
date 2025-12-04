@@ -3,11 +3,11 @@ from rest_framework.routers import SimpleRouter
 from .views import (
     APIRequestViewSet,
     BackgroundTaskViewSet,
-    CommandKeyboardButtonViewSet,
-    CommandViewSet,
     ConditionViewSet,
     DatabaseOperationViewSet,
     DatabaseRecordViewSet,
+    MessageKeyboardButtonViewSet,
+    MessageViewSet,
     TelegramBotViewSet,
     TriggerViewSet,
     UserViewSet,
@@ -25,14 +25,14 @@ router.register(
     basename=f'{base_name}-trigger',
 )
 router.register(
-    f'{base_path}/commands',
-    CommandViewSet,
-    basename=f'{base_name}-command',
+    f'{base_path}/messages',
+    MessageViewSet,
+    basename=f'{base_name}-message',
 )
 router.register(
-    f'{base_path}/commands-keyboard-buttons',
-    CommandKeyboardButtonViewSet,
-    basename=f'{base_name}-commands-keyboard-button',
+    f'{base_path}/messages-keyboard-buttons',
+    MessageKeyboardButtonViewSet,
+    basename=f'{base_name}-messages-keyboard-button',
 )
 router.register(
     f'{base_path}/conditions',

@@ -5,17 +5,17 @@ from rest_framework.routers import SimpleRouter
 from .views import (
     APIRequestViewSet,
     BackgroundTaskViewSet,
-    CommandViewSet,
     ConditionViewSet,
     ConnectionViewSet,
     DatabaseOperationViewSet,
     DatabaseRecordViewSet,
     DiagramAPIRequestViewSet,
     DiagramBackgroundTaskViewSet,
-    DiagramCommandViewSet,
     DiagramConditionViewSet,
     DiagramDatabaseOperationViewSet,
+    DiagramMessageViewSet,
     DiagramTriggerViewSet,
+    MessageViewSet,
     StatsAPIView,
     TelegramBotViewSet,
     TriggerViewSet,
@@ -49,14 +49,14 @@ router.register(
 )
 
 router.register(
-    f'{base_path}/commands',
-    CommandViewSet,
-    basename=f'{base_name}-command',
+    f'{base_path}/messages',
+    MessageViewSet,
+    basename=f'{base_name}-message',
 )
 router.register(
-    f'{base_diagram_path}/commands',
-    DiagramCommandViewSet,
-    basename=f'{base_diagram_name}-command',
+    f'{base_diagram_path}/messages',
+    DiagramMessageViewSet,
+    basename=f'{base_diagram_name}-message',
 )
 
 router.register(
