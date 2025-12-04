@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-07 16:42+0000\n"
+"POT-Creation-Date: 2025-12-04 12:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,15 +26,15 @@ msgstr ""
 msgid "Не удалось проанализировать JSON данные для ключа '%(key)s'."
 msgstr "Не вдалося проаналізувати JSON дані для ключа '%(key)s'."
 
-#: constructor_telegram_bots/settings.py:176
+#: constructor_telegram_bots/settings.py:175
 msgid "Английский"
 msgstr "Англійська"
 
-#: constructor_telegram_bots/settings.py:177
+#: constructor_telegram_bots/settings.py:176
 msgid "Украинский"
 msgstr "Українська"
 
-#: constructor_telegram_bots/settings.py:178
+#: constructor_telegram_bots/settings.py:177
 msgid "Русский"
 msgstr "Російська"
 
@@ -143,14 +143,14 @@ msgid "Справа"
 msgstr "Праворуч"
 
 #: telegram_bots/enums.py:19 telegram_bots/models/trigger.py:16
-#: telegram_bots/models/trigger.py:43 telegram_bots/models/trigger.py:71
+#: telegram_bots/models/trigger.py:43 telegram_bots/models/trigger.py:70
 msgid "Триггер"
 msgstr "Тригер"
 
 #: telegram_bots/enums.py:20 telegram_bots/models/command.py:26
 #: telegram_bots/models/command.py:63 telegram_bots/models/command.py:89
 #: telegram_bots/models/command.py:113 telegram_bots/models/command.py:156
-#: telegram_bots/models/command.py:192 telegram_bots/models/trigger.py:18
+#: telegram_bots/models/command.py:191 telegram_bots/models/trigger.py:18
 msgid "Команда"
 msgstr "Команда"
 
@@ -176,75 +176,75 @@ msgstr "API-запит"
 msgid "Операция базы данных"
 msgstr "Операція бази даних"
 
-#: telegram_bots/enums.py:55
+#: telegram_bots/enums.py:57
 msgid "Обычный"
 msgstr "Звичайний"
 
-#: telegram_bots/enums.py:56
+#: telegram_bots/enums.py:58
 msgid "Встроенный"
 msgstr "Вбудований"
 
-#: telegram_bots/enums.py:57
+#: telegram_bots/enums.py:59
 msgid "Платёжный"
 msgstr "Платіжний"
 
-#: telegram_bots/enums.py:61
+#: telegram_bots/enums.py:63
 msgid "Положительный"
 msgstr "Позитивний"
 
-#: telegram_bots/enums.py:62
+#: telegram_bots/enums.py:64
 msgid "Отрицательный"
 msgstr "Негативний"
 
-#: telegram_bots/enums.py:66
+#: telegram_bots/enums.py:68
 msgid "Равно"
 msgstr "Рівно"
 
-#: telegram_bots/enums.py:67
+#: telegram_bots/enums.py:69
 msgid "Не равно"
 msgstr "Не рівно"
 
-#: telegram_bots/enums.py:68
+#: telegram_bots/enums.py:70
 msgid "Больше"
 msgstr "Більше"
 
-#: telegram_bots/enums.py:69
+#: telegram_bots/enums.py:71
 msgid "Больше или равно"
 msgstr "Більше або рівно"
 
-#: telegram_bots/enums.py:70
+#: telegram_bots/enums.py:72
 msgid "Меньше"
 msgstr "Менше"
 
-#: telegram_bots/enums.py:71
+#: telegram_bots/enums.py:73
 msgid "Меньше или равно"
 msgstr "Менше або рівно"
 
-#: telegram_bots/enums.py:75
+#: telegram_bots/enums.py:77
 msgid "И"
 msgstr "І"
 
-#: telegram_bots/enums.py:76
+#: telegram_bots/enums.py:78
 msgid "ИЛИ"
 msgstr "АБО"
 
-#: telegram_bots/enums.py:80
+#: telegram_bots/enums.py:82
 msgid "1 день"
 msgstr "1 день"
 
-#: telegram_bots/enums.py:81
+#: telegram_bots/enums.py:83
 msgid "3 дня"
 msgstr "3 дні"
 
-#: telegram_bots/enums.py:82
+#: telegram_bots/enums.py:84
 msgid "7 дней"
 msgstr "7 днів"
 
-#: telegram_bots/enums.py:83
+#: telegram_bots/enums.py:85
 msgid "14 дней"
 msgstr "14 днів"
 
-#: telegram_bots/enums.py:84
+#: telegram_bots/enums.py:86
 msgid "28 дней"
 msgstr "28 днів"
 
@@ -406,7 +406,7 @@ msgstr "Клавіатура команди"
 msgid "Клавиатуры команд"
 msgstr "Клавіатури команд"
 
-#: telegram_bots/models/command.py:193
+#: telegram_bots/models/command.py:192
 msgid "Команды"
 msgstr "Команди"
 
@@ -552,7 +552,6 @@ msgid "Полезная нагрузка"
 msgstr ""
 
 #: telegram_bots/models/trigger.py:22 telegram_bots/models/variable.py:16
-#: updates/models.py:9
 msgid "Описание"
 msgstr "Опис"
 
@@ -572,7 +571,7 @@ msgstr "Повідомлення тригер"
 msgid "Сообщения триггеры"
 msgstr "Повідомлення тригери"
 
-#: telegram_bots/models/trigger.py:72
+#: telegram_bots/models/trigger.py:71
 msgid "Триггеры"
 msgstr "Тригери"
 
@@ -726,22 +725,6 @@ msgstr "Значення має бути не більше ніж 90."
 msgid "Значение должно быть целым числом."
 msgstr "Значення має бути цілим числом."
 
-#: updates/apps.py:8 updates/models.py:16
-msgid "Обновления"
-msgstr "Оновлення"
-
-#: updates/models.py:8
-msgid "Версия"
-msgstr "Версія"
-
-#: updates/models.py:10
-msgid "Добавлено"
-msgstr "Додано"
-
-#: updates/models.py:15
-msgid "Обновление"
-msgstr "Оновлення"
-
 #: users/admin.py:53
 msgid "Telegram ботов"
 msgstr "Telegram ботів"
@@ -817,3 +800,11 @@ msgstr "Токен у чорному списку"
 #: users/models.py:85
 msgid "Токены в чёрном списке"
 msgstr "Токени у чорному списку"
+
+#: Constructor-Telegram-Bots-Frontend/src/prod.html:12
+msgid ""
+"Сайт, с помощью которого вы можете легко, бесплатно и без каких-либо знаний "
+"в программирование, сделать своего многофункционального Telegram бота."
+msgstr ""
+"Сайт, за допомогою якого ви можете легко, безкоштовно та без жодних знань "
+"у програмуванні, створити свого багатофункціонального Telegram бота."
