@@ -7,8 +7,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
+from .jwt.tokens import AccessToken, RefreshToken
 from .models import User
-from .tokens import AccessToken, RefreshToken
 from .views import UserViewSet
 
 from contextlib import suppress

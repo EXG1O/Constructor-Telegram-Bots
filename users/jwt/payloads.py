@@ -1,6 +1,6 @@
 from django.utils import timezone
 
-from .enums import TokenType
+from ..enums import TokenType
 
 from calendar import timegm
 from dataclasses import asdict, dataclass

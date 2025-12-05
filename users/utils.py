@@ -8,8 +8,8 @@ from rest_framework.exceptions import APIException
 from jwt import PyJWTError
 
 from .enums import TokenType
+from .jwt.tokens import AccessToken, RefreshToken
 from .models import BlacklistedToken, Token, User
-from .tokens import AccessToken, RefreshToken
 
 from typing import TypeVar
 

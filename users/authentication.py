@@ -1,8 +1,8 @@
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
+from .jwt.tokens import AccessToken
 from .models import User
-from .tokens import AccessToken
 from .utils import authenticate_token
 
 
