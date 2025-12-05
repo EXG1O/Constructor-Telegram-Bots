@@ -4,14 +4,14 @@ from django.utils.functional import cached_property
 
 import jwt
 
-from .data import AccessTokenPayload, TokenPayload
-from .enums import TokenType
+from ..enums import TokenType
+from ..models import BlacklistedToken, Token, User
 from .exceptions import (
     InvalidTokenRefreshJTIError,
     InvalidTokenSubjectError,
     InvalidTokenTypeError,
 )
-from .models import BlacklistedToken, Token, User
+from .payloads import AccessTokenPayload, TokenPayload
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, tzinfo

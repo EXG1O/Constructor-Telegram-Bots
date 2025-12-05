@@ -1,5 +1,5 @@
+from users.jwt.tokens import AccessToken, RefreshToken
 from users.models import User
-from users.tokens import AccessToken, RefreshToken
 
 from ..enums import ConditionPartOperatorType, ConditionPartType
 from ..models import (

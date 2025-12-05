@@ -12,9 +12,9 @@ from rest_framework.viewsets import GenericViewSet
 
 from .authentication import JWTAuthentication
 from .backends import TelegramBackend
+from .jwt.tokens import RefreshToken
 from .models import User
 from .serializers import UserLoginSerializer, UserSerializer, UserTokenRefreshSerializer
-from .tokens import RefreshToken
 from .utils import login as user_login
 from .utils import logout as user_logout
 from .utils import logout_all as user_logout_all

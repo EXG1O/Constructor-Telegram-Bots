@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from .jwt.tokens import RefreshToken
 from .models import User
-from .tokens import RefreshToken
 from .utils import authenticate_token
 
 
