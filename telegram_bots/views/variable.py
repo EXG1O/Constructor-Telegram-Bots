@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import Variable
 from ..serializers import VariableSerializer
@@ -14,7 +14,7 @@ from .mixins import TelegramBotMixin
 
 
 class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = VariableSerializer
     pagination_class = LimitOffsetPagination

@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import Condition
 from ..serializers import ConditionSerializer, DiagramConditionSerializer
@@ -13,7 +13,7 @@ from .mixins import TelegramBotMixin
 
 
 class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ConditionSerializer
 
@@ -40,7 +40,7 @@ class DiagramConditionViewSet(
     UpdateModelMixin,
     GenericViewSet[Condition],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DiagramConditionSerializer
 

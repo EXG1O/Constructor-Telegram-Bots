@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from .models import User
+from .tokens import RefreshToken
+from .utils import authenticate_token
 
 
 class UserSerializer(serializers.ModelSerializer[User]):
@@ -25,3 +27,15 @@ class UserLoginSerializer(serializers.Serializer[User]):
     photo_url = serializers.URLField(required=False)
     auth_date = serializers.IntegerField()
     hash = serializers.CharField(min_length=64, max_length=64)
+
+
+class UserTokenRefreshSerializer(serializers.Serializer[User]):
+    refresh_token = serializers.CharField()
+
+    def validate_refresh_token(self, raw_refresh_token: str) -> RefreshToken:
+        _, refresh_token = authenticate_token(
+            raw_refresh_token,
+            token_cls=RefreshToken,
+            exception_cls=serializers.ValidationError,
+        )
+        return refresh_token
