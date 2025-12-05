@@ -1,10 +1,8 @@
-from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -12,19 +10,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from jwt import PyJWTError
-
-from .authentication import JWTCookieAuthentication
+from .authentication import JWTAuthentication
 from .backends import TelegramBackend
-from .exceptions import TokenBlacklistedError, UserInactiveOrDeletedError
 from .models import User
-from .serializers import UserLoginSerializer, UserSerializer
+from .serializers import UserLoginSerializer, UserSerializer, UserTokenRefreshSerializer
 from .tokens import RefreshToken
-from .utils import (
-    add_jwt_tokens_to_cookies,
-    delete_jwt_tokens_from_cookies,
-    get_refresh_token,
-)
 from .utils import login as user_login
 from .utils import logout as user_logout
 from .utils import logout_all as user_logout_all
@@ -42,7 +32,7 @@ class StatsAPIView(APIView):
 
 
 class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -63,30 +53,22 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
         )
         refresh_token: RefreshToken = user_login(request, user)
 
-        response = Response()
-        add_jwt_tokens_to_cookies(
-            response, str(refresh_token), str(refresh_token.access_token)
+        return Response(
+            {
+                'refresh_token': str(refresh_token),
+                'access_token': str(refresh_token.access_token),
+            }
         )
-
-        return response
 
     @action(detail=True, methods=['POST'])
     def logout(self, request: Request, pk: str | None = None) -> Response:
-        user_logout(request, get_refresh_token(request))
-
-        response = Response()
-        delete_jwt_tokens_from_cookies(response)
-
-        return response
+        user_logout(request, request.auth)  # type: ignore[arg-type]
+        return Response()
 
     @action(detail=True, url_path='logout-all', methods=['POST'])
     def logout_all(self, request: Request, pk: str | None = None) -> Response:
-        user_logout_all(request, request.user, get_refresh_token(request))  # type: ignore[arg-type]
-
-        response = Response()
-        delete_jwt_tokens_from_cookies(response)
-
-        return response
+        user_logout_all(request, request.user)  # type: ignore[arg-type]
+        return Response()
 
     @action(
         detail=True,
@@ -96,38 +78,17 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
         permission_classes=[],
     )
     def token_refresh(self, request: Request, pk: str | None = None) -> Response:
-        try:
-            refresh_token: RefreshToken = get_refresh_token(request)
-        except PyJWTError as error:
-            raise PermissionDenied() from error
+        serializer = UserTokenRefreshSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if refresh_token.is_blacklisted:
-            raise TokenBlacklistedError()
+        refresh_token: RefreshToken = serializer.validated_data['refresh_token']
 
-        user: User | None = refresh_token.user
-
-        if not user or not user.is_active:
-            raise UserInactiveOrDeletedError()
-
-        response = Response()
-        response.set_cookie(
-            settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
-            str(refresh_token.access_token),
-            max_age=settings.JWT_ACCESS_TOKEN_LIFETIME,
-            secure=settings.JWT_TOKEN_COOKIE_SECURE,
-            httponly=settings.JWT_TOKEN_COOKIE_HTTPONLY,
-            samesite=settings.JWT_TOKEN_COOKIE_SAMESITE,
-        )
-
-        return response
+        return Response({'access_token': str(refresh_token.access_token)})
 
     def destroy(self, request: Request, pk: str | None = None) -> Response:
         user: User = request.user  # type: ignore [assignment]
 
-        user_logout_all(request, user, get_refresh_token(request))
+        user_logout_all(request, user)
         user.delete()
 
-        response = Response(status=status.HTTP_204_NO_CONTENT)
-        delete_jwt_tokens_from_cookies(response)
-
-        return response
+        return Response(status=status.HTTP_204_NO_CONTENT)

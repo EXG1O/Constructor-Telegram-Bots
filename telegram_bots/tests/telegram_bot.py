@@ -59,7 +59,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
             response: Response
 
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.get(self.list_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -77,7 +77,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(self.list_url)
 
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
@@ -105,7 +105,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.get(self.detail_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.get(self.detail_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -129,7 +129,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(self.start_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.post(self.start_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -153,7 +153,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(self.restart_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.post(self.restart_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -177,7 +177,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(self.stop_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.post(self.stop_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -201,7 +201,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.put(self.detail_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.put(self.detail_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -237,7 +237,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.patch(self.detail_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.patch(self.detail_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -274,7 +274,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.delete(self.detail_true_url)
 
         response = view(request, id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.delete(self.detail_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]

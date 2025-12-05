@@ -1,12 +1,10 @@
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.http import HttpRequest
+from django.utils.translation import gettext as _
 
-from .exceptions import (
-    FakeTelegramDataError,
-    TelegramAuthDataOutdatedError,
-    UserInactiveOrDeletedError,
-)
+from rest_framework.exceptions import APIException, PermissionDenied, ValidationError
+
 from .models import User
 
 from typing import Any, Literal, overload
@@ -48,7 +46,7 @@ class TelegramBackend(ModelBackend):
             try:
                 self._validate_auth_date(int(data['auth_date']))
                 self._validate_auth_data(data, hash)
-            except (TelegramAuthDataOutdatedError, FakeTelegramDataError) as error:
+            except APIException as error:
                 if raise_exception:
                     raise error
 
@@ -63,7 +61,9 @@ class TelegramBackend(ModelBackend):
 
         if not self.user_can_authenticate(user):
             if raise_exception:
-                raise UserInactiveOrDeletedError()
+                raise PermissionDenied(
+                    _('Пользователь не может быть аутентифицирован.')
+                )
 
             return None
 
@@ -76,7 +76,9 @@ class TelegramBackend(ModelBackend):
 
     def _validate_auth_date(self, auth_unix_date: int) -> None:
         if int(time.time()) - auth_unix_date > 86400:
-            raise TelegramAuthDataOutdatedError()
+            raise ValidationError(
+                _('Срок действия данных аутентификации от Telegram истёк.')
+            )
 
     def _validate_auth_data(self, data: dict[str, Any], hash: str) -> None:
         secret_key: bytes = hashlib.sha256(
@@ -90,4 +92,6 @@ class TelegramBackend(ModelBackend):
         ).hexdigest()
 
         if not hmac.compare_digest(result_hash, hash):
-            raise FakeTelegramDataError()
+            raise ValidationError(
+                _('Данные аутентификации Telegram являются подделкой.')
+            )

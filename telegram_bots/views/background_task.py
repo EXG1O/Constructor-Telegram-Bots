@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import BackgroundTask
 from ..serializers import BackgroundTaskSerializer, DiagramBackgroundTaskSerializer
@@ -15,7 +15,7 @@ from .mixins import TelegramBotMixin
 class BackgroundTaskViewSet(
     IDLookupMixin, TelegramBotMixin, ModelViewSet[BackgroundTask]
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = BackgroundTaskSerializer
 
@@ -41,7 +41,7 @@ class DiagramBackgroundTaskViewSet(
     UpdateModelMixin,
     GenericViewSet[BackgroundTask],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DiagramBackgroundTaskSerializer
 

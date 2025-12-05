@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import DatabaseOperation
 from ..serializers import (
@@ -18,7 +18,7 @@ from .mixins import TelegramBotMixin
 class DatabaseOperationViewSet(
     IDLookupMixin, TelegramBotMixin, ModelViewSet[DatabaseOperation]
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DatabaseOperationSerializer
 
@@ -48,7 +48,7 @@ class DiagramDatabaseOperationViewSet(
     UpdateModelMixin,
     GenericViewSet[DatabaseOperation],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DiagramDatabaseOperationSerializer
 

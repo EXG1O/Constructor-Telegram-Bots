@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from datetime import timedelta
 from pathlib import Path
-from typing import Any, Final, Literal
+from typing import Any, Final
 import os
 import sys
 
@@ -56,13 +56,8 @@ TELEGRAM_BOT_MAX_VARIABLES: Final[int] = 100
 TELEGRAM_BOT_MAX_DATABASE_RECORDS: Final[int] = 1000
 
 
-JWT_REFRESH_TOKEN_COOKIE_NAME: Final[str] = 'jwt_refresh_token'
-JWT_ACCESS_TOKEN_COOKIE_NAME: Final[str] = 'jwt_access_token'
 JWT_REFRESH_TOKEN_LIFETIME: Final[timedelta] = timedelta(weeks=4)
 JWT_ACCESS_TOKEN_LIFETIME: Final[timedelta] = timedelta(minutes=15)
-JWT_TOKEN_COOKIE_SECURE: Final[bool] = False
-JWT_TOKEN_COOKIE_HTTPONLY: Final[bool] = True
-JWT_TOKEN_COOKIE_SAMESITE: Final[Literal['Lax', 'Strict', 'None']] = 'Lax'
 
 
 CELERY_BROKER_URL: Final[str] = 'redis://127.0.0.1:6379'

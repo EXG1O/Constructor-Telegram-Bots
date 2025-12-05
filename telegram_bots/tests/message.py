@@ -51,7 +51,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.get(self.list_true_url)
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.get(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -75,7 +75,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(self.list_true_url)
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.post(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -155,7 +155,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
@@ -184,7 +184,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -251,7 +251,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
@@ -295,7 +295,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.delete(url)
@@ -356,7 +356,7 @@ class DiagramMessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, Test
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
@@ -383,7 +383,7 @@ class DiagramMessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, Test
         request = self.factory.get(self.list_true_url)
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.get(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -409,7 +409,7 @@ class DiagramMessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, Test
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -453,7 +453,7 @@ class DiagramMessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, Test
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.message.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)

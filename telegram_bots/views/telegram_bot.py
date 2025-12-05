@@ -7,14 +7,14 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import TelegramBot
 from ..serializers import TelegramBotSerializer
 
 
 class TelegramBotViewSet(IDLookupMixin, ModelViewSet[TelegramBot]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = TelegramBotSerializer
 

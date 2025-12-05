@@ -56,7 +56,7 @@ class DatabaseRecordViewSetTests(
         request = self.factory.get(self.list_true_url)
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.get(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -80,7 +80,7 @@ class DatabaseRecordViewSetTests(
         request = self.factory.post(self.list_true_url)
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         request = self.factory.post(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -114,7 +114,7 @@ class DatabaseRecordViewSetTests(
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
@@ -143,7 +143,7 @@ class DatabaseRecordViewSetTests(
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -190,7 +190,7 @@ class DatabaseRecordViewSetTests(
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
@@ -237,7 +237,7 @@ class DatabaseRecordViewSetTests(
         response = view(
             request, telegram_bot_id=self.telegram_bot.id, id=self.database_record.id
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.delete(url)

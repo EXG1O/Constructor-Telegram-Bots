@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import Trigger
 from ..serializers import DiagramTriggerSerializer, TriggerSerializer
@@ -12,7 +12,7 @@ from .mixins import TelegramBotMixin
 
 
 class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = TriggerSerializer
 
@@ -26,7 +26,7 @@ class TriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
 
 
 class DiagramTriggerViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Trigger]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DiagramTriggerSerializer
 

@@ -39,16 +39,6 @@ class UserViewSetTests(TestCase):
         self.refresh_token: RefreshToken = RefreshToken.for_user(self.user)
         self.access_token: AccessToken = self.refresh_token.access_token
 
-    def emulate_auth_user_request(self, request: Request) -> None:
-        request.session = SessionStore()
-
-        request.COOKIES[settings.JWT_REFRESH_TOKEN_COOKIE_NAME] = str(
-            self.refresh_token
-        )
-        request.COOKIES[settings.JWT_ACCESS_TOKEN_COOKIE_NAME] = str(self.access_token)
-
-        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
-
     def test_retrieve(self) -> None:
         view = UserViewSet.as_view({'get': 'retrieve'})
 
@@ -58,7 +48,7 @@ class UserViewSetTests(TestCase):
             response: Response
 
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
 
@@ -95,12 +85,6 @@ class UserViewSetTests(TestCase):
 
         response: Response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsNotNone(
-            response.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
-        )
-        self.assertIsNotNone(
-            response.cookies.get(settings.JWT_ACCESS_TOKEN_COOKIE_NAME)
-        )
 
     def test_logout(self) -> None:
         view = UserViewSet.as_view({'post': 'logout'})
@@ -111,9 +95,10 @@ class UserViewSetTests(TestCase):
             response: Response
 
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        self.emulate_auth_user_request(request)
+        request.session = SessionStore()
+        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -128,9 +113,10 @@ class UserViewSetTests(TestCase):
             response: Response
 
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        self.emulate_auth_user_request(request)
+        request.session = SessionStore()
+        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
 
         second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
 
@@ -142,22 +128,15 @@ class UserViewSetTests(TestCase):
     def test_token_refresh(self) -> None:
         view = UserViewSet.as_view({'post': 'token_refresh'})
 
-        request: Request = self.factory.post(reverse('api:users:user-token-refresh'))
-
-        if TYPE_CHECKING:
-            response: Response
-
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        self.emulate_auth_user_request(request)
+        request: Request = self.factory.post(
+            reverse('api:users:user-token-refresh'),
+            data={'refresh_token': str(self.refresh_token)},
+            format='json',
+        )
+        force_authenticate(request, self.user, None)
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEqual(
-            response.cookies.get(settings.JWT_ACCESS_TOKEN_COOKIE_NAME),
-            str(self.access_token),
-        )
 
     def test_destroy(self) -> None:
         view = UserViewSet.as_view({'delete': 'destroy'})
@@ -168,9 +147,10 @@ class UserViewSetTests(TestCase):
             response: Response
 
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        self.emulate_auth_user_request(request)
+        request.session = SessionStore()
+        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
 
         second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
 
@@ -179,7 +159,7 @@ class UserViewSetTests(TestCase):
 
         with suppress(User.DoesNotExist):
             self.user.refresh_from_db()
-            raise self.failureException('User has not been deleted from database!')
+            raise self.failureException('User has not been deleted from database.')
 
         self.assertTrue(self.refresh_token.is_blacklisted)
         self.assertTrue(second_refresh_token.is_blacklisted)

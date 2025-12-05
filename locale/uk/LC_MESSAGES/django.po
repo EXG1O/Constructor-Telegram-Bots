@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-04 12:30+0000\n"
+"POT-Creation-Date: 2025-12-05 17:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,15 +26,15 @@ msgstr ""
 msgid "Не удалось проанализировать JSON данные для ключа '%(key)s'."
 msgstr "Не вдалося проаналізувати JSON дані для ключа '%(key)s'."
 
-#: constructor_telegram_bots/settings.py:175
+#: constructor_telegram_bots/settings.py:170
 msgid "Английский"
 msgstr "Англійська"
 
-#: constructor_telegram_bots/settings.py:176
+#: constructor_telegram_bots/settings.py:171
 msgid "Украинский"
 msgstr "Українська"
 
-#: constructor_telegram_bots/settings.py:177
+#: constructor_telegram_bots/settings.py:172
 msgid "Русский"
 msgstr "Російська"
 
@@ -251,7 +251,7 @@ msgstr "28 днів"
 msgid "Центр Telegram ботов"
 msgstr "Центр Telegram ботів"
 
-#: telegram_bots/hub/authentication.py:14
+#: telegram_bots/hub/authentication.py:14 users/utils.py:25
 msgid "Недействительный токен."
 msgstr "Недійсний токен."
 
@@ -719,6 +719,18 @@ msgstr "Значення має бути цілим числом."
 msgid "Telegram ботов"
 msgstr "Telegram ботів"
 
+#: users/backends.py:65
+msgid "Пользователь не может быть аутентифицирован."
+msgstr "Користувача не вдається аутентифікувати."
+
+#: users/backends.py:80
+msgid "Срок действия данных аутентификации от Telegram истёк."
+msgstr "Термін дії даних аутентифікації від Telegram минув."
+
+#: users/backends.py:96
+msgid "Данные аутентификации Telegram являются подделкой."
+msgstr "Дані аутентифікації Telegram є підробкою."
+
 #: users/enums.py:6
 msgid "Токен обновления"
 msgstr "Токен оновлення"
@@ -726,22 +738,6 @@ msgstr "Токен оновлення"
 #: users/enums.py:7
 msgid "Токен разрешения"
 msgstr "Токен дозволу"
-
-#: users/exceptions.py:23
-msgid "Данные аутентификации через Telegram устарели."
-msgstr "Дані автентифікації через Telegram застаріли."
-
-#: users/exceptions.py:29
-msgid "Эти данные не от Telegram, потому-что они подделанные."
-msgstr "Ці дані не від Telegram, тому що вони підроблені."
-
-#: users/exceptions.py:35
-msgid "Токен в чёрном списке."
-msgstr "Токен у чорному списку."
-
-#: users/exceptions.py:41
-msgid "Пользователь неактивен или удалён."
-msgstr "Користувач неактивний або видалений."
 
 #: users/models.py:24
 msgid "Имя"
@@ -791,10 +787,18 @@ msgstr "Токен у чорному списку"
 msgid "Токены в чёрном списке"
 msgstr "Токени у чорному списку"
 
-#: Constructor-Telegram-Bots-Frontend/src/prod.html:12
+#: users/utils.py:28
+msgid "Токен в чёрном списке."
+msgstr "Токен у чорному списку."
+
+#: users/utils.py:33
+msgid "Пользователь неактивен или удалён."
+msgstr "Користувач неактивний або видалений."
+
+#: /home/exg1o/Документы/Constructor-Telegram-Bots-Frontend/src/prod.html:12
 msgid ""
 "Сайт, с помощью которого вы можете легко, бесплатно и без каких-либо знаний "
 "в программирование, сделать своего многофункционального Telegram бота."
 msgstr ""
-"Сайт, за допомогою якого ви можете легко, безкоштовно та без жодних знань "
-"у програмуванні, створити свого багатофункціонального Telegram бота."
+"Сайт, за допомогою якого ви можете легко, безкоштовно та без жодних знань у "
+"програмуванні, створити свого багатофункціонального Telegram бота."

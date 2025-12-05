@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import Connection
 from ..serializers import ConnectionSerializer
@@ -19,7 +19,7 @@ class ConnectionViewSet(
     DestroyModelMixin,
     GenericViewSet[Connection],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ConnectionSerializer
 

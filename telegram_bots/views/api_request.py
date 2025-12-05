@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import APIRequest
 from ..serializers import APIRequestSerializer, DiagramAPIRequestSerializer
@@ -13,7 +13,7 @@ from .mixins import TelegramBotMixin
 
 
 class APIRequestViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[APIRequest]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = APIRequestSerializer
 
@@ -39,7 +39,7 @@ class DiagramAPIRequestViewSet(
     UpdateModelMixin,
     GenericViewSet[APIRequest],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DiagramAPIRequestSerializer
 

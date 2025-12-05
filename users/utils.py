@@ -1,64 +1,38 @@
-from django.conf import settings
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
+from django.utils.translation import gettext as _
 
-from jwt.exceptions import InvalidTokenError
+from rest_framework.exceptions import APIException
 
+from jwt import PyJWTError
+
+from .enums import TokenType
 from .models import BlacklistedToken, Token, User
 from .tokens import AccessToken, RefreshToken
 
-from typing import Any
+from typing import TypeVar
+
+JWT = TypeVar('JWT', RefreshToken, AccessToken)
 
 
-def get_refresh_token(request: HttpRequest) -> RefreshToken:
-    raw_refresh_token: str | None = request.COOKIES.get(
-        settings.JWT_REFRESH_TOKEN_COOKIE_NAME
-    )
+def authenticate_token(
+    raw_token: str, token_cls: type[JWT], exception_cls: type[APIException]
+) -> tuple[User, JWT]:
+    try:
+        token = token_cls(token=raw_token)
+    except PyJWTError as error:
+        raise exception_cls(_('Недействительный токен.')) from error
 
-    if not raw_refresh_token:
-        raise InvalidTokenError()
+    if token.is_blacklisted:
+        raise exception_cls(_('Токен в чёрном списке.'))
 
-    return RefreshToken(token=raw_refresh_token)
+    user: User | None = token.user
 
+    if not user or not user.is_active:
+        raise exception_cls(_('Пользователь неактивен или удалён.'))
 
-def get_access_token(request: HttpRequest) -> AccessToken:
-    raw_access_token: str | None = request.COOKIES.get(
-        settings.JWT_ACCESS_TOKEN_COOKIE_NAME
-    )
-
-    if not raw_access_token:
-        raise InvalidTokenError()
-
-    return AccessToken(token=raw_access_token)
-
-
-def add_jwt_tokens_to_cookies(
-    response: HttpResponse, refresh_token: str, access_token: str
-) -> None:
-    options: dict[str, Any] = {
-        'secure': settings.JWT_TOKEN_COOKIE_SECURE,
-        'httponly': settings.JWT_TOKEN_COOKIE_HTTPONLY,
-        'samesite': settings.JWT_TOKEN_COOKIE_SAMESITE,
-    }
-
-    response.set_cookie(
-        settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
-        refresh_token,
-        max_age=settings.JWT_REFRESH_TOKEN_LIFETIME,
-        **options,
-    )
-    response.set_cookie(
-        settings.JWT_ACCESS_TOKEN_COOKIE_NAME,
-        access_token,
-        max_age=settings.JWT_ACCESS_TOKEN_LIFETIME,
-        **options,
-    )
-
-
-def delete_jwt_tokens_from_cookies(response: HttpResponse) -> None:
-    response.delete_cookie(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
-    response.delete_cookie(settings.JWT_ACCESS_TOKEN_COOKIE_NAME)
+    return user, token
 
 
 def login(request: HttpRequest, user: User) -> RefreshToken:
@@ -66,13 +40,21 @@ def login(request: HttpRequest, user: User) -> RefreshToken:
     return RefreshToken.for_user(user)
 
 
-def logout(request: HttpRequest, refresh_token: RefreshToken) -> None:
+def logout(request: HttpRequest, jwt_token: RefreshToken | AccessToken) -> None:
     auth_logout(request)
-    refresh_token.to_blacklist()
+
+    if isinstance(jwt_token, RefreshToken):
+        jwt_token.to_blacklist()
+        return
+
+    token: Token = Token.objects.get(
+        jti=jwt_token.payload.refresh_jti, type=TokenType.REFRESH
+    )
+    BlacklistedToken.objects.create(token=token)
 
 
-def logout_all(request: HttpRequest, user: User, refresh_token: RefreshToken) -> None:
-    logout(request, refresh_token)
+def logout_all(request: HttpRequest, user: User) -> None:
+    auth_logout(request)
     BlacklistedToken.objects.bulk_create(
         BlacklistedToken(token=token)
         for token in Token.objects.filter(user=user).exclude(blacklisted__isnull=False)

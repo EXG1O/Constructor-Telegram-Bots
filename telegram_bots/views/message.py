@@ -6,7 +6,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.parsers import MultiPartJSONParser
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import Message
 from ..serializers import DiagramMessageSerializer, MessageSerializer
@@ -14,7 +14,7 @@ from .mixins import TelegramBotMixin
 
 
 class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartJSONParser]
     serializer_class = MessageSerializer
@@ -43,7 +43,7 @@ class DiagramMessageViewSet(
     UpdateModelMixin,
     GenericViewSet[Message],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = DiagramMessageSerializer
 

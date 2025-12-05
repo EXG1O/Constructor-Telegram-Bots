@@ -21,7 +21,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.pagination import LimitOffsetPagination
-from users.authentication import JWTCookieAuthentication
+from users.authentication import JWTAuthentication
 
 from ..models import User
 from ..serializers import UserSerializer
@@ -41,7 +41,7 @@ class UserViewSet(
     DestroyModelMixin,
     GenericViewSet[User],
 ):
-    authentication_classes = [JWTCookieAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     pagination_class = LimitOffsetPagination

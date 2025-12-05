@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-04 12:28+0000\n"
+"POT-Creation-Date: 2025-12-05 17:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,15 +23,15 @@ msgstr ""
 msgid "Не удалось проанализировать JSON данные для ключа '%(key)s'."
 msgstr "Failed to parse JSON data for the key '%(key)s'."
 
-#: constructor_telegram_bots/settings.py:175
+#: constructor_telegram_bots/settings.py:170
 msgid "Английский"
 msgstr "English"
 
-#: constructor_telegram_bots/settings.py:176
+#: constructor_telegram_bots/settings.py:171
 msgid "Украинский"
 msgstr "Ukrainian"
 
-#: constructor_telegram_bots/settings.py:177
+#: constructor_telegram_bots/settings.py:172
 msgid "Русский"
 msgstr "Russian"
 
@@ -248,7 +248,7 @@ msgstr "28 days"
 msgid "Центр Telegram ботов"
 msgstr "Telegram Bots Hub"
 
-#: telegram_bots/hub/authentication.py:14
+#: telegram_bots/hub/authentication.py:14 users/utils.py:25
 msgid "Недействительный токен."
 msgstr "Invalid token."
 
@@ -716,6 +716,18 @@ msgstr "The value must be an integer."
 msgid "Telegram ботов"
 msgstr "Telegram bots"
 
+#: users/backends.py:65
+msgid "Пользователь не может быть аутентифицирован."
+msgstr "The user cannot be authenticated."
+
+#: users/backends.py:80
+msgid "Срок действия данных аутентификации от Telegram истёк."
+msgstr "The Telegram authentication data has expired."
+
+#: users/backends.py:96
+msgid "Данные аутентификации Telegram являются подделкой."
+msgstr "The Telegram authentication data is forged."
+
 #: users/enums.py:6
 msgid "Токен обновления"
 msgstr "Refresh token"
@@ -723,22 +735,6 @@ msgstr "Refresh token"
 #: users/enums.py:7
 msgid "Токен разрешения"
 msgstr "Access token"
-
-#: users/exceptions.py:23
-msgid "Данные аутентификации через Telegram устарели."
-msgstr "Telegram authentication data is outdated."
-
-#: users/exceptions.py:29
-msgid "Эти данные не от Telegram, потому-что они подделанные."
-msgstr "This data is not from Telegram, because it is forged."
-
-#: users/exceptions.py:35
-msgid "Токен в чёрном списке."
-msgstr "Token is blacklisted."
-
-#: users/exceptions.py:41
-msgid "Пользователь неактивен или удалён."
-msgstr "User is inactive or deleted."
 
 #: users/models.py:24
 msgid "Имя"
@@ -788,10 +784,18 @@ msgstr "Blacklisted token"
 msgid "Токены в чёрном списке"
 msgstr "Blacklisted tokens"
 
-#: Constructor-Telegram-Bots-Frontend/src/prod.html:12
+#: users/utils.py:28
+msgid "Токен в чёрном списке."
+msgstr "Token is blacklisted."
+
+#: users/utils.py:33
+msgid "Пользователь неактивен или удалён."
+msgstr "User is inactive or deleted."
+
+#: /home/exg1o/Документы/Constructor-Telegram-Bots-Frontend/src/prod.html:12
 msgid ""
 "Сайт, с помощью которого вы можете легко, бесплатно и без каких-либо знаний "
 "в программирование, сделать своего многофункционального Telegram бота."
 msgstr ""
-"A website with which you can easily, free and without any "
-"programming knowledge, create your own multifunctional Telegram bot."
+"A website with which you can easily, free and without any programming "
+"knowledge, create your own multifunctional Telegram bot."
