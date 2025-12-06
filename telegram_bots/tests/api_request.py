@@ -6,6 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from users.utils.tests import assert_view_basic_protected
+
 from ..enums import APIRequestMethod
 from ..models import APIRequest
 from ..views import APIRequestViewSet, DiagramAPIRequestViewSet
@@ -53,9 +55,9 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             response: Response
 
         request = self.factory.get(self.list_true_url)
-
-        response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        assert_view_basic_protected(
+            view, request, self.user_access_token, telegram_bot_id=self.telegram_bot.id
+        )
 
         request = self.factory.get(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -77,9 +79,9 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             response: Response
 
         request = self.factory.post(self.list_true_url)
-
-        response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        assert_view_basic_protected(
+            view, request, self.user_access_token, telegram_bot_id=self.telegram_bot.id
+        )
 
         request = self.factory.post(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -120,11 +122,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             response: Response
 
         request = self.factory.get(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
@@ -149,11 +153,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             response: Response
 
         request = self.factory.put(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -201,11 +207,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             response: Response
 
         request = self.factory.patch(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
@@ -245,11 +253,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             response: Response
 
         request = self.factory.delete(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.delete(url)
@@ -313,9 +323,9 @@ class DiagramAPIRequestViewSetTests(
             response: Response
 
         request = self.factory.get(self.list_true_url)
-
-        response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        assert_view_basic_protected(
+            view, request, self.user_access_token, telegram_bot_id=self.telegram_bot.id
+        )
 
         request = self.factory.get(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -337,11 +347,13 @@ class DiagramAPIRequestViewSetTests(
             response: Response
 
         request = self.factory.get(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.get(url)
@@ -366,11 +378,13 @@ class DiagramAPIRequestViewSetTests(
             response: Response
 
         request = self.factory.put(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -410,11 +424,13 @@ class DiagramAPIRequestViewSetTests(
             response: Response
 
         request = self.factory.patch(self.detail_true_url)
-
-        response = view(
-            request, telegram_bot_id=self.telegram_bot.id, id=self.api_request.id
+        assert_view_basic_protected(
+            view,
+            request,
+            self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)

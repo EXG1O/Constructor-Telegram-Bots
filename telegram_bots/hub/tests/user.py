@@ -50,7 +50,7 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, HubMixin, Test
 
         request = self.factory.get(self.list_true_url)
         assert_view_basic_protected(
-            request, view, self.hub.service_token, telegram_bot_id=self.telegram_bot.id
+            view, request, self.hub.service_token, telegram_bot_id=self.telegram_bot.id
         )
 
         request = self.factory.get(self.list_false_url)
@@ -75,7 +75,7 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, HubMixin, Test
 
         request = self.factory.post(self.list_true_url)
         assert_view_basic_protected(
-            request, view, self.hub.service_token, telegram_bot_id=self.telegram_bot.id
+            view, request, self.hub.service_token, telegram_bot_id=self.telegram_bot.id
         )
 
         request = self.factory.post(self.list_false_url)
@@ -107,8 +107,8 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, HubMixin, Test
 
         request = self.factory.get(self.detail_true_url)
         assert_view_basic_protected(
-            request,
             view,
+            request,
             self.hub.service_token,
             telegram_bot_id=self.telegram_bot.id,
             id=self.bot_user.id,
