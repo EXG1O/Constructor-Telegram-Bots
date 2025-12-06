@@ -3,7 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from .jwt.tokens import AccessToken
 from .models import User
-from .utils import authenticate_token
+from .utils.auth import authenticate_token
 
 
 class JWTAuthentication(TokenAuthentication):

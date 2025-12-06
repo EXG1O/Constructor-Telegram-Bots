@@ -9,6 +9,7 @@ from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from .jwt.tokens import AccessToken, RefreshToken
 from .models import User
+from .utils.tests import assert_view_basic_protected
 from .views import UserViewSet
 
 from contextlib import suppress
@@ -42,13 +43,11 @@ class UserViewSetTests(TestCase):
     def test_retrieve(self) -> None:
         view = UserViewSet.as_view({'get': 'retrieve'})
 
-        request: Request = self.factory.get(reverse('api:users:user-detail'))
-
         if TYPE_CHECKING:
             response: Response
 
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        request: Request = self.factory.get(reverse('api:users:user-detail'))
+        assert_view_basic_protected(view, request, self.access_token)
 
         force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
 
@@ -58,11 +57,26 @@ class UserViewSetTests(TestCase):
     def test_login(self) -> None:
         view = UserViewSet.as_view({'post': 'login'})
 
+        if TYPE_CHECKING:
+            request: Request
+            response: Response
+
         data: dict[str, Any] = {
             'id': self.user.telegram_id,
             'first_name': self.user.first_name,
             'auth_date': int(time.time()),
         }
+
+        request = self.factory.post(
+            reverse('api:users:user-login'),
+            data={**data, 'hash': '123456789'},
+            format='json',
+        )
+        request.session = SessionStore()
+        force_authenticate(request, self.user, None)
+
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         secret_key: bytes = hashlib.sha256(
             settings.TELEGRAM_BOT_TOKEN.encode()
@@ -74,28 +88,23 @@ class UserViewSetTests(TestCase):
             secret_key, data_check_string.encode(), hashlib.sha256
         ).hexdigest()
 
-        request: Request = self.factory.post(
+        request = self.factory.post(
             reverse('api:users:user-login'), data=data, format='json'
         )
         request.session = SessionStore()
-
-        # FIXME: I don't know why, but `APIRequestFactory` doesn't see that...
-        # `permission_classes` and `permission_classes` are set to empty for this action.
         force_authenticate(request, self.user, None)
 
-        response: Response = view(request)
+        response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_logout(self) -> None:
         view = UserViewSet.as_view({'post': 'logout'})
 
-        request: Request = self.factory.post(reverse('api:users:user-logout'))
-
         if TYPE_CHECKING:
             response: Response
 
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        request: Request = self.factory.post(reverse('api:users:user-logout'))
+        assert_view_basic_protected(view, request, self.access_token)
 
         request.session = SessionStore()
         force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
@@ -107,13 +116,11 @@ class UserViewSetTests(TestCase):
     def test_logout_all(self) -> None:
         view = UserViewSet.as_view({'post': 'logout_all'})
 
-        request: Request = self.factory.post(reverse('api:users:user-logout-all'))
-
         if TYPE_CHECKING:
             response: Response
 
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        request: Request = self.factory.post(reverse('api:users:user-logout-all'))
+        assert_view_basic_protected(view, request, self.access_token)
 
         request.session = SessionStore()
         force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
@@ -128,7 +135,24 @@ class UserViewSetTests(TestCase):
     def test_token_refresh(self) -> None:
         view = UserViewSet.as_view({'post': 'token_refresh'})
 
-        request: Request = self.factory.post(
+        if TYPE_CHECKING:
+            request: Request
+            response: Response
+
+        second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
+        second_refresh_token.to_blacklist()
+
+        request = self.factory.post(
+            reverse('api:users:user-token-refresh'),
+            data={'refresh_token': str(second_refresh_token)},
+            format='json',
+        )
+        force_authenticate(request, self.user, None)
+
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
             reverse('api:users:user-token-refresh'),
             data={'refresh_token': str(self.refresh_token)},
             format='json',
@@ -141,13 +165,11 @@ class UserViewSetTests(TestCase):
     def test_destroy(self) -> None:
         view = UserViewSet.as_view({'delete': 'destroy'})
 
-        request: Request = self.factory.delete(reverse('api:users:user-detail'))
-
         if TYPE_CHECKING:
             response: Response
 
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        request: Request = self.factory.delete(reverse('api:users:user-detail'))
+        assert_view_basic_protected(view, request, self.access_token)
 
         request.session = SessionStore()
         force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]

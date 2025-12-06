@@ -15,9 +15,9 @@ from .backends import TelegramBackend
 from .jwt.tokens import RefreshToken
 from .models import User
 from .serializers import UserLoginSerializer, UserSerializer, UserTokenRefreshSerializer
-from .utils import login as user_login
-from .utils import logout as user_logout
-from .utils import logout_all as user_logout_all
+from .utils.auth import login as user_login
+from .utils.auth import logout as user_logout
+from .utils.auth import logout_all as user_logout_all
 
 from typing import Any
 

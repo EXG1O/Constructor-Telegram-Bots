@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .jwt.tokens import RefreshToken
 from .models import User
-from .utils import authenticate_token
+from .utils.auth import authenticate_token
 
 
 class UserSerializer(serializers.ModelSerializer[User]):

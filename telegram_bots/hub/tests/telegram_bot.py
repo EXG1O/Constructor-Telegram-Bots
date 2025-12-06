@@ -33,20 +33,12 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, HubMixin, TestCase):
     def test_list(self) -> None:
         view = TelegramBotViewSet.as_view({'get': 'list'})
 
-        if TYPE_CHECKING:
-            request: Request
-            response: Response
+        request: Request = self.factory.get(self.list_url)
+        assert_view_basic_protected(view, request, self.hub.service_token)
 
-        request = self.factory.get(self.list_url)
-        assert_view_basic_protected(request, view, self.hub.service_token)
-
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        request = self.factory.get(self.list_url)
         force_authenticate(request, self.hub, self.hub.service_token)  # type: ignore [arg-type]
 
-        response = view(request)
+        response: Response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve(self) -> None:
@@ -58,7 +50,7 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, HubMixin, TestCase):
 
         request = self.factory.get(self.detail_true_url)
         assert_view_basic_protected(
-            request, view, self.hub.service_token, id=self.telegram_bot.id
+            view, request, self.hub.service_token, id=self.telegram_bot.id
         )
 
         request = self.factory.get(self.detail_false_url)
