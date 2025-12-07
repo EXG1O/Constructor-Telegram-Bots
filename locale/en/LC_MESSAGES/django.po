@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-05 17:46+0000\n"
+"POT-Creation-Date: 2025-12-07 23:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -248,7 +248,7 @@ msgstr "28 days"
 msgid "Центр Telegram ботов"
 msgstr "Telegram Bots Hub"
 
-#: telegram_bots/hub/authentication.py:14 users/utils.py:25
+#: telegram_bots/hub/authentication.py:14 users/utils/auth.py:25
 msgid "Недействительный токен."
 msgstr "Invalid token."
 
@@ -673,11 +673,26 @@ msgstr "You must specify only one of the fields 'file' or 'from_url'."
 msgid "Нельзя добавлять больше %(max)s кнопок для клавиатуры сообщения."
 msgstr "You cannot add more than %(max)s message keyboard buttons."
 
-#: telegram_bots/serializers/message.py:135
+#: telegram_bots/serializers/message.py:129
+msgid ""
+"Необходимо указать минимум одно из полей: 'text', 'images', 'documents' или "
+"'keyboard'."
+msgstr ""
+"You must specify at least one of the following fields: 'text', "
+"'images', 'documents', or 'keyboard'."
+
+#: telegram_bots/serializers/message.py:138
+msgid ""
+"Необходимо указать поле 'text', если указано значение для поля 'keyboard'."
+msgstr ""
+"You must specify the 'text' field if a value is provided for the "
+"'keyboard' field."
+
+#: telegram_bots/serializers/message.py:155
 msgid "Превышен лимит хранилища."
 msgstr "Storage limit exceeded."
 
-#: telegram_bots/serializers/message.py:144
+#: telegram_bots/serializers/message.py:164
 #, python-format
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "You cannot add more than %(max)s messages."
@@ -784,11 +799,11 @@ msgstr "Blacklisted token"
 msgid "Токены в чёрном списке"
 msgstr "Blacklisted tokens"
 
-#: users/utils.py:28
+#: users/utils/auth.py:28
 msgid "Токен в чёрном списке."
 msgstr "Token is blacklisted."
 
-#: users/utils.py:33
+#: users/utils/auth.py:33
 msgid "Пользователь неактивен или удалён."
 msgstr "User is inactive or deleted."
 

@@ -160,7 +160,7 @@ class Message(AbstractBlock):
         related_name='messages',
         verbose_name=_('Telegram бот'),
     )
-    text = models.TextField(_('Текст'), max_length=4096)
+    text = models.TextField(_('Текст'), max_length=4096, null=True, default=None)
 
     if TYPE_CHECKING:
         settings: MessageSettings

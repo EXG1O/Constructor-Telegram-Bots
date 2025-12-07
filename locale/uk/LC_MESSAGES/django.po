@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-05 17:48+0000\n"
+"POT-Creation-Date: 2025-12-07 23:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -251,7 +251,7 @@ msgstr "28 днів"
 msgid "Центр Telegram ботов"
 msgstr "Центр Telegram ботів"
 
-#: telegram_bots/hub/authentication.py:14 users/utils.py:25
+#: telegram_bots/hub/authentication.py:14 users/utils/auth.py:25
 msgid "Недействительный токен."
 msgstr "Недійсний токен."
 
@@ -676,11 +676,25 @@ msgstr "Необхідно вказати лише одне з полів 'file'
 msgid "Нельзя добавлять больше %(max)s кнопок для клавиатуры сообщения."
 msgstr "Не можна додавати більше %(max)s кнопок для клавіатури повідомлення."
 
-#: telegram_bots/serializers/message.py:135
+#: telegram_bots/serializers/message.py:129
+msgid ""
+"Необходимо указать минимум одно из полей: 'text', 'images', 'documents' или "
+"'keyboard'."
+msgstr ""
+"Необхідно вказати щонайменше одне з полів: 'text', 'images', 'documents' "
+"або 'keyboard'."
+
+#: telegram_bots/serializers/message.py:138
+msgid ""
+"Необходимо указать поле 'text', если указано значение для поля 'keyboard'."
+msgstr ""
+"Необхідно вказати поле 'text', якщо задано значення для поля 'keyboard'."
+
+#: telegram_bots/serializers/message.py:155
 msgid "Превышен лимит хранилища."
 msgstr "Перевищено ліміт сховища."
 
-#: telegram_bots/serializers/message.py:144
+#: telegram_bots/serializers/message.py:164
 #, python-format
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "Не можна додавати більше %(max)s повідомлень."
@@ -787,11 +801,11 @@ msgstr "Токен у чорному списку"
 msgid "Токены в чёрном списке"
 msgstr "Токени у чорному списку"
 
-#: users/utils.py:28
+#: users/utils/auth.py:28
 msgid "Токен в чёрном списке."
 msgstr "Токен у чорному списку."
 
-#: users/utils.py:33
+#: users/utils/auth.py:33
 msgid "Пользователь неактивен или удалён."
 msgstr "Користувач неактивний або видалений."
 

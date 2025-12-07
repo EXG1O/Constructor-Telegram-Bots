@@ -118,13 +118,33 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         return keyboard
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        images: list[dict[str, Any]] = data.get('images', [])
-        documents: list[dict[str, Any]] = data.get('documents', [])
+        text: str | None = data.get('text')
+        images: list[dict[str, Any]] | None = data.get('images')
+        documents: list[dict[str, Any]] | None = data.get('documents')
+        keyboard: dict[str, Any] | None = data.get('keyboard')
+
+        if not any([text, images, documents, keyboard]):
+            raise serializers.ValidationError(
+                _(
+                    "Необходимо указать минимум одно из полей: 'text', 'images', "
+                    "'documents' или 'keyboard'."
+                ),
+                code='required',
+            )
+
+        if keyboard and not text:
+            raise serializers.ValidationError(
+                _(
+                    "Необходимо указать поле 'text', если указано значение для "
+                    "поля 'keyboard'."
+                ),
+                code='required',
+            )
 
         if images or documents:
             extra_size: int = 0
 
-            for media in images + documents:
+            for media in (images or []) + (documents or []):
                 file: Any | None = media.get('file')
 
                 if isinstance(file, UploadedFile):
