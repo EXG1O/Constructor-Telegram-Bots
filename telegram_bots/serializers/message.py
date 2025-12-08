@@ -127,7 +127,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         has_documents: bool = bool(
             data.get('documents', message.documents.count() if message else None)
         )
-        has_keyboard: bool = 'keyboard' in data
+        has_keyboard: bool = bool(data.get('keyboard'))
 
         if message and not has_keyboard:
             with suppress(MessageKeyboard.DoesNotExist):
