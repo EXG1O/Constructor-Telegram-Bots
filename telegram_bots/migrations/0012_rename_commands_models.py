@@ -198,27 +198,6 @@ def migrate_command_models(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) 
                     message_keyboard_button.id
                 )
 
-                command_keyboard_button_source_connections: QuerySet[Connection] = (
-                    connection_model.objects.filter(
-                        source_content_type=command_keyboard_button_content_type,
-                        source_object_id=command_keyboard_button.id,
-                    ).exclude(target_content_type=command_content_type)
-                )
-
-                create_connections.extend(
-                    connection_model(
-                        telegram_bot=telegram_bot,
-                        source_content_type=message_keyboard_button_content_type,
-                        source_object_id=message_keyboard_button.id,
-                        source_handle_position=source_connection.source_handle_position,
-                        target_content_type=source_connection.target_content_type,
-                        target_object_id=source_connection.target_object_id,
-                        target_handle_position=source_connection.target_handle_position,
-                    )
-                    for source_connection in command_keyboard_button_source_connections
-                )
-                command_keyboard_button_source_connections.delete()
-
         command_source_connections: QuerySet[Connection] = (
             connection_model.objects.filter(
                 source_content_type=command_content_type, source_object_id=command.id
@@ -242,7 +221,9 @@ def migrate_command_models(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) 
         command_target_connections: QuerySet[Connection] = (
             connection_model.objects.filter(
                 target_content_type=command_content_type, target_object_id=command.id
-            ).exclude(source_content_type=command_content_type)
+            )
+            .exclude(source_content_type=command_content_type)
+            .exclude(source_content_type=command_keyboard_button_content_type)
         )
 
         create_connections.extend(
