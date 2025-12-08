@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 import os
 
 ABT = TypeVar('ABT', bound=AbstractBlock)
-ACMT = TypeVar('ACMT', bound=AbstractMessageMedia)
+AMMT = TypeVar('AMMT', bound=AbstractMessageMedia)
 
 
 class DiagramSerializer(serializers.ModelSerializer[ABT]):
@@ -26,7 +26,7 @@ class DiagramSerializer(serializers.ModelSerializer[ABT]):
         return instance
 
 
-class MessageMediaSerializer(serializers.ModelSerializer[ACMT]):
+class MessageMediaSerializer(serializers.ModelSerializer[AMMT]):
     name = serializers.CharField(source='file.name', read_only=True, allow_null=True)
     size = serializers.IntegerField(source='file.size', read_only=True, allow_null=True)
     url = serializers.URLField(source='file.url', read_only=True, allow_null=True)
@@ -46,7 +46,7 @@ class MessageMediaSerializer(serializers.ModelSerializer[ACMT]):
         name, ext = os.path.splitext(os.path.basename(base_name))
         return '_'.join(name.split('_')[:-1]) + ext
 
-    def to_representation(self, instance: ACMT) -> dict[str, Any]:
+    def to_representation(self, instance: AMMT) -> dict[str, Any]:
         representation: dict[str, Any] = super().to_representation(instance)
 
         name: str | None = representation.get('name')
