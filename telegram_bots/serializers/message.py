@@ -19,7 +19,7 @@ from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
-from typing import Any
+from typing import Any, cast
 import os
 
 
@@ -118,12 +118,22 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         return keyboard
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        text: str | None = data.get('text')
-        images: list[dict[str, Any]] | None = data.get('images')
-        documents: list[dict[str, Any]] | None = data.get('documents')
-        keyboard: dict[str, Any] | None = data.get('keyboard')
+        message = cast(Message | None, self.instance)
 
-        if not any([text, images, documents, keyboard]):
+        has_text: bool = bool(data.get('text', message.text if message else None))
+        has_images: bool = bool(
+            data.get('images', message.images.count() if message else None)
+        )
+        has_documents: bool = bool(
+            data.get('documents', message.documents.count() if message else None)
+        )
+        has_keyboard: bool = 'keyboard' in data
+
+        if message and not has_keyboard:
+            with suppress(MessageKeyboard.DoesNotExist):
+                has_keyboard = bool(message.keyboard)
+
+        if not any([has_text, has_images, has_documents, has_keyboard]):
             raise serializers.ValidationError(
                 _(
                     "Необходимо указать минимум одно из полей: 'text', 'images', "
@@ -132,7 +142,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 code='required',
             )
 
-        if keyboard and not text:
+        if has_keyboard and not has_text:
             raise serializers.ValidationError(
                 _(
                     "Необходимо указать поле 'text', если указано значение для "
@@ -140,6 +150,9 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 ),
                 code='required',
             )
+
+        images: list[dict[str, Any]] | None = data.get('images')
+        documents: list[dict[str, Any]] | None = data.get('documents')
 
         if images or documents:
             extra_size: int = 0
