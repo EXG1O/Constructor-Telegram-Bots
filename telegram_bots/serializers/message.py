@@ -19,7 +19,7 @@ from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
-from typing import Any
+from typing import Any, cast
 import os
 
 
@@ -118,13 +118,46 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         return keyboard
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        images: list[dict[str, Any]] = data.get('images', [])
-        documents: list[dict[str, Any]] = data.get('documents', [])
+        message = cast(Message | None, self.instance)
+
+        has_text: bool = bool(data.get('text', message.text if message else None))
+        has_images: bool = bool(
+            data.get('images', message.images.count() if message else None)
+        )
+        has_documents: bool = bool(
+            data.get('documents', message.documents.count() if message else None)
+        )
+        has_keyboard: bool = 'keyboard' in data
+
+        if message and not has_keyboard:
+            with suppress(MessageKeyboard.DoesNotExist):
+                has_keyboard = bool(message.keyboard)
+
+        if not any([has_text, has_images, has_documents, has_keyboard]):
+            raise serializers.ValidationError(
+                _(
+                    "Необходимо указать минимум одно из полей: 'text', 'images', "
+                    "'documents' или 'keyboard'."
+                ),
+                code='required',
+            )
+
+        if has_keyboard and not has_text:
+            raise serializers.ValidationError(
+                _(
+                    "Необходимо указать поле 'text', если указано значение для "
+                    "поля 'keyboard'."
+                ),
+                code='required',
+            )
+
+        images: list[dict[str, Any]] | None = data.get('images')
+        documents: list[dict[str, Any]] | None = data.get('documents')
 
         if images or documents:
             extra_size: int = 0
 
-            for media in images + documents:
+            for media in (images or []) + (documents or []):
                 file: Any | None = media.get('file')
 
                 if isinstance(file, UploadedFile):
