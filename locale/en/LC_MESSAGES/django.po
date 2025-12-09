@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-09 07:12+0000\n"
+"POT-Creation-Date: 2025-12-09 09:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,15 +23,15 @@ msgstr ""
 msgid "Не удалось проанализировать JSON данные для ключа '%(key)s'."
 msgstr "Failed to parse JSON data for the key '%(key)s'."
 
-#: constructor_telegram_bots/settings.py:170
+#: constructor_telegram_bots/settings.py:171
 msgid "Английский"
 msgstr "English"
 
-#: constructor_telegram_bots/settings.py:171
+#: constructor_telegram_bots/settings.py:172
 msgid "Украинский"
 msgstr "Ukrainian"
 
-#: constructor_telegram_bots/settings.py:172
+#: constructor_telegram_bots/settings.py:173
 msgid "Русский"
 msgstr "Russian"
 
@@ -60,26 +60,30 @@ msgid "Пожертвование"
 msgstr "Donation"
 
 #: donation/models.py:25 instruction/models.py:8 privacy_policy/models.py:8
+#: terms_of_service/models.py:8
 msgid "Заголовок"
 msgstr "Title"
 
 #: donation/models.py:26 donation/models.py:39 instruction/models.py:9
 #: privacy_policy/models.py:9 telegram_bots/models/message.py:117
 #: telegram_bots/models/message.py:163 telegram_bots/models/trigger.py:45
+#: terms_of_service/models.py:9
 msgid "Текст"
 msgstr "Text"
 
 #: donation/models.py:27 donation/models.py:42 instruction/models.py:10
 #: privacy_policy/models.py:10 telegram_bots/models/base.py:41
-#: telegram_bots/models/message.py:116
+#: telegram_bots/models/message.py:116 terms_of_service/models.py:10
 msgid "Позиция"
 msgstr "Position"
 
 #: donation/models.py:31 instruction/models.py:14 privacy_policy/models.py:14
+#: terms_of_service/models.py:14
 msgid "Раздел"
 msgstr "Section"
 
 #: donation/models.py:32 instruction/models.py:15 privacy_policy/models.py:15
+#: terms_of_service/models.py:15
 msgid "Разделы"
 msgstr "Sections"
 
@@ -711,21 +715,25 @@ msgstr "You cannot add more than %(max)s triggers."
 msgid "Нельзя добавлять больше %(max)s переменных."
 msgstr "You cannot add more than %(max)s variables."
 
-#: telegram_bots/views/user.py:61
+#: telegram_bots/views/user.py:63
 msgid "Недопустимое значение."
 msgstr "Invalid value."
 
-#: telegram_bots/views/user.py:68
+#: telegram_bots/views/user.py:70
 msgid "Значение должно быть положительным числом."
 msgstr "The value must be a positive number."
 
-#: telegram_bots/views/user.py:71
+#: telegram_bots/views/user.py:73
 msgid "Значение должно быть не больше 90."
 msgstr "The value must be not greater than 90."
 
-#: telegram_bots/views/user.py:74
+#: telegram_bots/views/user.py:76
 msgid "Значение должно быть целым числом."
 msgstr "The value must be an integer."
+
+#: terms_of_service/apps.py:8
+msgid "Условия использования сервиса"
+msgstr "Terms of Service"
 
 #: users/admin.py:53
 msgid "Telegram ботов"
