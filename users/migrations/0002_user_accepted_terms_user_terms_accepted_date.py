@@ -3,33 +3,20 @@
 from django.apps.registry import Apps
 from django.db import migrations, models
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
-from django.utils import timezone
 
-from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ..models import User
+    from telegram_bots.models import TelegramBot
 else:
-    User = Any
+    TelegramBot = Any
 
 
-def set_accepted_terms_for_existing_users(
-    apps: Apps, schema_editor: BaseDatabaseSchemaEditor
-) -> None:
-    user_model: type[User] = apps.get_model('users', 'User')
-
-    update_users: list[User] = []
-    current_date: datetime = timezone.now()
-
-    for user in user_model.objects.iterator():
-        user.accepted_terms = True
-        user.terms_accepted_date = current_date
-        update_users.append(user)
-
-    user_model.objects.bulk_update(
-        update_users, fields=['accepted_terms', 'terms_accepted_date']
+def disable_telegram_bots(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
+    telegram_bot_model: type[TelegramBot] = apps.get_model(
+        'telegram_bots', 'TelegramBot'
     )
+    telegram_bot_model.objects.update(must_be_enabled=False)
 
 
 class Migration(migrations.Migration):
@@ -50,7 +37,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(
-            set_accepted_terms_for_existing_users,
+            disable_telegram_bots,
             reverse_code=migrations.RunPython.noop,
         ),
     ]
