@@ -92,6 +92,7 @@ INSTALLED_APPS: Final[list[str]] = [
     'instruction',
     'donation',
     'privacy_policy',
+    'terms_of_service',
 ]
 
 if not TEST and DEBUG:
