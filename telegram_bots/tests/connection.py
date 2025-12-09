@@ -6,7 +6,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from users.utils.tests import assert_view_basic_protected
+from users.utils.tests import (
+    assert_view_basic_protected,
+    assert_view_requires_terms_acceptance,
+)
 
 from ..enums import ConnectionHandlePosition, ConnectionObjectType, KeyboardType
 from ..models import Connection, Message, MessageKeyboard, MessageKeyboardButton
@@ -73,6 +76,9 @@ class ConnectionViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         assert_view_basic_protected(
             view, request, self.user_access_token, telegram_bot_id=self.telegram_bot.id
         )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, telegram_bot_id=self.telegram_bot.id
+        )
 
         request = self.factory.post(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -124,6 +130,13 @@ class ConnectionViewSetTests(TelegramBotMixin, UserMixin, TestCase):
             view,
             request,
             self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.connection.id,
+        )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
             telegram_bot_id=self.telegram_bot.id,
             id=self.connection.id,
         )

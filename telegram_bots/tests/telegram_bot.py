@@ -6,7 +6,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from users.utils.tests import assert_view_basic_protected
+from users.utils.tests import (
+    assert_view_basic_protected,
+    assert_view_requires_terms_acceptance,
+)
 
 from ..models import TelegramBot
 from ..views import TelegramBotViewSet
@@ -78,6 +81,8 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
 
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
+        assert_view_requires_terms_acceptance(view, request, self.user)
+
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -127,6 +132,9 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         assert_view_basic_protected(
             view, request, self.user_access_token, id=self.telegram_bot.id
         )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, id=self.telegram_bot.id
+        )
 
         request = self.factory.post(self.start_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -150,6 +158,9 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(self.restart_true_url)
         assert_view_basic_protected(
             view, request, self.user_access_token, id=self.telegram_bot.id
+        )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, id=self.telegram_bot.id
         )
 
         request = self.factory.post(self.restart_false_url)
@@ -175,6 +186,9 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         assert_view_basic_protected(
             view, request, self.user_access_token, id=self.telegram_bot.id
         )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, id=self.telegram_bot.id
+        )
 
         request = self.factory.post(self.stop_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -198,6 +212,9 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.put(self.detail_true_url)
         assert_view_basic_protected(
             view, request, self.user_access_token, id=self.telegram_bot.id
+        )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, id=self.telegram_bot.id
         )
 
         request = self.factory.put(self.detail_false_url)
@@ -236,6 +253,9 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         assert_view_basic_protected(
             view, request, self.user_access_token, id=self.telegram_bot.id
         )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, id=self.telegram_bot.id
+        )
 
         request = self.factory.patch(self.detail_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -272,6 +292,9 @@ class TelegramBotViewSetTests(TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.delete(self.detail_true_url)
         assert_view_basic_protected(
             view, request, self.user_access_token, id=self.telegram_bot.id
+        )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, id=self.telegram_bot.id
         )
 
         request = self.factory.delete(self.detail_false_url)

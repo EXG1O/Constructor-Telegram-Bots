@@ -6,7 +6,9 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
 from constructor_telegram_bots.parsers import MultiPartJSONParser
+from constructor_telegram_bots.permissions import ReadOnly
 from users.authentication import JWTAuthentication
+from users.permissions import IsTermsAccepted
 
 from ..models import Message
 from ..serializers import DiagramMessageSerializer, MessageSerializer
@@ -15,7 +17,7 @@ from .mixins import TelegramBotMixin
 
 class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
     parser_classes = [MultiPartJSONParser]
     serializer_class = MessageSerializer
 
@@ -44,7 +46,7 @@ class DiagramMessageViewSet(
     GenericViewSet[Message],
 ):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
     serializer_class = DiagramMessageSerializer
 
     def get_queryset(self) -> QuerySet[Message]:
