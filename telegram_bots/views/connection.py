@@ -5,7 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
+from constructor_telegram_bots.permissions import ReadOnly
 from users.authentication import JWTAuthentication
+from users.permissions import IsTermsAccepted
 
 from ..models import Connection
 from ..serializers import ConnectionSerializer
@@ -20,7 +22,7 @@ class ConnectionViewSet(
     GenericViewSet[Connection],
 ):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
     serializer_class = ConnectionSerializer
 
     def get_queryset(self) -> QuerySet[Connection]:

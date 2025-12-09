@@ -162,6 +162,25 @@ class UserViewSetTests(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_accept_terms(self) -> None:
+        view = UserViewSet.as_view({'post': 'accept_terms'})
+
+        if TYPE_CHECKING:
+            response: Response
+
+        request: Request = self.factory.post(reverse('api:users:user-accept-terms'))
+        assert_view_basic_protected(view, request, self.access_token)
+
+        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+
+        self.assertFalse(self.user.accepted_terms)
+        self.assertIsNone(self.user.terms_accepted_date)
+
+        response = view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.user.accepted_terms)
+        self.assertIsNotNone(self.user.terms_accepted_date)
+
     def test_destroy(self) -> None:
         view = UserViewSet.as_view({'delete': 'destroy'})
 

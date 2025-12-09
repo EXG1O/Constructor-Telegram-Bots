@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
             'first_name',
             'last_name',
             'full_name',
+            'accepted_terms',
             'is_staff',
             'joined_date',
         ]

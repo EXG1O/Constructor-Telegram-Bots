@@ -5,7 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from constructor_telegram_bots.mixins import IDLookupMixin
+from constructor_telegram_bots.permissions import ReadOnly
 from users.authentication import JWTAuthentication
+from users.permissions import IsTermsAccepted
 
 from ..models import DatabaseOperation
 from ..serializers import (
@@ -19,7 +21,7 @@ class DatabaseOperationViewSet(
     IDLookupMixin, TelegramBotMixin, ModelViewSet[DatabaseOperation]
 ):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
     serializer_class = DatabaseOperationSerializer
 
     def get_queryset(self) -> QuerySet[DatabaseOperation]:
@@ -49,7 +51,7 @@ class DiagramDatabaseOperationViewSet(
     GenericViewSet[DatabaseOperation],
 ):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
     serializer_class = DiagramDatabaseOperationSerializer
 
     def get_queryset(self) -> QuerySet[DatabaseOperation]:

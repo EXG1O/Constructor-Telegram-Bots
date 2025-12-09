@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-07 23:35+0000\n"
+"POT-Creation-Date: 2025-12-09 07:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -321,7 +321,7 @@ msgstr "Y coordinate"
 msgid "Из URL-адреса"
 msgstr "From URL"
 
-#: telegram_bots/models/condition.py:23 users/models.py:60
+#: telegram_bots/models/condition.py:23 users/models.py:64
 msgid "Тип"
 msgstr "Type"
 
@@ -582,11 +582,11 @@ msgstr "Last activity date"
 msgid "Дата активации"
 msgstr "Activation date"
 
-#: telegram_bots/models/user.py:25 users/models.py:39
+#: telegram_bots/models/user.py:25 users/models.py:43
 msgid "Пользователя"
 msgstr "User"
 
-#: telegram_bots/models/user.py:26 users/apps.py:8 users/models.py:40
+#: telegram_bots/models/user.py:26 users/apps.py:8 users/models.py:44
 msgid "Пользователи"
 msgstr "Users"
 
@@ -673,26 +673,26 @@ msgstr "You must specify only one of the fields 'file' or 'from_url'."
 msgid "Нельзя добавлять больше %(max)s кнопок для клавиатуры сообщения."
 msgstr "You cannot add more than %(max)s message keyboard buttons."
 
-#: telegram_bots/serializers/message.py:129
+#: telegram_bots/serializers/message.py:139
 msgid ""
 "Необходимо указать минимум одно из полей: 'text', 'images', 'documents' или "
 "'keyboard'."
 msgstr ""
-"You must specify at least one of the following fields: 'text', "
-"'images', 'documents', or 'keyboard'."
+"You must specify at least one of the following fields: 'text', 'images', "
+"'documents', or 'keyboard'."
 
-#: telegram_bots/serializers/message.py:138
+#: telegram_bots/serializers/message.py:148
 msgid ""
 "Необходимо указать поле 'text', если указано значение для поля 'keyboard'."
 msgstr ""
-"You must specify the 'text' field if a value is provided for the "
-"'keyboard' field."
+"You must specify the 'text' field if a value is provided for the 'keyboard' "
+"field."
 
-#: telegram_bots/serializers/message.py:155
+#: telegram_bots/serializers/message.py:168
 msgid "Превышен лимит хранилища."
 msgstr "Storage limit exceeded."
 
-#: telegram_bots/serializers/message.py:164
+#: telegram_bots/serializers/message.py:177
 #, python-format
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "You cannot add more than %(max)s messages."
@@ -760,42 +760,50 @@ msgid "Фамилия"
 msgstr "Last name"
 
 #: users/models.py:26
+msgid "Принятие условий сервиса"
+msgstr "Acceptance of the Terms of Service"
+
+#: users/models.py:28
+msgid "Дата принятия условий сервиса"
+msgstr "Date of acceptance of the Terms of Service"
+
+#: users/models.py:30
 msgid "Сотрудник"
 msgstr "Staff"
 
-#: users/models.py:27
+#: users/models.py:31
 msgid "Присоединился"
 msgstr "Joined"
 
-#: users/models.py:55
+#: users/models.py:59
 msgid "Пользователь"
 msgstr "User"
 
-#: users/models.py:61
+#: users/models.py:65
 msgid "Срок действия"
 msgstr "Expiration"
 
-#: users/models.py:62
+#: users/models.py:66
 msgid "Создан"
 msgstr "Created"
 
-#: users/models.py:69 users/models.py:78
+#: users/models.py:73 users/models.py:82
 msgid "Токен"
 msgstr "Token"
 
-#: users/models.py:70
+#: users/models.py:74
 msgid "Токены"
 msgstr "Tokens"
 
-#: users/models.py:80
+#: users/models.py:84
 msgid "Внесён"
 msgstr "Listed"
 
-#: users/models.py:84
+#: users/models.py:88
 msgid "Токен в чёрном списке"
 msgstr "Blacklisted token"
 
-#: users/models.py:85
+#: users/models.py:89
 msgid "Токены в чёрном списке"
 msgstr "Blacklisted tokens"
 

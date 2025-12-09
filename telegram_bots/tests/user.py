@@ -6,7 +6,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from users.utils.tests import assert_view_basic_protected
+from users.utils.tests import (
+    assert_view_basic_protected,
+    assert_view_requires_terms_acceptance,
+)
 
 from ..models import User
 from ..views import UserViewSet
@@ -77,6 +80,9 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, TestCase):
         assert_view_basic_protected(
             view, request, self.user_access_token, telegram_bot_id=self.telegram_bot.id
         )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, telegram_bot_id=self.telegram_bot.id
+        )
 
         request = self.factory.get(self.list_false_url)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -136,6 +142,13 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, TestCase):
             telegram_bot_id=self.telegram_bot.id,
             id=self.bot_user.id,
         )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.bot_user.id,
+        )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -182,6 +195,13 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, TestCase):
             telegram_bot_id=self.telegram_bot.id,
             id=self.bot_user.id,
         )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.bot_user.id,
+        )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
@@ -223,6 +243,13 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, TestCase):
             view,
             request,
             self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.bot_user.id,
+        )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
             telegram_bot_id=self.telegram_bot.id,
             id=self.bot_user.id,
         )

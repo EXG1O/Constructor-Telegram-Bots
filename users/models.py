@@ -23,6 +23,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     telegram_id = models.PositiveBigIntegerField('Telegram ID', unique=True)
     first_name = models.CharField(_('Имя'), max_length=64)
     last_name = models.CharField(_('Фамилия'), max_length=64, null=True)
+    accepted_terms = models.BooleanField(_('Принятие условий сервиса'), default=False)
+    terms_accepted_date = models.DateTimeField(
+        _('Дата принятия условий сервиса'), null=True, blank=True
+    )
     is_staff = models.BooleanField(_('Сотрудник'), default=False)
     joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
 

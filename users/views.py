@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
@@ -84,6 +85,15 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
         refresh_token: RefreshToken = serializer.validated_data['refresh_token']
 
         return Response({'access_token': str(refresh_token.access_token)})
+
+    @action(detail=True, url_path='accept-terms', methods=['POST'])
+    def accept_terms(self, request: Request, pk: str | None = None) -> Response:
+        user: User = request.user  # type: ignore [assignment]
+        user.accepted_terms = True
+        user.terms_accepted_date = timezone.now()
+        user.save(update_fields=['accepted_terms', 'terms_accepted_date'])
+
+        return Response()
 
     def destroy(self, request: Request, pk: str | None = None) -> Response:
         user: User = request.user  # type: ignore [assignment]

@@ -6,7 +6,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from users.utils.tests import assert_view_basic_protected
+from users.utils.tests import (
+    assert_view_basic_protected,
+    assert_view_requires_terms_acceptance,
+)
 
 from ..enums import APIRequestMethod
 from ..models import APIRequest
@@ -81,6 +84,9 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
         request = self.factory.post(self.list_true_url)
         assert_view_basic_protected(
             view, request, self.user_access_token, telegram_bot_id=self.telegram_bot.id
+        )
+        assert_view_requires_terms_acceptance(
+            view, request, self.user, telegram_bot_id=self.telegram_bot.id
         )
 
         request = self.factory.post(self.list_false_url)
@@ -160,6 +166,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             telegram_bot_id=self.telegram_bot.id,
             id=self.api_request.id,
         )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
+        )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -214,6 +227,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             telegram_bot_id=self.telegram_bot.id,
             id=self.api_request.id,
         )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
+        )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.patch(url)
@@ -257,6 +277,13 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             view,
             request,
             self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
+        )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
             telegram_bot_id=self.telegram_bot.id,
             id=self.api_request.id,
         )
@@ -385,6 +412,13 @@ class DiagramAPIRequestViewSetTests(
             telegram_bot_id=self.telegram_bot.id,
             id=self.api_request.id,
         )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
+        )
 
         for url in [self.detail_false_url_1, self.detail_false_url_2]:
             request = self.factory.put(url)
@@ -428,6 +462,13 @@ class DiagramAPIRequestViewSetTests(
             view,
             request,
             self.user_access_token,
+            telegram_bot_id=self.telegram_bot.id,
+            id=self.api_request.id,
+        )
+        assert_view_requires_terms_acceptance(
+            view,
+            request,
+            self.user,
             telegram_bot_id=self.telegram_bot.id,
             id=self.api_request.id,
         )
