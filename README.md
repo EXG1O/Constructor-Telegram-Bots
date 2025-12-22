@@ -15,7 +15,7 @@ Your donation will greatly help the development and improvement of the website.
 - Redis
 
 ## Requirements from related projects.
-- [Constructor Telegram Bots Frontend](https://github.com/EXG1O/Telegram-Bots-Hub#requirements)
+- [Constructor Telegram Bots Frontend](https://github.com/EXG1O/Constructor-Telegram-Bots-Frontend#requirements)
 - [Telegram Bots Hub](https://github.com/EXG1O/Telegram-Bots-Hub#requirements)
 
 ## Installing
