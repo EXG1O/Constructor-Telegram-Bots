@@ -6,6 +6,7 @@ from .views import (
     ConditionViewSet,
     DatabaseOperationViewSet,
     DatabaseRecordViewSet,
+    InvoiceViewSet,
     MessageKeyboardButtonViewSet,
     MessageViewSet,
     TelegramBotViewSet,
@@ -53,6 +54,11 @@ router.register(
     f'{base_path}/database-operations',
     DatabaseOperationViewSet,
     basename=f'{base_name}-database-operation',
+)
+router.register(
+    f'{base_path}/invoices',
+    InvoiceViewSet,
+    basename=f'{base_name}-invoice',
 )
 router.register(
     f'{base_path}/variables',

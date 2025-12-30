@@ -10,7 +10,10 @@ from constructor_telegram_bots.fields import PublicURLField
 
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
+import hashlib
+import os
 import random
+import secrets
 
 
 def generate_random_coordinate() -> int:
@@ -32,13 +35,21 @@ class AbstractBlock(models.Model):
         abstract = True
 
 
-class AbstractMessageMedia(models.Model):
+def upload_media_path(instance: 'AbstractMedia', file_name: str) -> str:
+    name, ext = os.path.splitext(file_name)
+
+    salt: str = secrets.token_hex(8)
+    hash: str = hashlib.sha256((name + salt).encode()).hexdigest()
+
+    return f'telegram_bots/{name}_{hash}{ext}'
+
+
+class AbstractMedia(models.Model):
     if TYPE_CHECKING:
         related_name: str
-        file: models.FileField
+        file: models.FileField | None
 
     from_url = PublicURLField(_('Из URL-адреса'), blank=True, null=True)
-    position = models.PositiveSmallIntegerField(_('Позиция'))
 
     class Meta(TypedModelMeta):
         abstract = True
@@ -64,3 +75,10 @@ class AbstractMessageMedia(models.Model):
             self.file.delete(save=False)
 
         return super().delete(using, keep_parents)
+
+
+class AbstractMessageMedia(AbstractMedia):
+    position = models.PositiveSmallIntegerField(_('Позиция'))
+
+    class Meta(TypedModelMeta):
+        abstract = True

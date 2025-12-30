@@ -8,14 +8,12 @@ from django_stubs_ext.db.models import TypedModelMeta
 from constructor_telegram_bots.fields import PublicURLField
 
 from ..enums import KeyboardType
-from .base import AbstractBlock, AbstractMessageMedia
+from .base import AbstractBlock, AbstractMessageMedia, upload_media_path
 
 from contextlib import suppress
 from itertools import chain
 from typing import TYPE_CHECKING, cast
-import hashlib
 import os
-import secrets
 
 
 class MessageSettings(models.Model):
@@ -44,15 +42,6 @@ class MessageSettings(models.Model):
         return self.message.name
 
 
-def upload_message_media_path(instance: AbstractMessageMedia, file_name: str) -> str:
-    name, ext = os.path.splitext(file_name)
-
-    salt: str = secrets.token_hex(8)
-    hash: str = hashlib.sha256((name + salt).encode()).hexdigest()
-
-    return f'telegram_bots/{name}_{hash}{ext}'
-
-
 class MessageImage(AbstractMessageMedia):
     related_name = 'images'
 
@@ -64,7 +53,7 @@ class MessageImage(AbstractMessageMedia):
     )
     file = models.ImageField(
         _('Изображение'),
-        upload_to=upload_message_media_path,
+        upload_to=upload_media_path,
         max_length=500,
         blank=True,
         null=True,
@@ -90,7 +79,7 @@ class MessageDocument(AbstractMessageMedia):
     )
     file = models.FileField(
         _('Документ'),
-        upload_to=upload_message_media_path,
+        upload_to=upload_media_path,
         max_length=500,
         blank=True,
         null=True,

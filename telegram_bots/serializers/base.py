@@ -1,11 +1,12 @@
 from rest_framework import serializers
 
-from ..models.base import AbstractBlock, AbstractMessageMedia
+from ..models.base import AbstractBlock, AbstractMedia, AbstractMessageMedia
 
 from typing import Any, TypeVar
 import os
 
 ABT = TypeVar('ABT', bound=AbstractBlock)
+AMT = TypeVar('AMT', bound=AbstractMedia)
 AMMT = TypeVar('AMMT', bound=AbstractMessageMedia)
 
 
@@ -26,13 +27,13 @@ class DiagramSerializer(serializers.ModelSerializer[ABT]):
         return instance
 
 
-class MessageMediaSerializer(serializers.ModelSerializer[AMMT]):
+class MediaSerializer(serializers.ModelSerializer[AMT]):
     name = serializers.CharField(source='file.name', read_only=True, allow_null=True)
     size = serializers.IntegerField(source='file.size', read_only=True, allow_null=True)
     url = serializers.URLField(source='file.url', read_only=True, allow_null=True)
 
     class Meta:
-        fields = ['id', 'file', 'name', 'size', 'url', 'from_url', 'position']
+        fields = ['file', 'name', 'size', 'url', 'from_url']
         extra_kwargs = {
             'id': {'read_only': False, 'required': False},
             'file': {
@@ -46,7 +47,7 @@ class MessageMediaSerializer(serializers.ModelSerializer[AMMT]):
         name, ext = os.path.splitext(os.path.basename(base_name))
         return '_'.join(name.split('_')[:-1]) + ext
 
-    def to_representation(self, instance: AMMT) -> dict[str, Any]:
+    def to_representation(self, instance: AMT) -> dict[str, Any]:
         representation: dict[str, Any] = super().to_representation(instance)
 
         name: str | None = representation.get('name')
@@ -55,3 +56,8 @@ class MessageMediaSerializer(serializers.ModelSerializer[AMMT]):
             representation['name'] = self.process_name(name)
 
         return representation
+
+
+class MessageMediaSerializer(MediaSerializer[AMMT]):
+    class Meta(MediaSerializer.Meta):
+        fields = ['id', 'position'] + MediaSerializer.Meta.fields

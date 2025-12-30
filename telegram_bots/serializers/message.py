@@ -291,7 +291,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                         if media.file:
                             media.file.delete()
 
-                        media.file = file
+                        media.file = file  # type: ignore [assignment]  # FIXME: The assigned type is correct, but mypy complains.
                         media.from_url = from_url
 
                     update_media.append(media)

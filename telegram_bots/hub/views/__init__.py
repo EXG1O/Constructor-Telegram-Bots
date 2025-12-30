@@ -3,6 +3,7 @@ from .background_task import BackgroundTaskViewSet
 from .condition import ConditionViewSet
 from .database_operation import DatabaseOperationViewSet
 from .database_record import DatabaseRecordViewSet
+from .invoice import InvoiceViewSet
 from .message import MessageKeyboardButtonViewSet, MessageViewSet
 from .telegram_bot import TelegramBotViewSet
 from .trigger import TriggerViewSet
@@ -18,6 +19,7 @@ __all__ = [
     'BackgroundTaskViewSet',
     'APIRequestViewSet',
     'DatabaseOperationViewSet',
+    'InvoiceViewSet',
     'VariableViewSet',
     'UserViewSet',
     'DatabaseRecordViewSet',

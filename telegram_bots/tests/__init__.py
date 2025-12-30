@@ -10,6 +10,7 @@ from .database_operation import (
     DiagramDatabaseOperationViewSetTests,
 )
 from .database_record import DatabaseRecordViewSetTests
+from .invoice import DiagramInvoiceViewSetTests, InvoiceViewSetTests
 from .message import DiagramMessageViewSetTests, MessageViewSetTests
 from .stats import StatsAPIViewTests
 from .telegram_bot import TelegramBotViewSetTests
@@ -33,6 +34,8 @@ __all__ = [
     'DiagramDatabaseOperationViewSetTests',
     'TriggerViewSetTests',
     'DiagramTriggerViewSetTests',
+    'InvoiceViewSetTests',
+    'DiagramInvoiceViewSetTests',
     'VariableViewSetTests',
     'UserViewSetTests',
     'DatabaseRecordViewSetTests',

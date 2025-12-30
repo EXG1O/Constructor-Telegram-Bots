@@ -10,6 +10,8 @@ from ..models import (
     DatabaseCreateOperation,
     DatabaseOperation,
     DatabaseRecord,
+    Invoice,
+    InvoicePrice,
     Message,
     MessageSettings,
     TelegramBot,
@@ -119,6 +121,20 @@ class DatabaseOperationMixin:
             DatabaseCreateOperation.objects.create(
                 operation=self.database_operation, data={'key': 'value'}
             )
+        )
+
+
+class InvoiceMixin:
+    if TYPE_CHECKING:
+        telegram_bot: TelegramBot
+
+    def setUp(self) -> None:
+        super().setUp()  # type: ignore [misc]
+        self.invoice: Invoice = self.telegram_bot.invoices.create(
+            name='Test name', title='Test title', description='...'
+        )
+        self.invoice_price: InvoicePrice = self.invoice.prices.create(
+            label='My love', amount=9999999
         )
 
 

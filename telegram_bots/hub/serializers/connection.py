@@ -9,6 +9,7 @@ from ...models import (
     Condition,
     Connection,
     DatabaseOperation,
+    Invoice,
     Message,
     MessageKeyboardButton,
     Trigger,
@@ -43,6 +44,7 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
         ConnectionObjectType.BACKGROUND_TASK: BackgroundTask,
         ConnectionObjectType.API_REQUEST: APIRequest,
         ConnectionObjectType.DATABASE_OPERATION: DatabaseOperation,
+        ConnectionObjectType.INVOICE: Invoice,
     }
 
     def get_object_type(self, object: Model) -> str:

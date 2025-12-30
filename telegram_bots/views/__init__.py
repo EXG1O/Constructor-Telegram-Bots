@@ -7,6 +7,7 @@ from .database_operation import (
     DiagramDatabaseOperationViewSet,
 )
 from .database_record import DatabaseRecordViewSet
+from .invoice import DiagramInvoiceViewSet, InvoiceViewSet
 from .message import DiagramMessageViewSet, MessageViewSet
 from .stats import StatsAPIView
 from .telegram_bot import TelegramBotViewSet
@@ -30,6 +31,8 @@ __all__ = [
     'DiagramAPIRequestViewSet',
     'DatabaseOperationViewSet',
     'DiagramDatabaseOperationViewSet',
+    'InvoiceViewSet',
+    'DiagramInvoiceViewSet',
     'VariableViewSet',
     'UserViewSet',
     'DatabaseRecordViewSet',
