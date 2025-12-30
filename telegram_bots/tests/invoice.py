@@ -115,7 +115,7 @@ class InvoiceViewSetTests(InvoiceMixin, TelegramBotMixin, UserMixin, TestCase):
                 'title': 'Test title',
                 'description': '...',
                 'prices': [
-                    {'label': f'Test price #{num}', 'amount': 0}
+                    {'label': f'Test price #{num}', 'amount': 1}
                     for num in range(settings.TELEGRAM_BOT_MAX_INVOICE_PRICES + 1)
                 ],
             },
@@ -132,7 +132,7 @@ class InvoiceViewSetTests(InvoiceMixin, TelegramBotMixin, UserMixin, TestCase):
                 'name': 'Test name',
                 'title': 'Test title',
                 'description': '...',
-                'prices': [{'label': 'Test price', 'amount': 0}],
+                'prices': [{'label': 'Test price', 'amount': 1}],
             },
             format='json',
         )
@@ -159,7 +159,7 @@ class InvoiceViewSetTests(InvoiceMixin, TelegramBotMixin, UserMixin, TestCase):
                 'name': 'Test name',
                 'title': 'Test title',
                 'description': '...',
-                'prices': [{'label': 'Test price', 'amount': 0}],
+                'prices': [{'label': 'Test price', 'amount': 1}],
             },
             format='json',
         )
@@ -247,7 +247,7 @@ class InvoiceViewSetTests(InvoiceMixin, TelegramBotMixin, UserMixin, TestCase):
                 'name': new_name,
                 'title': 'Test title',
                 'description': '...',
-                'prices': [{'label': 'Test price', 'amount': 0}],
+                'prices': [{'label': 'Test price', 'amount': 1}],
             },
             format='json',
         )
@@ -303,7 +303,7 @@ class InvoiceViewSetTests(InvoiceMixin, TelegramBotMixin, UserMixin, TestCase):
 
         request = self.factory.patch(
             self.detail_true_url,
-            {'name': new_name, 'prices': [{'label': 'Test price', 'amount': 0}]},
+            {'name': new_name, 'prices': [{'label': 'Test price', 'amount': 1}]},
             format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
