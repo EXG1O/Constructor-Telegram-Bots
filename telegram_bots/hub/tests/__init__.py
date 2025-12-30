@@ -3,6 +3,7 @@ from .background_task import BackgroundTaskViewSetTests
 from .condition import ConditionViewSetTests
 from .database_operation import DatabaseOperationViewSetTests
 from .database_record import DatabaseRecordViewSetTests
+from .invoice import InvoiceViewSetTests
 from .message import MessageKeyboardButtonViewSetTests, MessageViewSetTests
 from .telegram_bot import TelegramBotViewSetTests
 from .trigger import TriggerViewSetTests
@@ -18,6 +19,7 @@ __all__ = [
     'APIRequestViewSetTests',
     'DatabaseOperationViewSetTests',
     'TriggerViewSetTests',
+    'InvoiceViewSetTests',
     'VariableViewSetTests',
     'UserViewSetTests',
     'DatabaseRecordViewSetTests',

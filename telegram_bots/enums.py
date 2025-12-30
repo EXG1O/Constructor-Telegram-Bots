@@ -26,6 +26,7 @@ class ConnectionObjectType(TextChoices):
     BACKGROUND_TASK = 'background_task', _('Фоновая задача')
     API_REQUEST = 'api_request', _('API-запрос')
     DATABASE_OPERATION = 'database_operation', _('Операция базы данных')
+    INVOICE = 'invoice', _('Счёт')
 
     @staticmethod
     def source_choices() -> list[tuple[str, str]]:
@@ -39,6 +40,7 @@ class ConnectionObjectType(TextChoices):
                 ConnectionObjectType.BACKGROUND_TASK,
                 ConnectionObjectType.API_REQUEST,
                 ConnectionObjectType.DATABASE_OPERATION,
+                ConnectionObjectType.INVOICE,
             ]
         ]
 
@@ -52,6 +54,7 @@ class ConnectionObjectType(TextChoices):
                 ConnectionObjectType.CONDITION,
                 ConnectionObjectType.API_REQUEST,
                 ConnectionObjectType.DATABASE_OPERATION,
+                ConnectionObjectType.INVOICE,
             ]
         ]
 

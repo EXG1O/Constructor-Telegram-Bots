@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import SuspiciousFileOperation, ValidationError
+from django.core.files.storage import default_storage
 from django.db import models
 from django.db.models.base import ModelBase
 from django.utils.functional import cached_property
@@ -15,6 +16,7 @@ from .condition import Condition
 from .connection import Connection
 from .database_operation import DatabaseOperation
 from .database_record import DatabaseRecord
+from .invoice import Invoice, InvoiceImage
 from .message import Message, MessageDocument, MessageImage
 from .trigger import Trigger
 from .user import User
@@ -25,7 +27,6 @@ import requests
 
 from collections.abc import Collection, Iterable
 from contextlib import suppress
-from itertools import chain
 from typing import TYPE_CHECKING, Any
 import re
 
@@ -36,6 +37,13 @@ def validate_api_token(api_token: str) -> None:
         or not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
     ):
         raise ValidationError(_('Этот API-токен является недействительным.'))
+
+
+def _get_file_size(path: str) -> int:
+    try:
+        return default_storage.size(path)
+    except (SuspiciousFileOperation, OSError):
+        return 0
 
 
 class TelegramBot(models.Model):
@@ -72,6 +80,7 @@ class TelegramBot(models.Model):
         background_tasks: models.Manager[BackgroundTask]
         api_requests: models.Manager[APIRequest]
         database_operations: models.Manager[DatabaseOperation]
+        invoices: models.Manager[Invoice]
         variables: models.Manager[Variable]
         users: models.Manager[User]
         database_records: models.Manager[DatabaseRecord]
@@ -86,13 +95,19 @@ class TelegramBot(models.Model):
         """The property is cached, because it make heavy query to database."""
 
         return sum(
-            media.file.size
-            for media in chain(
-                MessageImage.objects.filter(message__telegram_bot=self).exclude(
-                    file=None
-                ),
-                MessageDocument.objects.filter(message__telegram_bot=self).exclude(
-                    file=None
+            map(
+                _get_file_size,  # type: ignore [arg-type]
+                MessageImage.objects.filter(
+                    message__telegram_bot=self, file__isnull=False
+                )
+                .values_list('file', flat=True)
+                .union(
+                    MessageDocument.objects.filter(
+                        message__telegram_bot=self, file__isnull=False
+                    ).values_list('file', flat=True),
+                    InvoiceImage.objects.filter(
+                        invoice__telegram_bot=self, file__isnull=False
+                    ).values_list('file', flat=True),
                 ),
             )
         )

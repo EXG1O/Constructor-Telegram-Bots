@@ -10,6 +10,7 @@ from ..models import (
     Condition,
     Connection,
     DatabaseOperation,
+    Invoice,
     Message,
     MessageKeyboardButton,
     Trigger,
@@ -69,6 +70,10 @@ class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connect
         ConnectionObjectType.DATABASE_OPERATION: {
             'model': DatabaseOperation,
             'queryset': lambda self: self.telegram_bot.database_operations,
+        },
+        ConnectionObjectType.INVOICE: {
+            'model': Invoice,
+            'queryset': lambda self: self.telegram_bot.invoices,
         },
     }
 

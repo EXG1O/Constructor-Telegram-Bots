@@ -1,0 +1,60 @@
+from django.db.models import QuerySet
+
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
+from constructor_telegram_bots.mixins import IDLookupMixin
+from constructor_telegram_bots.permissions import ReadOnly
+from users.authentication import JWTAuthentication
+from users.permissions import IsTermsAccepted
+
+from ..models import Invoice
+from ..serializers import DiagramInvoiceSerializer, InvoiceSerializer
+from .mixins import TelegramBotMixin
+
+
+class InvoiceViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Invoice]):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
+    serializer_class = InvoiceSerializer
+
+    def get_queryset(self) -> QuerySet[Invoice]:
+        invoices: QuerySet[Invoice] = self.telegram_bot.invoices.all()
+
+        if self.action in ['list', 'retrieve']:
+            return invoices.select_related('image').prefetch_related(
+                'prices',
+                'source_connections__source_object',
+                'source_connections__target_object',
+                'target_connections__source_object',
+                'target_connections__target_object',
+            )
+
+        return invoices
+
+
+class DiagramInvoiceViewSet(
+    IDLookupMixin,
+    TelegramBotMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet[Invoice],
+):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
+    serializer_class = DiagramInvoiceSerializer
+
+    def get_queryset(self) -> QuerySet[Invoice]:
+        invoices: QuerySet[Invoice] = self.telegram_bot.invoices.all()
+
+        if self.action in ['list', 'retrieve']:
+            return invoices.prefetch_related(
+                'source_connections__source_object',
+                'source_connections__target_object',
+                'target_connections__source_object',
+                'target_connections__target_object',
+            )
+
+        return invoices

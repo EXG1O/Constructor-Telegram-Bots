@@ -13,8 +13,10 @@ from .views import (
     DiagramBackgroundTaskViewSet,
     DiagramConditionViewSet,
     DiagramDatabaseOperationViewSet,
+    DiagramInvoiceViewSet,
     DiagramMessageViewSet,
     DiagramTriggerViewSet,
+    InvoiceViewSet,
     MessageViewSet,
     StatsAPIView,
     TelegramBotViewSet,
@@ -101,6 +103,17 @@ router.register(
     f'{base_diagram_path}/database-operations',
     DiagramDatabaseOperationViewSet,
     basename=f'{base_diagram_name}-database-operation',
+)
+
+router.register(
+    f'{base_path}/invoices',
+    InvoiceViewSet,
+    basename=f'{base_name}-invoice',
+)
+router.register(
+    f'{base_diagram_path}/invoices',
+    DiagramInvoiceViewSet,
+    basename=f'{base_diagram_name}-invoice',
 )
 
 router.register(

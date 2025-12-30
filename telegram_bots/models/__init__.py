@@ -8,6 +8,7 @@ from .database_operation import (
     DatabaseUpdateOperation,
 )
 from .database_record import DatabaseRecord
+from .invoice import Invoice, InvoiceImage, InvoicePrice
 from .message import (
     Message,
     MessageDocument,
@@ -40,6 +41,9 @@ __all__ = [
     'DatabaseOperation',
     'DatabaseCreateOperation',
     'DatabaseUpdateOperation',
+    'Invoice',
+    'InvoiceImage',
+    'InvoicePrice',
     'Variable',
     'User',
     'DatabaseRecord',

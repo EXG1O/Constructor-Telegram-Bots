@@ -58,6 +58,7 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
                     + Count('background_tasks', distinct=True)
                     + Count('api_requests', distinct=True)
                     + Count('database_operations', distinct=True)
+                    + Count('invoices', distinct=True)
                 ),
                 user_count=Count('users', distinct=True),
             )
