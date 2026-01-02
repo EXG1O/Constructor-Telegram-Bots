@@ -25,7 +25,9 @@ class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
         messages: QuerySet[Message] = self.telegram_bot.messages.all()
 
         if self.action in ['list', 'retrieve']:
-            return messages.select_related('settings', 'keyboard').prefetch_related('images', 'documents')
+            return messages.select_related('settings', 'keyboard').prefetch_related(
+                'images', 'documents'
+            )
 
         return messages
 
