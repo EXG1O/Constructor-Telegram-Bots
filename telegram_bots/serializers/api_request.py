@@ -61,7 +61,6 @@ class APIRequestSerializer(TelegramBotMixin, serializers.ModelSerializer[APIRequ
 
 class DiagramAPIRequestSerializer(DiagramSerializer[APIRequest]):
     source_connections = ConnectionSerializer(many=True, read_only=True)
-    target_connections = ConnectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = APIRequest
@@ -71,6 +70,5 @@ class DiagramAPIRequestSerializer(DiagramSerializer[APIRequest]):
             'url',
             'method',
             'source_connections',
-            'target_connections',
         ] + DiagramSerializer.Meta.fields
         read_only_fields = ['name', 'url', 'method']

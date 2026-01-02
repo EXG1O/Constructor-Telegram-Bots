@@ -20,17 +20,7 @@ class APIRequestViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[APIRequest
     serializer_class = APIRequestSerializer
 
     def get_queryset(self) -> QuerySet[APIRequest]:
-        api_requests: QuerySet[APIRequest] = self.telegram_bot.api_requests.all()
-
-        if self.action in ['list', 'retrieve']:
-            return api_requests.prefetch_related(
-                'source_connections__source_object',
-                'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
-            )
-
-        return api_requests
+        return self.telegram_bot.api_requests.all()
 
 
 class DiagramAPIRequestViewSet(
@@ -52,8 +42,6 @@ class DiagramAPIRequestViewSet(
             return api_requests.prefetch_related(
                 'source_connections__source_object',
                 'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return api_requests
