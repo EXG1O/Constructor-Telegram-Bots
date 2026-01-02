@@ -419,7 +419,6 @@ class DiagramMessageKeyboardSerializer(serializers.ModelSerializer[MessageKeyboa
 class DiagramMessageSerializer(DiagramSerializer[Message]):
     keyboard = DiagramMessageKeyboardSerializer(allow_null=True, read_only=True)
     source_connections = ConnectionSerializer(many=True, read_only=True)
-    target_connections = ConnectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Message
@@ -429,6 +428,5 @@ class DiagramMessageSerializer(DiagramSerializer[Message]):
             'text',
             'keyboard',
             'source_connections',
-            'target_connections',
         ] + DiagramSerializer.Meta.fields
         read_only_fields = ['name', 'text']

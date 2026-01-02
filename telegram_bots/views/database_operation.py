@@ -30,14 +30,7 @@ class DatabaseOperationViewSet(
         )
 
         if self.action in ['list', 'retrieve']:
-            return operations.select_related(
-                'create_operation', 'update_operation'
-            ).prefetch_related(
-                'source_connections__source_object',
-                'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
-            )
+            return operations.select_related('create_operation', 'update_operation')
 
         return operations
 
@@ -63,8 +56,6 @@ class DiagramDatabaseOperationViewSet(
             return operations.prefetch_related(
                 'source_connections__source_object',
                 'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return operations

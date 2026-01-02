@@ -23,13 +23,7 @@ class InvoiceViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Invoice]):
         invoices: QuerySet[Invoice] = self.telegram_bot.invoices.all()
 
         if self.action in ['list', 'retrieve']:
-            return invoices.select_related('image').prefetch_related(
-                'prices',
-                'source_connections__source_object',
-                'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
-            )
+            return invoices.select_related('image').prefetch_related('prices')
 
         return invoices
 
@@ -53,8 +47,6 @@ class DiagramInvoiceViewSet(
             return invoices.prefetch_related(
                 'source_connections__source_object',
                 'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return invoices

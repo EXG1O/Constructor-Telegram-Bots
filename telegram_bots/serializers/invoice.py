@@ -196,14 +196,8 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
 
 class DiagramInvoiceSerializer(DiagramSerializer[Invoice]):
     source_connections = ConnectionSerializer(many=True, read_only=True)
-    target_connections = ConnectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Invoice
-        fields = [
-            'id',
-            'name',
-            'source_connections',
-            'target_connections',
-        ] + DiagramSerializer.Meta.fields
+        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
         read_only_fields = ['name']

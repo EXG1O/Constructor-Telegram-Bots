@@ -23,13 +23,7 @@ class ConditionViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Condition])
         conditions: QuerySet[Condition] = self.telegram_bot.conditions.all()
 
         if self.action in ['list', 'retrieve']:
-            return conditions.prefetch_related(
-                'parts',
-                'source_connections__source_object',
-                'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
-            )
+            return conditions.prefetch_related('parts')
 
         return conditions
 
@@ -53,8 +47,6 @@ class DiagramConditionViewSet(
             return conditions.prefetch_related(
                 'source_connections__source_object',
                 'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return conditions

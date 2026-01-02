@@ -26,12 +26,7 @@ class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
 
         if self.action in ['list', 'retrieve']:
             return messages.select_related('settings', 'keyboard').prefetch_related(
-                'images',
-                'documents',
-                'keyboard__buttons__source_connections__source_object',
-                'keyboard__buttons__source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
+                'images', 'documents'
             )
 
         return messages
@@ -58,8 +53,6 @@ class DiagramMessageViewSet(
                 'keyboard__buttons__source_connections__target_object',
                 'source_connections__source_object',
                 'source_connections__target_object',
-                'target_connections__source_object',
-                'target_connections__target_object',
             )
 
         return messages

@@ -172,15 +172,8 @@ class DatabaseOperationSerializer(
 
 class DiagramDatabaseOperationSerializer(DiagramSerializer[DatabaseOperation]):
     source_connections = ConnectionSerializer(many=True, read_only=True)
-    target_connections = ConnectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = DatabaseOperation
-        fields = [
-            'id',
-            'name',
-            'source_connections',
-            'target_connections',
-            *DiagramSerializer.Meta.fields,
-        ]
+        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
         read_only_fields = ['name']
