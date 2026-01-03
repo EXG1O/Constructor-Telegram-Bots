@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-28 01:51+0000\n"
+"POT-Creation-Date: 2026-01-03 20:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,7 +36,7 @@ msgid "Русский"
 msgstr "Russian"
 
 #: donation/admin.py:18 donation/models.py:10
-#: telegram_bots/models/invoice.py:45
+#: telegram_bots/models/invoice.py:46
 msgid "Сумма"
 msgstr "Sum"
 
@@ -61,7 +61,7 @@ msgid "Пожертвование"
 msgstr "Donation"
 
 #: donation/models.py:25 instruction/models.py:8 privacy_policy/models.py:8
-#: telegram_bots/models/invoice.py:63 terms_of_service/models.py:8
+#: telegram_bots/models/invoice.py:64 terms_of_service/models.py:8
 msgid "Заголовок"
 msgstr "Title"
 
@@ -177,8 +177,8 @@ msgstr "API request"
 msgid "Операция базы данных"
 msgstr "Database operation"
 
-#: telegram_bots/enums.py:29 telegram_bots/models/invoice.py:18
-#: telegram_bots/models/invoice.py:42 telegram_bots/models/invoice.py:72
+#: telegram_bots/enums.py:29 telegram_bots/models/invoice.py:19
+#: telegram_bots/models/invoice.py:43 telegram_bots/models/invoice.py:73
 msgid "Счёт"
 msgstr "Invoice"
 
@@ -288,7 +288,7 @@ msgstr "Hubs"
 #: telegram_bots/models/condition.py:51 telegram_bots/models/connection.py:16
 #: telegram_bots/models/database_operation.py:60
 #: telegram_bots/models/database_record.py:15
-#: telegram_bots/models/invoice.py:61 telegram_bots/models/message.py:150
+#: telegram_bots/models/invoice.py:62 telegram_bots/models/message.py:150
 #: telegram_bots/models/trigger.py:61 telegram_bots/models/user.py:12
 #: telegram_bots/models/variable.py:12
 msgid "Telegram бот"
@@ -433,36 +433,36 @@ msgstr "Database record"
 msgid "Записи в БД"
 msgstr "Database records"
 
-#: telegram_bots/models/invoice.py:21 telegram_bots/models/message.py:55
+#: telegram_bots/models/invoice.py:22 telegram_bots/models/message.py:55
 msgid "Изображение"
 msgstr "Image"
 
-#: telegram_bots/models/invoice.py:30
+#: telegram_bots/models/invoice.py:31
 msgid "Изображение счёта"
 msgstr "Invoice image"
 
-#: telegram_bots/models/invoice.py:31
+#: telegram_bots/models/invoice.py:32
 msgid "Изображения счетов"
 msgstr "Images of invoices"
 
-#: telegram_bots/models/invoice.py:44
+#: telegram_bots/models/invoice.py:45
 msgid "Подпись"
 msgstr "Label"
 
-#: telegram_bots/models/invoice.py:49
+#: telegram_bots/models/invoice.py:50
 msgid "Цена счёта"
 msgstr "Invoice price"
 
-#: telegram_bots/models/invoice.py:50
+#: telegram_bots/models/invoice.py:51
 msgid "Цены счетов"
 msgstr "Prices of invoices"
 
-#: telegram_bots/models/invoice.py:64 telegram_bots/models/trigger.py:22
+#: telegram_bots/models/invoice.py:65 telegram_bots/models/trigger.py:22
 #: telegram_bots/models/variable.py:16
 msgid "Описание"
 msgstr "Description"
 
-#: telegram_bots/models/invoice.py:73
+#: telegram_bots/models/invoice.py:74
 msgid "Счета"
 msgstr "Invoices"
 
@@ -634,35 +634,35 @@ msgstr "Variable"
 msgid "Переменные"
 msgstr "Variables"
 
-#: telegram_bots/serializers/api_request.py:21
-msgid "Заголовки должны быть словарем."
+#: telegram_bots/serializers/api_request.py:20
+msgid "Заголовки должны быть словарём."
 msgstr "Headers must be a dictionary."
 
-#: telegram_bots/serializers/api_request.py:26
+#: telegram_bots/serializers/api_request.py:25
 #, python-format
 msgid "Значение для заголовка '%(key)s' должно быть строкой."
 msgstr "The value for the '%(key)s' header must be a string."
 
-#: telegram_bots/serializers/api_request.py:39
+#: telegram_bots/serializers/api_request.py:38
 #, python-format
 msgid "Нельзя добавлять больше %(max)s API-запросов."
 msgstr "You cannot add more than %(max)s API requests."
 
-#: telegram_bots/serializers/background_task.py:28
+#: telegram_bots/serializers/background_task.py:27
 #, python-format
 msgid "Нельзя добавлять больше %(max)s фоновых задач."
 msgstr "You cannot add more than %(max)s background tasks."
 
-#: telegram_bots/serializers/condition.py:37
+#: telegram_bots/serializers/condition.py:36
 msgid "Условие должно содержать хотя бы одну часть."
 msgstr "Condition must contain at least one part."
 
-#: telegram_bots/serializers/condition.py:46
+#: telegram_bots/serializers/condition.py:45
 #, python-format
 msgid "Нельзя добавлять больше %(max)s частей условия."
 msgstr "You cannot add more than %(max)s condition parts."
 
-#: telegram_bots/serializers/condition.py:60
+#: telegram_bots/serializers/condition.py:59
 #, python-format
 msgid "Нельзя добавлять больше %(max)s условий."
 msgstr "You cannot add more than %(max)s conditions."
@@ -682,15 +682,15 @@ msgstr "%(source_object)s cannot be a start connector position."
 msgid "%(target_object)s не может быть окончательной позиции коннектора."
 msgstr "%(target_object)s cannot be a end connector position."
 
-#: telegram_bots/serializers/database_operation.py:57
+#: telegram_bots/serializers/database_operation.py:65
 msgid ""
-"Необходимо указать только одно из полей: 'create_operation' или "
-"'update_operation'."
+"Операция базы данных должна иметь значение только для одно из полей: "
+"'create_operation' или 'update_operation'."
 msgstr ""
-"You must specify only one of the fields 'create_operation' or "
-"'update_operation'."
+"The database operation must have a value for only one of the following fields: "
+"'create_operation' or 'update_operation'."
 
-#: telegram_bots/serializers/database_operation.py:69
+#: telegram_bots/serializers/database_operation.py:76
 #, python-format
 msgid "Нельзя добавлять больше %(max)s операций базы данных."
 msgstr "You cannot add more than %(max)s database operations."
@@ -700,60 +700,68 @@ msgstr "You cannot add more than %(max)s database operations."
 msgid "Нельзя добавлять больше %(max)s записей в базу данных."
 msgstr "You cannot add more than %(max)s database records."
 
-#: telegram_bots/serializers/invoice.py:56
-#: telegram_bots/serializers/message.py:81
-msgid "Необходимо указать только одно из полей 'file' или 'from_url'."
-msgstr "You must specify only one of the fields 'file' or 'from_url'."
+#: telegram_bots/serializers/invoice.py:54
+msgid ""
+"Изображение счёта должно иметь значение только для одного из полей: 'file' "
+"или 'from_url'."
+msgstr ""
+"The invoice image must have a value for only one of the following fields: 'file' "
+"or 'from_url'."
 
-#: telegram_bots/serializers/invoice.py:67
-#: telegram_bots/serializers/message.py:168
+#: telegram_bots/serializers/invoice.py:66
+#: telegram_bots/serializers/message.py:192
 msgid "Превышен лимит хранилища."
 msgstr "Storage limit exceeded."
 
-#: telegram_bots/serializers/invoice.py:75
+#: telegram_bots/serializers/invoice.py:74
 msgid "Счёт должен содержать хотя бы одну цену."
 msgstr "Invoice must contain at least one price."
 
-#: telegram_bots/serializers/invoice.py:85
+#: telegram_bots/serializers/invoice.py:83
 #, python-format
 msgid "Нельзя добавлять больше %(max)s цен счёта."
 msgstr "You cannot add more than %(max)s invoice prices."
 
-#: telegram_bots/serializers/invoice.py:99
+#: telegram_bots/serializers/invoice.py:97
 #, python-format
 msgid "Нельзя добавлять больше %(max)s счетов."
 msgstr "You cannot add more than %(max)s invoices."
 
-#: telegram_bots/serializers/message.py:113
+#: telegram_bots/serializers/message.py:137
 #, python-format
 msgid "Нельзя добавлять больше %(max)s кнопок для клавиатуры сообщения."
 msgstr "You cannot add more than %(max)s message keyboard buttons."
 
-#: telegram_bots/serializers/message.py:139
+#: telegram_bots/serializers/message.py:163
 msgid ""
-"Необходимо указать минимум одно из полей: 'text', 'images', 'documents' или "
-"'keyboard'."
+"Необходимо указать значение минимум для одно из полей: 'text', 'images', "
+"'documents' или 'keyboard'."
 msgstr ""
-"You must specify at least one of the following fields: 'text', 'images', "
+"You must specify a value for at least one of the following fields: 'text', 'images', "
 "'documents', or 'keyboard'."
 
-#: telegram_bots/serializers/message.py:148
+#: telegram_bots/serializers/message.py:172
 msgid ""
-"Необходимо указать поле 'text', если указано значение для поля 'keyboard'."
+"Необходимо указать значение для поле 'text', если указано значение для поля "
+"'keyboard'."
 msgstr ""
-"You must specify the 'text' field if a value is provided for the 'keyboard' "
-"field."
+"You must specify a value for the 'text' field if a value is provided for the "
+"'keyboard' field."
 
-#: telegram_bots/serializers/message.py:177
+#: telegram_bots/serializers/message.py:201
 #, python-format
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "You cannot add more than %(max)s messages."
 
-#: telegram_bots/serializers/trigger.py:38
-msgid "Необходимо указать только одно из полей: 'command' или 'message'."
-msgstr "You must specify only one of the fields 'command' or 'message'."
+#: telegram_bots/serializers/trigger.py:49
+msgid ""
+"Триггер должен иметь значение только для одного из полей: 'command' или "
+"'message'."
+msgstr ""
+"The trigger must have a value for only one of the following fields: 'command' "
+"or 'message'."
 
-#: telegram_bots/serializers/trigger.py:48
+#: telegram_bots/serializers/trigger.py:60
 #, python-format
 msgid "Нельзя добавлять больше %(max)s триггеров."
 msgstr "You cannot add more than %(max)s triggers."

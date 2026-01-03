@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from ..models import APIRequest
 from .base import DiagramSerializer
-from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from typing import Any
@@ -16,18 +15,18 @@ class APIRequestSerializer(TelegramBotMixin, serializers.ModelSerializer[APIRequ
         model = APIRequest
         fields = ['id', 'name', 'url', 'method', 'headers', 'body']
 
-    def validate_headers(self, headers: list[Any] | dict[str, Any]) -> dict[str, str]:
-        if not isinstance(headers, dict):
-            raise serializers.ValidationError(_('Заголовки должны быть словарем.'))
+    def validate_headers(self, data: list[Any] | dict[str, Any]) -> dict[str, str]:
+        if not isinstance(data, dict):
+            raise serializers.ValidationError(_('Заголовки должны быть словарём.'))
 
-        for key, value in headers.items():
+        for key, value in data.items():
             if not isinstance(value, str):
                 raise serializers.ValidationError(
                     _("Значение для заголовка '%(key)s' должно быть строкой.")
                     % {'key': key}
                 )
 
-        return headers
+        return data
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if (
@@ -60,15 +59,7 @@ class APIRequestSerializer(TelegramBotMixin, serializers.ModelSerializer[APIRequ
 
 
 class DiagramAPIRequestSerializer(DiagramSerializer[APIRequest]):
-    source_connections = ConnectionSerializer(many=True, read_only=True)
-
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = APIRequest
-        fields = [
-            'id',
-            'name',
-            'url',
-            'method',
-            'source_connections',
-        ] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name', 'url', 'method']
+        fields = DiagramSerializer.Meta.fields + ['url', 'method']
+        read_only_fields = DiagramSerializer.Meta.read_only_fields + ['url', 'method']

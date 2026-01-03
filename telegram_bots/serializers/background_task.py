@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from ..models import BackgroundTask
 from .base import DiagramSerializer
-from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from typing import Any
@@ -48,14 +47,7 @@ class BackgroundTaskSerializer(
 
 
 class DiagramBackgroundTaskSerializer(DiagramSerializer[BackgroundTask]):
-    source_connections = ConnectionSerializer(many=True, read_only=True)
-
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = BackgroundTask
-        fields = [
-            'id',
-            'name',
-            'interval',
-            'source_connections',
-        ] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name', 'interval']
+        fields = DiagramSerializer.Meta.fields + ['interval']
+        read_only_fields = DiagramSerializer.Meta.read_only_fields + ['interval']

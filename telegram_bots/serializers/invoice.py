@@ -6,7 +6,6 @@ from rest_framework import serializers
 
 from ..models import Invoice, InvoiceImage, InvoicePrice
 from .base import DiagramSerializer, MediaSerializer
-from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
@@ -37,11 +36,10 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
             return data
 
         file: UploadedFile | None = data.get('file')
+        has_file: bool = bool(file)
+        has_from_url: bool = bool(data.get('from_url'))
 
-        if isinstance(self.instance, Invoice):
-            has_file: bool = bool(file)
-            has_from_url: bool = bool(data.get('from_url'))
-
+        if isinstance(self.instance, Invoice) and self.partial:
             with suppress(InvoiceImage.DoesNotExist):
                 invoice_image = self.instance.image
 
@@ -50,11 +48,13 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
                 if not has_from_url:
                     has_from_url = bool(invoice_image.from_url)
 
-            if has_file is has_from_url:
-                raise serializers.ValidationError(
-                    _("Необходимо указать только одно из полей 'file' или 'from_url'."),
-                    code='required',
-                )
+        if has_file is has_from_url:
+            raise serializers.ValidationError(
+                _(
+                    'Изображение счёта должно иметь значение только для одного из полей: '
+                    "'file' или 'from_url'."
+                ),
+            )
 
         file_size: int | None = None
 
@@ -69,16 +69,15 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
         return data
 
     def validate_prices(self, data: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        if (not self.instance or not self.partial) and not data:
+        if not ((self.instance and self.partial) or data):
             raise serializers.ValidationError(
                 _('Счёт должен содержать хотя бы одну цену.'), code='empty'
             )
 
         if (
-            len(data)
-            if not isinstance(self.instance, Invoice) or not self.partial
-            else self.instance.prices.count()
-            + sum('id' not in price_data for price_data in data)
+            self.instance.prices.count() + sum('id' not in item for item in data)
+            if isinstance(self.instance, Invoice) and self.partial
+            else len(data)
         ) > settings.TELEGRAM_BOT_MAX_INVOICE_PRICES:
             raise serializers.ValidationError(
                 _('Нельзя добавлять больше %(max)s цен счёта.')
@@ -195,9 +194,5 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
 
 
 class DiagramInvoiceSerializer(DiagramSerializer[Invoice]):
-    source_connections = ConnectionSerializer(many=True, read_only=True)
-
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = Invoice
-        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name']

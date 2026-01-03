@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from ..models.base import AbstractBlock, AbstractMedia, AbstractMessageMedia
+from .connection import ConnectionSerializer
 
 from typing import Any, TypeVar
 import os
@@ -11,8 +12,11 @@ AMMT = TypeVar('AMMT', bound=AbstractMessageMedia)
 
 
 class DiagramSerializer(serializers.ModelSerializer[ABT]):
+    source_connections = ConnectionSerializer(many=True, read_only=True)
+
     class Meta:
-        fields = ['x', 'y']
+        fields = ['id', 'name', 'x', 'y', 'source_connections']
+        read_only_fields = ['name']
 
     def update(
         self,
@@ -60,4 +64,4 @@ class MediaSerializer(serializers.ModelSerializer[AMT]):
 
 class MessageMediaSerializer(MediaSerializer[AMMT]):
     class Meta(MediaSerializer.Meta):
-        fields = ['id', 'position'] + MediaSerializer.Meta.fields
+        fields = MediaSerializer.Meta.fields + ['id', 'position']
