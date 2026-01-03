@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from ..models import DatabaseCreateOperation, DatabaseOperation, DatabaseUpdateOperation
 from .base import DiagramSerializer
-from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
@@ -49,15 +48,23 @@ class DatabaseOperationSerializer(
         fields = ['id', 'name', 'create_operation', 'update_operation']
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        if not self.partial and bool(data.get('create_operation')) is bool(
-            data.get('update_operation')
-        ):
+        has_create_operation: bool = bool(data.get('create_operation'))
+        has_update_operation: bool = bool(data.get('update_operation'))
+
+        if isinstance(self.instance, DatabaseOperation) and self.partial:
+            if not has_create_operation:
+                with suppress(DatabaseCreateOperation.DoesNotExist):
+                    has_create_operation = bool(self.instance.create_operation)
+            if not has_update_operation:
+                with suppress(DatabaseUpdateOperation.DoesNotExist):
+                    has_update_operation = bool(self.instance.update_operation)
+
+        if has_create_operation is has_update_operation:
             raise serializers.ValidationError(
                 _(
-                    "Необходимо указать только одно из полей: 'create_operation' "
-                    "или 'update_operation'."
+                    'Операция базы данных должна иметь значение только для одно из полей: '
+                    "'create_operation' или 'update_operation'."
                 ),
-                code='required',
             )
 
         if (
@@ -159,21 +166,22 @@ class DatabaseOperationSerializer(
     def update(
         self, operation: DatabaseOperation, validated_data: dict[str, Any]
     ) -> DatabaseOperation:
+        create_operation_data: dict[str, Any] | None = validated_data.get(
+            'create_operation'
+        )
+        update_operation_data: dict[str, Any] | None = validated_data.get(
+            'update_operation'
+        )
+
         operation.name = validated_data.get('name', operation.name)
         operation.save(update_fields=['name'])
 
-        self.update_create_operation(operation, validated_data.get('create_operation'))
-        self.update_update_operation(operation, validated_data.get('update_operation'))
-
-        operation.refresh_from_db()
+        self.update_create_operation(operation, create_operation_data)
+        self.update_update_operation(operation, update_operation_data)
 
         return operation
 
 
 class DiagramDatabaseOperationSerializer(DiagramSerializer[DatabaseOperation]):
-    source_connections = ConnectionSerializer(many=True, read_only=True)
-
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = DatabaseOperation
-        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name']

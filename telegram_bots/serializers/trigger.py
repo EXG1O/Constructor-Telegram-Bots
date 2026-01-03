@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from ..models import Trigger, TriggerCommand, TriggerMessage
 from .base import DiagramSerializer
-from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
@@ -33,10 +32,23 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         fields = ['id', 'name', 'command', 'message']
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        if not self.partial and bool(data.get('command')) is bool(data.get('message')):
+        has_command: bool = bool(data.get('command'))
+        has_message: bool = bool(data.get('message'))
+
+        if isinstance(self.instance, Trigger) and self.partial:
+            if not has_command:
+                with suppress(TriggerCommand.DoesNotExist):
+                    has_command = bool(self.instance.command)
+            if not has_message:
+                with suppress(TriggerMessage.DoesNotExist):
+                    has_message = bool(self.instance.message)
+
+        if has_command is has_message:
             raise serializers.ValidationError(
-                _("Необходимо указать только одно из полей: 'command' или 'message'."),
-                code='required',
+                _(
+                    'Триггер должен иметь значение только для одного из полей: '
+                    "'command' или 'message'."
+                ),
             )
 
         if (
@@ -52,6 +64,12 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
 
         return data
 
+    def create_command(self, trigger: Trigger, data: dict[str, Any]) -> TriggerCommand:
+        return TriggerCommand.objects.create(trigger=trigger, **data)
+
+    def create_message(self, trigger: Trigger, data: dict[str, Any]) -> TriggerMessage:
+        return TriggerMessage.objects.create(trigger=trigger, **data)
+
     def create(self, validated_data: dict[str, Any]) -> Trigger:
         command_data: dict[str, Any] | None = validated_data.pop('command', None)
         message_data: dict[str, Any] | None = validated_data.pop('message', None)
@@ -59,12 +77,47 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         trigger: Trigger = self.telegram_bot.triggers.create(**validated_data)
 
         if command_data:
-            TriggerCommand.objects.create(trigger=trigger, **command_data)
-
+            self.create_command(trigger, command_data)
         if message_data:
-            TriggerMessage.objects.create(trigger=trigger, **message_data)
+            self.create_message(trigger, message_data)
 
         return trigger
+
+    def update_command(
+        self, trigger: Trigger, data: dict[str, Any] | None
+    ) -> TriggerCommand | None:
+        if not data:
+            if not self.partial:
+                with suppress(TriggerCommand.DoesNotExist):
+                    trigger.command.delete()
+            return None
+
+        try:
+            command: TriggerCommand = trigger.command
+            command.command = data.get('command', command.command)
+            command.payload = data.get('payload', command.payload)
+            command.description = data.get('description', command.description)
+            command.save(update_fields=['command', 'payload', 'description'])
+            return command
+        except TriggerCommand.DoesNotExist:
+            return self.create_command(trigger, data)
+
+    def update_message(
+        self, trigger: Trigger, data: dict[str, Any] | None
+    ) -> TriggerMessage | None:
+        if not data:
+            if not self.partial:
+                with suppress(TriggerMessage.DoesNotExist):
+                    trigger.message.delete()
+            return None
+
+        try:
+            message: TriggerMessage = trigger.message
+            message.text = data.get('text', message.text)
+            message.save(update_fields=['text'])
+            return message
+        except TriggerMessage.DoesNotExist:
+            return self.create_message(trigger, data)
 
     def update(self, trigger: Trigger, validated_data: dict[str, Any]) -> Trigger:
         command_data: dict[str, Any] | None = validated_data.get('command')
@@ -73,43 +126,12 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         trigger.name = validated_data.get('name', trigger.name)
         trigger.save(update_fields=['name'])
 
-        if command_data:
-            try:
-                trigger.command.command = command_data.get(
-                    'command', trigger.command.command
-                )
-                trigger.command.payload = command_data.get(
-                    'payload', trigger.command.payload
-                )
-                trigger.command.description = command_data.get(
-                    'description', trigger.command.description
-                )
-                trigger.command.save(
-                    update_fields=['command', 'payload', 'description']
-                )
-            except TriggerCommand.DoesNotExist:
-                TriggerCommand.objects.create(trigger=trigger, **command_data)
-        elif not self.partial:
-            with suppress(TriggerCommand.DoesNotExist):
-                trigger.command.delete()
-
-        if message_data:
-            try:
-                trigger.message.text = message_data.get('text', trigger.message.text)
-                trigger.message.save(update_fields=['text'])
-            except TriggerMessage.DoesNotExist:
-                TriggerMessage.objects.create(trigger=trigger, **message_data)
-        elif not self.partial:
-            with suppress(TriggerMessage.DoesNotExist):
-                trigger.message.delete()
+        self.update_command(trigger, command_data)
+        self.update_message(trigger, message_data)
 
         return trigger
 
 
 class DiagramTriggerSerializer(DiagramSerializer[Trigger]):
-    source_connections = ConnectionSerializer(many=True, read_only=True)
-
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = Trigger
-        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name']

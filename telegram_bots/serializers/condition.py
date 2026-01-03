@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from ..models import Condition, ConditionPart
 from .base import DiagramSerializer
-from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from typing import Any
@@ -31,16 +30,16 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
         model = Condition
         fields = ['id', 'name', 'parts']
 
-    def validate_parts(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        if (not self.instance or not self.partial) and not parts:
+    def validate_parts(self, data: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if not ((self.instance and self.partial) or data):
             raise serializers.ValidationError(
                 _('Условие должно содержать хотя бы одну часть.'), code='empty'
             )
 
         if (
-            len(parts)
-            if not isinstance(self.instance, Condition) or not self.partial
-            else self.instance.parts.count() + sum('id' not in part for part in parts)
+            self.instance.parts.count() + sum('id' not in item for item in data)
+            if isinstance(self.instance, Condition) and self.partial
+            else len(data)
         ) > settings.TELEGRAM_BOT_MAX_CONDITION_PARTS:
             raise serializers.ValidationError(
                 _('Нельзя добавлять больше %(max)s частей условия.')
@@ -48,7 +47,7 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
                 code='max_limit',
             )
 
-        return parts
+        return data
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if (
@@ -64,38 +63,46 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
 
         return data
 
+    def create_parts(
+        self, condition: Condition, data: list[dict[str, Any]]
+    ) -> list[ConditionPart]:
+        return ConditionPart.objects.bulk_create(
+            ConditionPart(condition=condition, **item) for item in data
+        )
+
     def create(self, validated_data: dict[str, Any]) -> Condition:
         parts_data: list[dict[str, Any]] = validated_data.pop('parts')
 
         condition: Condition = self.telegram_bot.conditions.create(**validated_data)
 
-        ConditionPart.objects.bulk_create(
-            ConditionPart(condition=condition, **part_data) for part_data in parts_data
-        )
+        self.create_parts(condition, parts_data)
 
         return condition
 
-    def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
-        condition.name = validated_data.get('name', condition.name)
-        condition.save(update_fields=['name'])
+    def update_parts(
+        self, condition: Condition, data: list[dict[str, Any]] | None
+    ) -> list[ConditionPart] | None:
+        if not data:
+            if not self.partial:
+                condition.parts.all().delete()
+            return None
 
         create_parts: list[ConditionPart] = []
         update_parts: list[ConditionPart] = []
 
-        for part_data in validated_data.get('parts', []):
+        for item in data:
             try:
-                part: ConditionPart = condition.parts.get(id=part_data['id'])
-                part.type = part_data.get('type', part.type)
-                part.first_value = part_data.get('first_value', part.first_value)
-                part.operator = part_data.get('operator', part.operator)
-                part.second_value = part_data.get('second_value', part.second_value)
-                part.next_part_operator = part_data.get(
+                part: ConditionPart = condition.parts.get(id=item['id'])
+                part.type = item.get('type', part.type)
+                part.first_value = item.get('first_value', part.first_value)
+                part.operator = item.get('operator', part.operator)
+                part.second_value = item.get('second_value', part.second_value)
+                part.next_part_operator = item.get(
                     'next_part_operator', part.next_part_operator
                 )
-
                 update_parts.append(part)
             except (KeyError, ConditionPart.DoesNotExist):
-                create_parts.append(ConditionPart(condition=condition, **part_data))
+                create_parts.append(ConditionPart(condition=condition, **item))
 
         new_parts: list[ConditionPart] = ConditionPart.objects.bulk_create(create_parts)
         ConditionPart.objects.bulk_update(
@@ -109,18 +116,24 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
             ],
         )
 
+        parts: list[ConditionPart] = new_parts + update_parts
+
         if not self.partial:
-            condition.parts.exclude(
-                id__in=[part.id for part in new_parts + update_parts]
-            ).delete()
+            condition.parts.exclude(id__in=[part.id for part in parts]).delete()
+
+        return parts
+
+    def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
+        parts_data: list[dict[str, Any]] | None = validated_data.get('parts')
+
+        condition.name = validated_data.get('name', condition.name)
+        condition.save(update_fields=['name'])
+
+        self.update_parts(condition, parts_data)
 
         return condition
 
 
 class DiagramConditionSerializer(DiagramSerializer[Condition]):
-    source_connections = ConnectionSerializer(many=True, read_only=True)
-
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = Condition
-        fields = ['id', 'name', 'source_connections'] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name']

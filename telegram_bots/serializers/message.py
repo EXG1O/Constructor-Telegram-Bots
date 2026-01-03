@@ -14,7 +14,7 @@ from ..models import (
     MessageSettings,
 )
 from ..models.base import AbstractMessageMedia
-from .base import DiagramSerializer, MessageMediaSerializer
+from .base import AMMT, DiagramSerializer, MessageMediaSerializer
 from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
@@ -74,40 +74,64 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
             'keyboard',
         ]
 
-    def _validate_media(self, media: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        for data in media:
-            if 'id' not in data and ('file' in data) is ('from_url' in data):
+    def _validate_media(
+        self,
+        media_model_class: type[AbstractMessageMedia],
+        media_data: list[dict[str, Any]] | None,
+    ) -> list[dict[str, Any]] | None:
+        if not media_data:
+            return media_data
+
+        queryset: QuerySet[AbstractMessageMedia] | None = None
+
+        if isinstance(self.instance, Message) and self.partial:
+            queryset = getattr(self.instance, media_model_class.related_name)
+
+        for item in media_data:
+            has_file: bool = bool(item.get('file'))
+            has_from_url: bool = bool(item.get('from_url'))
+
+            if queryset:
+                with suppress(KeyError, media_model_class.DoesNotExist):
+                    media: AbstractMessageMedia = queryset.get(id=item['id'])
+
+                    if not has_file:
+                        has_file = bool(media.file)
+                    if not has_from_url:
+                        has_from_url = bool(media.from_url)
+
+            if has_file is has_from_url:
                 raise serializers.ValidationError(
-                    _("Необходимо указать только одно из полей 'file' или 'from_url'."),
-                    code='required',
+                    'Медиа должен иметь значение только для одного из полей: '
+                    "'file' или 'from_url'."
                 )
 
-        return media
+        return media_data
 
-    def validate_images(self, images: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return self._validate_media(images)
+    def validate_images(
+        self, data: list[dict[str, Any]] | None
+    ) -> list[dict[str, Any]] | None:
+        return self._validate_media(MessageImage, data)
 
     def validate_documents(
-        self, documents: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
-        return self._validate_media(documents)
+        self, data: list[dict[str, Any]] | None
+    ) -> list[dict[str, Any]] | None:
+        return self._validate_media(MessageDocument, data)
 
-    def validate_keyboard(
-        self, keyboard: dict[str, Any] | None
-    ) -> dict[str, Any] | None:
-        if not keyboard:
+    def validate_keyboard(self, data: dict[str, Any] | None) -> dict[str, Any] | None:
+        if not data:
             return None
 
-        buttons: list[dict[str, Any]] | None = keyboard.get('buttons')
+        buttons_data: list[dict[str, Any]] | None = data.get('buttons')
 
-        if not buttons:
+        if not buttons_data:
             return None
 
         if (
-            len(buttons)
-            if not isinstance(self.instance, Message) or not self.partial
-            else self.instance.keyboard.buttons.count()
-            + sum('id' not in button for button in buttons)
+            self.instance.keyboard.buttons.count()
+            + sum('id' not in button_data for button_data in buttons_data)
+            if isinstance(self.instance, Message) and self.partial
+            else len(buttons_data)
         ) > settings.TELEGRAM_BOT_MAX_MESSAGE_KEYBOARD_BUTTONS:
             raise serializers.ValidationError(
                 _('Нельзя добавлять больше %(max)s кнопок для клавиатуры сообщения.')
@@ -115,7 +139,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 code='max_limit',
             )
 
-        return keyboard
+        return data
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         message = cast(Message | None, self.instance)
@@ -136,8 +160,8 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         if not any([has_text, has_images, has_documents, has_keyboard]):
             raise serializers.ValidationError(
                 _(
-                    "Необходимо указать минимум одно из полей: 'text', 'images', "
-                    "'documents' или 'keyboard'."
+                    "Необходимо указать значение минимум для одно из полей: 'text', "
+                    "'images', 'documents' или 'keyboard'."
                 ),
                 code='required',
             )
@@ -145,8 +169,8 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         if has_keyboard and not has_text:
             raise serializers.ValidationError(
                 _(
-                    "Необходимо указать поле 'text', если указано значение для "
-                    "поля 'keyboard'."
+                    "Необходимо указать значение для поле 'text', если указано значение "
+                    "для поля 'keyboard'."
                 ),
                 code='required',
             )
@@ -181,84 +205,88 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
         return data
 
-    def create_settings(self, message: Message, settings_data: dict[str, Any]) -> None:
-        MessageSettings.objects.create(message=message, **settings_data)
+    def create_settings(
+        self, message: Message, data: dict[str, Any]
+    ) -> MessageSettings:
+        return MessageSettings.objects.create(message=message, **data)
 
     def create_images(
-        self, message: Message, images_data: list[dict[str, Any]] | None
-    ) -> None:
-        if not images_data:
-            return
-
-        MessageImage.objects.bulk_create(
-            MessageImage(message=message, **image_data) for image_data in images_data
+        self, message: Message, data: list[dict[str, Any]]
+    ) -> list[MessageImage]:
+        return MessageImage.objects.bulk_create(
+            MessageImage(message=message, **item) for item in data
         )
 
     def create_documents(
-        self, message: Message, documents_data: list[dict[str, Any]] | None
-    ) -> None:
-        if not documents_data:
-            return
-
-        MessageDocument.objects.bulk_create(
-            MessageDocument(message=message, **document_data)
-            for document_data in documents_data
+        self, message: Message, data: list[dict[str, Any]]
+    ) -> list[MessageDocument]:
+        return MessageDocument.objects.bulk_create(
+            MessageDocument(message=message, **item) for item in data
         )
 
     def create_keyboard(
-        self, message: Message, keyboard_data: dict[str, Any] | None
-    ) -> None:
-        if not keyboard_data or 'buttons' not in keyboard_data:
-            return
+        self, message: Message, data: dict[str, Any]
+    ) -> MessageKeyboard | None:
+        buttons_data: list[dict[str, Any]] | None = data.pop('buttons', None)
 
-        buttons_data: list[dict[str, Any]] = keyboard_data.pop('buttons')
+        if not buttons_data:
+            return None
 
         keyboard: MessageKeyboard = MessageKeyboard.objects.create(
-            message=message, **keyboard_data
+            message=message, **data
         )
-
         MessageKeyboardButton.objects.bulk_create(
             MessageKeyboardButton(keyboard=keyboard, **button_data)
             for button_data in buttons_data
         )
 
+        return keyboard
+
     def create(self, validated_data: dict[str, Any]) -> Message:
-        settings: dict[str, Any] = validated_data.pop('settings')
-        images: list[dict[str, Any]] | None = validated_data.pop('images', None)
-        documents: list[dict[str, Any]] | None = validated_data.pop('documents', None)
-        keyboard: dict[str, Any] | None = validated_data.pop('keyboard', None)
+        settings_data: dict[str, Any] = validated_data.pop('settings')
+        images_data: list[dict[str, Any]] | None = validated_data.pop('images', None)
+        documents_data: list[dict[str, Any]] | None = validated_data.pop(
+            'documents', None
+        )
+        keyboard_data: dict[str, Any] | None = validated_data.pop('keyboard', None)
 
         message: Message = self.telegram_bot.messages.create(**validated_data)
 
-        self.create_settings(message, settings)
-        self.create_images(message, images)
-        self.create_documents(message, documents)
-        self.create_keyboard(message, keyboard)
+        self.create_settings(message, settings_data)
+        if images_data:
+            self.create_images(message, images_data)
+        if documents_data:
+            self.create_documents(message, documents_data)
+        if keyboard_data:
+            self.create_keyboard(message, keyboard_data)
 
         return message
 
     def update_settings(
-        self, message: Message, settings_data: dict[str, Any] | None
-    ) -> None:
-        if not settings_data:
-            return
+        self, message: Message, data: dict[str, Any] | None
+    ) -> MessageSettings | None:
+        if not data:
+            return None
 
-        message.settings.reply_to_user_message = settings_data.get(
-            'reply_to_user_message', message.settings.reply_to_user_message
+        settings: MessageSettings = message.settings
+        settings.reply_to_user_message = data.get(
+            'reply_to_user_message', settings.reply_to_user_message
         )
-        message.settings.delete_user_message = settings_data.get(
-            'delete_user_message', message.settings.delete_user_message
+        settings.delete_user_message = data.get(
+            'delete_user_message', settings.delete_user_message
         )
-        message.settings.send_as_new_message = settings_data.get(
-            'send_as_new_message', message.settings.send_as_new_message
+        settings.send_as_new_message = data.get(
+            'send_as_new_message', settings.send_as_new_message
         )
-        message.settings.save(
+        settings.save(
             update_fields=[
                 'reply_to_user_message',
                 'delete_user_message',
                 'send_as_new_message',
             ]
         )
+
+        return settings
 
     def _delete_media_files(self, queryset: QuerySet[AbstractMessageMedia]) -> None:
         for file_path in queryset.exclude(file=None).values_list('file', flat=True):  # type: ignore [misc]
@@ -268,132 +296,136 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
     def update_media(
         self,
         message: Message,
-        media_model_class: type[AbstractMessageMedia],
+        media_model_class: type[AMMT],
         media_data: list[dict[str, Any]] | None,
-    ) -> None:
-        queryset: QuerySet[AbstractMessageMedia] = getattr(
-            message, media_model_class.related_name
+    ) -> list[AMMT] | None:
+        queryset: QuerySet[AMMT] = getattr(message, media_model_class.related_name)
+
+        if not media_data:
+            if not self.partial:
+                self._delete_media_files(queryset)
+                queryset.all().delete()
+            return None
+
+        create_media: list[AMMT] = []
+        update_media: list[AMMT] = []
+
+        for item in media_data:
+            try:
+                media: AMMT = queryset.get(id=item['id'])
+                media.position = item.get('position', media.position)
+
+                file: UploadedFile | None = item.get('file')
+
+                if file and media.file:
+                    media.file.delete()
+
+                media.file = file  # type: ignore [assignment]  # FIXME: The assigned type is correct, but mypy complains.
+                media.from_url = item.get('from_url', media.from_url)
+                update_media.append(media)
+            except (KeyError, media_model_class.DoesNotExist):
+                create_media.append(media_model_class(message=message, **item))
+
+        new_media: list[AMMT] = media_model_class.objects.bulk_create(create_media)  # type: ignore [attr-defined]
+        media_model_class.objects.bulk_update(  # type: ignore [attr-defined]
+            update_media, fields=['file', 'from_url', 'position']
         )
 
-        if media_data:
-            create_media: list[AbstractMessageMedia] = []
-            update_media: list[AbstractMessageMedia] = []
+        final_media: list[AMMT] = new_media + update_media
 
-            for item in media_data:
-                file: UploadedFile | None = item.get('file')
-                from_url: str | None = item.get('from_url')
-
-                try:
-                    media: AbstractMessageMedia = queryset.get(id=item['id'])
-                    media.position = item.get('position', media.position)
-
-                    if file or from_url:
-                        if media.file:
-                            media.file.delete()
-
-                        media.file = file  # type: ignore [assignment]  # FIXME: The assigned type is correct, but mypy complains.
-                        media.from_url = from_url
-
-                    update_media.append(media)
-                except (KeyError, media_model_class.DoesNotExist):
-                    create_media.append(media_model_class(message=message, **item))  # type: ignore [misc]
-
-            new_media: list[AbstractMessageMedia] = (
-                media_model_class.objects.bulk_create(  # type: ignore [attr-defined]
-                    create_media
-                )
-            )
-            media_model_class.objects.bulk_update(  # type: ignore [attr-defined]
-                update_media, fields=['file', 'from_url', 'position']
+        if not self.partial:
+            new_queryset: QuerySet[AMMT] = queryset.exclude(
+                id__in=[media.id for media in final_media]  # type: ignore [attr-defined]
             )
 
-            if not self.partial:
-                new_queryset: QuerySet[AbstractMessageMedia] = queryset.exclude(
-                    id__in=[media.id for media in new_media + update_media]  # type: ignore [attr-defined]
-                )
+            self._delete_media_files(new_queryset)
+            new_queryset.delete()
 
-                self._delete_media_files(new_queryset)
-                new_queryset.delete()
-        elif not self.partial:
-            self._delete_media_files(queryset)
-            queryset.all().delete()
+        return final_media
 
     def update_images(
-        self, message: Message, images_data: list[dict[str, Any]] | None
-    ) -> None:
-        self.update_media(message, MessageImage, images_data)
+        self, message: Message, data: list[dict[str, Any]] | None
+    ) -> list[MessageImage] | None:
+        return self.update_media(message, MessageImage, data)
 
     def update_documents(
-        self, message: Message, documents_data: list[dict[str, Any]] | None
-    ) -> None:
-        self.update_media(message, MessageDocument, documents_data)
+        self, message: Message, data: list[dict[str, Any]] | None
+    ) -> list[MessageDocument] | None:
+        return self.update_media(message, MessageDocument, data)
 
     def update_keyboard(
-        self, message: Message, keyboard_data: dict[str, Any] | None
-    ) -> None:
-        if keyboard_data:
+        self, message: Message, data: dict[str, Any] | None
+    ) -> MessageKeyboard | None:
+        if not data:
+            if not self.partial:
+                with suppress(MessageKeyboard.DoesNotExist):
+                    message.keyboard.delete()
+            return None
+
+        try:
+            keyboard: MessageKeyboard = message.keyboard
+        except MessageKeyboard.DoesNotExist:
+            return self.create_keyboard(message, data)
+
+        keyboard_type: str = data.get('type', keyboard.type)
+
+        keyboard.type = keyboard_type
+        keyboard.save(update_fields=['type'])
+
+        create_buttons: list[MessageKeyboardButton] = []
+        update_buttons: list[MessageKeyboardButton] = []
+
+        for button_data in data.get('buttons', []):
             try:
-                keyboard_type: str = keyboard_data.get('type', message.keyboard.type)
-
-                message.keyboard.type = keyboard_type
-                message.keyboard.save(update_fields=['type'])
-
-                create_buttons: list[MessageKeyboardButton] = []
-                update_buttons: list[MessageKeyboardButton] = []
-
-                for button_data in keyboard_data.get('buttons', []):
-                    try:
-                        button: MessageKeyboardButton = message.keyboard.buttons.get(
-                            id=button_data['id']
-                        )
-                        button.row = button_data.get('row', button.row)
-                        button.position = button_data.get('position', button.position)
-                        button.text = button_data.get('text', button.text)
-                        button.url = (
-                            button_data.get('url', button.url)
-                            if keyboard_type != 'default'
-                            else None
-                        )
-
-                        update_buttons.append(button)
-                    except (KeyError, MessageKeyboardButton.DoesNotExist):
-                        if keyboard_type != 'default':
-                            button_data['url'] = None
-
-                        create_buttons.append(
-                            MessageKeyboardButton(
-                                keyboard=message.keyboard, **button_data
-                            )
-                        )
-
-                new_buttons: list[MessageKeyboardButton] = (
-                    MessageKeyboardButton.objects.bulk_create(create_buttons)
+                button: MessageKeyboardButton = keyboard.buttons.get(
+                    id=button_data['id']
                 )
-                MessageKeyboardButton.objects.bulk_update(
-                    update_buttons, fields=['row', 'position', 'text', 'url']
+                button.row = button_data.get('row', button.row)
+                button.position = button_data.get('position', button.position)
+                button.text = button_data.get('text', button.text)
+                button.url = (
+                    button_data.get('url', button.url)
+                    if keyboard_type != 'default'
+                    else None
                 )
 
-                if not self.partial:
-                    message.keyboard.buttons.exclude(
-                        id__in=[button.id for button in new_buttons + update_buttons]
-                    ).delete()
-            except MessageKeyboard.DoesNotExist:
-                self.create_keyboard(message, keyboard_data)
-        elif not self.partial:
-            with suppress(MessageKeyboard.DoesNotExist):
-                message.keyboard.delete()
+                update_buttons.append(button)
+            except (KeyError, MessageKeyboardButton.DoesNotExist):
+                if keyboard_type != 'default':
+                    button_data['url'] = None
+
+                create_buttons.append(
+                    MessageKeyboardButton(keyboard=keyboard, **button_data)
+                )
+
+        new_buttons: list[MessageKeyboardButton] = (
+            MessageKeyboardButton.objects.bulk_create(create_buttons)
+        )
+        MessageKeyboardButton.objects.bulk_update(
+            update_buttons, fields=['row', 'position', 'text', 'url']
+        )
+
+        if not self.partial:
+            keyboard.buttons.exclude(
+                id__in=[button.id for button in new_buttons + update_buttons]
+            ).delete()
+
+        return keyboard
 
     def update(self, message: Message, validated_data: dict[str, Any]) -> Message:
+        settings_data: dict[str, Any] | None = validated_data.get('settings')
+        images_data: list[dict[str, Any]] | None = validated_data.get('images')
+        documents_data: list[dict[str, Any]] | None = validated_data.get('documents')
+        keyboard_data: dict[str, Any] | None = validated_data.get('keyboard')
+
         message.name = validated_data.get('name', message.name)
         message.text = validated_data.get('text', message.text)
         message.save(update_fields=['name', 'text'])
 
-        self.update_settings(message, validated_data.get('settings'))
-        self.update_images(message, validated_data.get('images'))
-        self.update_documents(message, validated_data.get('documents'))
-        self.update_keyboard(message, validated_data.get('keyboard'))
-
-        message.refresh_from_db(fields=['keyboard'])
+        self.update_settings(message, settings_data)
+        self.update_images(message, images_data)
+        self.update_documents(message, documents_data)
+        self.update_keyboard(message, keyboard_data)
 
         return message
 
@@ -420,13 +452,7 @@ class DiagramMessageSerializer(DiagramSerializer[Message]):
     keyboard = DiagramMessageKeyboardSerializer(allow_null=True, read_only=True)
     source_connections = ConnectionSerializer(many=True, read_only=True)
 
-    class Meta:
+    class Meta(DiagramSerializer.Meta):
         model = Message
-        fields = [
-            'id',
-            'name',
-            'text',
-            'keyboard',
-            'source_connections',
-        ] + DiagramSerializer.Meta.fields
-        read_only_fields = ['name', 'text']
+        fields = DiagramSerializer.Meta.fields + ['text', 'keyboard']
+        read_only_fields = DiagramSerializer.Meta.read_only_fields + ['text']
