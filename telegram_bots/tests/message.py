@@ -17,7 +17,6 @@ from .mixins import MessageMixin, TelegramBotMixin, UserMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
-import json
 
 
 class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
@@ -99,7 +98,8 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
 
         request = self.factory.post(
             self.list_true_url,
-            {'data': json.dumps({'name': 'Test name', 'text': 'The test message :)'})},
+            {'name': 'Test name', 'text': 'The test message :)'},
+            format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
@@ -109,17 +109,14 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(
             self.list_true_url,
             {
-                'data': json.dumps(
-                    {
-                        'name': 'Test name',
-                        'settings': {
-                            'reply_to_user_message': False,
-                            'delete_user_message': False,
-                            'send_as_new_message': False,
-                        },
-                    }
-                )
+                'name': 'Test name',
+                'settings': {
+                    'reply_to_user_message': False,
+                    'delete_user_message': False,
+                    'send_as_new_message': False,
+                },
             },
+            format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
@@ -129,18 +126,15 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.post(
             self.list_true_url,
             {
-                'data': json.dumps(
-                    {
-                        'name': 'Test name',
-                        'text': 'The test message :)',
-                        'settings': {
-                            'reply_to_user_message': False,
-                            'delete_user_message': False,
-                            'send_as_new_message': False,
-                        },
-                    }
-                )
+                'name': 'Test name',
+                'settings': {
+                    'reply_to_user_message': False,
+                    'delete_user_message': False,
+                    'send_as_new_message': False,
+                },
+                'text': 'The test message :)',
             },
+            format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
@@ -223,7 +217,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         new_name: str = 'Test name 2'
 
         request = self.factory.put(
-            self.detail_true_url, {'data': json.dumps({'name': new_name})}
+            self.detail_true_url, {'name': new_name}, format='json'
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
@@ -235,18 +229,15 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         request = self.factory.put(
             self.detail_true_url,
             {
-                'data': json.dumps(
-                    {
-                        'name': new_name,
-                        'text': 'The test message :)',
-                        'settings': {
-                            'reply_to_user_message': False,
-                            'delete_user_message': False,
-                            'send_as_new_message': False,
-                        },
-                    }
-                )
+                'name': new_name,
+                'settings': {
+                    'reply_to_user_message': False,
+                    'delete_user_message': False,
+                    'send_as_new_message': False,
+                },
+                'text': 'The test message :)',
             },
+            format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
@@ -299,7 +290,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
         new_name: str = 'Test name 2'
 
         request = self.factory.patch(
-            self.detail_true_url, {'data': json.dumps({'name': new_name})}
+            self.detail_true_url, {'name': new_name}, format='json'
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 

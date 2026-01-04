@@ -1,6 +1,7 @@
 from django.db.models import QuerySet
 
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -18,7 +19,7 @@ from .mixins import TelegramBotMixin
 class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
-    parser_classes = [MultiPartJSONParser]
+    parser_classes = [JSONParser, MultiPartJSONParser]
     serializer_class = MessageSerializer
 
     def get_queryset(self) -> QuerySet[Message]:
