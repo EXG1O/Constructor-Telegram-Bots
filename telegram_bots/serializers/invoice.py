@@ -139,7 +139,7 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
             file: UploadedFile | None = data.get('file')
 
             if file and image.file:
-                image.file.delete()
+                image.file.delete(save=False)
 
             image.file = file
             image.from_url = data.get('from_url', image.from_url)
