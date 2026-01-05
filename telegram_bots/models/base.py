@@ -75,14 +75,6 @@ class AbstractMedia(models.Model):
 
         super().save(force_insert, force_update, using, update_fields)
 
-    def delete(
-        self, using: str | None = None, keep_parents: bool = False
-    ) -> tuple[int, dict[str, int]]:
-        if self.file:
-            self.file.delete(save=False)
-
-        return super().delete(using, keep_parents)
-
 
 class AbstractMessageMedia(AbstractMedia):
     position = models.PositiveSmallIntegerField(_('Позиция'))
