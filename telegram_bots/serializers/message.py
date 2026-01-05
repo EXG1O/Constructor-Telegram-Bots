@@ -5,6 +5,8 @@ from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
+from utils.storage import force_get_file_size
+
 from ..models import (
     Message,
     MessageDocument,
@@ -179,15 +181,33 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         documents: list[dict[str, Any]] | None = data.get('documents')
 
         if images or documents:
-            extra_size: int = 0
+            new_media_size: int = sum(
+                file.size or 0
+                for media in (images or []) + (documents or [])
+                if (file := media.get('file')) and isinstance(file, UploadedFile)
+            )
 
-            for media in (images or []) + (documents or []):
-                file: Any | None = media.get('file')
+            if isinstance(self.instance, Message) and not self.partial:
+                existing_media_size: int = sum(
+                    map(
+                        force_get_file_size,  # type: ignore [arg-type]
+                        MessageImage.objects.filter(
+                            message=self.instance, file__isnull=False
+                        )
+                        .values_list('file', flat=True)
+                        .union(
+                            MessageDocument.objects.filter(
+                                message=self.instance, file__isnull=False
+                            ).values_list('file', flat=True)
+                        ),
+                    )
+                )
+                new_media_size -= existing_media_size
 
-                if isinstance(file, UploadedFile):
-                    extra_size += file.size or 0
-
-            if extra_size and self.telegram_bot.remaining_storage_size - extra_size < 0:
+            if (
+                new_media_size
+                and self.telegram_bot.remaining_storage_size - new_media_size < 0
+            ):
                 raise serializers.ValidationError(
                     _('Превышен лимит хранилища.'), code='max_storage_size_limit'
                 )
@@ -317,10 +337,13 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
                 file: UploadedFile | None = item.get('file')
 
-                if file and media.file:
+                if media.file:
                     media.file.delete(save=False)
 
-                media.file = file  # type: ignore [assignment]  # FIXME: The assigned type is correct, but mypy complains.
+                if file:
+                    media.file = file  # type: ignore [assignment]  # FIXME: The assigned type is correct, but mypy complains.
+                    media.file.save(file.name, file, save=False)
+
                 media.from_url = item.get('from_url', media.from_url)
                 update_media.append(media)
             except (KeyError, media_model_class.DoesNotExist):

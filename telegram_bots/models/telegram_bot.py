@@ -1,12 +1,13 @@
 from django.conf import settings
-from django.core.exceptions import SuspiciousFileOperation, ValidationError
-from django.core.files.storage import default_storage
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.base import ModelBase
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
+
+from utils.storage import force_get_file_size
 
 from .. import tasks
 from ..hub.models import TelegramBotsHub
@@ -37,13 +38,6 @@ def validate_api_token(api_token: str) -> None:
         or not requests.get(f'https://api.telegram.org/bot{api_token}/getMe').ok
     ):
         raise ValidationError(_('Этот API-токен является недействительным.'))
-
-
-def _get_file_size(path: str) -> int:
-    try:
-        return default_storage.size(path)
-    except (SuspiciousFileOperation, OSError):
-        return 0
 
 
 class TelegramBot(models.Model):
@@ -96,7 +90,7 @@ class TelegramBot(models.Model):
 
         return sum(
             map(
-                _get_file_size,  # type: ignore [arg-type]
+                force_get_file_size,  # type: ignore [arg-type]
                 MessageImage.objects.filter(
                     message__telegram_bot=self, file__isnull=False
                 )
