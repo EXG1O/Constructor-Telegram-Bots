@@ -6,3 +6,8 @@ class TelegramBotsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'telegram_bots'
     verbose_name = _('Telegram боты')
+
+    def ready(self) -> None:
+        from . import signals
+
+        signals.connect()

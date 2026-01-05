@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -10,10 +9,7 @@ from constructor_telegram_bots.fields import PublicURLField
 from ..enums import KeyboardType
 from .base import AbstractBlock, AbstractMessageMedia, upload_media_path
 
-from contextlib import suppress
-from itertools import chain
-from typing import TYPE_CHECKING, cast
-import os
+from typing import TYPE_CHECKING
 
 
 class MessageSettings(models.Model):
@@ -161,20 +157,6 @@ class Message(AbstractBlock):
         db_table = 'telegram_bot_message'
         verbose_name = _('Сообщение')
         verbose_name_plural = _('Сообщения')
-
-    def delete(
-        self, using: str | None = None, keep_parents: bool = False
-    ) -> tuple[int, dict[str, int]]:
-        for file_path in chain(
-            self.images.exclude(file=None).values_list('file', flat=True),
-            self.documents.exclude(file=None).values_list('file', flat=True),
-        ):
-            file_path = cast(str, file_path)
-
-            with suppress(FileNotFoundError):
-                os.remove(settings.MEDIA_ROOT / file_path)
-
-        return super().delete(using, keep_parents)
 
     def __str__(self) -> str:
         return self.name
