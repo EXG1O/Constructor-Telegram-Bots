@@ -4,7 +4,6 @@ from ..models.base import AbstractBlock, AbstractMedia, AbstractMessageMedia
 from .connection import ConnectionSerializer
 
 from typing import Any, TypeVar
-import os
 
 ABT = TypeVar('ABT', bound=AbstractBlock)
 AMT = TypeVar('AMT', bound=AbstractMedia)
@@ -32,9 +31,11 @@ class DiagramSerializer(serializers.ModelSerializer[ABT]):
 
 
 class MediaSerializer(serializers.ModelSerializer[AMT]):
-    name = serializers.CharField(source='file.name', read_only=True, allow_null=True)
-    size = serializers.IntegerField(source='file.size', read_only=True, allow_null=True)
-    url = serializers.URLField(source='file.url', read_only=True, allow_null=True)
+    name = serializers.CharField(
+        source='get_original_filename', read_only=True, allow_null=True
+    )
+    size = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
 
     class Meta:
         fields = ['file', 'name', 'size', 'url', 'from_url']
@@ -47,19 +48,11 @@ class MediaSerializer(serializers.ModelSerializer[AMT]):
             },
         }
 
-    def process_name(self, base_name: str) -> str:
-        name, ext = os.path.splitext(os.path.basename(base_name))
-        return '_'.join(name.split('_')[:-1]) + ext
+    def get_size(self, media: AMT) -> int | None:
+        return media.file and media.file.size
 
-    def to_representation(self, instance: AMT) -> dict[str, Any]:
-        representation: dict[str, Any] = super().to_representation(instance)
-
-        name: str | None = representation.get('name')
-
-        if name:
-            representation['name'] = self.process_name(name)
-
-        return representation
+    def get_url(self, media: AMT) -> str | None:
+        return media.file and media.file.url
 
 
 class MessageMediaSerializer(MediaSerializer[AMMT]):
