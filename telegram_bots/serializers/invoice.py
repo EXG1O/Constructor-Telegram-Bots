@@ -56,10 +56,7 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
                 ),
             )
 
-        file_size: int | None = None
-
-        if file:
-            file_size = file.size
+        file_size: int | None = file.size if file else None
 
         if file_size and self.telegram_bot.remaining_storage_size - file_size < 0:
             raise serializers.ValidationError(
@@ -136,12 +133,10 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
         try:
             image: InvoiceImage = invoice.image
 
-            file: UploadedFile | None = data.get('file')
-
-            if file and image.file:
+            if image.file:
                 image.file.delete(save=False)
 
-            image.file = file
+            image.file = data.get('file')
             image.from_url = data.get('from_url', image.from_url)
             image.save(update_fields=['file', 'from_url'])
             return image
