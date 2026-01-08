@@ -80,7 +80,7 @@ class UserViewSet(
         timeline_data: dict[datetime.date, int] = {
             item['date']: item['count']
             for item in self.get_queryset()
-            .filter(**{f'{field}__gte': start_date})
+            .filter(**{f'{field}__date__gte': start_date})
             .annotate(date=TruncDate(field))
             .values('date')
             .annotate(count=Count('id'))
