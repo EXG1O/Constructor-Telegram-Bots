@@ -20,5 +20,5 @@ from .models import Token
 
 
 @shared_task
-def check_tokens_expiration_date() -> None:
+def delete_expired_tokens() -> None:
     Token.objects.filter(expiry_date__lt=timezone.now()).delete()

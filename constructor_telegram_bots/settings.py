@@ -68,8 +68,8 @@ CELERY_ACCEPT_CONTENT: Final[list[str]] = ['application/json']
 CELERY_RESULT_SERIALIZER: Final[str] = 'json'
 CELERY_TASK_SERIALIZER: Final[str] = 'json'
 CELERY_BEAT_SCHEDULE: Final[dict[str, dict[str, Any]]] = {
-    'check_tokens_expiration_date_schedule': {
-        'task': 'users.tasks.check_tokens_expiration_date',
+    'delete_expired_tokens_schedule': {
+        'task': 'users.tasks.delete_expired_tokens',
         'schedule': 86400,  # 24h
     },
 }
