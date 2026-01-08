@@ -1,5 +1,7 @@
 from rest_framework import fields, serializers
 
+from utils.deep_merge import deep_merge_data
+
 from ...models import DatabaseRecord
 from ...serializers.mixins import TelegramBotMixin
 
@@ -14,27 +16,15 @@ class DatabaseRecordListSerializer(serializers.ListSerializer[list[DatabaseRecor
     def update(
         self, records: list[DatabaseRecord], validated_data: dict[str, Any]
     ) -> list[DatabaseRecord]:
-        new_data: Any = validated_data['data']
+        new_data: Any | None = validated_data.get('data')
+
+        if new_data is None:
+            return records
 
         for record in records:
-            if self.partial:
-                data: dict[str, Any] | list[Any] = record.data.copy()
-
-                if isinstance(data, dict):
-                    data.update(
-                        new_data
-                        if isinstance(new_data, dict)
-                        else {'new_data': new_data}
-                    )
-                elif isinstance(data, list):
-                    if isinstance(new_data, list):
-                        data.extend(new_data)
-                    else:
-                        data.append(new_data)
-
-                record.data = data
-            else:
-                record.data = new_data
+            record.data = (
+                deep_merge_data(record.data, new_data) if self.partial else new_data
+            )
 
         DatabaseRecord.objects.bulk_update(records, fields=['data'])
 
@@ -62,7 +52,14 @@ class DatabaseRecordSerializer(
     def update(
         self, record: DatabaseRecord, validated_data: dict[str, Any]
     ) -> DatabaseRecord:
-        record.data = validated_data.get('data', record.data)
+        new_data: Any | None = validated_data.get('data')
+
+        if new_data is None:
+            return record
+
+        record.data = (
+            deep_merge_data(record.data, new_data) if self.partial else new_data
+        )
         record.save(update_fields=['data'])
 
         return record
