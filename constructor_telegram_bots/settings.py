@@ -72,6 +72,10 @@ CELERY_BEAT_SCHEDULE: Final[dict[str, dict[str, Any]]] = {
         'task': 'users.tasks.delete_expired_tokens',
         'schedule': 86400,  # 24h
     },
+    'delete_users_not_accepted_terms_schedule': {
+        'task': 'users.tasks.delete_users_not_accepted_terms',
+        'schedule': 86400,  # 24h
+    },
 }
 
 
