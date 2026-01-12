@@ -19,7 +19,7 @@ class DatabaseRecordSerializer(
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if (
             not self.instance
-            and self.telegram_bot.conditions.count() + 1
+            and self.telegram_bot.database_records.count() + 1
             > settings.TELEGRAM_BOT_MAX_DATABASE_RECORDS
         ):
             raise serializers.ValidationError(
