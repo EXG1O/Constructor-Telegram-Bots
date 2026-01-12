@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -105,6 +106,20 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
             self.list_true_url,
             {
                 'name': 'Test name',
+                'url': 'https://127.0.0.1:5432',
+                'method': APIRequestMethod.GET,
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
                 'url': 'https://example.com',
                 'method': APIRequestMethod.GET,
             },
@@ -119,6 +134,29 @@ class APIRequestViewSetTests(APIRequestMixin, TelegramBotMixin, UserMixin, TestC
         self.assertEqual(
             self.telegram_bot.api_requests.count(), old_api_request_count + 1
         )
+
+        APIRequest.objects.bulk_create(
+            APIRequest(
+                telegram_bot=self.telegram_bot,
+                name=f'Test API request #{num}',
+                url='https://example.com',
+            )
+            for num in range(settings.TELEGRAM_BOT_MAX_API_REQUESTS)
+        )
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'url': 'https://example.com',
+                'method': APIRequestMethod.GET,
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = APIRequestViewSet.as_view({'get': 'retrieve'})

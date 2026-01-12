@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -104,6 +105,16 @@ class DatabaseOperationViewSetTests(
 
         request = self.factory.post(
             self.list_true_url,
+            {'name': 'Test name'},
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
             {'name': 'Test name', 'create_operation': {'data': {'key': 'value'}}},
             format='json',
         )
@@ -119,6 +130,23 @@ class DatabaseOperationViewSetTests(
             self.telegram_bot.database_operations.count(),
             old_database_operation_count + 1,
         )
+
+        DatabaseOperation.objects.bulk_create(
+            DatabaseOperation(
+                telegram_bot=self.telegram_bot, name=f'Test database operation #{num}'
+            )
+            for num in range(settings.TELEGRAM_BOT_MAX_DATABASE_OPERATIONS)
+        )
+
+        request = self.factory.post(
+            self.list_true_url,
+            {'name': 'Test name', 'create_operation': {'data': {'key': 'value'}}},
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = DatabaseOperationViewSet.as_view({'get': 'retrieve'})
@@ -256,6 +284,27 @@ class DatabaseOperationViewSetTests(
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         new_name: str = 'New test name'
+
+        request = self.factory.patch(
+            self.detail_true_url,
+            {
+                'name': new_name,
+                'update_operation': {
+                    'overwrite': True,
+                    'lookup_field_name': 'user_id',
+                    'lookup_field_value': '123456789',
+                    'create_if_not_found': False,
+                    'new_data': {'key': 'New value'},
+                },
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(
+            request, telegram_bot_id=self.telegram_bot.id, id=self.database_operation.id
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         request = self.factory.patch(
             self.detail_true_url, {'name': new_name}, format='json'

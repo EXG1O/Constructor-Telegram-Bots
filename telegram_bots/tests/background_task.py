@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -11,6 +12,7 @@ from users.utils.tests import (
     assert_view_requires_terms_acceptance,
 )
 
+from ..enums import BackgroundTaskInterval
 from ..models import BackgroundTask
 from ..views import BackgroundTaskViewSet, DiagramBackgroundTaskViewSet
 from .mixins import BackgroundTaskMixin, TelegramBotMixin, UserMixin
@@ -104,7 +106,17 @@ class BackgroundTaskViewSetTests(
 
         request = self.factory.post(
             self.list_true_url,
-            {'name': 'Test name', 'interval': 1},
+            {'name': 'Test name', 'interval': 0},
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {'name': 'Test name', 'interval': BackgroundTaskInterval.DAY_1},
             format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
@@ -116,6 +128,25 @@ class BackgroundTaskViewSetTests(
         self.assertEqual(
             self.telegram_bot.background_tasks.count(), old_background_task_count + 1
         )
+
+        BackgroundTask.objects.bulk_create(
+            BackgroundTask(
+                telegram_bot=self.telegram_bot,
+                name=f'Test background task #{num}',
+                interval=BackgroundTaskInterval.DAY_1,
+            )
+            for num in range(settings.TELEGRAM_BOT_MAX_BACKGROUND_TASKS)
+        )
+
+        request = self.factory.post(
+            self.list_true_url,
+            {'name': 'Test name', 'interval': BackgroundTaskInterval.DAY_1},
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = BackgroundTaskViewSet.as_view({'get': 'retrieve'})
@@ -192,7 +223,7 @@ class BackgroundTaskViewSetTests(
 
         request = self.factory.put(
             self.detail_true_url,
-            {'name': new_name, 'interval': 1},
+            {'name': new_name, 'interval': BackgroundTaskInterval.DAY_1},
             format='json',
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -119,6 +120,28 @@ class TriggerViewSetTests(TriggerMixin, TelegramBotMixin, UserMixin, TestCase):
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.telegram_bot.triggers.count(), old_trigger_count + 1)
+
+        Trigger.objects.bulk_create(
+            Trigger(telegram_bot=self.telegram_bot, name=f'Test trigger #{num}')
+            for num in range(settings.TELEGRAM_BOT_MAX_TRIGGERS)
+        )
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'command': {
+                    'command': 'start',
+                    'payload': None,
+                    'description': None,
+                },
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = TriggerViewSet.as_view({'get': 'retrieve'})

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -97,7 +98,32 @@ class VariableViewSetTests(VariableMixin, TelegramBotMixin, UserMixin, TestCase)
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'value': 'The test value :)',
+                'description': 'The test variable',
+            },
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
         old_variable_count: int = self.telegram_bot.variables.count()
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(self.telegram_bot.variables.count(), old_variable_count + 1)
+
+        Variable.objects.bulk_create(
+            Variable(
+                telegram_bot=self.telegram_bot,
+                name=f'Test variable #{num}',
+                value=str(num),
+                description=f'The test variable #{num}',
+            )
+            for num in range(settings.TELEGRAM_BOT_MAX_VARIABLES)
+        )
 
         request = self.factory.post(
             self.list_true_url,
@@ -110,9 +136,7 @@ class VariableViewSetTests(VariableMixin, TelegramBotMixin, UserMixin, TestCase)
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        self.assertEqual(self.telegram_bot.variables.count(), old_variable_count + 1)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = VariableViewSet.as_view({'get': 'retrieve'})

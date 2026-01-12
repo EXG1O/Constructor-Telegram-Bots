@@ -114,6 +114,21 @@ class InvoiceViewSetTests(InvoiceMixin, TelegramBotMixin, UserMixin, TestCase):
                 'name': 'Test name',
                 'title': 'Test title',
                 'description': '...',
+                'prices': [],
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'title': 'Test title',
+                'description': '...',
                 'prices': [
                     {'label': f'Test price #{num}', 'amount': 1}
                     for num in range(settings.TELEGRAM_BOT_MAX_INVOICE_PRICES + 1)

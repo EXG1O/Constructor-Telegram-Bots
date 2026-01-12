@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -96,12 +97,22 @@ class DatabaseRecordViewSetTests(
         response = view(request, telegram_bot_id=0)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        old_database_record_count: int = self.telegram_bot.database_records.count()
+        request = self.factory.post(
+            self.list_true_url,
+            {'data': 'Constructor Telegram Bots is the best service <3'},
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         request = self.factory.post(
             self.list_true_url, {'data': {'key': 'value'}}, format='json'
         )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        old_database_record_count: int = self.telegram_bot.database_records.count()
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -109,6 +120,19 @@ class DatabaseRecordViewSetTests(
         self.assertEqual(
             self.telegram_bot.database_records.count(), old_database_record_count + 1
         )
+
+        DatabaseRecord.objects.bulk_create(
+            DatabaseRecord(telegram_bot=self.telegram_bot, data={'num': str(num)})
+            for num in range(settings.TELEGRAM_BOT_MAX_DATABASE_RECORDS)
+        )
+
+        request = self.factory.post(
+            self.list_true_url, {'data': {'key': 'value'}}, format='json'
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = DatabaseRecordViewSet.as_view({'get': 'retrieve'})
