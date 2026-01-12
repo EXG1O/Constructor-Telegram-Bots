@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -132,6 +133,52 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
                     'delete_user_message': False,
                     'send_as_new_message': False,
                 },
+                'keyboard': {
+                    'buttons': [{'row': 0, 'position': 0, 'text': 'Test button text'}]
+                },
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'settings': {
+                    'reply_to_user_message': False,
+                    'delete_user_message': False,
+                    'send_as_new_message': False,
+                },
+                'keyboard': {
+                    'buttons': [
+                        {'row': 0, 'position': num, 'text': f'Test button text #{num}'}
+                        for num in range(
+                            settings.TELEGRAM_BOT_MAX_MESSAGE_KEYBOARD_BUTTONS + 1
+                        )
+                    ]
+                },
+                'text': 'The test message :)',
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'settings': {
+                    'reply_to_user_message': False,
+                    'delete_user_message': False,
+                    'send_as_new_message': False,
+                },
                 'text': 'The test message :)',
             },
             format='json',
@@ -144,6 +191,33 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.telegram_bot.messages.count(), old_message_count + 1)
+
+        Message.objects.bulk_create(
+            Message(
+                telegram_bot=self.telegram_bot,
+                name=f'Test message #{num}',
+                text='The test message text',
+            )
+            for num in range(settings.TELEGRAM_BOT_MAX_MESSAGES)
+        )
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'settings': {
+                    'reply_to_user_message': False,
+                    'delete_user_message': False,
+                    'send_as_new_message': False,
+                },
+                'text': 'The test message text :)',
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = MessageViewSet.as_view({'get': 'retrieve'})
@@ -235,7 +309,7 @@ class MessageViewSetTests(MessageMixin, TelegramBotMixin, UserMixin, TestCase):
                     'delete_user_message': False,
                     'send_as_new_message': False,
                 },
-                'text': 'The test message :)',
+                'text': 'The test message text :)',
             },
             format='json',
         )

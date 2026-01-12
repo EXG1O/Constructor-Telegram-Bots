@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -11,6 +12,11 @@ from users.utils.tests import (
     assert_view_requires_terms_acceptance,
 )
 
+from ..enums import (
+    ConditionPartNextPartOperator,
+    ConditionPartOperatorType,
+    ConditionPartType,
+)
 from ..models import Condition
 from ..views import ConditionViewSet, DiagramConditionViewSet
 from .mixins import ConditionMixin, TelegramBotMixin, UserMixin
@@ -99,13 +105,45 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
 
         request = self.factory.post(
             self.list_true_url,
+            {'name': 'Test name', 'parts': []},
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
             {
                 'name': 'Test name',
                 'parts': [
                     {
-                        'type': '+',
+                        'type': ConditionPartType.POSITIVE,
+                        'first_value': str(num),
+                        'operator': ConditionPartOperatorType.EQUAL,
+                        'second_value': str(num),
+                        'next_part_operator': ConditionPartNextPartOperator.OR,
+                    }
+                    for num in range(settings.TELEGRAM_BOT_MAX_CONDITION_PARTS + 1)
+                ],
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'parts': [
+                    {
+                        'type': ConditionPartType.POSITIVE,
                         'first_value': 'first_value',
-                        'operator': '==',
+                        'operator': ConditionPartOperatorType.EQUAL,
                         'second_value': 'second_value',
                     }
                 ],
@@ -119,6 +157,31 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
         response = view(request, telegram_bot_id=self.telegram_bot.id)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.telegram_bot.conditions.count(), old_condition_count + 1)
+
+        Condition.objects.bulk_create(
+            Condition(telegram_bot=self.telegram_bot, name=f'Test condition #{num}')
+            for num in range(settings.TELEGRAM_BOT_MAX_CONDITIONS)
+        )
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': 'Test name',
+                'parts': [
+                    {
+                        'type': ConditionPartType.POSITIVE,
+                        'first_value': 'first_value',
+                        'operator': ConditionPartOperatorType.EQUAL,
+                        'second_value': 'second_value',
+                    }
+                ],
+            },
+            format='json',
+        )
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve(self) -> None:
         view = ConditionViewSet.as_view({'get': 'retrieve'})
@@ -189,9 +252,9 @@ class ConditionViewSetTests(ConditionMixin, TelegramBotMixin, UserMixin, TestCas
                 'name': new_name,
                 'parts': [
                     {
-                        'type': '+',
+                        'type': ConditionPartType.POSITIVE,
                         'first_value': 'first_value',
-                        'operator': '==',
+                        'operator': ConditionPartOperatorType.EQUAL,
                         'second_value': 'second_value',
                     }
                 ],
