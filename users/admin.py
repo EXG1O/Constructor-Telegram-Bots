@@ -11,13 +11,21 @@ from .models import User
 class UserAdmin(admin.ModelAdmin[User]):
     date_hierarchy = 'joined_date'
     search_fields = ['telegram_id', 'first_name', 'last_name']
-    list_filter = ['is_staff', 'last_login', 'joined_date']
+    list_filter = [
+        'accepted_terms',
+        'terms_accepted_date',
+        'is_staff',
+        'last_login',
+        'joined_date',
+    ]
     list_display = [
         'id',
         'telegram_id',
         'first_name',
         'last_name',
         'telegram_bot_count',
+        'terms_accepted_date',
+        'accepted_terms',
         'is_staff',
         'last_login',
         'joined_date',
@@ -29,6 +37,8 @@ class UserAdmin(admin.ModelAdmin[User]):
         'last_name',
         'telegram_bot_count',
         'groups',
+        'accepted_terms',
+        'terms_accepted_date',
         'is_staff',
         'last_login',
         'joined_date',
@@ -39,6 +49,8 @@ class UserAdmin(admin.ModelAdmin[User]):
         'first_name',
         'last_name',
         'telegram_bot_count',
+        'accepted_terms',
+        'terms_accepted_date',
         'last_login',
         'joined_date',
     ]
