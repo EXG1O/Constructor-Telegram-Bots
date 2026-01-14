@@ -19,7 +19,7 @@ MEDIA_DATA_FIELD_PATTERN: re.Pattern[str] = re.compile(
 class MultiPartJSONParser(MultiPartParser):
     """Parser for JSON data in multipart form data with support for files and their data."""
 
-    def parse_json(self, field: str, value: str) -> dict[str, Any]:
+    def _parse_json(self, field: str, value: str) -> dict[str, Any]:
         try:
             return json.loads(value)
         except JSONDecodeError as error:
@@ -36,7 +36,7 @@ class MultiPartJSONParser(MultiPartParser):
         )
 
         result: dict[str, Any] = (
-            self.parse_json('data', raw_data)
+            self._parse_json('data', raw_data)
             if (raw_data := multipart.data.get('data'))
             else {}
         )
@@ -52,7 +52,7 @@ class MultiPartJSONParser(MultiPartParser):
 
             name, index = match.group('name', 'index')
 
-            media_data: dict[str, Any] = self.parse_json(key, value)
+            media_data: dict[str, Any] = self._parse_json(key, value)
             media_data['file'] = multipart.files.get(
                 f'{name}:{index}' if index else name
             )
