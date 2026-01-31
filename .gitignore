@@ -1,16 +1,10 @@
-# Папки
 __pycache__/
-node_modules/
 .vscode/
 /static/
 media/
 logs/
 env/
-dist/
-
-# Файлы
 celerybeat-schedule
 .coverage
 .env
-*.db
 *.mo
