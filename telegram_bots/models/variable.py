@@ -3,6 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_stubs_ext.db.models import TypedModelMeta
 
+from constructor_telegram_bots.validators import validate_no_special_chars
+
 
 class Variable(models.Model):
     telegram_bot = models.ForeignKey(
@@ -11,7 +13,9 @@ class Variable(models.Model):
         related_name='variables',
         verbose_name=_('Telegram бот'),
     )
-    name = models.CharField(_('Название'), max_length=64)
+    name = models.CharField(
+        _('Название'), max_length=64, validators=[validate_no_special_chars]
+    )
     value = models.TextField(_('Значение'), max_length=2048)
     description = models.CharField(_('Описание'), max_length=255)
 
