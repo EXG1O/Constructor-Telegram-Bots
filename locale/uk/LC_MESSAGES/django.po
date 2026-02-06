@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 20:04+0000\n"
+"POT-Creation-Date: 2026-02-06 20:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,10 +21,10 @@ msgstr ""
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: constructor_telegram_bots/parsers.py:18
+#: constructor_telegram_bots/parsers.py:27
 #, python-format
-msgid "Не удалось проанализировать JSON данные для ключа '%(key)s'."
-msgstr "Не вдалося проаналізувати JSON дані для ключа '%(key)s'."
+msgid "Не удалось проанализировать JSON данные для поля '%(field)s'."
+msgstr "Не вдалося проаналізувати JSON дані для поля '%(field)s'."
 
 #: constructor_telegram_bots/settings.py:177
 msgid "Английский"
