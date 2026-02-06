@@ -18,6 +18,7 @@ from .mixins import TelegramBotMixin, UserMixin, VariableMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING
+import string
 
 
 class VariableViewSetTests(VariableMixin, TelegramBotMixin, UserMixin, TestCase):
@@ -93,6 +94,19 @@ class VariableViewSetTests(VariableMixin, TelegramBotMixin, UserMixin, TestCase)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         request = self.factory.post(self.list_true_url)
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
+
+        response = view(request, telegram_bot_id=self.telegram_bot.id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.post(
+            self.list_true_url,
+            {
+                'name': f'Test name with special chars: {string.punctuation}',
+                'value': 'The test value :)',
+                'description': 'The test variable with special chars',
+            },
+        )
         force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request, telegram_bot_id=self.telegram_bot.id)

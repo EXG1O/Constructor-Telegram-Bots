@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxLengthValidator, URLValidator
+from django.core.validators import MaxLengthValidator, RegexValidator, URLValidator
 from django.db.models import JSONField
 from django.utils.deconstruct import deconstructible
+from django.utils.translation import gettext_lazy as _
 
 from collections.abc import Callable
 from ipaddress import (
@@ -68,3 +69,8 @@ class StrictJSONValidator:
             raise ValidationError(self.message, code=self.code)
 
         self.validate_max_length(json.dumps(value))
+
+
+validate_no_special_chars = RegexValidator(
+    regex=r'^[\w ]+$', message=_('Разрешены только буквы, цифры, пробел и _.')
+)
