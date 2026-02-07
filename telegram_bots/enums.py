@@ -1,6 +1,13 @@
 from django.db.models import IntegerChoices, TextChoices
 from django.utils.translation import gettext_lazy as _
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.utils.functional import _StrPromise
+else:
+    _StrPromise = str
+
 
 class APIRequestMethod(TextChoices):
     GET = 'get', 'GET'
@@ -29,7 +36,7 @@ class ConnectionObjectType(TextChoices):
     INVOICE = 'invoice', _('Счёт')
 
     @staticmethod
-    def source_choices() -> list[tuple[str, str]]:
+    def source_choices() -> list[tuple[str, _StrPromise]]:
         return [
             (item.value, item.label)
             for item in [
@@ -45,7 +52,7 @@ class ConnectionObjectType(TextChoices):
         ]
 
     @staticmethod
-    def target_choices() -> list[tuple[str, str]]:
+    def target_choices() -> list[tuple[str, _StrPromise]]:
         return [
             (item.value, item.label)
             for item in [

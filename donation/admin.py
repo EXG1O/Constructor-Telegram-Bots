@@ -21,10 +21,7 @@ class DonationAdmin(admin.ModelAdmin[Donation]):
 
 
 @admin.register(Section)
-class SectionAdmin(
-    SortableAdminMixin,
-    TranslationAdmin,  # FIXME: Need to add generics support
-):
+class SectionAdmin(SortableAdminMixin, TranslationAdmin[Section]):
     list_display = ['title', 'position']
     fields = ['title', 'text']
 
