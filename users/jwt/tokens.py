@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import cached_property
 
-import jwt
+from jwt.api_jwt import _jwt_global_obj
 
 from ..enums import TokenType
 from ..models import BlacklistedToken, Token, User
@@ -103,28 +103,33 @@ class BaseToken(ABC, Generic[PT]):
         if 'sub' in self.require_claims:
             self._validate_subject(payload)
 
-        jwt.api_jwt._jwt_global_obj._validate_claims(
+        _jwt_global_obj._validate_claims(
             payload,
-            options={
-                'require': self.require_claims,
-                'verify_nbf': 'nbf' in self.require_claims,
-                'verify_aud': 'aud' in self.require_claims,
-                'verify_iss': 'iss' in self.require_claims,
-                'verify_exp': 'exp' in self.require_claims,
-                'verify_iat': 'iat' in self.require_claims,
-            },
+            options=_jwt_global_obj._merge_options(
+                {
+                    'require': self.require_claims,
+                    'verify_nbf': 'nbf' in self.require_claims,
+                    'verify_aud': 'aud' in self.require_claims,
+                    'verify_iss': 'iss' in self.require_claims,
+                    'verify_exp': 'exp' in self.require_claims,
+                    'verify_iat': 'iat' in self.require_claims,
+                    'verify_jti': 'jti' in self.require_claims,
+                    'verify_sub': False,  # We use our own subject validation.
+                }
+            ),
         )
 
     def encode(self) -> str:
         payload: dict[str, Any] = self.payload.to_dict()
-
         self.validate(payload)
 
-        return jwt.encode(payload, settings.SECRET_KEY)
+        return _jwt_global_obj.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
     def decode(self, token: str) -> PT:
-        payload: dict[str, Any] = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=['HS256']
+        payload: dict[str, Any] = _jwt_global_obj._decode_payload(
+            _jwt_global_obj._jws.decode_complete(
+                token, settings.SECRET_KEY, algorithms=['HS256']
+            )
         )
         self.validate(payload)
 
