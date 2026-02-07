@@ -95,7 +95,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
             if queryset:
                 with suppress(KeyError, media_model_class.DoesNotExist):
-                    media: AbstractMessageMedia = queryset.get(id=item['id'])
+                    media: AbstractMessageMedia = queryset.get(id=item['id'])  # type: ignore [misc]
 
                     if not has_file:
                         has_file = bool(media.file)
@@ -341,7 +341,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                     media.file.delete(save=False)
 
                 if file:
-                    media.file = file  # type: ignore [assignment]  # FIXME: The assigned type is correct, but mypy complains.
+                    media.file = file
                     media.file.save(file.name, file, save=False)
 
                 media.from_url = item.get('from_url', media.from_url)

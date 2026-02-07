@@ -47,7 +47,7 @@ def upload_media_path(instance: 'AbstractMedia', file_name: str) -> str:
 class AbstractMedia(models.Model):
     if TYPE_CHECKING:
         related_name: str
-        file: models.FileField | None
+        file: models.FileField
 
     from_url = PublicURLField(_('Из URL-адреса'), blank=True, null=True)
 
@@ -63,6 +63,7 @@ class AbstractMedia(models.Model):
 
     def save(
         self,
+        *,
         force_insert: bool | tuple[ModelBase, ...] = False,
         force_update: bool = False,
         using: str | None = None,
@@ -73,7 +74,12 @@ class AbstractMedia(models.Model):
                 "Only one of the fields 'file' or 'from_url' should be specified."
             )
 
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
 
 class AbstractMessageMedia(AbstractMedia):

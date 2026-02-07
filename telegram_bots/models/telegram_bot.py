@@ -167,7 +167,7 @@ class TelegramBot(models.Model):
         telegram_bot._loaded_values = dict(
             zip(
                 field_names,
-                (value for value in values if value is not models.DEFERRED),  # type: ignore [attr-defined]
+                (value for value in values if value is not models.DEFERRED),
                 strict=False,
             )
         )
@@ -176,6 +176,7 @@ class TelegramBot(models.Model):
 
     def save(
         self,
+        *,
         force_insert: bool | tuple[ModelBase, ...] = False,
         force_update: bool = False,
         using: str | None = None,
@@ -195,7 +196,12 @@ class TelegramBot(models.Model):
                     else should_update_fields
                 )
 
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     def delete(
         self, using: str | None = None, keep_parents: bool = False

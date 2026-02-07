@@ -17,7 +17,12 @@ from ..models import (
 )
 from .mixins import TelegramBotMixin
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from django.utils.functional import _StrPromise
+else:
+    _StrPromise = str
 
 
 class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connection]):
@@ -103,10 +108,10 @@ class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connect
         source_object_type: str = data.pop('source_object_type')
         target_object_type: str = data.pop('target_object_type')
 
-        allowed_source_object_types: dict[str, str] = dict(
+        allowed_source_object_types: dict[str, _StrPromise] = dict(
             ConnectionObjectType.source_choices()
         )
-        allowed_target_object_types: dict[str, str] = dict(
+        allowed_target_object_types: dict[str, _StrPromise] = dict(
             ConnectionObjectType.target_choices()
         )
 
