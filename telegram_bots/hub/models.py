@@ -49,6 +49,9 @@ class TelegramBotsHub(models.Model):
         verbose_name = _('Центр')
         verbose_name_plural = _('Центра')
 
+    def __str__(self) -> str:
+        return self.url
+
     @cached_property
     def api(self) -> API:
         return API(self.url, self.microservice_token)
@@ -61,6 +64,3 @@ class TelegramBotsHub(models.Model):
             return telegram_bot_modal.objects.all()
 
         return telegram_bot_modal.objects.filter(id__in=self.api.get_telegram_bot_ids())
-
-    def __str__(self) -> str:
-        return self.url

@@ -45,7 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def full_name(self) -> str:
-        return f"{self.first_name} {self.last_name or ''}".strip()
+        return f'{self.first_name} {self.last_name or ""}'.strip()
 
     def __str__(self) -> str:
         return f'Telegram ID: {self.telegram_id}'
@@ -73,6 +73,9 @@ class Token(models.Model):
         verbose_name = _('Токен')
         verbose_name_plural = _('Токены')
 
+    def __str__(self) -> str:
+        return self.jti
+
 
 class BlacklistedToken(models.Model):
     token = models.OneToOneField(
@@ -87,3 +90,6 @@ class BlacklistedToken(models.Model):
         db_table = 'user_blacklisted_token'
         verbose_name = _('Токен в чёрном списке')
         verbose_name_plural = _('Токены в чёрном списке')
+
+    def __str__(self) -> str:
+        return self.token.jti

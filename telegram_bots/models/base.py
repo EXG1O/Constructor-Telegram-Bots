@@ -54,13 +54,6 @@ class AbstractMedia(models.Model):
     class Meta(TypedModelMeta):
         abstract = True
 
-    def get_original_filename(self) -> str | None:
-        if not self.file:
-            return None
-
-        name, ext = os.path.splitext(os.path.basename(self.file.name))
-        return '_'.join(name.split('_')[:-1]) + ext
-
     def save(
         self,
         *,
@@ -80,6 +73,13 @@ class AbstractMedia(models.Model):
             using=using,
             update_fields=update_fields,
         )
+
+    def get_original_filename(self) -> str | None:
+        if not self.file:
+            return None
+
+        name, ext = os.path.splitext(os.path.basename(self.file.name))
+        return '_'.join(name.split('_')[:-1]) + ext
 
 
 class AbstractMessageMedia(AbstractMedia):

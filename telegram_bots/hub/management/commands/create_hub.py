@@ -22,4 +22,4 @@ class Command(BaseCommand):
         hub.save()
 
         self.stdout.write(f'Token for microservice authorization: {service_token}')
-        self.stdout.write(f"{'Microservice token:':37} {microservice_token}")
+        self.stdout.write(f'{"Microservice token:":37} {microservice_token}')

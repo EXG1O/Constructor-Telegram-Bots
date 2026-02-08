@@ -24,7 +24,7 @@ class DatabaseRecordFilter(FilterSet):
     def filter_has_data_path(
         self, queryset: QuerySet[DatabaseRecord], name: str, value: str
     ) -> QuerySet[DatabaseRecord]:
-        return queryset.filter(**{f"{name}__{value.replace('.', '__')}__isnull": False})
+        return queryset.filter(**{f'{name}__{value.replace(".", "__")}__isnull': False})
 
     class Meta:
         model = DatabaseRecord

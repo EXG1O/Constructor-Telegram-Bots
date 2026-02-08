@@ -97,9 +97,9 @@ class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connect
                 code='not_found',
             ) from error
 
-    def get_object_type(self, object: Model) -> str:
+    def get_object_type(self, obj: Model) -> str:
         for object_type, config in self._object_type_map.items():
-            if isinstance(object, config['model']):
+            if isinstance(obj, config['model']):
                 return object_type
 
         raise ValueError('Unknown object.')

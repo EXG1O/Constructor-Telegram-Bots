@@ -53,7 +53,7 @@ def start_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
 @execute_task
 def restart_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
     if not telegram_bot.hub:
-        return None
+        return
 
     telegram_bot.hub.api.restart_telegram_bot(telegram_bot.id)
 
@@ -62,7 +62,7 @@ def restart_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> Non
 @execute_task
 def stop_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
     if not telegram_bot.hub:
-        return None
+        return
 
     telegram_bot.hub.api.stop_telegram_bot(telegram_bot.id)
 
