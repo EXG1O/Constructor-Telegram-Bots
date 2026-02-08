@@ -84,6 +84,61 @@ class TelegramBot(models.Model):
         verbose_name = _('Telegram бота')
         verbose_name_plural = _('Telegram боты')
 
+    def __str__(self) -> str:
+        return f'@{self.username}'
+
+    def save(
+        self,
+        *,
+        force_insert: bool | tuple[ModelBase, ...] = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
+        if not settings.TEST and (
+            self._state.adding or self.api_token != self._loaded_values['api_token']
+        ):
+            self.update_username()
+
+            if not self._state.adding and self.is_enabled:
+                self.restart(save=False)
+                should_update_fields: list[str] = ['must_be_enabled', 'is_loading']
+                update_fields = (
+                    (list(update_fields) + should_update_fields)
+                    if update_fields
+                    else should_update_fields
+                )
+
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
+
+    def delete(
+        self, using: str | None = None, keep_parents: bool = False
+    ) -> tuple[int, dict[str, int]]:
+        if not settings.TEST and not self._state.adding and self.is_enabled:
+            self.stop(save=False)
+
+        return super().delete(using, keep_parents)
+
+    @classmethod
+    def from_db(
+        cls, db: str | None, field_names: Collection[str], values: Collection[Any]
+    ) -> 'TelegramBot':
+        telegram_bot: TelegramBot = super().from_db(db, field_names, values)
+        telegram_bot._loaded_values = dict(
+            zip(
+                field_names,
+                (value for value in values if value is not models.DEFERRED),
+                strict=False,
+            )
+        )
+
+        return telegram_bot
+
     @cached_property
     def used_storage_size(self) -> int:
         """The property is cached, because it make heavy query to database."""
@@ -146,7 +201,7 @@ class TelegramBot(models.Model):
 
     def update_username(self) -> None:
         if settings.TEST:
-            self.username = f"{self.api_token.split(':')[0]}_test_telegram_bot"
+            self.username = f'{self.api_token.split(":")[0]}_test_telegram_bot'
             return
 
         response: Response = requests.get(
@@ -158,58 +213,3 @@ class TelegramBot(models.Model):
 
         with suppress(KeyError):
             self.username = response.json()['result']['username']
-
-    @classmethod
-    def from_db(
-        cls, db: str | None, field_names: Collection[str], values: Collection[Any]
-    ) -> 'TelegramBot':
-        telegram_bot: TelegramBot = super().from_db(db, field_names, values)
-        telegram_bot._loaded_values = dict(
-            zip(
-                field_names,
-                (value for value in values if value is not models.DEFERRED),
-                strict=False,
-            )
-        )
-
-        return telegram_bot
-
-    def save(
-        self,
-        *,
-        force_insert: bool | tuple[ModelBase, ...] = False,
-        force_update: bool = False,
-        using: str | None = None,
-        update_fields: Iterable[str] | None = None,
-    ) -> None:
-        if not settings.TEST and (
-            self._state.adding or self.api_token != self._loaded_values['api_token']
-        ):
-            self.update_username()
-
-            if not self._state.adding and self.is_enabled:
-                self.restart(save=False)
-                should_update_fields: list[str] = ['must_be_enabled', 'is_loading']
-                update_fields = (
-                    (list(update_fields) + should_update_fields)
-                    if update_fields
-                    else should_update_fields
-                )
-
-        super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
-
-    def delete(
-        self, using: str | None = None, keep_parents: bool = False
-    ) -> tuple[int, dict[str, int]]:
-        if not settings.TEST and not self._state.adding and self.is_enabled:
-            self.stop(save=False)
-
-        return super().delete(using, keep_parents)
-
-    def __str__(self) -> str:
-        return f'@{self.username}'

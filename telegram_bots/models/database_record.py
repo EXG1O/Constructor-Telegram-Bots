@@ -23,4 +23,4 @@ class DatabaseRecord(models.Model):
         verbose_name_plural = _('Записи в БД')
 
     def __str__(self) -> str:
-        return f"{self.telegram_bot.username} | {getattr(self, 'id', 'NULL')}"
+        return f'{self.telegram_bot.username} | {getattr(self, "id", "NULL")}'

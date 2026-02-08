@@ -46,3 +46,9 @@ class Connection(models.Model):
         ]
         verbose_name = _('Подключение')
         verbose_name_plural = _('Подключения')
+
+    def __str__(self) -> str:
+        return (
+            f'{self.source_content_type}:{self.source_object_id} -> '
+            f'{self.target_content_type}:{self.target_object_id}'
+        )

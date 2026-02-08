@@ -47,9 +47,9 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
         ConnectionObjectType.INVOICE: Invoice,
     }
 
-    def get_object_type(self, object: Model) -> str:
+    def get_object_type(self, obj: Model) -> str:
         for object_type, model_class in self._object_type_map.items():
-            if isinstance(object, model_class):
+            if isinstance(obj, model_class):
                 return object_type
 
         raise ValueError('Unknown object.')
