@@ -35,7 +35,7 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         has_command: bool = bool(data.get('command'))
         has_message: bool = bool(data.get('message'))
 
-        if isinstance(self.instance, Trigger) and self.partial:
+        if self.instance and self.partial:
             if not has_command:
                 with suppress(TriggerCommand.DoesNotExist):
                     has_command = bool(self.instance.command)

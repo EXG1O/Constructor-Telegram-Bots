@@ -172,6 +172,8 @@ dependencies = [
     { name = "pyjwt" },
     { name = "python-dotenv" },
     { name = "redis" },
+    { name = "requests" },
+    { name = "urllib3" },
     { name = "yarl" },
 ]
 
@@ -182,6 +184,7 @@ dev = [
     { name = "djangorestframework-stubs" },
     { name = "mypy" },
     { name = "ruff" },
+    { name = "types-requests" },
 ]
 migrations = [
     { name = "html2text" },
@@ -195,14 +198,16 @@ requires-dist = [
     { name = "django-filter", specifier = ">=25,<26" },
     { name = "django-modeltranslation", specifier = ">=0.19,<0.20" },
     { name = "django-stubs-ext", specifier = ">=5.2,<5.3" },
-    { name = "djangorestframework", specifier = "==3.15.1" },
-    { name = "drf-standardized-errors", specifier = "==0.13.0" },
+    { name = "djangorestframework", specifier = ">=3.16,<3.17" },
+    { name = "drf-standardized-errors", specifier = ">=0.15,<0.16" },
     { name = "gunicorn", specifier = "==21.2.0" },
     { name = "pillow", specifier = "==11.0.0" },
     { name = "psycopg", specifier = "==3.1.18" },
     { name = "pyjwt", specifier = ">=2.11,<2.12" },
     { name = "python-dotenv", specifier = "==1.0.1" },
     { name = "redis", specifier = "==5.0.3" },
+    { name = "requests", specifier = ">=2.32,<2.33" },
+    { name = "urllib3", specifier = ">=2.6,<2.7" },
     { name = "yarl", specifier = "==1.9.4" },
 ]
 
@@ -210,9 +215,10 @@ requires-dist = [
 dev = [
     { name = "django-silk", specifier = ">=5,<6" },
     { name = "django-stubs", specifier = ">=5.2,<5.3" },
-    { name = "djangorestframework-stubs", specifier = "==3.15.0" },
+    { name = "djangorestframework-stubs", specifier = ">=3.16,<3.17" },
     { name = "mypy", specifier = ">=1.19,<1.20" },
     { name = "ruff", specifier = ">=0.15,<0.16" },
+    { name = "types-requests", specifier = ">=2.32,<2.33" },
 ]
 migrations = [{ name = "html2text", specifier = "==2024.2.26" }]
 
@@ -311,43 +317,41 @@ wheels = [
 
 [[package]]
 name = "djangorestframework"
-version = "3.15.1"
+version = "3.16.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ec/60/cc2dd985400293fe7bf3fa1b9a5d61f5b44200c33f7d31952f2c9fd79e8a/djangorestframework-3.15.1.tar.gz", hash = "sha256:f88fad74183dfc7144b2756d0d2ac716ea5b4c7c9840995ac3bfd8ec034333c1", size = 1066194, upload-time = "2024-03-22T15:50:51.875Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8a/95/5376fe618646fde6899b3cdc85fd959716bb67542e273a76a80d9f326f27/djangorestframework-3.16.1.tar.gz", hash = "sha256:166809528b1aced0a17dc66c24492af18049f2c9420dbd0be29422029cfc3ff7", size = 1089735, upload-time = "2025-08-06T17:50:53.251Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/7e/8c45ea7f85dd5d52ceddbacc6f56ecaca21ecbfc0e8c34c95618a14d5082/djangorestframework-3.15.1-py3-none-any.whl", hash = "sha256:3ccc0475bce968608cf30d07fb17d8e52d1d7fc8bfe779c905463200750cbca6", size = 1067096, upload-time = "2024-03-22T15:50:48.759Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/ce/bf8b9d3f415be4ac5588545b5fcdbbb841977db1c1d923f7568eeabe1689/djangorestframework-3.16.1-py3-none-any.whl", hash = "sha256:33a59f47fb9c85ede792cbf88bde71893bcda0667bc573f784649521f1102cec", size = 1080442, upload-time = "2025-08-06T17:50:50.667Z" },
 ]
 
 [[package]]
 name = "djangorestframework-stubs"
-version = "3.15.0"
+version = "3.16.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django-stubs" },
-    { name = "requests" },
     { name = "types-pyyaml" },
-    { name = "types-requests" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/05/c5/513fcf0721663b70c881b7a3a4dc8bbc9965a227e2eab69f2ba94de36896/djangorestframework_stubs-3.15.0.tar.gz", hash = "sha256:f60ee1c80abb01a77acc0169969e07c45c2739ae64667b9a0dd4a2e32697dcab", size = 34716, upload-time = "2024-04-30T19:56:40.063Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/d5/87166a827833eb39703856ef957ca0fb4e9d15285331251186a2e738c20c/djangorestframework_stubs-3.16.8.tar.gz", hash = "sha256:f6d464b54fa2f929610e957446c04e6ac29558265418e0a2d9f653a4cdd410b5", size = 32312, upload-time = "2026-02-03T22:35:53.182Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/86/87c9218a3ad616016d93da0f0cc1c57a7c973756cca5c7dffcc8b6be2a16/djangorestframework_stubs-3.15.0-py3-none-any.whl", hash = "sha256:6c634f16fe1f9b1654cfd921eca64cd4188ce8534ab5e3ec7e44aaa0ca969d93", size = 53982, upload-time = "2024-04-30T19:56:37.653Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/e9/d9c363b08d07d975c21793fe821b2020dfd3627ac4ce19c5c12df94ce9d0/djangorestframework_stubs-3.16.8-py3-none-any.whl", hash = "sha256:c5bf61def0f330a071dd5f470f05710189d06c467b3f3e186b32c5a23d4952fb", size = 56517, upload-time = "2026-02-03T22:35:50.67Z" },
 ]
 
 [[package]]
 name = "drf-standardized-errors"
-version = "0.13.0"
+version = "0.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "djangorestframework" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/6a/49ad0e30360d59f39a23742b2e56c4ecc268e19410a117df3fd990c7aafc/drf_standardized_errors-0.13.0.tar.gz", hash = "sha256:f18b2b7f40c9f04f9023bb5f74fb451462cb50d1484ea2ebb94f3774d14993bf", size = 57567, upload-time = "2024-02-28T19:22:36.787Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/5d/9301be05081261cebdc000f9fbad51dc2b2732f9decd8da693f7c2daae29/drf_standardized_errors-0.15.0.tar.gz", hash = "sha256:83112d072e751eb444c2f16ab4618273b912cffc07f12b81998060fdfa2eb655", size = 60729, upload-time = "2025-06-09T07:47:56.933Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/97/af7498d7ea9b9fe890b93c4f93ce21f3c19eb14bd1ec35d8a95c8f49c09e/drf_standardized_errors-0.13.0-py3-none-any.whl", hash = "sha256:ee6513f1e289f02a62ed447fee2608dab12b5687817c9bcb429587658d4ad3aa", size = 25332, upload-time = "2024-02-28T19:22:34.155Z" },
+    { url = "https://files.pythonhosted.org/packages/62/94/4e7721ff51cb10aa826cb27f3bf015e8d94d7f898c19c2b650d822019e5b/drf_standardized_errors-0.15.0-py3-none-any.whl", hash = "sha256:75dcfec11433a16c81f8c5948a5cd2932cd5b02f426f64ca82020a78c155b263", size = 25673, upload-time = "2025-06-09T07:47:55.042Z" },
 ]
 
 [[package]]

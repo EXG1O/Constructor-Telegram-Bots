@@ -39,7 +39,7 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
         has_file: bool = bool(file)
         has_from_url: bool = bool(data.get('from_url'))
 
-        if isinstance(self.instance, Invoice) and self.partial:
+        if self.instance and self.partial:
             with suppress(InvoiceImage.DoesNotExist):
                 invoice_image = self.instance.image
 
@@ -73,7 +73,7 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
 
         if (
             self.instance.prices.count() + sum('id' not in item for item in data)
-            if isinstance(self.instance, Invoice) and self.partial
+            if self.instance and self.partial
             else len(data)
         ) > settings.TELEGRAM_BOT_MAX_INVOICE_PRICES:
             raise serializers.ValidationError(
