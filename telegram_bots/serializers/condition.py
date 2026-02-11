@@ -38,7 +38,7 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
 
         if (
             self.instance.parts.count() + sum('id' not in item for item in data)
-            if isinstance(self.instance, Condition) and self.partial
+            if self.instance and self.partial
             else len(data)
         ) > settings.TELEGRAM_BOT_MAX_CONDITION_PARTS:
             raise serializers.ValidationError(

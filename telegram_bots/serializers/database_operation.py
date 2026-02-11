@@ -51,7 +51,7 @@ class DatabaseOperationSerializer(
         has_create_operation: bool = bool(data.get('create_operation'))
         has_update_operation: bool = bool(data.get('update_operation'))
 
-        if isinstance(self.instance, DatabaseOperation) and self.partial:
+        if self.instance and self.partial:
             if not has_create_operation:
                 with suppress(DatabaseCreateOperation.DoesNotExist):
                     has_create_operation = bool(self.instance.create_operation)

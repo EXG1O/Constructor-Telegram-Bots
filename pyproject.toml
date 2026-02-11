@@ -7,8 +7,8 @@ dependencies = [
     "django>=5.2,<5.3",
     "django-filter>=25,<26",
     "django-modeltranslation>=0.19,<0.20",
-    "djangorestframework==3.15.1",
-    "drf-standardized-errors==0.13.0",
+    "djangorestframework>=3.16,<3.17",
+    "drf-standardized-errors>=0.15,<0.16",
     "gunicorn==21.2.0",
     "python-dotenv==1.0.1",
     "redis==5.0.3",
@@ -24,7 +24,7 @@ dependencies = [
 dev = [
     "django-silk>=5,<6",
     "django-stubs>=5.2,<5.3",
-    "djangorestframework-stubs==3.15.0",
+    "djangorestframework-stubs>=3.16,<3.17",
     "mypy>=1.19,<1.20",
     "ruff>=0.15,<0.16",
 ]

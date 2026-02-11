@@ -21,7 +21,7 @@ from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
-from typing import Any, cast
+from typing import Any
 import os
 
 
@@ -86,7 +86,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
         queryset: QuerySet[AbstractMessageMedia] | None = None
 
-        if isinstance(self.instance, Message) and self.partial:
+        if self.instance and self.partial:
             queryset = getattr(self.instance, media_model_class.related_name)
 
         for item in media_data:
@@ -132,7 +132,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         if (
             self.instance.keyboard.buttons.count()
             + sum('id' not in button_data for button_data in buttons_data)
-            if isinstance(self.instance, Message) and self.partial
+            if self.instance and self.partial
             else len(buttons_data)
         ) > settings.TELEGRAM_BOT_MAX_MESSAGE_KEYBOARD_BUTTONS:
             raise serializers.ValidationError(
@@ -144,20 +144,22 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         return data
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        message = cast(Message | None, self.instance)
-
-        has_text: bool = bool(data.get('text', message.text if message else None))
+        has_text: bool = bool(
+            data.get('text', self.instance.text if self.instance else None)
+        )
         has_images: bool = bool(
-            data.get('images', message.images.count() if message else None)
+            data.get('images', self.instance.images.count() if self.instance else None)
         )
         has_documents: bool = bool(
-            data.get('documents', message.documents.count() if message else None)
+            data.get(
+                'documents', self.instance.documents.count() if self.instance else None
+            )
         )
         has_keyboard: bool = bool(data.get('keyboard'))
 
-        if message and not has_keyboard:
+        if self.instance and not has_keyboard:
             with suppress(MessageKeyboard.DoesNotExist):
-                has_keyboard = bool(message.keyboard)
+                has_keyboard = bool(self.instance.keyboard)
 
         if not any([has_text, has_images, has_documents, has_keyboard]):
             raise serializers.ValidationError(
@@ -187,7 +189,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 if (file := media.get('file')) and isinstance(file, UploadedFile)
             )
 
-            if isinstance(self.instance, Message) and not self.partial:
+            if self.instance and not self.partial:
                 existing_media_size: int = sum(
                     map(
                         force_get_file_size,  # type: ignore [arg-type]
