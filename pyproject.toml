@@ -18,6 +18,8 @@ dependencies = [
     "pyjwt>=2.11,<2.12",
     "pillow==11.0.0",
     "django-admin-sortable2>=2.3,<2.4",
+    "urllib3>=2.6,<2.7",
+    "requests>=2.32,<2.33",
 ]
 
 [dependency-groups]
