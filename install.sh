@@ -1,8 +1,7 @@
 #!/bin/bash
 
-pip install -U pip
-pip install poetry
-poetry install
+uv sync --locked
+source .venv/bin/activate
 
 SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(25))")
 
@@ -27,5 +26,5 @@ POSTGRESQL_DATABASE_USER=$POSTGRESQL_DATABASE_USER
 POSTGRESQL_DATABASE_PASSWORD=$POSTGRESQL_DATABASE_PASSWORD
 EOF
 
-python manage.py compilemessages -i env
+python manage.py compilemessages -i .venv
 python manage.py migrate

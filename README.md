@@ -24,8 +24,6 @@ Your donation will greatly help the development and improvement of the website.
 git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
 git checkout tags/v4.0.0
-python -m venv env
-source env/bin/activate
 source install.sh
 ```
 2. Now, we need to run the command to get tokens for a microservice:
