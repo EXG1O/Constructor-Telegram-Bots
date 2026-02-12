@@ -1,7 +1,7 @@
+from requests_unixsocket import Session
 from yarl import URL
 
 from .schemas import StartTelegramBot
-from requests_unixsocket import Session
 
 from requests import RequestException, Response
 import requests
