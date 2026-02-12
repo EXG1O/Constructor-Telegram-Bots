@@ -46,7 +46,7 @@ class MessageKeyboardButtonSerializer(
 ):
     class Meta:
         model = MessageKeyboardButton
-        fields = ['id', 'row', 'position', 'text', 'url']
+        fields = ['id', 'row', 'position', 'text', 'url', 'style']
         extra_kwargs = {'id': {'read_only': False, 'required': False}}
 
 
@@ -413,6 +413,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                     if keyboard_type != 'default'
                     else None
                 )
+                button.style = button_data.get('style', button.style)
 
                 update_buttons.append(button)
             except (KeyError, MessageKeyboardButton.DoesNotExist):

@@ -35,7 +35,7 @@ class MessageKeyboardButtonSerializer(
 
     class Meta:
         model = MessageKeyboardButton
-        fields = ['id', 'row', 'position', 'text', 'url', 'source_connections']
+        fields = ['id', 'row', 'position', 'text', 'url', 'style', 'source_connections']
 
 
 class MessageKeyboardSerializer(serializers.ModelSerializer[MessageKeyboard]):

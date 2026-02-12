@@ -6,7 +6,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 
 from constructor_telegram_bots.fields import PublicURLField
 
-from ..enums import KeyboardType
+from ..enums import KeyboardButtonStyle, KeyboardType
 from .base import AbstractBlock, AbstractMessageMedia, upload_media_path
 
 from typing import TYPE_CHECKING
@@ -101,6 +101,12 @@ class MessageKeyboardButton(models.Model):
     position = models.PositiveSmallIntegerField(_('Позиция'))
     text = models.TextField(_('Текст'), max_length=512)
     url = PublicURLField(_('URL-адрес'), blank=True, null=True)
+    style = models.CharField(
+        _('Стиль'),
+        max_length=7,
+        choices=KeyboardButtonStyle,
+        default=KeyboardButtonStyle.DEFAULT,
+    )
     source_connections = GenericRelation(
         'Connection', 'source_object_id', 'source_content_type'
     )

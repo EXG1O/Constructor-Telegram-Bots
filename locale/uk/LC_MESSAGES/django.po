@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 20:16+0000\n"
+"POT-Creation-Date: 2026-02-12 15:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,7 +47,7 @@ msgstr "Дозволені лише літери, цифри, пробіл та 
 msgid "Сумма"
 msgstr "Сума"
 
-#: donation/admin.py:37 donation/models.py:40
+#: donation/admin.py:34 donation/models.py:40
 msgid "Ссылка"
 msgstr "Посилання"
 
@@ -74,13 +74,13 @@ msgstr "Заголовок"
 
 #: donation/models.py:26 donation/models.py:39 instruction/models.py:9
 #: privacy_policy/models.py:9 telegram_bots/models/message.py:102
-#: telegram_bots/models/message.py:148 telegram_bots/models/trigger.py:45
+#: telegram_bots/models/message.py:154 telegram_bots/models/trigger.py:45
 #: terms_of_service/models.py:9
 msgid "Текст"
 msgstr "Текст"
 
 #: donation/models.py:27 donation/models.py:42 instruction/models.py:10
-#: privacy_policy/models.py:10 telegram_bots/models/base.py:80
+#: privacy_policy/models.py:10 telegram_bots/models/base.py:86
 #: telegram_bots/models/message.py:101 terms_of_service/models.py:10
 msgid "Позиция"
 msgstr "Позиція"
@@ -143,121 +143,137 @@ msgstr "Увімкнено"
 msgid "Telegram боты"
 msgstr "Telegram боти"
 
-#: telegram_bots/enums.py:14
+#: telegram_bots/enums.py:21
 msgid "Слева"
 msgstr "Зліва"
 
-#: telegram_bots/enums.py:15
+#: telegram_bots/enums.py:22
 msgid "Справа"
 msgstr "Праворуч"
 
-#: telegram_bots/enums.py:19 telegram_bots/models/trigger.py:16
+#: telegram_bots/enums.py:26 telegram_bots/models/trigger.py:16
 #: telegram_bots/models/trigger.py:43 telegram_bots/models/trigger.py:70
 msgid "Триггер"
 msgstr "Тригер"
 
-#: telegram_bots/enums.py:20 telegram_bots/models/message.py:20
+#: telegram_bots/enums.py:27 telegram_bots/models/message.py:20
 #: telegram_bots/models/message.py:48 telegram_bots/models/message.py:74
-#: telegram_bots/models/message.py:123 telegram_bots/models/message.py:158
+#: telegram_bots/models/message.py:129 telegram_bots/models/message.py:164
 msgid "Сообщение"
 msgstr "Повідомлення"
 
-#: telegram_bots/enums.py:23 telegram_bots/models/message.py:111
+#: telegram_bots/enums.py:30 telegram_bots/models/message.py:117
 msgid "Кнопка клавиатуры сообщения"
 msgstr "Кнопка клавіатури повідомлення"
 
-#: telegram_bots/enums.py:25 telegram_bots/models/condition.py:21
+#: telegram_bots/enums.py:32 telegram_bots/models/condition.py:21
 #: telegram_bots/models/condition.py:59
 msgid "Условие"
 msgstr "Умова"
 
-#: telegram_bots/enums.py:26 telegram_bots/models/background_task.py:24
+#: telegram_bots/enums.py:33 telegram_bots/models/background_task.py:24
 msgid "Фоновая задача"
 msgstr "Фонова задача"
 
-#: telegram_bots/enums.py:27 telegram_bots/models/api_request.py:30
+#: telegram_bots/enums.py:34 telegram_bots/models/api_request.py:30
 #: telegram_bots/models/api_request.py:31
 msgid "API-запрос"
 msgstr "API-запит"
 
-#: telegram_bots/enums.py:28 telegram_bots/models/database_operation.py:69
+#: telegram_bots/enums.py:35 telegram_bots/models/database_operation.py:69
 msgid "Операция базы данных"
 msgstr "Операція бази даних"
 
-#: telegram_bots/enums.py:29 telegram_bots/models/invoice.py:19
+#: telegram_bots/enums.py:36 telegram_bots/models/invoice.py:19
 #: telegram_bots/models/invoice.py:43 telegram_bots/models/invoice.py:73
 msgid "Счёт"
 msgstr "Рахунок"
 
-#: telegram_bots/enums.py:63
+#: telegram_bots/enums.py:70
 msgid "Обычный"
 msgstr "Звичайний"
 
-#: telegram_bots/enums.py:64
+#: telegram_bots/enums.py:71
 msgid "Встроенный"
 msgstr "Вбудований"
 
-#: telegram_bots/enums.py:65
+#: telegram_bots/enums.py:72
 msgid "Платёжный"
 msgstr "Платіжний"
 
-#: telegram_bots/enums.py:69
+#: telegram_bots/enums.py:76
+msgid "По умолчанию"
+msgstr "За замовчуванням"
+
+#: telegram_bots/enums.py:77
+msgid "Основной"
+msgstr "Основний"
+
+#: telegram_bots/enums.py:78
+msgid "Успех"
+msgstr "Успіх"
+
+#: telegram_bots/enums.py:79
+msgid "Опасность"
+msgstr "Небезпека"
+
+#: telegram_bots/enums.py:83
 msgid "Положительный"
 msgstr "Позитивний"
 
-#: telegram_bots/enums.py:70
+#: telegram_bots/enums.py:84
 msgid "Отрицательный"
 msgstr "Негативний"
 
-#: telegram_bots/enums.py:74
+#: telegram_bots/enums.py:88
 msgid "Равно"
 msgstr "Рівно"
 
-#: telegram_bots/enums.py:75
+#: telegram_bots/enums.py:89
 msgid "Не равно"
 msgstr "Не рівно"
 
-#: telegram_bots/enums.py:76
+#: telegram_bots/enums.py:90
 msgid "Больше"
 msgstr "Більше"
 
-#: telegram_bots/enums.py:77
+#: telegram_bots/enums.py:91
 msgid "Больше или равно"
 msgstr "Більше або рівно"
 
-#: telegram_bots/enums.py:78
+#: telegram_bots/enums.py:92
 msgid "Меньше"
 msgstr "Менше"
 
-#: telegram_bots/enums.py:79
+#: telegram_bots/enums.py:93
 msgid "Меньше или равно"
 msgstr "Менше або рівно"
 
-#: telegram_bots/enums.py:83
+#: telegram_bots/enums.py:97
 msgid "И"
 msgstr "І"
 
-#: telegram_bots/enums.py:84
+#: telegram_bots/enums.py:98
 msgid "ИЛИ"
 msgstr "АБО"
 
-#: telegram_bots/enums.py:88
+#: telegram_bots/enums.py:102
 msgid "1 день"
 msgstr "1 день"
 
-#: telegram_bots/enums.py:89
+#: telegram_bots/enums.py:103
 msgid "3 дня"
 msgstr "3 дні"
 
-#: telegram_bots/enums.py:90
+#: telegram_bots/enums.py:104
 msgid "7 дней"
 msgstr "7 днів"
 
-#: telegram_bots/enums.py:91
+#: telegram_bots/enums.py:105
 msgid "14 дней"
 msgstr "14 днів"
 
-#: telegram_bots/enums.py:92
+#: telegram_bots/enums.py:106
 msgid "28 дней"
 msgstr "28 днів"
 
@@ -295,7 +311,7 @@ msgstr "Центру"
 #: telegram_bots/models/condition.py:51 telegram_bots/models/connection.py:16
 #: telegram_bots/models/database_operation.py:60
 #: telegram_bots/models/database_record.py:15
-#: telegram_bots/models/invoice.py:62 telegram_bots/models/message.py:146
+#: telegram_bots/models/invoice.py:62 telegram_bots/models/message.py:152
 #: telegram_bots/models/trigger.py:61 telegram_bots/models/user.py:12
 #: telegram_bots/models/variable.py:14
 msgid "Telegram бот"
@@ -521,23 +537,27 @@ msgstr "Клавіатура"
 msgid "Ряд"
 msgstr "Ряд"
 
-#: telegram_bots/models/message.py:112
+#: telegram_bots/models/message.py:105
+msgid "Стиль"
+msgstr "Стиль"
+
+#: telegram_bots/models/message.py:118
 msgid "Кнопки клавиатур сообщений"
 msgstr "Кнопки клавіатур повідомлень"
 
-#: telegram_bots/models/message.py:126
+#: telegram_bots/models/message.py:132
 msgid "Режим"
 msgstr "Режим"
 
-#: telegram_bots/models/message.py:134
+#: telegram_bots/models/message.py:140
 msgid "Клавиатура сообщения"
 msgstr "Клавіатура повідомлення"
 
-#: telegram_bots/models/message.py:135
+#: telegram_bots/models/message.py:141
 msgid "Клавиатуры сообщений"
 msgstr "Клавіатури повідомлень"
 
-#: telegram_bots/models/message.py:159
+#: telegram_bots/models/message.py:165
 msgid "Сообщения"
 msgstr "Повідомлення"
 
@@ -674,17 +694,17 @@ msgstr "Не можна додавати більше %(max)s частин ум�
 msgid "Нельзя добавлять больше %(max)s условий."
 msgstr "Не можна додавати більше %(max)s умов."
 
-#: telegram_bots/serializers/connection.py:91
+#: telegram_bots/serializers/connection.py:96
 #, python-format
 msgid "%(object)s не найден."
 msgstr "%(object)s не знайдено."
 
-#: telegram_bots/serializers/connection.py:115
+#: telegram_bots/serializers/connection.py:120
 #, python-format
 msgid "%(source_object)s не может быть стартовой позиции коннектора."
 msgstr "%(source_object)s не може бути стартовою позицією конектора."
 
-#: telegram_bots/serializers/connection.py:121
+#: telegram_bots/serializers/connection.py:126
 #, python-format
 msgid "%(target_object)s не может быть окончательной позиции коннектора."
 msgstr "%(target_object)s не може бути остаточною позицією конектора."
@@ -716,7 +736,7 @@ msgstr ""
 "'from_url'."
 
 #: telegram_bots/serializers/invoice.py:63
-#: telegram_bots/serializers/message.py:212
+#: telegram_bots/serializers/message.py:214
 msgid "Превышен лимит хранилища."
 msgstr "Перевищено ліміт сховища."
 
@@ -739,7 +759,7 @@ msgstr "Неможливо додати більше ніж %(max)s рахунк
 msgid "Нельзя добавлять больше %(max)s кнопок для клавиатуры сообщения."
 msgstr "Не можна додавати більше %(max)s кнопок для клавіатури повідомлення."
 
-#: telegram_bots/serializers/message.py:165
+#: telegram_bots/serializers/message.py:167
 msgid ""
 "Необходимо указать значение минимум для одно из полей: 'text', 'images', "
 "'documents' или 'keyboard'."
@@ -747,7 +767,7 @@ msgstr ""
 "Необхідно вказати значення щонайменше для одного з полів: 'text', 'images', "
 "'documents' або 'keyboard'."
 
-#: telegram_bots/serializers/message.py:174
+#: telegram_bots/serializers/message.py:176
 msgid ""
 "Необходимо указать значение для поле 'text', если указано значение для поля "
 "'keyboard'."
@@ -755,7 +775,7 @@ msgstr ""
 "Необхідно вказати значення для поля 'text', якщо задано значення для поля "
 "'keyboard'."
 
-#: telegram_bots/serializers/message.py:221
+#: telegram_bots/serializers/message.py:223
 #, python-format
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "Не можна додавати більше %(max)s повідомлень."
@@ -858,7 +878,7 @@ msgstr "Термін дії"
 msgid "Создан"
 msgstr "Створено"
 
-#: users/models.py:73 users/models.py:82
+#: users/models.py:73 users/models.py:85
 msgid "Токен"
 msgstr "Токен"
 
@@ -866,15 +886,15 @@ msgstr "Токен"
 msgid "Токены"
 msgstr "Токени"
 
-#: users/models.py:84
+#: users/models.py:87
 msgid "Внесён"
 msgstr "Внесено"
 
-#: users/models.py:88
+#: users/models.py:91
 msgid "Токен в чёрном списке"
 msgstr "Токен у чорному списку"
 
-#: users/models.py:89
+#: users/models.py:92
 msgid "Токены в чёрном списке"
 msgstr "Токени у чорному списку"
 

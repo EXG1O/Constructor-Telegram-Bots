@@ -72,6 +72,13 @@ class KeyboardType(TextChoices):
     PAYMENT = 'payment', _('Платёжный')
 
 
+class KeyboardButtonStyle(TextChoices):
+    DEFAULT = 'default', _('По умолчанию')
+    PRIMARY = 'primary', _('Основной')
+    SUCCESS = 'success', _('Успех')
+    DANGER = 'danger', _('Опасность')
+
+
 class ConditionPartType(TextChoices):
     POSITIVE = '+', _('Положительный')
     NEGATIVE = '-', _('Отрицательный')
