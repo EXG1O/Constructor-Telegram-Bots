@@ -5,7 +5,7 @@ from .utils import get_telegram_bot_modal
 
 from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Concatenate
 
 if TYPE_CHECKING:
     from .hub.models import TelegramBotsHub
@@ -15,11 +15,9 @@ else:
     TelegramBotsHub = Any
 
 
-P = ParamSpec('P')
-R = TypeVar('R')
-
-
-def execute_task(func: Callable[Concatenate[TelegramBot, P], R]) -> Callable[P, R]:
+def execute_task[**P, R](
+    func: Callable[Concatenate[TelegramBot, P], R],
+) -> Callable[P, R]:
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         telegram_bot_id = kwargs['telegram_bot_id']

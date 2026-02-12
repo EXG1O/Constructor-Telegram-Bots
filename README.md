@@ -11,7 +11,7 @@ Your donation will greatly help the development and improvement of the website.
 ## Requirements
 - Linux
 - uv 0.10
-- Python 3.11
+- Python 3.14
 - PostgreSQL
 - Redis
 

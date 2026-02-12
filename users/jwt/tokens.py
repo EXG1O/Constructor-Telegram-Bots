@@ -15,12 +15,10 @@ from .payloads import AccessTokenPayload, TokenPayload
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, tzinfo
-from typing import Any, Generic, TypeVar, overload
-
-PT = TypeVar('PT', bound=TokenPayload)
+from typing import Any, overload
 
 
-class BaseToken(ABC, Generic[PT]):
+class BaseToken[PT: TokenPayload](ABC):
     @property
     @abstractmethod
     def _type(self) -> TokenType: ...
@@ -157,14 +155,14 @@ class RefreshToken(BaseToken[TokenPayload]):
         return TokenPayload.create(self, sub=str(user.id))
 
     @classmethod
-    def for_user(cls, user: User) -> 'RefreshToken':
+    def for_user(cls, user: User) -> RefreshToken:
         token: RefreshToken = cls(user=user)
         token.create_token()
 
         return token
 
     @cached_property
-    def access_token(self) -> 'AccessToken':
+    def access_token(self) -> AccessToken:
         return AccessToken(refresh_token=self)
 
 

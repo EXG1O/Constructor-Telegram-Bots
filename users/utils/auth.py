@@ -11,12 +11,8 @@ from ..enums import TokenType
 from ..jwt.tokens import AccessToken, RefreshToken
 from ..models import BlacklistedToken, Token, User
 
-from typing import TypeVar
 
-JWT = TypeVar('JWT', RefreshToken, AccessToken)
-
-
-def authenticate_token(
+def authenticate_token[JWT: (RefreshToken, AccessToken)](
     raw_token: str, token_cls: type[JWT], exception_cls: type[APIException]
 ) -> tuple[User, JWT]:
     try:

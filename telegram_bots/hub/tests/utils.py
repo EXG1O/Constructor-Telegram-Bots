@@ -8,11 +8,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from rest_framework.views import AsView
 else:
-    from typing import Generic, TypeVar
-
-    T = TypeVar('T')
-
-    class AsView(Generic[T]): ...
+    AsView = Any
 
 
 def assert_view_basic_protected(
