@@ -127,7 +127,7 @@ class TelegramBot(models.Model):
     @classmethod
     def from_db(
         cls, db: str | None, field_names: Collection[str], values: Collection[Any]
-    ) -> 'TelegramBot':
+    ) -> TelegramBot:
         telegram_bot: TelegramBot = super().from_db(db, field_names, values)
         telegram_bot._loaded_values = dict(
             zip(

@@ -5,16 +5,13 @@ from ..enums import TokenType
 from calendar import timegm
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Self
 from uuid import uuid4
 
 if TYPE_CHECKING:
     from .tokens import BaseToken, RefreshToken
 else:
-    T = TypeVar('T')
-
-    class BaseToken(Generic[T]): ...
-
+    BaseToken = Any
     RefreshToken = Any
 
 

@@ -348,7 +348,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
                 media.from_url = item.get('from_url', media.from_url)
                 update_media.append(media)
-            except (KeyError, media_model_class.DoesNotExist):
+            except KeyError, media_model_class.DoesNotExist:
                 create_media.append(media_model_class(message=message, **item))
 
         new_media: list[AMMT] = media_model_class.objects.bulk_create(create_media)  # type: ignore [attr-defined]
@@ -416,7 +416,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 button.style = button_data.get('style', button.style)
 
                 update_buttons.append(button)
-            except (KeyError, MessageKeyboardButton.DoesNotExist):
+            except KeyError, MessageKeyboardButton.DoesNotExist:
                 if keyboard_type != 'default':
                     button_data['url'] = None
 

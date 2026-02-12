@@ -35,7 +35,7 @@ class AbstractBlock(models.Model):
         abstract = True
 
 
-def upload_media_path(instance: 'AbstractMedia', file_name: str) -> str:
+def upload_media_path(instance: AbstractMedia, file_name: str) -> str:
     name, ext = os.path.splitext(file_name)
 
     salt: str = secrets.token_hex(8)

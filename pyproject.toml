@@ -1,7 +1,7 @@
 [project]
 name = "constructor-telegram-bots"
 version = "4.0.0"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "celery>=5.6,<5.7",
     "django>=5.2,<5.3",
@@ -52,7 +52,7 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 django_settings_module = "constructor_telegram_bots.settings"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py314"
 extend-exclude = ["migrations"]
 
 [tool.ruff.lint]

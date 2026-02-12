@@ -9,7 +9,7 @@ from django_stubs_ext.db.models import TypedModelMeta
 from ..utils import get_telegram_bot_modal
 from .service import API
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..models import TelegramBot
@@ -18,14 +18,14 @@ else:
 
 
 class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
-    def get_freest(self) -> Optional['TelegramBotsHub']:
+    def get_freest(self) -> TelegramBotsHub | None:
         return (
             sorted(hubs, key=lambda hub: hub.api.get_telegram_bot_ids())[0]
             if (hubs := self.all())
             else None
         )
 
-    def get_telegram_bot_hub(self, telegram_bot_id: int) -> Optional['TelegramBotsHub']:
+    def get_telegram_bot_hub(self, telegram_bot_id: int) -> TelegramBotsHub | None:
         for hub in self.all():
             if telegram_bot_id in hub.api.get_telegram_bot_ids():
                 return hub

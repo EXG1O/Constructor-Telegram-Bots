@@ -101,7 +101,7 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
                     'next_part_operator', part.next_part_operator
                 )
                 update_parts.append(part)
-            except (KeyError, ConditionPart.DoesNotExist):
+            except KeyError, ConditionPart.DoesNotExist:
                 create_parts.append(ConditionPart(condition=condition, **item))
 
         new_parts: list[ConditionPart] = ConditionPart.objects.bulk_create(create_parts)

@@ -160,7 +160,7 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
                 price.label = item.get('label', price.label)
                 price.amount = item.get('amount', price.amount)
                 update_prices.append(price)
-            except (KeyError, InvoicePrice.DoesNotExist):
+            except KeyError, InvoicePrice.DoesNotExist:
                 create_prices.append(InvoicePrice(invoice=invoice, **item))
 
         new_prices: list[InvoicePrice] = InvoicePrice.objects.bulk_create(create_prices)

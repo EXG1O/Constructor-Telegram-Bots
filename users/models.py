@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 
 class UserManager(BaseUserManager['User']):
-    def create_superuser(self, **fields: Any) -> 'User':
+    def create_superuser(self, **fields: Any) -> User:
         return self.create(is_staff=True, is_superuser=True, **fields)
 
 
@@ -31,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     joined_date = models.DateTimeField(_('Присоединился'), auto_now_add=True)
 
     if TYPE_CHECKING:
-        tokens: models.Manager['Token']
+        tokens: models.Manager[Token]
         telegram_bots: models.Manager[TelegramBot]
 
     USERNAME_FIELD = 'telegram_id'
@@ -66,7 +66,7 @@ class Token(models.Model):
     created_date = models.DateTimeField(_('Создан'), auto_now_add=True)
 
     if TYPE_CHECKING:
-        blacklisted: 'BlacklistedToken'
+        blacklisted: BlacklistedToken
 
     class Meta(TypedModelMeta):
         db_table = 'user_token'
