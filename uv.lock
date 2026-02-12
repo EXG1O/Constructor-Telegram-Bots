@@ -173,7 +173,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "redis" },
     { name = "requests" },
-    { name = "urllib3" },
+    { name = "requests-unixsocket" },
     { name = "yarl" },
 ]
 
@@ -207,7 +207,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.2,<1.3" },
     { name = "redis", specifier = ">=7,<8" },
     { name = "requests", specifier = ">=2.32,<2.33" },
-    { name = "urllib3", specifier = ">=2.6,<2.7" },
+    { name = "requests-unixsocket", specifier = ">=0.4,<0.5" },
     { name = "yarl", specifier = ">=1.22,<1.23" },
 ]
 
@@ -629,6 +629,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738, upload-time = "2025-08-18T20:46:00.542Z" },
+]
+
+[[package]]
+name = "requests-unixsocket"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/22/80/44636b363e75af7f5e6ac0571137466fec66e47016179139d0019a453ab7/requests_unixsocket-0.4.1.tar.gz", hash = "sha256:b2596158c356ecee68d27ba469a52211230ac6fb0cde8b66afb19f0ed47a1995", size = 23476, upload-time = "2025-03-07T18:12:48.3Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl", hash = "sha256:60c4942e9dbecc2f64d611039fb1dfc25da382083c6434ac0316dca3ff908f4d", size = 11340, upload-time = "2025-03-07T18:12:47.188Z" },
 ]
 
 [[package]]
