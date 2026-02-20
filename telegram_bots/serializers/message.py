@@ -428,7 +428,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
             MessageKeyboardButton.objects.bulk_create(create_buttons)
         )
         MessageKeyboardButton.objects.bulk_update(
-            update_buttons, fields=['row', 'position', 'text', 'url']
+            update_buttons, fields=['row', 'position', 'text', 'url', 'style']
         )
 
         if not self.partial:
@@ -463,7 +463,7 @@ class DiagramMessageKeyboardButtonSerializer(
 
     class Meta:
         model = MessageKeyboardButton
-        fields = ['id', 'row', 'position', 'text', 'url', 'source_connections']
+        fields = ['id', 'row', 'position', 'text', 'url', 'style', 'source_connections']
 
 
 class DiagramMessageKeyboardSerializer(serializers.ModelSerializer[MessageKeyboard]):
