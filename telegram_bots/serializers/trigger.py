@@ -90,6 +90,7 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
             if not self.partial:
                 with suppress(TriggerCommand.DoesNotExist):
                     trigger.command.delete()
+                    del trigger._state.fields_cache['command']
             return None
 
         try:
@@ -109,6 +110,7 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
             if not self.partial:
                 with suppress(TriggerMessage.DoesNotExist):
                     trigger.message.delete()
+                    del trigger._state.fields_cache['message']
             return None
 
         try:
