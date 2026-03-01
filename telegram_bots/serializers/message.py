@@ -385,6 +385,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
             if not self.partial:
                 with suppress(MessageKeyboard.DoesNotExist):
                     message.keyboard.delete()
+                    del message._state.fields_cache['keyboard']
             return None
 
         try:

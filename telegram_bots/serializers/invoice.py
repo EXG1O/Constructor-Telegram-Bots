@@ -128,6 +128,7 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
             if not self.partial:
                 with suppress(InvoiceImage.DoesNotExist):
                     invoice.image.delete()
+                    del invoice._state.fields_cache['image']
             return None
 
         try:

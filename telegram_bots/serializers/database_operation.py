@@ -116,6 +116,7 @@ class DatabaseOperationSerializer(
             if not self.partial:
                 with suppress(DatabaseCreateOperation.DoesNotExist):
                     operation.create_operation.delete()
+                    del operation._state.fields_cache['create_operation']
             return None
 
         try:
@@ -133,6 +134,7 @@ class DatabaseOperationSerializer(
             if not self.partial:
                 with suppress(DatabaseUpdateOperation.DoesNotExist):
                     operation.update_operation.delete()
+                    del operation._state.fields_cache['update_operation']
             return None
 
         try:
