@@ -133,16 +133,17 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
 
         try:
             image: InvoiceImage = invoice.image
-
-            if image.file:
-                image.file.delete(save=False)
-
-            image.file = data.get('file')
-            image.from_url = data.get('from_url', image.from_url)
-            image.save(update_fields=['file', 'from_url'])
-            return image
         except InvoiceImage.DoesNotExist:
             return self.create_image(invoice, data)
+
+        if image.file:
+            image.file.delete(save=False)
+
+        image.file = data.get('file')
+        image.from_url = data.get('from_url', image.from_url)
+        image.save(update_fields=['file', 'from_url'])
+
+        return image
 
     def update_prices(
         self, invoice: Invoice, data: list[dict[str, Any]] | None
@@ -158,11 +159,12 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
         for item in data:
             try:
                 price: InvoicePrice = invoice.prices.get(id=item['id'])
+            except KeyError, InvoicePrice.DoesNotExist:
+                create_prices.append(InvoicePrice(invoice=invoice, **item))
+            else:
                 price.label = item.get('label', price.label)
                 price.amount = item.get('amount', price.amount)
                 update_prices.append(price)
-            except KeyError, InvoicePrice.DoesNotExist:
-                create_prices.append(InvoicePrice(invoice=invoice, **item))
 
         new_prices: list[InvoicePrice] = InvoicePrice.objects.bulk_create(create_prices)
         InvoicePrice.objects.bulk_update(update_prices, fields=['label', 'amount'])

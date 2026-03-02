@@ -95,13 +95,15 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
 
         try:
             command: TriggerCommand = trigger.command
-            command.command = data.get('command', command.command)
-            command.payload = data.get('payload', command.payload)
-            command.description = data.get('description', command.description)
-            command.save(update_fields=['command', 'payload', 'description'])
-            return command
         except TriggerCommand.DoesNotExist:
             return self.create_command(trigger, data)
+
+        command.command = data.get('command', command.command)
+        command.payload = data.get('payload', command.payload)
+        command.description = data.get('description', command.description)
+        command.save(update_fields=['command', 'payload', 'description'])
+
+        return command
 
     def update_message(
         self, trigger: Trigger, data: dict[str, Any] | None
@@ -115,11 +117,13 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
 
         try:
             message: TriggerMessage = trigger.message
-            message.text = data.get('text', message.text)
-            message.save(update_fields=['text'])
-            return message
         except TriggerMessage.DoesNotExist:
             return self.create_message(trigger, data)
+
+        message.text = data.get('text', message.text)
+        message.save(update_fields=['text'])
+
+        return message
 
     def update(self, trigger: Trigger, validated_data: dict[str, Any]) -> Trigger:
         command_data: dict[str, Any] | None = validated_data.get('command')

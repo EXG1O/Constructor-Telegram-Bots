@@ -3,7 +3,7 @@ from yarl import URL
 
 from .schemas import StartTelegramBot
 
-from requests import RequestException, Response
+from requests import HTTPError, Response
 import requests
 
 from typing import Any, Literal
@@ -21,18 +21,19 @@ class API:
         endpoint: str,
         data: Any | None = None,
     ) -> Response | None:
-        try:
-            response: Response = requests.request(
-                method,
-                str(self.url / endpoint),
-                headers=self.headers,
-                json=data,
-            )
-            response.raise_for_status()
+        response: Response = requests.request(
+            method,
+            str(self.url / endpoint),
+            headers=self.headers,
+            json=data,
+        )
 
-            return response
-        except RequestException:
+        try:
+            response.raise_for_status()
+        except HTTPError:
             return None
+
+        return response
 
     def get_telegram_bot_ids(self) -> list[int]:
         response: Response | None = self._request('get', 'bots/')

@@ -121,11 +121,13 @@ class DatabaseOperationSerializer(
 
         try:
             create_operation: DatabaseCreateOperation = operation.create_operation
-            create_operation.data = data.get('data', create_operation.data)
-            create_operation.save(update_fields=['data'])
-            return create_operation
         except DatabaseCreateOperation.DoesNotExist:
             return self.create_create_operation(operation, data)
+
+        create_operation.data = data.get('data', create_operation.data)
+        create_operation.save(update_fields=['data'])
+
+        return create_operation
 
     def update_update_operation(
         self, operation: DatabaseOperation, data: dict[str, Any] | None
@@ -139,31 +141,31 @@ class DatabaseOperationSerializer(
 
         try:
             update_operation: DatabaseUpdateOperation = operation.update_operation
-            update_operation.overwrite = data.get(
-                'overwrite', update_operation.overwrite
-            )
-            update_operation.lookup_field_name = data.get(
-                'lookup_field_name', update_operation.lookup_field_name
-            )
-            update_operation.lookup_field_value = data.get(
-                'lookup_field_value', update_operation.lookup_field_value
-            )
-            update_operation.create_if_not_found = data.get(
-                'create_if_not_found', update_operation.create_if_not_found
-            )
-            update_operation.new_data = data.get('new_data', update_operation.new_data)
-            update_operation.save(
-                update_fields=[
-                    'overwrite',
-                    'lookup_field_name',
-                    'lookup_field_value',
-                    'create_if_not_found',
-                    'new_data',
-                ]
-            )
-            return update_operation
         except DatabaseUpdateOperation.DoesNotExist:
             return self.create_update_operation(operation, data)
+
+        update_operation.overwrite = data.get('overwrite', update_operation.overwrite)
+        update_operation.lookup_field_name = data.get(
+            'lookup_field_name', update_operation.lookup_field_name
+        )
+        update_operation.lookup_field_value = data.get(
+            'lookup_field_value', update_operation.lookup_field_value
+        )
+        update_operation.create_if_not_found = data.get(
+            'create_if_not_found', update_operation.create_if_not_found
+        )
+        update_operation.new_data = data.get('new_data', update_operation.new_data)
+        update_operation.save(
+            update_fields=[
+                'overwrite',
+                'lookup_field_name',
+                'lookup_field_value',
+                'create_if_not_found',
+                'new_data',
+            ]
+        )
+
+        return update_operation
 
     def update(
         self, operation: DatabaseOperation, validated_data: dict[str, Any]

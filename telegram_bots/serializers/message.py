@@ -335,6 +335,9 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         for item in media_data:
             try:
                 media: AMMT = queryset.get(id=item['id'])
+            except KeyError, media_model_class.DoesNotExist:
+                create_media.append(media_model_class(message=message, **item))
+            else:
                 media.position = item.get('position', media.position)
 
                 file: UploadedFile | None = item.get('file')
@@ -348,8 +351,6 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
                 media.from_url = item.get('from_url', media.from_url)
                 update_media.append(media)
-            except KeyError, media_model_class.DoesNotExist:
-                create_media.append(media_model_class(message=message, **item))
 
         new_media: list[AMMT] = media_model_class.objects.bulk_create(create_media)  # type: ignore [attr-defined]
         media_model_class.objects.bulk_update(  # type: ignore [attr-defined]
@@ -406,6 +407,14 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 button: MessageKeyboardButton = keyboard.buttons.get(
                     id=button_data['id']
                 )
+            except KeyError, MessageKeyboardButton.DoesNotExist:
+                if keyboard_type != 'default':
+                    button_data['url'] = None
+
+                create_buttons.append(
+                    MessageKeyboardButton(keyboard=keyboard, **button_data)
+                )
+            else:
                 button.row = button_data.get('row', button.row)
                 button.position = button_data.get('position', button.position)
                 button.text = button_data.get('text', button.text)
@@ -415,15 +424,7 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                     else None
                 )
                 button.style = button_data.get('style', button.style)
-
                 update_buttons.append(button)
-            except KeyError, MessageKeyboardButton.DoesNotExist:
-                if keyboard_type != 'default':
-                    button_data['url'] = None
-
-                create_buttons.append(
-                    MessageKeyboardButton(keyboard=keyboard, **button_data)
-                )
 
         new_buttons: list[MessageKeyboardButton] = (
             MessageKeyboardButton.objects.bulk_create(create_buttons)
