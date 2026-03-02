@@ -64,17 +64,17 @@ class UserViewSet(
 
         try:
             days: int = int(request.query_params.get('days', '7'))
-
-            if days <= 0:
-                raise ValidationError(
-                    {'days': _('Значение должно быть положительным числом.')}
-                )
-            elif days > 90:
-                raise ValidationError({'days': _('Значение должно быть не больше 90.')})
         except ValueError as error:
             raise ValidationError(
                 {'days': _('Значение должно быть целым числом.')}
             ) from error
+
+        if days <= 0:
+            raise ValidationError(
+                {'days': _('Значение должно быть положительным числом.')}
+            )
+        elif days > 90:
+            raise ValidationError({'days': _('Значение должно быть не больше 90.')})
 
         start_date: datetime.date = timezone.now().date() - timedelta(days=days)
         timeline_data: dict[datetime.date, int] = {
