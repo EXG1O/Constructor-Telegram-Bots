@@ -1,7 +1,7 @@
 from django.db.models import QuerySet
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -13,7 +13,7 @@ from ..serializers import VariableSerializer
 from .mixins import TelegramBotMixin
 
 
-class VariableViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Variable]):
+class VariableViewSet(IDLookupMixin, TelegramBotMixin, ReadOnlyModelViewSet[Variable]):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = VariableSerializer
