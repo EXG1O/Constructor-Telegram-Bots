@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -74,12 +75,13 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         command_data: dict[str, Any] | None = validated_data.pop('command', None)
         message_data: dict[str, Any] | None = validated_data.pop('message', None)
 
-        trigger: Trigger = self.telegram_bot.triggers.create(**validated_data)
+        with transaction.atomic():
+            trigger: Trigger = self.telegram_bot.triggers.create(**validated_data)
 
-        if command_data:
-            self.create_command(trigger, command_data)
-        if message_data:
-            self.create_message(trigger, message_data)
+            if command_data:
+                self.create_command(trigger, command_data)
+            if message_data:
+                self.create_message(trigger, message_data)
 
         return trigger
 
@@ -129,11 +131,12 @@ class TriggerSerializer(TelegramBotMixin, serializers.ModelSerializer[Trigger]):
         command_data: dict[str, Any] | None = validated_data.get('command')
         message_data: dict[str, Any] | None = validated_data.get('message')
 
-        trigger.name = validated_data.get('name', trigger.name)
-        trigger.save(update_fields=['name'])
+        with transaction.atomic():
+            trigger.name = validated_data.get('name', trigger.name)
+            trigger.save(update_fields=['name'])
 
-        self.update_command(trigger, command_data)
-        self.update_message(trigger, message_data)
+            self.update_command(trigger, command_data)
+            self.update_message(trigger, message_data)
 
         return trigger
 

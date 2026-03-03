@@ -1,3 +1,4 @@
+from django.core.files.storage import default_storage
 from django.db.models import QuerySet
 
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -11,9 +12,11 @@ from constructor_telegram_bots.permissions import ReadOnly
 from users.authentication import JWTAuthentication
 from users.permissions import IsTermsAccepted
 
-from ..models import Invoice
+from ..models import Invoice, InvoiceImage
 from ..serializers import DiagramInvoiceSerializer, InvoiceSerializer
 from .mixins import TelegramBotMixin
+
+from contextlib import suppress
 
 
 class InvoiceViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Invoice]):
@@ -29,6 +32,19 @@ class InvoiceViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Invoice]):
             return invoices.select_related('image').prefetch_related('prices')
 
         return invoices
+
+    def perform_destroy(self, invoice: Invoice) -> None:
+        file_name: str | None = None
+
+        with suppress(InvoiceImage.DoesNotExist):
+            file_name = InvoiceImage.objects.values_list('file', flat=True).get(
+                invoice=invoice, file__isnull=False
+            )
+
+        super().perform_destroy(invoice)
+
+        if file_name:
+            default_storage.delete(file_name)
 
 
 class DiagramInvoiceViewSet(

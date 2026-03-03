@@ -1,3 +1,4 @@
+from django.core.files.storage import default_storage
 from django.db.models import QuerySet
 
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -11,7 +12,7 @@ from constructor_telegram_bots.permissions import ReadOnly
 from users.authentication import JWTAuthentication
 from users.permissions import IsTermsAccepted
 
-from ..models import Message
+from ..models import Message, MessageDocument, MessageImage
 from ..serializers import DiagramMessageSerializer, MessageSerializer
 from .mixins import TelegramBotMixin
 
@@ -31,6 +32,22 @@ class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
             )
 
         return messages
+
+    def perform_destroy(self, message: Message) -> None:
+        file_names: set[str] = set(
+            MessageImage.objects.values_list('file', flat=True)  # type: ignore [arg-type]
+            .filter(message=message, file__isnull=False)
+            .union(
+                MessageDocument.objects.values_list('file', flat=True).filter(
+                    message=message, file__isnull=False
+                )
+            )
+        )
+
+        super().perform_destroy(message)
+
+        for file_name in file_names:
+            default_storage.delete(file_name)
 
 
 class DiagramMessageViewSet(

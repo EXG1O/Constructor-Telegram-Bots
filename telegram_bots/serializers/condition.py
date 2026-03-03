@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -73,9 +74,10 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
     def create(self, validated_data: dict[str, Any]) -> Condition:
         parts_data: list[dict[str, Any]] = validated_data.pop('parts')
 
-        condition: Condition = self.telegram_bot.conditions.create(**validated_data)
+        with transaction.atomic():
+            condition: Condition = self.telegram_bot.conditions.create(**validated_data)
 
-        self.create_parts(condition, parts_data)
+            self.create_parts(condition, parts_data)
 
         return condition
 
@@ -127,10 +129,11 @@ class ConditionSerializer(TelegramBotMixin, serializers.ModelSerializer[Conditio
     def update(self, condition: Condition, validated_data: dict[str, Any]) -> Condition:
         parts_data: list[dict[str, Any]] | None = validated_data.get('parts')
 
-        condition.name = validated_data.get('name', condition.name)
-        condition.save(update_fields=['name'])
+        with transaction.atomic():
+            condition.name = validated_data.get('name', condition.name)
+            condition.save(update_fields=['name'])
 
-        self.update_parts(condition, parts_data)
+            self.update_parts(condition, parts_data)
 
         return condition
 

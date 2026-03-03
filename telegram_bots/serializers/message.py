@@ -1,6 +1,9 @@
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
+from django.db import transaction
 from django.db.models import QuerySet
+from django.db.models.fields.files import FieldFile
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -20,9 +23,10 @@ from .base import AMMT, DiagramSerializer, MessageMediaSerializer
 from .connection import ConnectionSerializer
 from .mixins import TelegramBotMixin
 
+from collections.abc import Iterable
 from contextlib import suppress
-from typing import Any
-import os
+from typing import TYPE_CHECKING, Any, cast
+import functools
 
 
 class MessageSettingsSerializer(serializers.ModelSerializer[MessageSettings]):
@@ -272,15 +276,24 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         )
         keyboard_data: dict[str, Any] | None = validated_data.pop('keyboard', None)
 
-        message: Message = self.telegram_bot.messages.create(**validated_data)
+        media: list[AbstractMessageMedia] = []
 
-        self.create_settings(message, settings_data)
-        if images_data:
-            self.create_images(message, images_data)
-        if documents_data:
-            self.create_documents(message, documents_data)
-        if keyboard_data:
-            self.create_keyboard(message, keyboard_data)
+        try:
+            with transaction.atomic():
+                message: Message = self.telegram_bot.messages.create(**validated_data)
+
+                self.create_settings(message, settings_data)
+                if images_data:
+                    media += self.create_images(message, images_data)
+                if documents_data:
+                    media += self.create_documents(message, documents_data)
+                if keyboard_data:
+                    self.create_keyboard(message, keyboard_data)
+        except Exception as error:
+            for item in media:
+                if (file := item.file) and (file_name := file.name):
+                    default_storage.delete(file_name)
+            raise error
 
         return message
 
@@ -310,10 +323,9 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
 
         return settings
 
-    def _delete_media_files(self, queryset: QuerySet[AbstractMessageMedia]) -> None:
-        for file_path in queryset.exclude(file=None).values_list('file', flat=True):  # type: ignore [misc]
-            with suppress(OSError):
-                os.remove(settings.MEDIA_ROOT / file_path)
+    def _delete_media_files(self, file_names: Iterable[str]) -> None:
+        for file_name in file_names:
+            default_storage.delete(file_name)
 
     def update_media(
         self,
@@ -323,14 +335,26 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
     ) -> list[AMMT] | None:
         queryset: QuerySet[AMMT] = getattr(message, media_model_class.related_name)
 
+        if TYPE_CHECKING:
+            file_names: set[str]
+
         if not media_data:
             if not self.partial:
-                self._delete_media_files(queryset)
+                file_names = set(
+                    queryset.exclude(file=None).values_list('file', flat=True)
+                )
                 queryset.all().delete()
+
+                if file_names:
+                    transaction.on_commit(
+                        functools.partial(self._delete_media_files, file_names)
+                    )
             return None
 
         create_media: list[AMMT] = []
         update_media: list[AMMT] = []
+
+        delete_file_names: set[str] = set()
 
         for item in media_data:
             try:
@@ -338,24 +362,31 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
             except KeyError, media_model_class.DoesNotExist:
                 create_media.append(media_model_class(message=message, **item))
             else:
-                media.position = item.get('position', media.position)
+                new_file: UploadedFile | None = item.get('file')
+                old_file: FieldFile | None = media.file
 
-                file: UploadedFile | None = item.get('file')
-
-                if media.file:
-                    media.file.delete(save=False)
-
-                if file:
-                    media.file = file
-                    media.file.save(file.name, file, save=False)
+                if new_file and new_file.name:
+                    media.file = new_file
+                    cast(FieldFile, media.file).save(new_file.name, new_file, save=True)
+                else:
+                    media.file = None
 
                 media.from_url = item.get('from_url', media.from_url)
+                media.position = item.get('position', media.position)
                 update_media.append(media)
+
+                if old_file and (file_name := old_file.name):
+                    delete_file_names.add(file_name)
 
         new_media: list[AMMT] = media_model_class.objects.bulk_create(create_media)  # type: ignore [attr-defined]
         media_model_class.objects.bulk_update(  # type: ignore [attr-defined]
             update_media, fields=['file', 'from_url', 'position']
         )
+
+        if delete_file_names:
+            transaction.on_commit(
+                functools.partial(self._delete_media_files, delete_file_names)
+            )
 
         final_media: list[AMMT] = new_media + update_media
 
@@ -363,9 +394,15 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
             new_queryset: QuerySet[AMMT] = queryset.exclude(
                 id__in=[media.id for media in final_media]  # type: ignore [attr-defined]
             )
-
-            self._delete_media_files(new_queryset)
+            file_names = set(
+                new_queryset.exclude(file=None).values_list('file', flat=True)
+            )
             new_queryset.delete()
+
+            if file_names:
+                transaction.on_commit(
+                    functools.partial(self._delete_media_files, file_names)
+                )
 
         return final_media
 
@@ -446,14 +483,23 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
         documents_data: list[dict[str, Any]] | None = validated_data.get('documents')
         keyboard_data: dict[str, Any] | None = validated_data.get('keyboard')
 
-        message.name = validated_data.get('name', message.name)
-        message.text = validated_data.get('text', message.text)
-        message.save(update_fields=['name', 'text'])
+        media: list[AbstractMessageMedia] = []
 
-        self.update_settings(message, settings_data)
-        self.update_images(message, images_data)
-        self.update_documents(message, documents_data)
-        self.update_keyboard(message, keyboard_data)
+        try:
+            with transaction.atomic():
+                message.name = validated_data.get('name', message.name)
+                message.text = validated_data.get('text', message.text)
+                message.save(update_fields=['name', 'text'])
+
+                self.update_settings(message, settings_data)
+                media += self.update_images(message, images_data) or []
+                media += self.update_documents(message, documents_data) or []
+                self.update_keyboard(message, keyboard_data)
+        except Exception as error:
+            for item in media:
+                if (file := item.file) and (file_name := file.name):
+                    default_storage.delete(file_name)
+            raise error
 
         return message
 
