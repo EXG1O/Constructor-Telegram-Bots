@@ -13,6 +13,7 @@ from ..models import (
     Invoice,
     Message,
     MessageKeyboardButton,
+    TemporaryVariable,
     Trigger,
 )
 from .mixins import TelegramBotMixin
@@ -79,6 +80,10 @@ class ConnectionSerializer(TelegramBotMixin, serializers.ModelSerializer[Connect
         ConnectionObjectType.INVOICE: {
             'model': Invoice,
             'queryset': lambda self: self.telegram_bot.invoices,
+        },
+        ConnectionObjectType.TEMPORARY_VARIABLE: {
+            'model': TemporaryVariable,
+            'queryset': lambda self: self.telegram_bot.temporary_variables,
         },
     }
 

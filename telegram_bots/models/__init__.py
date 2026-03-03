@@ -18,6 +18,7 @@ from .message import (
     MessageSettings,
 )
 from .telegram_bot import TelegramBot
+from .temporary_variable import TemporaryVariable
 from .trigger import Trigger, TriggerCommand, TriggerMessage
 from .user import User
 from .variable import Variable
@@ -44,6 +45,7 @@ __all__ = [
     'Invoice',
     'InvoiceImage',
     'InvoicePrice',
+    'TemporaryVariable',
     'Variable',
     'User',
     'DatabaseRecord',

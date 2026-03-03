@@ -15,11 +15,13 @@ from .views import (
     DiagramDatabaseOperationViewSet,
     DiagramInvoiceViewSet,
     DiagramMessageViewSet,
+    DiagramTemporaryVariableViewSet,
     DiagramTriggerViewSet,
     InvoiceViewSet,
     MessageViewSet,
     StatsAPIView,
     TelegramBotViewSet,
+    TemporaryVariableViewSet,
     TriggerViewSet,
     UserViewSet,
     VariableViewSet,
@@ -114,6 +116,17 @@ router.register(
     f'{base_diagram_path}/invoices',
     DiagramInvoiceViewSet,
     basename=f'{base_diagram_name}-invoice',
+)
+
+router.register(
+    f'{base_path}/temporary-variables',
+    TemporaryVariableViewSet,
+    basename=f'{base_name}-temporary-variable',
+)
+router.register(
+    f'{base_diagram_path}/temporary-variables',
+    DiagramTemporaryVariableViewSet,
+    basename=f'{base_diagram_name}-temporary-variable',
 )
 
 router.register(

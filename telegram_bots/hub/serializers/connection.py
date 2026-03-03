@@ -12,6 +12,7 @@ from ...models import (
     Invoice,
     Message,
     MessageKeyboardButton,
+    TemporaryVariable,
     Trigger,
 )
 
@@ -45,6 +46,7 @@ class ConnectionSerializer(serializers.ModelSerializer[Connection]):
         ConnectionObjectType.API_REQUEST: APIRequest,
         ConnectionObjectType.DATABASE_OPERATION: DatabaseOperation,
         ConnectionObjectType.INVOICE: Invoice,
+        ConnectionObjectType.TEMPORARY_VARIABLE: TemporaryVariable,
     }
 
     def get_object_type(self, obj: Model) -> str:

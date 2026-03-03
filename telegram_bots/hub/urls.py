@@ -10,6 +10,7 @@ from .views import (
     MessageKeyboardButtonViewSet,
     MessageViewSet,
     TelegramBotViewSet,
+    TemporaryVariableViewSet,
     TriggerViewSet,
     UserViewSet,
     VariableViewSet,
@@ -59,6 +60,11 @@ router.register(
     f'{base_path}/invoices',
     InvoiceViewSet,
     basename=f'{base_name}-invoice',
+)
+router.register(
+    f'{base_path}/temporary-variables',
+    TemporaryVariableViewSet,
+    basename=f'{base_name}-temporary-variable',
 )
 router.register(
     f'{base_path}/variables',
