@@ -11,6 +11,10 @@ from .invoice import DiagramInvoiceViewSet, InvoiceViewSet
 from .message import DiagramMessageViewSet, MessageViewSet
 from .stats import StatsAPIView
 from .telegram_bot import TelegramBotViewSet
+from .temporary_variable import (
+    DiagramTemporaryVariableViewSet,
+    TemporaryVariableViewSet,
+)
 from .trigger import DiagramTriggerViewSet, TriggerViewSet
 from .user import UserViewSet
 from .variable import VariableViewSet
@@ -33,6 +37,8 @@ __all__ = [
     'DiagramDatabaseOperationViewSet',
     'InvoiceViewSet',
     'DiagramInvoiceViewSet',
+    'TemporaryVariableViewSet',
+    'DiagramTemporaryVariableViewSet',
     'VariableViewSet',
     'UserViewSet',
     'DatabaseRecordViewSet',

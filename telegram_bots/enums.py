@@ -34,6 +34,7 @@ class ConnectionObjectType(TextChoices):
     API_REQUEST = 'api_request', _('API-запрос')
     DATABASE_OPERATION = 'database_operation', _('Операция базы данных')
     INVOICE = 'invoice', _('Счёт')
+    TEMPORARY_VARIABLE = 'temporary_variable', _('Временная переменная')
 
     @staticmethod
     def source_choices() -> list[tuple[str, _StrPromise]]:
@@ -48,6 +49,7 @@ class ConnectionObjectType(TextChoices):
                 ConnectionObjectType.API_REQUEST,
                 ConnectionObjectType.DATABASE_OPERATION,
                 ConnectionObjectType.INVOICE,
+                ConnectionObjectType.TEMPORARY_VARIABLE,
             ]
         ]
 
@@ -62,6 +64,7 @@ class ConnectionObjectType(TextChoices):
                 ConnectionObjectType.API_REQUEST,
                 ConnectionObjectType.DATABASE_OPERATION,
                 ConnectionObjectType.INVOICE,
+                ConnectionObjectType.TEMPORARY_VARIABLE,
             ]
         ]
 

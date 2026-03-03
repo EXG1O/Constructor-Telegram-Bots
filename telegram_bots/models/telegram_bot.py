@@ -19,6 +19,7 @@ from .database_operation import DatabaseOperation
 from .database_record import DatabaseRecord
 from .invoice import Invoice, InvoiceImage
 from .message import Message, MessageDocument, MessageImage
+from .temporary_variable import TemporaryVariable
 from .trigger import Trigger
 from .user import User
 from .variable import Variable
@@ -75,6 +76,7 @@ class TelegramBot(models.Model):
         api_requests: models.Manager[APIRequest]
         database_operations: models.Manager[DatabaseOperation]
         invoices: models.Manager[Invoice]
+        temporary_variables: models.Manager[TemporaryVariable]
         variables: models.Manager[Variable]
         users: models.Manager[User]
         database_records: models.Manager[DatabaseRecord]

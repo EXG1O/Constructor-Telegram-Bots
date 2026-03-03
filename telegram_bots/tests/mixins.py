@@ -15,6 +15,7 @@ from ..models import (
     Message,
     MessageSettings,
     TelegramBot,
+    TemporaryVariable,
     Trigger,
     TriggerCommand,
     Variable,
@@ -135,6 +136,19 @@ class InvoiceMixin:
         )
         self.invoice_price: InvoicePrice = self.invoice.prices.create(
             label='My love', amount=9999999
+        )
+
+
+class TemporaryVariableMixin:
+    if TYPE_CHECKING:
+        telegram_bot: TelegramBot
+
+    def setUp(self) -> None:
+        super().setUp()  # type: ignore [misc]
+        self.temporary_variable: TemporaryVariable = (
+            self.telegram_bot.temporary_variables.create(
+                name='test_name', value='value'
+            )
         )
 
 

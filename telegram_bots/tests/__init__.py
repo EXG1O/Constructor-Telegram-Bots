@@ -14,6 +14,10 @@ from .invoice import DiagramInvoiceViewSetTests, InvoiceViewSetTests
 from .message import DiagramMessageViewSetTests, MessageViewSetTests
 from .stats import StatsAPIViewTests
 from .telegram_bot import TelegramBotViewSetTests
+from .temporary_variable import (
+    DiagramTemporaryVariableViewSetTests,
+    TemporaryVariableViewSetTests,
+)
 from .trigger import DiagramTriggerViewSetTests, TriggerViewSetTests
 from .user import UserViewSetTests
 from .variable import VariableViewSetTests
@@ -36,6 +40,8 @@ __all__ = [
     'DiagramTriggerViewSetTests',
     'InvoiceViewSetTests',
     'DiagramInvoiceViewSetTests',
+    'TemporaryVariableViewSetTests',
+    'DiagramTemporaryVariableViewSetTests',
     'VariableViewSetTests',
     'UserViewSetTests',
     'DatabaseRecordViewSetTests',

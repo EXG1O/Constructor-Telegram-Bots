@@ -21,6 +21,7 @@ from .message import (
     MessageSettingsSerializer,
 )
 from .telegram_bot import TelegramBotSerializer
+from .temporary_variable import TemporaryVariableSerializer
 from .trigger import (
     TriggerCommandSerializer,
     TriggerMessageSerializer,
@@ -51,6 +52,7 @@ __all__ = [
     'InvoiceSerializer',
     'InvoiceImageSerializer',
     'InvoicePriceSerializer',
+    'TemporaryVariableSerializer',
     'VariableSerializer',
     'UserSerializer',
     'DatabaseRecordSerializer',
