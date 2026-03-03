@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-12 15:38+0000\n"
+"POT-Creation-Date: 2026-03-03 19:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,6 +132,9 @@ msgstr "Database operation"
 
 msgid "Счёт"
 msgstr "Invoice"
+
+msgid "Временная переменная"
+msgstr "Temporary variable"
 
 msgid "Обычный"
 msgstr "Default"
@@ -430,6 +433,9 @@ msgstr "Added"
 msgid "Telegram бота"
 msgstr "Telegram bot"
 
+msgid "Временные переменные"
+msgstr "Temporary variables"
+
 msgid "Команда"
 msgstr "Command"
 
@@ -574,6 +580,10 @@ msgstr ""
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "You cannot add more than %(max)s messages."
 
+#, python-format
+msgid "Нельзя добавлять больше %(max)s временных переменных."
+msgstr "You cannot add more than %(max)s temporary variables."
+
 msgid ""
 "Триггер должен иметь значение только для одного из полей: 'command' или "
 "'message'."
@@ -592,14 +602,14 @@ msgstr "You cannot add more than %(max)s variables."
 msgid "Недопустимое значение."
 msgstr "Invalid value."
 
+msgid "Значение должно быть целым числом."
+msgstr "The value must be an integer."
+
 msgid "Значение должно быть положительным числом."
 msgstr "The value must be a positive number."
 
 msgid "Значение должно быть не больше 90."
 msgstr "The value must be not greater than 90."
-
-msgid "Значение должно быть целым числом."
-msgstr "The value must be an integer."
 
 msgid "Условия использования сервиса"
 msgstr "Terms of Service"
