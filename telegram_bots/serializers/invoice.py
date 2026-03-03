@@ -1,5 +1,8 @@
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
+from django.db import transaction
+from django.db.models.fields.files import FieldFile
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -9,7 +12,7 @@ from .base import DiagramSerializer, MediaSerializer
 from .mixins import TelegramBotMixin
 
 from contextlib import suppress
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 
 class InvoiceImageSerializer(MediaSerializer[InvoiceImage]):
@@ -112,36 +115,53 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
         image_data: dict[str, Any] | None = validated_data.pop('image', None)
         prices_data: list[dict[str, Any]] | None = validated_data.pop('prices', None)
 
-        invoice: Invoice = self.telegram_bot.invoices.create(**validated_data)
+        image: InvoiceImage | None = None
 
-        if image_data:
-            self.create_image(invoice, image_data)
-        if prices_data:
-            self.create_prices(invoice, prices_data)
+        try:
+            with transaction.atomic():
+                invoice: Invoice = self.telegram_bot.invoices.create(**validated_data)
+
+                if image_data:
+                    image = self.create_image(invoice, image_data)
+                if prices_data:
+                    self.create_prices(invoice, prices_data)
+        except Exception as error:
+            if image and (file := image.file) and (file_name := file.name):
+                default_storage.delete(file_name)
+            raise error
 
         return invoice
 
     def update_image(
         self, invoice: Invoice, data: dict[str, Any] | None
     ) -> InvoiceImage | None:
+        if TYPE_CHECKING:
+            image: InvoiceImage
+
         if not data:
             if not self.partial:
                 with suppress(InvoiceImage.DoesNotExist):
-                    invoice.image.delete()
+                    image = invoice.image
+                    image.delete()
                     del invoice._state.fields_cache['image']
+
+                    if (file := image.file) and (file_name := file.name):
+                        transaction.on_commit(lambda: default_storage.delete(file_name))
             return None
 
         try:
-            image: InvoiceImage = invoice.image
+            image = invoice.image
         except InvoiceImage.DoesNotExist:
             return self.create_image(invoice, data)
 
-        if image.file:
-            image.file.delete(save=False)
+        old_file: FieldFile | None = image.file
 
         image.file = data.get('file')
         image.from_url = data.get('from_url', image.from_url)
         image.save(update_fields=['file', 'from_url'])
+
+        if old_file and (file_name := old_file.name):
+            transaction.on_commit(lambda: default_storage.delete(file_name))
 
         return image
 
@@ -180,13 +200,23 @@ class InvoiceSerializer(TelegramBotMixin, serializers.ModelSerializer[Invoice]):
         image_data: dict[str, Any] | None = validated_data.get('image')
         prices_data: list[dict[str, Any]] | None = validated_data.get('prices')
 
-        invoice.name = validated_data.get('name', invoice.name)
-        invoice.title = validated_data.get('title', invoice.title)
-        invoice.description = validated_data.get('description', invoice.description)
-        invoice.save(update_fields=['name', 'title', 'description'])
+        image: InvoiceImage | None = None
 
-        self.update_image(invoice, image_data)
-        self.update_prices(invoice, prices_data)
+        try:
+            with transaction.atomic():
+                invoice.name = validated_data.get('name', invoice.name)
+                invoice.title = validated_data.get('title', invoice.title)
+                invoice.description = validated_data.get(
+                    'description', invoice.description
+                )
+                invoice.save(update_fields=['name', 'title', 'description'])
+
+                image = self.update_image(invoice, image_data)
+                self.update_prices(invoice, prices_data)
+        except Exception as error:
+            if image and (file := image.file) and (file_name := file.name):
+                default_storage.delete(file_name)
+            raise error
 
         return invoice
 

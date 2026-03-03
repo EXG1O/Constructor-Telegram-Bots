@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -98,14 +99,15 @@ class DatabaseOperationSerializer(
             'update_operation', None
         )
 
-        operation: DatabaseOperation = self.telegram_bot.database_operations.create(
-            **validated_data
-        )
+        with transaction.atomic():
+            operation: DatabaseOperation = self.telegram_bot.database_operations.create(
+                **validated_data
+            )
 
-        if create_operation_data:
-            self.create_create_operation(operation, create_operation_data)
-        elif update_operation_data:
-            self.create_update_operation(operation, update_operation_data)
+            if create_operation_data:
+                self.create_create_operation(operation, create_operation_data)
+            elif update_operation_data:
+                self.create_update_operation(operation, update_operation_data)
 
         return operation
 
@@ -177,11 +179,12 @@ class DatabaseOperationSerializer(
             'update_operation'
         )
 
-        operation.name = validated_data.get('name', operation.name)
-        operation.save(update_fields=['name'])
+        with transaction.atomic():
+            operation.name = validated_data.get('name', operation.name)
+            operation.save(update_fields=['name'])
 
-        self.update_create_operation(operation, create_operation_data)
-        self.update_update_operation(operation, update_operation_data)
+            self.update_create_operation(operation, create_operation_data)
+            self.update_update_operation(operation, update_operation_data)
 
         return operation
 

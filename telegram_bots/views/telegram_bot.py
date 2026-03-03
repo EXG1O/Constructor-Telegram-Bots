@@ -1,3 +1,4 @@
+from django.core.files.storage import default_storage
 from django.db.models import QuerySet
 
 from rest_framework.decorators import action
@@ -11,7 +12,7 @@ from constructor_telegram_bots.permissions import ReadOnly
 from users.authentication import JWTAuthentication
 from users.permissions import IsTermsAccepted
 
-from ..models import TelegramBot
+from ..models import InvoiceImage, MessageDocument, MessageImage, TelegramBot
 from ..serializers import TelegramBotSerializer
 
 
@@ -43,3 +44,22 @@ class TelegramBotViewSet(IDLookupMixin, ModelViewSet[TelegramBot]):
         telegram_bot.stop()
 
         return Response(self.get_serializer(telegram_bot).data)
+
+    def perform_destroy(self, telegram_bot: TelegramBot) -> None:
+        file_names: set[str] = set(
+            MessageImage.objects.values_list('file', flat=True)  # type: ignore [arg-type]
+            .filter(message__telegram_bot=telegram_bot, file__isnull=False)
+            .union(
+                MessageDocument.objects.values_list('file', flat=True).filter(
+                    message__telegram_bot=telegram_bot, file__isnull=False
+                ),
+                InvoiceImage.objects.values_list('file', flat=True).filter(
+                    invoice__telegram_bot=telegram_bot, file__isnull=False
+                ),
+            )
+        )
+
+        super().perform_destroy(telegram_bot)
+
+        for file_name in file_names:
+            default_storage.delete(file_name)
