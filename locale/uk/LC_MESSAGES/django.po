@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-12 15:35+0000\n"
+"POT-Creation-Date: 2026-03-03 19:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -135,6 +135,9 @@ msgstr "Операція бази даних"
 
 msgid "Счёт"
 msgstr "Рахунок"
+
+msgid "Временная переменная"
+msgstr "Тимчасова змінна"
 
 msgid "Обычный"
 msgstr "Звичайний"
@@ -433,6 +436,9 @@ msgstr "Додано"
 msgid "Telegram бота"
 msgstr "Telegram бота"
 
+msgid "Временные переменные"
+msgstr "Тимчасові змінні"
+
 msgid "Команда"
 msgstr "Команда"
 
@@ -577,6 +583,10 @@ msgstr ""
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "Не можна додавати більше %(max)s повідомлень."
 
+#, fuzzy
+msgid "Нельзя добавлять больше %(max)s временных переменных."
+msgstr "Не можна додавати більше %(max)s тимчасових змінних."
+
 msgid ""
 "Триггер должен иметь значение только для одного из полей: 'command' или "
 "'message'."
@@ -595,14 +605,14 @@ msgstr "Не можна додавати більше %(max)s змінних."
 msgid "Недопустимое значение."
 msgstr "Неприпустиме значення."
 
+msgid "Значение должно быть целым числом."
+msgstr "Значення має бути цілим числом."
+
 msgid "Значение должно быть положительным числом."
 msgstr "Значення має бути позитивним числом."
 
 msgid "Значение должно быть не больше 90."
 msgstr "Значення має бути не більше ніж 90."
-
-msgid "Значение должно быть целым числом."
-msgstr "Значення має бути цілим числом."
 
 msgid "Условия использования сервиса"
 msgstr "Умови використання сервісу"
