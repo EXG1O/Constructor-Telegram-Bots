@@ -49,10 +49,14 @@ class MediaSerializer(serializers.ModelSerializer[AMT]):
         }
 
     def get_size(self, media: AMT) -> int | None:
-        return media.file and media.file.size
+        if not media.file:
+            return None
+        return media.file.size
 
     def get_url(self, media: AMT) -> str | None:
-        return media.file and media.file.url
+        if not media.file:
+            return None
+        return media.file.url
 
 
 class MessageMediaSerializer(MediaSerializer[AMMT]):
