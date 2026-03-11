@@ -197,14 +197,13 @@ class MessageSerializer(TelegramBotMixin, serializers.ModelSerializer[Message]):
                 existing_media_size: int = sum(
                     map(
                         force_get_file_size,  # type: ignore [arg-type]
-                        MessageImage.objects.filter(
-                            message=self.instance, file__isnull=False
-                        )
+                        MessageImage.objects.exclude(file='')
+                        .filter(message=self.instance)
                         .values_list('file', flat=True)
                         .union(
-                            MessageDocument.objects.filter(
-                                message=self.instance, file__isnull=False
-                            ).values_list('file', flat=True)
+                            MessageDocument.objects.exclude(file='')
+                            .filter(message=self.instance)
+                            .values_list('file', flat=True)
                         ),
                     )
                 )

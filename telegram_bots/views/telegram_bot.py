@@ -47,15 +47,16 @@ class TelegramBotViewSet(IDLookupMixin, ModelViewSet[TelegramBot]):
 
     def perform_destroy(self, telegram_bot: TelegramBot) -> None:
         file_names: set[str] = set(
-            MessageImage.objects.values_list('file', flat=True)  # type: ignore [arg-type]
-            .filter(message__telegram_bot=telegram_bot, file__isnull=False)
+            MessageImage.objects.exclude(file='')  # type: ignore [arg-type]
+            .filter(message__telegram_bot=telegram_bot)
+            .values_list('file', flat=True)
             .union(
-                MessageDocument.objects.values_list('file', flat=True).filter(
-                    message__telegram_bot=telegram_bot, file__isnull=False
-                ),
-                InvoiceImage.objects.values_list('file', flat=True).filter(
-                    invoice__telegram_bot=telegram_bot, file__isnull=False
-                ),
+                MessageDocument.objects.exclude(file='')
+                .filter(message__telegram_bot=telegram_bot)
+                .values_list('file', flat=True),
+                InvoiceImage.objects.exclude(file='')
+                .filter(invoice__telegram_bot=telegram_bot)
+                .values_list('file', flat=True),
             )
         )
 

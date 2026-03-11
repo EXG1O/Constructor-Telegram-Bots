@@ -37,8 +37,11 @@ class InvoiceViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Invoice]):
         file_name: str | None = None
 
         with suppress(InvoiceImage.DoesNotExist):
-            file_name = InvoiceImage.objects.values_list('file', flat=True).get(
-                invoice=invoice, file__isnull=False
+            file_name = (
+                InvoiceImage.objects.exclude(file='')
+                .filter(invoice=invoice)
+                .values_list('file', flat=True)
+                .get()
             )
 
         super().perform_destroy(invoice)

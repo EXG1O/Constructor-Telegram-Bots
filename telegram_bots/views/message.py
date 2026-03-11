@@ -35,12 +35,13 @@ class MessageViewSet(IDLookupMixin, TelegramBotMixin, ModelViewSet[Message]):
 
     def perform_destroy(self, message: Message) -> None:
         file_names: set[str] = set(
-            MessageImage.objects.values_list('file', flat=True)  # type: ignore [arg-type]
-            .filter(message=message, file__isnull=False)
+            MessageImage.objects.exclude(file='')  # type: ignore [arg-type]
+            .filter(message=message)
+            .values_list('file', flat=True)
             .union(
-                MessageDocument.objects.values_list('file', flat=True).filter(
-                    message=message, file__isnull=False
-                )
+                MessageDocument.objects.exclude(file='')
+                .filter(message=message)
+                .values_list('file', flat=True)
             )
         )
 

@@ -148,17 +148,16 @@ class TelegramBot(models.Model):
         return sum(
             map(
                 force_get_file_size,  # type: ignore [arg-type]
-                MessageImage.objects.filter(
-                    message__telegram_bot=self, file__isnull=False
-                )
+                MessageImage.objects.exclude(file='')
+                .filter(message__telegram_bot=self)
                 .values_list('file', flat=True)
                 .union(
-                    MessageDocument.objects.filter(
-                        message__telegram_bot=self, file__isnull=False
-                    ).values_list('file', flat=True),
-                    InvoiceImage.objects.filter(
-                        invoice__telegram_bot=self, file__isnull=False
-                    ).values_list('file', flat=True),
+                    MessageDocument.objects.exclude(file='')
+                    .filter(message__telegram_bot=self)
+                    .values_list('file', flat=True),
+                    InvoiceImage.objects.exclude(file='')
+                    .filter(invoice__telegram_bot=self)
+                    .values_list('file', flat=True),
                 ),
             )
         )
