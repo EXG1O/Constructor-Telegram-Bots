@@ -47,3 +47,5 @@ class TemporaryVariableSerializer(
 class DiagramTemporaryVariableSerializer(DiagramSerializer[TemporaryVariable]):
     class Meta(DiagramSerializer.Meta):
         model = TemporaryVariable
+        fields = DiagramSerializer.Meta.fields + ['value']
+        read_only_fields = DiagramSerializer.Meta.read_only_fields + ['value']
