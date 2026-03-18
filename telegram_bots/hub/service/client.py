@@ -1,15 +1,14 @@
 from requests_unixsocket import Session
 from yarl import URL
 
-from .schemas import StartTelegramBot
-
 from requests import RequestException, Response
 import requests
 
-from typing import Any, Literal
+from http import HTTPMethod
+from typing import Any
 
 
-class API:
+class ServiceClient:
     def __init__(self, url: str, access_token: str) -> None:
         self.url = URL(url)
         self.headers = {'X-API-KEY': access_token}
@@ -17,7 +16,7 @@ class API:
 
     def _request(
         self,
-        method: Literal['get', 'post', 'patch', 'put', 'delete'],
+        method: HTTPMethod,
         endpoint: str,
         data: Any | None = None,
     ) -> Response | None:
@@ -35,17 +34,19 @@ class API:
         return response
 
     def get_telegram_bot_ids(self) -> list[int]:
-        response: Response | None = self._request('get', 'bots/')
-        return response.json() if response else []
+        response: Response | None = self._request(HTTPMethod.GET, 'bots/')
+        return response.json() if response and response.ok else []
 
-    def start_telegram_bot(self, telegram_bot_id: int, data: StartTelegramBot) -> bool:
+    def start_telegram_bot(self, bot_id: int, bot_token: str) -> bool:
         return (
-            self._request('post', f'bots/{telegram_bot_id}/start/', data=data)
+            self._request(
+                HTTPMethod.POST, f'bots/{bot_id}/start/', data={'bot_token': bot_token}
+            )
             is not None
         )
 
-    def restart_telegram_bot(self, telegram_bot_id: int) -> bool:
-        return self._request('post', f'bots/{telegram_bot_id}/restart/') is not None
+    def restart_telegram_bot(self, bot_id: int) -> bool:
+        return self._request(HTTPMethod.POST, f'bots/{bot_id}/restart/') is not None
 
-    def stop_telegram_bot(self, telegram_bot_id: int) -> bool:
-        return self._request('post', f'bots/{telegram_bot_id}/stop/') is not None
+    def stop_telegram_bot(self, bot_id: int) -> bool:
+        return self._request(HTTPMethod.POST, f'bots/{bot_id}/stop/') is not None

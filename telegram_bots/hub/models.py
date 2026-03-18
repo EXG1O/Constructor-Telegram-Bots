@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django_stubs_ext.db.models import TypedModelMeta
 
 from ..utils import get_telegram_bot_modal
-from .service import API
+from .service.client import ServiceClient
 
 from typing import TYPE_CHECKING, Any
 
@@ -20,14 +20,14 @@ else:
 class TelegramBotsHubManager(models.Manager['TelegramBotsHub']):
     def get_freest(self) -> TelegramBotsHub | None:
         return (
-            sorted(hubs, key=lambda hub: hub.api.get_telegram_bot_ids())[0]
+            sorted(hubs, key=lambda hub: hub.client.get_telegram_bot_ids())[0]
             if (hubs := self.all())
             else None
         )
 
     def get_telegram_bot_hub(self, telegram_bot_id: int) -> TelegramBotsHub | None:
         for hub in self.all():
-            if telegram_bot_id in hub.api.get_telegram_bot_ids():
+            if telegram_bot_id in hub.client.get_telegram_bot_ids():
                 return hub
 
         return None
@@ -53,8 +53,8 @@ class TelegramBotsHub(models.Model):
         return self.url
 
     @cached_property
-    def api(self) -> API:
-        return API(self.url, self.microservice_token)
+    def client(self) -> ServiceClient:
+        return ServiceClient(self.url, self.microservice_token)
 
     @property
     def telegram_bots(self) -> QuerySet[TelegramBot]:
@@ -63,4 +63,6 @@ class TelegramBotsHub(models.Model):
         if settings.TEST:
             return telegram_bot_modal.objects.all()
 
-        return telegram_bot_modal.objects.filter(id__in=self.api.get_telegram_bot_ids())
+        return telegram_bot_modal.objects.filter(
+            id__in=self.client.get_telegram_bot_ids()
+        )
