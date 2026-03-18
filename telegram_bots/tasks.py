@@ -44,7 +44,7 @@ def start_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
     if not hub:
         return
 
-    hub.api.start_telegram_bot(telegram_bot.id, {'bot_token': telegram_bot.api_token})
+    hub.client.start_telegram_bot(telegram_bot.id, telegram_bot.api_token)
 
 
 @shared_task
@@ -53,7 +53,7 @@ def restart_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> Non
     if not telegram_bot.hub:
         return
 
-    telegram_bot.hub.api.restart_telegram_bot(telegram_bot.id)
+    telegram_bot.hub.client.restart_telegram_bot(telegram_bot.id)
 
 
 @shared_task
@@ -62,7 +62,7 @@ def stop_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
     if not telegram_bot.hub:
         return
 
-    telegram_bot.hub.api.stop_telegram_bot(telegram_bot.id)
+    telegram_bot.hub.client.stop_telegram_bot(telegram_bot.id)
 
 
 @shared_task
