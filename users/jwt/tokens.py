@@ -192,7 +192,7 @@ class AccessToken(BaseToken[AccessTokenPayload]):
             BlacklistedToken.objects.filter(
                 token__jti=self.payload.refresh_jti, token__type=TokenType.REFRESH
             ).exists()
-            and super().is_blacklisted
+            or super().is_blacklisted
         )
 
     def _validate_refresh_jti(self, payload: dict[str, Any]) -> None:
