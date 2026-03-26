@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .jwt.tokens import RefreshToken
-from .models import User
+from .models import Token, User
 from .utils.auth import authenticate_token
 
 
@@ -40,3 +40,13 @@ class UserTokenRefreshSerializer(serializers.Serializer[User]):
             exception_cls=serializers.ValidationError,
         )
         return refresh_token
+
+
+class TokenSerializer(serializers.ModelSerializer[Token]):
+    blacklisted_date = serializers.DateTimeField(
+        source='blacklisted.blacklisted_date', allow_null=True
+    )
+
+    class Meta:
+        model = Token
+        fields = ['jti', 'type', 'blacklisted_date', 'expiry_date', 'created_date']

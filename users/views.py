@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -9,18 +10,28 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from constructor_telegram_bots.permissions import ReadOnly
 
 from .authentication import JWTAuthentication
 from .backends import TelegramBackend
 from .jwt.tokens import RefreshToken
-from .models import User
-from .serializers import UserLoginSerializer, UserSerializer, UserTokenRefreshSerializer
+from .models import Token, User
+from .permissions import IsTermsAccepted
+from .serializers import (
+    TokenSerializer,
+    UserLoginSerializer,
+    UserSerializer,
+    UserTokenRefreshSerializer,
+)
 from .utils.auth import login as user_login
 from .utils.auth import logout as user_logout
 from .utils.auth import logout_all as user_logout_all
 
-from typing import Any
+from typing import Any, cast
 
 
 class StatsAPIView(APIView):
@@ -102,3 +113,20 @@ class UserViewSet(RetrieveModelMixin, GenericViewSet[User]):
         user.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TokenViewSet(ReadOnlyModelViewSet[Token]):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
+    serializer_class = TokenSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['type']
+    lookup_field = 'jti'
+
+    def get_queryset(self) -> QuerySet[Token]:
+        tokens: QuerySet[Token] = cast(User, self.request.user).tokens.all()
+
+        if self.action in ('list', 'retrieve'):
+            return tokens.select_related('blacklisted')
+
+        return tokens
