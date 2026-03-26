@@ -6,6 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from users.tests.mixins import UserMixin
 from users.utils.tests import (
     assert_view_basic_protected,
     assert_view_requires_terms_acceptance,
@@ -14,7 +15,7 @@ from users.utils.tests import (
 from ..enums import ConnectionHandlePosition, ConnectionObjectType, KeyboardType
 from ..models import Connection, Message, MessageKeyboard, MessageKeyboardButton
 from ..views import ConnectionViewSet
-from .mixins import TelegramBotMixin, UserMixin
+from .mixins import TelegramBotMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING

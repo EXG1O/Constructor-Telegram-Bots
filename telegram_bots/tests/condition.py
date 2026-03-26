@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from users.tests.mixins import UserMixin
 from users.utils.tests import (
     assert_view_basic_protected,
     assert_view_requires_terms_acceptance,
@@ -19,7 +20,7 @@ from ..enums import (
 )
 from ..models import Condition
 from ..views import ConditionViewSet, DiagramConditionViewSet
-from .mixins import ConditionMixin, TelegramBotMixin, UserMixin
+from .mixins import ConditionMixin, TelegramBotMixin
 
 from contextlib import suppress
 from typing import TYPE_CHECKING

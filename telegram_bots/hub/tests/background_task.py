@@ -6,7 +6,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ...tests.mixins import BackgroundTaskMixin, TelegramBotMixin, UserMixin
+from users.tests.mixins import UserMixin
+
+from ...tests.mixins import BackgroundTaskMixin, TelegramBotMixin
 from ..views import BackgroundTaskViewSet
 from .mixins import HubMixin
 from .utils import assert_view_basic_protected
