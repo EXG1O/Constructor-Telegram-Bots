@@ -7,7 +7,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from ..jwt.tokens import AccessToken, RefreshToken
+from users.tests.mixins import UserMixin
+
+from ..jwt.tokens import RefreshToken
 from ..models import User
 from ..utils.tests import assert_view_basic_protected
 from ..views import UserViewSet
@@ -22,12 +24,10 @@ import time
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
-class UserViewSetTests(TestCase):
+class UserViewSetTests(UserMixin, TestCase):
     def setUp(self) -> None:
+        super().setUp()
         self.factory = APIRequestFactory()
-        self.user: User = User.objects.create(telegram_id=123456789, first_name='exg1o')
-        self.refresh_token: RefreshToken = RefreshToken.for_user(self.user)
-        self.access_token: AccessToken = self.refresh_token.access_token
 
     def test_retrieve(self) -> None:
         view = UserViewSet.as_view({'get': 'retrieve'})
@@ -36,9 +36,9 @@ class UserViewSetTests(TestCase):
             response: Response
 
         request: Request = self.factory.get(reverse('api:users:user-detail'))
-        assert_view_basic_protected(view, request, self.access_token)
+        assert_view_basic_protected(view, request, self.user_access_token)
 
-        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -93,14 +93,14 @@ class UserViewSetTests(TestCase):
             response: Response
 
         request: Request = self.factory.post(reverse('api:users:user-logout'))
-        assert_view_basic_protected(view, request, self.access_token)
+        assert_view_basic_protected(view, request, self.user_access_token)
 
         request.session = SessionStore()
-        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(self.refresh_token.is_blacklisted)
+        self.assertTrue(self.user_refresh_token.is_blacklisted)
 
     def test_logout_all(self) -> None:
         view = UserViewSet.as_view({'post': 'logout_all'})
@@ -109,16 +109,16 @@ class UserViewSetTests(TestCase):
             response: Response
 
         request: Request = self.factory.post(reverse('api:users:user-logout-all'))
-        assert_view_basic_protected(view, request, self.access_token)
+        assert_view_basic_protected(view, request, self.user_access_token)
 
         request.session = SessionStore()
-        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(self.refresh_token.is_blacklisted)
+        self.assertTrue(self.user_refresh_token.is_blacklisted)
         self.assertTrue(second_refresh_token.is_blacklisted)
 
     def test_token_refresh(self) -> None:
@@ -143,7 +143,7 @@ class UserViewSetTests(TestCase):
 
         request = self.factory.post(
             reverse('api:users:user-token-refresh'),
-            data={'refresh_token': str(self.refresh_token)},
+            data={'refresh_token': str(self.user_refresh_token)},
             format='json',
         )
         force_authenticate(request, self.user, None)
@@ -158,12 +158,13 @@ class UserViewSetTests(TestCase):
             response: Response
 
         request: Request = self.factory.post(reverse('api:users:user-accept-terms'))
-        assert_view_basic_protected(view, request, self.access_token)
+        assert_view_basic_protected(view, request, self.user_access_token)
 
-        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
-        self.assertFalse(self.user.accepted_terms)
-        self.assertIsNone(self.user.terms_accepted_date)
+        self.user.accepted_terms = False
+        self.user.terms_accepted_date = None
+        self.user.save(update_fields=['accepted_terms', 'terms_accepted_date'])
 
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -177,10 +178,10 @@ class UserViewSetTests(TestCase):
             response: Response
 
         request: Request = self.factory.delete(reverse('api:users:user-detail'))
-        assert_view_basic_protected(view, request, self.access_token)
+        assert_view_basic_protected(view, request, self.user_access_token)
 
         request.session = SessionStore()
-        force_authenticate(request, self.user, self.access_token)  # type: ignore [arg-type]
+        force_authenticate(request, self.user, self.user_access_token)  # type: ignore [arg-type]
 
         second_refresh_token: RefreshToken = RefreshToken.for_user(self.user)
 
@@ -191,5 +192,5 @@ class UserViewSetTests(TestCase):
             self.user.refresh_from_db()
             raise self.failureException('User has not been deleted from database.')
 
-        self.assertTrue(self.refresh_token.is_blacklisted)
+        self.assertTrue(self.user_refresh_token.is_blacklisted)
         self.assertTrue(second_refresh_token.is_blacklisted)
