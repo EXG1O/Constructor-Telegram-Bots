@@ -5,12 +5,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate
 
-from .jwt.tokens import AccessToken, RefreshToken
-from .models import User
-from .utils.tests import assert_view_basic_protected
-from .views import UserViewSet
+from ..jwt.tokens import AccessToken, RefreshToken
+from ..models import User
+from ..utils.tests import assert_view_basic_protected
+from ..views import UserViewSet
 
 from contextlib import suppress
 from importlib import import_module
@@ -20,17 +20,6 @@ import hmac
 import time
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
-
-
-class StatsAPIViewTests(TestCase):
-    url: str = reverse('api:users:stats')
-
-    def setUp(self) -> None:
-        self.client: APIClient = APIClient()
-
-    def test_get_method(self) -> None:
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class UserViewSetTests(TestCase):
