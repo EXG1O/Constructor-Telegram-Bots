@@ -5,6 +5,7 @@ from django.views.decorators.cache import cache_page
 
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -119,8 +120,9 @@ class TokenViewSet(ReadOnlyModelViewSet[Token]):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated & (IsTermsAccepted | ReadOnly)]
     serializer_class = TokenSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['type']
+    ordering = ['-created_date']
     lookup_field = 'jti'
 
     def get_queryset(self) -> QuerySet[Token]:
