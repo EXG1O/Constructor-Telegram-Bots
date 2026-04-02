@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 19:25+0000\n"
+"POT-Creation-Date: 2026-04-02 11:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -460,8 +460,11 @@ msgstr "Повідомлення тригери"
 msgid "Триггеры"
 msgstr "Тригери"
 
-msgid "Имя и фамилия"
-msgstr "Ім'я та прізвище"
+msgid "Имя"
+msgstr "Ім'я"
+
+msgid "Фамилия"
+msgstr "Прізвище"
 
 msgid "Разрешён"
 msgstr "Дозволено"
@@ -583,7 +586,7 @@ msgstr ""
 msgid "Нельзя добавлять больше %(max)s сообщений."
 msgstr "Не можна додавати більше %(max)s повідомлень."
 
-#, fuzzy
+#, fuzzy, python-format
 msgid "Нельзя добавлять больше %(max)s временных переменных."
 msgstr "Не можна додавати більше %(max)s тимчасових змінних."
 
@@ -634,12 +637,6 @@ msgstr "Токен оновлення"
 
 msgid "Токен разрешения"
 msgstr "Токен дозволу"
-
-msgid "Имя"
-msgstr "Ім'я"
-
-msgid "Фамилия"
-msgstr "Прізвище"
 
 msgid "Принятие условий сервиса"
 msgstr "Прийняття умов сервісу"

@@ -103,14 +103,15 @@ class TelegramBotAdmin(admin.ModelAdmin[TelegramBot]):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin[User]):
-    search_fields = ['telegram_id', 'full_name']
+    search_fields = ['telegram_id', 'first_name', 'last_name']
     date_hierarchy = 'activated_date'
     list_filter = ['is_allowed', 'is_blocked', 'last_activity_date', 'activated_date']
     list_display = [
         'id',
         'telegram_bot',
         'telegram_id',
-        'full_name',
+        'first_name',
+        'last_name',
         'is_allowed',
         'is_blocked',
         'last_activity_date',
@@ -120,7 +121,8 @@ class UserAdmin(admin.ModelAdmin[User]):
         'id',
         'telegram_bot',
         'telegram_id',
-        'full_name',
+        'first_name',
+        'last_name',
         'is_allowed',
         'is_blocked',
         'last_activity_date',
