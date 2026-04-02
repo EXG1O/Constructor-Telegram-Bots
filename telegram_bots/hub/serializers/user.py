@@ -14,8 +14,11 @@ class UserSerializer(TelegramBotMixin, serializers.ModelSerializer[User]):
         fields = [
             'id',
             'telegram_id',
+            'username',
             'first_name',
             'last_name',
+            'is_bot',
+            'is_premium',
             'is_allowed',
             'is_blocked',
         ]
@@ -29,9 +32,21 @@ class UserSerializer(TelegramBotMixin, serializers.ModelSerializer[User]):
         )
 
         if not created:
+            user.username = validated_data.get('username', user.username)
             user.first_name = validated_data.get('first_name', user.first_name)
             user.last_name = validated_data.get('last_name', user.last_name)
+            user.is_bot = validated_data.get('is_bot', user.is_bot)
+            user.is_premium = validated_data.get('is_premium', user.is_premium)
             user.last_activity_date = timezone.now()
-            user.save(update_fields=['first_name', 'last_name', 'last_activity_date'])
+            user.save(
+                update_fields=[
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'is_bot',
+                    'is_premium',
+                    'last_activity_date',
+                ]
+            )
 
         return user

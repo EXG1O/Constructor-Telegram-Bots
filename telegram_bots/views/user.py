@@ -48,7 +48,7 @@ class UserViewSet(
     serializer_class = UserSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
-    search_fields = ['telegram_id', 'full_name']
+    search_fields = ['telegram_id', 'username', 'first_name', 'last_name']
     filterset_fields = ['is_allowed', 'is_blocked']
     ordering = ['-id']
 
