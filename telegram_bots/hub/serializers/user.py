@@ -11,7 +11,14 @@ from typing import Any
 class UserSerializer(TelegramBotMixin, serializers.ModelSerializer[User]):
     class Meta:
         model = User
-        fields = ['id', 'telegram_id', 'full_name', 'is_allowed', 'is_blocked']
+        fields = [
+            'id',
+            'telegram_id',
+            'first_name',
+            'last_name',
+            'is_allowed',
+            'is_blocked',
+        ]
         read_only_fields = ['is_allowed', 'is_blocked']
 
     def create(self, validated_data: dict[str, Any]) -> User:
@@ -22,8 +29,9 @@ class UserSerializer(TelegramBotMixin, serializers.ModelSerializer[User]):
         )
 
         if not created:
-            user.full_name = validated_data.get('full_name', user.full_name)
+            user.first_name = validated_data.get('first_name', user.first_name)
+            user.last_name = validated_data.get('last_name', user.last_name)
             user.last_activity_date = timezone.now()
-            user.save(update_fields=['full_name', 'last_activity_date'])
+            user.save(update_fields=['first_name', 'last_name', 'last_activity_date'])
 
         return user

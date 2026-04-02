@@ -90,7 +90,7 @@ class UserViewSetTests(BotUserMixin, TelegramBotMixin, UserMixin, HubMixin, Test
 
         request = self.factory.post(
             self.list_true_url,
-            {'telegram_id': 1, 'full_name': 'Durov <3'},
+            {'telegram_id': 1, 'first_name': 'Durov', 'last_name': '<3'},
             format='json',
         )
         force_authenticate(request, self.hub, self.hub.service_token)  # type: ignore [arg-type]

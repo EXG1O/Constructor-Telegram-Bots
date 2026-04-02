@@ -11,12 +11,13 @@ class UserSerializer(serializers.ModelSerializer[User]):
         fields = [
             'id',
             'telegram_id',
-            'full_name',
+            'first_name',
+            'last_name',
             'is_allowed',
             'is_blocked',
             'activated_date',
         ]
-        read_only_fields = ['telegram_id', 'full_name', 'activated_date']
+        read_only_fields = ['telegram_id', 'first_name', 'last_name', 'activated_date']
 
     def update(self, user: User, validated_data: dict[str, Any]) -> User:
         user.is_allowed = validated_data.get('is_allowed', user.is_allowed)

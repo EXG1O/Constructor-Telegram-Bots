@@ -12,7 +12,8 @@ class User(models.Model):
         verbose_name=_('Telegram бот'),
     )
     telegram_id = models.PositiveBigIntegerField('Telegram ID')
-    full_name = models.CharField(_('Имя и фамилия'), max_length=129)
+    first_name = models.CharField(_('Имя'), max_length=64)
+    last_name = models.CharField(_('Фамилия'), max_length=64, blank=True, null=True)
     is_allowed = models.BooleanField(_('Разрешён'), default=False)
     is_blocked = models.BooleanField(_('Заблокирован'), default=False)
     last_activity_date = models.DateTimeField(
@@ -26,4 +27,4 @@ class User(models.Model):
         verbose_name_plural = _('Пользователи')
 
     def __str__(self) -> str:
-        return self.full_name
+        return f'{self.first_name} {self.last_name or ""}'.strip()
