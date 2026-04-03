@@ -12,8 +12,13 @@ class User(models.Model):
         verbose_name=_('Telegram бот'),
     )
     telegram_id = models.PositiveBigIntegerField('Telegram ID')
+    username = models.CharField(
+        _('Имя пользователя'), max_length=32, blank=True, null=True
+    )
     first_name = models.CharField(_('Имя'), max_length=64)
     last_name = models.CharField(_('Фамилия'), max_length=64, blank=True, null=True)
+    is_bot = models.BooleanField(_('Бот'), default=False)
+    is_premium = models.BooleanField(_('Премиум'), default=False)
     is_allowed = models.BooleanField(_('Разрешён'), default=False)
     is_blocked = models.BooleanField(_('Заблокирован'), default=False)
     last_activity_date = models.DateTimeField(
@@ -23,6 +28,7 @@ class User(models.Model):
 
     class Meta(TypedModelMeta):
         db_table = 'telegram_bot_user'
+        indexes = [models.Index(fields=['telegram_id'])]
         verbose_name = _('Пользователя')
         verbose_name_plural = _('Пользователи')
 

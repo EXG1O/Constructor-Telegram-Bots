@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-02 11:25+0000\n"
+"POT-Creation-Date: 2026-04-02 17:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -460,11 +460,20 @@ msgstr "Повідомлення тригери"
 msgid "Триггеры"
 msgstr "Тригери"
 
+msgid "Имя пользователя"
+msgstr "Ім'я користувача"
+
 msgid "Имя"
 msgstr "Ім'я"
 
 msgid "Фамилия"
 msgstr "Прізвище"
+
+msgid "Бот"
+msgstr "Бот"
+
+msgid "Премиум"
+msgstr "Преміум"
 
 msgid "Разрешён"
 msgstr "Дозволено"
