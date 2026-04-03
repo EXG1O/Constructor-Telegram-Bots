@@ -3,9 +3,9 @@ from celery import shared_task
 from .hub.utils import get_telegram_bots_hub_modal
 from .utils import get_telegram_bot_modal
 
-from collections.abc import Callable
-from functools import wraps
-from typing import TYPE_CHECKING, Any, Concatenate
+from collections.abc import Generator
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .hub.models import TelegramBotsHub
@@ -15,54 +15,44 @@ else:
     TelegramBotsHub = Any
 
 
-def execute_task[**P, R](
-    func: Callable[Concatenate[TelegramBot, P], R],
-) -> Callable[P, R]:
-    @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        telegram_bot_id = kwargs['telegram_bot_id']
-        assert isinstance(telegram_bot_id, int)
+@contextmanager
+def telegram_bot_processing(telegram_bot_id: int) -> Generator[TelegramBot]:
+    telegram_bot: TelegramBot = get_telegram_bot_modal().objects.get(id=telegram_bot_id)
 
-        telegram_bot: TelegramBot = get_telegram_bot_modal().objects.get(
-            id=telegram_bot_id
-        )
-
-        try:
-            return func(telegram_bot, *args, **kwargs)
-        finally:
-            telegram_bot.is_loading = False
-            telegram_bot.save(update_fields=['is_loading'])
-
-    return wrapper
+    try:
+        yield telegram_bot
+    finally:
+        telegram_bot.is_loading = False
+        telegram_bot.save(update_fields=['is_loading'])
 
 
 @shared_task
-@execute_task
-def start_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
-    hub: TelegramBotsHub | None = get_telegram_bots_hub_modal().objects.get_freest()
+def start_telegram_bot(telegram_bot_id: int) -> None:
+    with telegram_bot_processing(telegram_bot_id) as telegram_bot:
+        hub: TelegramBotsHub | None = get_telegram_bots_hub_modal().objects.get_freest()
 
-    if not hub:
-        return
+        if not hub:
+            return
 
-    hub.client.start_telegram_bot(telegram_bot.id, telegram_bot.api_token)
-
-
-@shared_task
-@execute_task
-def restart_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
-    if not telegram_bot.hub:
-        return
-
-    telegram_bot.hub.client.restart_telegram_bot(telegram_bot.id)
+        hub.client.start_telegram_bot(telegram_bot.id, telegram_bot.api_token)
 
 
 @shared_task
-@execute_task
-def stop_telegram_bot(telegram_bot: TelegramBot, telegram_bot_id: int) -> None:
-    if not telegram_bot.hub:
-        return
+def restart_telegram_bot(telegram_bot_id: int) -> None:
+    with telegram_bot_processing(telegram_bot_id) as telegram_bot:
+        if not telegram_bot.hub:
+            return
 
-    telegram_bot.hub.client.stop_telegram_bot(telegram_bot.id)
+        telegram_bot.hub.client.restart_telegram_bot(telegram_bot.id)
+
+
+@shared_task
+def stop_telegram_bot(telegram_bot_id: int) -> None:
+    with telegram_bot_processing(telegram_bot_id) as telegram_bot:
+        if not telegram_bot.hub:
+            return
+
+        telegram_bot.hub.client.stop_telegram_bot(telegram_bot.id)
 
 
 @shared_task
