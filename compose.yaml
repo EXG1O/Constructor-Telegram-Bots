@@ -1,0 +1,188 @@
+name: constructor-telegram-bots
+
+x-backend-common: &backend-common
+  build: ./backend
+  environment:
+    - MODE=${MODE:-locale}
+    - SECRET_KEY=${SECRET_KEY}
+    - SELF_URL=${SELF_URL}
+    - SELF_UNIX_SOCK=/app/sockets/main.sock
+    - ENABLE_TELEGRAM_AUTH=${ENABLE_TELEGRAM_AUTH:-true}
+    - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    - POSTGRESQL_DATABASE_NAME=${DATABASE_NAME:-constructor_telegram_bots}
+    - POSTGRESQL_DATABASE_USER=${DATABASE_USER:-exg1o}
+    - POSTGRESQL_DATABASE_PASSWORD=${DATABASE_PASSWORD:-password}
+    - POSTGRESQL_DATABASE_HOST=pgbouncer
+    - POSTGRESQL_DATABASE_PORT=5432
+    - REDIS_URL=redis://redis:6379
+    - TELEGRAM_BOTS_HUB_NETWORK=constructor-telegram-bots-net
+    - TELEGRAM_BOTS_HUB_REDIS_URL=redis://redis:6379/1
+    - TELEGRAM_BOTS_HUB_SOCKETS_VOLUME=constructor-telegram-bots_sockets
+    - TELEGRAM_BOTS_HUB_LOGS_VOLUME=constructor-telegram-bots_logs
+    - FRONTEND_PATH=/app/frontend
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - frontend_data:/app/frontend
+    - backend_locale:/app/locale
+    - sockets:/app/sockets
+    - logs:/app/logs
+    - ${PWD}/static:/app/static
+    - ${PWD}/media:/app/media
+  networks:
+    - constructor-telegram-bots-net
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    shm_size: 2gb
+    command: >
+      postgres
+      -c shared_buffers=2GB
+      -c effective_cache_size=6GB
+      -c work_mem=16MB
+      -c maintenance_work_mem=512MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+      -c checkpoint_completion_target=0.9
+      -c checkpoint_timeout=15min
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c max_connections=300
+    environment:
+      - POSTGRES_USER=${DATABASE_USER:-exg1o}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
+      - POSTGRES_DB=${DATABASE_NAME:-constructor_telegram_bots}
+    volumes:
+      - postgres_data:/var/lib/postgresql/18/docker
+    networks:
+      - constructor-telegram-bots-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-exg1o} -d ${DATABASE_NAME:-constructor_telegram_bots}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    environment:
+      - AUTH_TYPE=scram-sha-256
+      - DB_USER=${DATABASE_USER:-exg1o}
+      - DB_PASSWORD=${DATABASE_PASSWORD:-password}
+      - DB_HOST=postgres
+      - DB_NAME=${DATABASE_NAME:-constructor_telegram_bots}
+      - POOL_MODE=session
+      - MAX_CLIENT_CONN=10000
+      - DEFAULT_POOL_SIZE=100
+      - MIN_POOL_SIZE=20
+      - RESERVE_POOL_SIZE=10
+      - RESERVE_POOL_TIMEOUT=3
+      - SERVER_LIFETIME=3600
+      - SERVER_IDLE_TIMEOUT=600
+    networks:
+      - constructor-telegram-bots-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432 -U ${DATABASE_USER:-exg1o}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - constructor-telegram-bots-net
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    environment:
+      - ENABLE_TELEGRAM_AUTH=${ENABLE_TELEGRAM_AUTH:-true}
+      - TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID}
+    volumes:
+      - frontend_data:/app
+    networks:
+      - constructor-telegram-bots-net
+
+  backend:
+    <<: *backend-common
+    command: >
+      sh -c "python manage.py migrate &&
+      python manage.py compilemessages -i .venv &&
+      python manage.py collectstatic --noinput"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      frontend:
+        condition: service_completed_successfully
+
+  django:
+    <<: *backend-common
+    command: gunicorn -c constructor_telegram_bots/gunicorn.py constructor_telegram_bots.wsgi:application
+    depends_on:
+      backend:
+        condition: service_completed_successfully
+
+  nginx:
+    image: nginx:alpine
+    profiles:
+      - nginx
+    ports:
+      - ${HTTP_PORT:-8000}:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - sockets:/app/sockets
+      - ${PWD}/static:/app/static:ro
+      - ${PWD}/media:/app/media:ro
+    networks:
+      - constructor-telegram-bots-net
+    depends_on:
+      django:
+        condition: service_started
+
+  celery-worker:
+    <<: *backend-common
+    command: celery -A constructor_telegram_bots worker -l INFO -f ./logs/celery_worker.log
+    depends_on:
+      backend:
+        condition: service_completed_successfully
+
+  celery-beat:
+    <<: *backend-common
+    command: celery -A constructor_telegram_bots beat -l INFO -f ./logs/celery_beat.log
+    depends_on:
+      backend:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
+  redis_data:
+  frontend_data:
+  backend_locale:
+  sockets:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/sockets
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/logs
+
+networks:
+  constructor-telegram-bots-net:
+    name: constructor-telegram-bots-net

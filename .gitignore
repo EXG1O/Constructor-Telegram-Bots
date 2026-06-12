@@ -1,0 +1,6 @@
+logs/
+locale/
+sockets/
+media/
+static/
+.env
