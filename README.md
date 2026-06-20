@@ -4,9 +4,15 @@
 
 ## Motivation
 
-The motivation for this project stemmed from observing that similar platforms are heavily commercialized with multiple subscription tiers. These tiers are quite expensive and don't actually eliminate limitations entirely, they simply make them less restrictive.
+The motivation for this project stemmed from observing that similar platforms are heavily commercialized with multiple subscription tiers. These tiers are quite expensive and don't actually eliminate limitations entirely, they simply make them less restrictive. Meanwhile, the free versions are usually not very useful.
 
-Meanwhile, the free versions are usually not very useful. [Constructor Telegram Bots](https://constructor.exg1o.org/) exists as a genuinely free alternative that doesn't compromise on functionality, allowing anyone to build powerful bots without artificial limitations.
+[Constructor Telegram Bots](https://constructor.exg1o.org/) exists as a genuinely free alternative that doesn't compromise on functionality, allowing anyone to build powerful bots without artificial limitations.
+
+## Quick Start
+
+You can start using the platform immediately by visiting [**constructor.exg1o.org**](https://constructor.exg1o.org/).
+
+Alternatively, you can self-host the platform using the installation instructions below.
 
 ## Requirements
 
