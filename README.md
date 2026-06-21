@@ -22,6 +22,7 @@ Alternatively, you can self-host the platform using the installation instruction
 ## Installation
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
@@ -30,18 +31,23 @@ git submodule update --init --recursive
 ```
 
 ### 2. Configure environment variables
+
 Copy the example environment file and configure it with your settings:
+
 ```bash
 cp .env.example .env
 ```
 
 ### 3. Start the platform
+
 Run the Docker Compose services in the background:
+
 ```bash
 docker compose up --build -d
 ```
 
 To include the [Nginx](https://nginx.org/) reverse proxy, use:
+
 ```bash
 docker compose --profile nginx up --build -d
 ```
