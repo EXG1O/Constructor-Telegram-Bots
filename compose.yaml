@@ -7,8 +7,8 @@ x-backend-common: &backend-common
     - SECRET_KEY=${SECRET_KEY}
     - SELF_URL=${SELF_URL}
     - SELF_UNIX_SOCK=/app/sockets/main.sock
-    - ENABLE_TELEGRAM_AUTH=${ENABLE_TELEGRAM_AUTH:-true}
-    - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    - TELEGRAM_LOGIN_CLIENT_ID=${TELEGRAM_LOGIN_CLIENT_ID}
+    - TELEGRAM_LOGIN_CLIENT_SECRET=${TELEGRAM_LOGIN_CLIENT_SECRET}
     - POSTGRESQL_DATABASE_NAME=${DATABASE_NAME:-constructor_telegram_bots}
     - POSTGRESQL_DATABASE_USER=${DATABASE_USER:-exg1o}
     - POSTGRESQL_DATABASE_PASSWORD=${DATABASE_PASSWORD:-password}
@@ -106,8 +106,7 @@ services:
   frontend:
     build: ./frontend
     environment:
-      - ENABLE_TELEGRAM_AUTH=${ENABLE_TELEGRAM_AUTH:-true}
-      - TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID}
+      - TELEGRAM_LOGIN_CLIENT_ID=${TELEGRAM_LOGIN_CLIENT_ID}
     volumes:
       - frontend_data:/app
     networks:
