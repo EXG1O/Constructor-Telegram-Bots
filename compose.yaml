@@ -21,7 +21,7 @@ x-backend-common: &backend-common
     - TELEGRAM_BOTS_HUB_LOGS_VOLUME=constructor-telegram-bots_logs
     - FRONTEND_PATH=/app/frontend
   volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
+    - ${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock
     - frontend_dist:/app/frontend/dist
     - backend_locale:/app/locale
     - sockets:/app/sockets

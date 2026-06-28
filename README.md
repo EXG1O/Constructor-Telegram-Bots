@@ -19,6 +19,10 @@ Alternatively, you can self-host the platform using the installation instruction
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
+## Security Recommendations
+
+It is recommended to run Docker in [Rootless mode](https://docs.docker.com/engine/security/rootless/) for enhanced security. This prevents the Docker daemon from running with root privileges.
+
 ## Installation
 
 ### 1. Clone the repository
