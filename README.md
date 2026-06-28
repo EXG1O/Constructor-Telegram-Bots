@@ -42,7 +42,15 @@ Copy the example environment file and configure it with your settings:
 cp .env.example .env
 ```
 
-### 3. Start the platform
+### 3. Create required directories
+
+Create the following directories:
+
+```bash
+mkdir -p logs sockets static media
+```
+
+### 4. Start the platform
 
 Run the Docker Compose services in the background:
 
