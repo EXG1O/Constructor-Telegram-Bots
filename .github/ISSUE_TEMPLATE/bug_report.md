@@ -23,6 +23,9 @@ What should have happened?
 What actually happened?
 
 ## Environment
+- **Operating system**: Linux (mention specific distribution/version)
 - **Docker version**: x.x.x
 - **Docker Compose version**: x.x.x
-- **Operating system**: Linux (mention specific distribution/version)
+
+## Logs
+Please attach the log files from the project directory `./logs`.
