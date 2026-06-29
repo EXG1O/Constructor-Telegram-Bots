@@ -1,0 +1,7 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/EXG1O/Constructor-Telegram-Bots-Backend.git
+
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/EXG1O/Constructor-Telegram-Bots-Frontend.git
