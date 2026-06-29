@@ -1,0 +1,45 @@
+name: Main CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  MODE: production
+  SECRET_KEY: test_secret_key
+  TELEGRAM_LOGIN_CLIENT_ID: 123456789
+  TELEGRAM_LOGIN_CLIENT_SECRET: client_secret
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create required directories
+        run: mkdir -p logs sockets static media
+
+      - name: Start services
+        run: docker compose --profile nginx up --build -d
+
+      - name: Check services health
+        run: bash scripts/health-checker.sh
+
+      - name: Debug services logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
