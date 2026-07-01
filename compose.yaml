@@ -34,6 +34,7 @@ x-backend-common: &backend-common
 services:
   postgres:
     image: postgres:18-alpine
+    restart: unless-stopped
     shm_size: 2gb
     command: >
       postgres
@@ -66,6 +67,7 @@ services:
 
   pgbouncer:
     image: edoburu/pgbouncer
+    restart: unless-stopped
     environment:
       - AUTH_TYPE=scram-sha-256
       - DB_USER=${DATABASE_USER:-exg1o}
@@ -93,6 +95,7 @@ services:
 
   redis:
     image: redis:8-alpine
+    restart: unless-stopped
     volumes:
       - redis_data:/data
     networks:
@@ -130,12 +133,14 @@ services:
   django:
     <<: *backend-common
     command: gunicorn -c constructor_telegram_bots/gunicorn.py constructor_telegram_bots.wsgi:application
+    restart: unless-stopped
     depends_on:
       backend:
         condition: service_completed_successfully
 
   nginx:
     image: nginx:alpine
+    restart: unless-stopped
     profiles:
       - nginx
     ports:
@@ -154,6 +159,7 @@ services:
   celery-worker:
     <<: *backend-common
     command: celery -A constructor_telegram_bots worker -l INFO -f ./logs/celery_worker.log
+    restart: unless-stopped
     depends_on:
       backend:
         condition: service_completed_successfully
@@ -161,6 +167,7 @@ services:
   celery-beat:
     <<: *backend-common
     command: celery -A constructor_telegram_bots beat -l INFO -f ./logs/celery_beat.log
+    restart: unless-stopped
     depends_on:
       backend:
         condition: service_completed_successfully
