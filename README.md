@@ -30,7 +30,7 @@ It is recommended to run Docker in [Rootless mode](https://docs.docker.com/engin
 ```bash
 git clone https://github.com/EXG1O/Constructor-Telegram-Bots.git
 cd Constructor-Telegram-Bots
-git checkout tags/v1.4
+git checkout tags/v1.5
 git submodule update --init --recursive
 ```
 
