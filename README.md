@@ -1,12 +1,12 @@
 # Constructor Telegram Bots
 
-[Constructor Telegram Bots](https://constructor.exg1o.org/) is a user-friendly platform that lets you easily create your own multifunctional Telegram bot for free with no coding required.
+[Constructor Telegram Bots](https://constructor.exg1o.org/) is a user-friendly platform that lets you easily create your own multifunctional Telegram bot with no coding required.
 
 ## Motivation
 
 The motivation for this project stemmed from observing that similar platforms are heavily commercialized with multiple subscription tiers. These tiers are quite expensive and don't actually eliminate limitations entirely, they simply make them less restrictive. Meanwhile, the free versions are usually not very useful.
 
-[Constructor Telegram Bots](https://constructor.exg1o.org/) exists as a genuinely free alternative that doesn't compromise on functionality, allowing anyone to build powerful bots without artificial limitations.
+[Constructor Telegram Bots](https://constructor.exg1o.org/) is an accessible alternative that doesn't compromise on functionality, allowing anyone to build powerful bots without artificial limitations.
 
 ## Quick Start
 
