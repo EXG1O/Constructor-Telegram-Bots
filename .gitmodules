@@ -5,3 +5,7 @@
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/EXG1O/Constructor-Telegram-Bots-Frontend.git
+
+[submodule "platform-bot"]
+	path = platform-bot
+	url = https://github.com/EXG1O/CTB-Platform-Bot.git

@@ -1,7 +1,10 @@
 name: constructor-telegram-bots
 
 x-backend-common: &backend-common
-  build: ./backend
+  build:
+    context: ${BACKEND_BUILD_CONTEXT:-./backend}
+    args:
+      - MODE=${MODE:-locale}
   environment:
     - MODE=${MODE:-locale}
     - SECRET_KEY=${SECRET_KEY}
@@ -14,8 +17,12 @@ x-backend-common: &backend-common
     - PG_DATABASE_HOST=pgbouncer
     - PG_DATABASE_PORT=5432
     - FRONTEND_PATH=/app/frontend
+    - PREMIUM_SUBSCRIPTION_PRICE_STARS=${PREMIUM_SUBSCRIPTION_PRICE_STARS:-0}
     - TELEGRAM_LOGIN_CLIENT_ID=${TELEGRAM_LOGIN_CLIENT_ID}
     - TELEGRAM_LOGIN_CLIENT_SECRET=${TELEGRAM_LOGIN_CLIENT_SECRET}
+    - PLATFORM_BOT_SOCKET=/app/sockets/platform-bot.sock
+    - PLATFORM_BOT_SERVICE_TOKEN=${BACKEND_PLATFORM_BOT_API_TOKEN:-backend_platform_bot_token}
+    - PLATFORM_BOT_MICROSERVICE_TOKEN=${PLATFORM_BOT_API_TOKEN:-platform_bot_token}
     - TELEGRAM_BOTS_HUB_NETWORK=constructor-telegram-bots-net
     - TELEGRAM_BOTS_HUB_REDIS_URL=redis://redis:6379/1
     - TELEGRAM_BOTS_HUB_SOCKETS_VOLUME=constructor-telegram-bots_sockets
@@ -108,7 +115,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ${FRONTEND_BUILD_CONTEXT:-./frontend}
       args:
         - TELEGRAM_LOGIN_CLIENT_ID=${TELEGRAM_LOGIN_CLIENT_ID}
     volumes:
@@ -138,6 +145,45 @@ services:
       backend:
         condition: service_completed_successfully
 
+  celery-worker:
+    <<: *backend-common
+    command: celery -A constructor_telegram_bots worker -l INFO -f ./logs/celery_worker.log
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_completed_successfully
+
+  celery-beat:
+    <<: *backend-common
+    command: celery -A constructor_telegram_bots beat -l INFO -f ./logs/celery_beat.log
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_completed_successfully
+
+  platform-bot:
+    build:
+      context: ${PLATFORM_BOT_BUILD_CONTEXT:-./platform-bot}
+      args:
+        - MODE=${MODE:-locale}
+    restart: unless-stopped
+    environment:
+      - MODE=${MODE:-locale}
+      - REDIS_URL=redis://redis:6379
+      - BOT_TOKEN=${PLATFORM_BOT_TELEGRAM_TOKEN}
+      - APP_URL=${APP_URL}/microservices/platform-bot/
+      - APP_TOKEN=${PLATFORM_BOT_API_TOKEN:-platform_bot_token}
+      - SERVICE_SOCKET=/app/sockets/main.sock
+      - SERVICE_TOKEN=${BACKEND_PLATFORM_BOT_API_TOKEN:-backend_platform_bot_token}
+    volumes:
+      - sockets:/app/sockets
+      - logs:/app/logs
+    networks:
+      - constructor-telegram-bots-net
+    depends_on:
+      django:
+        condition: service_started
+
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -155,22 +201,8 @@ services:
     depends_on:
       django:
         condition: service_started
-
-  celery-worker:
-    <<: *backend-common
-    command: celery -A constructor_telegram_bots worker -l INFO -f ./logs/celery_worker.log
-    restart: unless-stopped
-    depends_on:
-      backend:
-        condition: service_completed_successfully
-
-  celery-beat:
-    <<: *backend-common
-    command: celery -A constructor_telegram_bots beat -l INFO -f ./logs/celery_beat.log
-    restart: unless-stopped
-    depends_on:
-      backend:
-        condition: service_completed_successfully
+      platform-bot:
+        condition: service_started
 
 volumes:
   postgres_data:

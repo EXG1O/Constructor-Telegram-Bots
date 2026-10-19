@@ -13,11 +13,12 @@ env:
   SECRET_KEY: test_secret_key
   TELEGRAM_LOGIN_CLIENT_ID: 123456789
   TELEGRAM_LOGIN_CLIENT_SECRET: client_secret
+  PLATFORM_BOT_TELEGRAM_TOKEN: 123456789:test_token
 
 jobs:
   main:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 6
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -25,13 +26,47 @@ jobs:
           submodules: recursive
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Create required directories
         run: mkdir -p logs sockets static media
 
+      - name: Build backend images
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          build-args: MODE=${{ env.MODE }}
+          tags: |
+            constructor-telegram-bots-backend:latest
+            constructor-telegram-bots-django:latest
+            constructor-telegram-bots-celery-worker:latest
+            constructor-telegram-bots-celery-beat:latest
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+          load: true
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          build-args: TELEGRAM_LOGIN_CLIENT_ID=${{ env.TELEGRAM_LOGIN_CLIENT_ID }}
+          tags: constructor-telegram-bots-frontend:latest
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+          load: true
+
+      - name: Build platform-bot image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./platform-bot
+          build-args: MODE=${{ env.MODE }}
+          tags: constructor-telegram-bots-platform-bot:latest
+          cache-from: type=gha,scope=platform-bot
+          cache-to: type=gha,mode=max,scope=platform-bot
+          load: true
+
       - name: Start services
-        run: docker compose --profile nginx up --build -d
+        run: docker compose --profile nginx up -d
 
       - name: Check services health
         run: bash scripts/health-checker.sh

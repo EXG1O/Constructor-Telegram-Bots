@@ -8,10 +8,20 @@ while [ $attempt -le $max_attempts ]; do
   echo "Attempt $attempt/$max_attempts"
 
   postgres_ok=$(docker compose exec -T postgres pg_isready -U postgres 2>/dev/null | grep accepting)
+  pgbouncer_ok=$(docker compose exec -T pgbouncer pg_isready -h localhost -p 5432 2>/dev/null | grep accepting)
   redis_ok=$(docker compose exec -T redis redis-cli ping 2>/dev/null | grep PONG)
+
+  running_services=$(docker compose ps --status running --services 2>/dev/null)
+  django_ok=$(echo "$running_services" | grep -x django)
+  celery_worker_ok=$(echo "$running_services" | grep -x celery-worker)
+  celery_beat_ok=$(echo "$running_services" | grep -x celery-beat)
+  platform_bot_ok=$(echo "$running_services" | grep -x platform-bot)
+
   app_ok=$(curl -s http://localhost:8000 > /dev/null 2>&1 && echo "ok")
 
-  if [ -n "$postgres_ok" ] && [ -n "$redis_ok" ] && [ -n "$app_ok" ]; then
+  if [ -n "$postgres_ok" ] && [ -n "$pgbouncer_ok" ] && [ -n "$redis_ok" ] \
+    && [ -n "$django_ok" ] && [ -n "$celery_worker_ok" ] && [ -n "$celery_beat_ok" ] && [ -n "$platform_bot_ok" ] \
+    && [ -n "$app_ok" ]; then
     echo "Services healthy."
     break
   fi
