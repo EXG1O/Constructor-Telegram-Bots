@@ -173,6 +173,7 @@ services:
       - BOT_TOKEN=${PLATFORM_BOT_TELEGRAM_TOKEN}
       - APP_URL=${APP_URL}/microservices/platform-bot/
       - APP_TOKEN=${PLATFORM_BOT_API_TOKEN:-platform_bot_token}
+      - SERVICE_URL=${APP_URL}
       - SERVICE_SOCKET=/app/sockets/main.sock
       - SERVICE_TOKEN=${BACKEND_PLATFORM_BOT_API_TOKEN:-backend_platform_bot_token}
     volumes:
